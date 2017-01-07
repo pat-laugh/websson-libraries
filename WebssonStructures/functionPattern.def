@@ -1,0 +1,21 @@
+//MIT License
+//Copyright(c) 2016 Patrick Laughrea
+//sets constructors of function body
+//takes two parameters: ClassName and BodyParameter
+
+#define HeadTuple typename head::Tuple
+#define HeadPointer typename head::Pointer
+#define HeadVariable typename head::Variable
+
+ClassName(FunctionHead&& head, BodyParameter&& body) : head(std::move(head)), body(std::move(body)) {}
+ClassName(const FunctionHead& head, const BodyParameter& body) : head(head), body(body) {}
+ClassName(HeadTuple&& head, BodyParameter&& body) : head(std::move(head)), body(std::move(body)) {}
+ClassName(const HeadTuple& head, const BodyParameter& body) : head(head), body(body) {}
+ClassName(const HeadPointer& head, BodyParameter&& body) : head(head), body(std::move(body)) {}
+ClassName(const HeadPointer& head, const BodyParameter& body) : head(head), body(body) {}
+ClassName(const HeadVariable& head, BodyParameter&& body) : head(head), body(std::move(body)) {}
+ClassName(const HeadVariable& head, const BodyParameter& body) : head(head), body(body) {}
+
+#undef HeadVariable
+#undef HeadPointer
+#undef HeadTuple
