@@ -101,14 +101,14 @@ void webss::cleanLine(SmartIterator& it, ConType con, Language lang)
 {
 	if (!skipWhitespace(it) || isLineEnd(*it, con, lang))
 		return;
-	throw runtime_error(webss_ERROR_UNEXPECTED);
+	throw runtime_error(ERROR_UNEXPECTED);
 }
 
 SmartIterator& webss::skipJunkToValidCondition(SmartIterator& it, function<bool()> condition)
 {
 	skipJunkToValid(it);
 	if (!condition())
-		throw runtime_error(webss_ERROR_UNEXPECTED);
+		throw runtime_error(ERROR_UNEXPECTED);
 	return it;
 }
 
@@ -123,5 +123,5 @@ void webss::checkLineEscape(SmartIterator& it)
 		skipWhitespace(++it);
 		return;
 	}
-	throw runtime_error(webss_ERROR_UNEXPECTED);
+	throw runtime_error(ERROR_UNEXPECTED);
 }

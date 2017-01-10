@@ -2,27 +2,8 @@
 //Copyright(c) 2016 Patrick Laughrea
 #include "parser.h"
 
-//ALL DONE
-
 using namespace std;
 using namespace webss;
-
-Webss Parser::parseContainerString(It& it)
-{
-	switch (*it)
-	{
-	case OPEN_DICTIONARY:
-		return parseDictionaryText(++it);
-	case OPEN_LIST:
-		return parseListText(++it);
-	case OPEN_TUPLE:
-		return parseTupleText(++it);
-	case OPEN_FUNCTION:
-		return parseFunctionText(++it);
-	default:
-		throw runtime_error(webss_ERROR_UNEXPECTED);
-	}
-}
 
 //HOW IT WORKS: starting whitespace is skipped, then stuff is read until line end
 //everytime a \s or \e is met, the minimum length of the output is set; this is because
@@ -83,6 +64,26 @@ loopEnd:
 			line.pop_back();
 
 	return line;
+}
+
+string Parser::parseDictionaryText(It& it)
+{
+	if (*skipJunkToValid(it) == CLOSE_DICTIONARY)
+		return "";
+
+	string text;
+	int countStartEnd = 1; //count of dictionary start - dictionary end
+	bool addSpace = false; //== false if last char was \e or \s
+loopStart:
+	text += parseLineStringTextDictionary(it, countStartEnd, addSpace); //function throws errors if it is end or dictionary not closed
+	if (countStartEnd == 0)
+	{
+		++it;
+		return text;
+	}
+	if (addSpace)
+		text += ' ';
+	goto loopStart;
 }
 
 //RQUIREMENT: FOR USE BY TEXT DICTIONARY ONLY

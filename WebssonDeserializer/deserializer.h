@@ -15,11 +15,11 @@ namespace webss
 {
 	using VariablesManager = BasicVariablesManager<Webss>;
 	std::string deserializeAll(const Document& doc);
-	std::string deserializeAll(const Document& webss, const VariablesManager& vars);
+	std::string deserializeAll(const Document& doc, const VariablesManager& vars);
 
 	std::string deserializeWebss(const Webss& webss);
 
-	std::string getKeyValue(const std::string& key, const Webss& value, ConType stringCon);
+	std::string putKeyValue(const std::string& key, const Webss& value, ConType stringCon);
 	std::string getValueOnly(const Webss& value, ConType stringCon);
 
 	std::string getSeparatedValues(std::function<bool()> condition, std::function<std::string()> output);
@@ -30,6 +30,10 @@ namespace webss
 	std::string deserializeTuple(const Tuple& tuple);
 	std::string deserializeDocument(const Document& doc);
 	std::string deserializeBlock(const Block& block);
+
+	std::string putNamespace(const Namespace& nspace);
+
+	std::string putEnum(const Enum& tEnum);
 
 	std::string deserializeFunctionStandard(const FunctionStandard& func);
 	std::string deserializeFunctionBinary(const FunctionBinary& func);

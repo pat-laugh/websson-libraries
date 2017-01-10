@@ -5,17 +5,16 @@
 #include "function.h"
 #include "block.h"
 #include "dictionary.h"
-#include "folder.h"
 #include "namespace.h"
 #include "typeWebss.h"
 #include "paramStandard.h"
+#include "document.h"
 
 namespace webss
 {
 	class Webss;
 
 	using Document = BasicDocument<Webss>;
-	using Folder = BasicFolder<Webss>;
 	using Dictionary = BasicDictionary<Webss>;
 	using List = BasicList<Webss>;
 	using Tuple = BasicTuple<Webss>;
@@ -30,6 +29,7 @@ namespace webss
 	using Block = BasicBlock<Webss>;
 	using Variable = BasicVariable<Webss>;
 	using Namespace = BasicNamespace<Webss>;
+	using Enum = Namespace;
 	using Default = std::shared_ptr<Webss>;
 
 	class Webss
@@ -55,7 +55,6 @@ namespace webss
 
 		Webss(std::string&& s);
 		Webss(Document&& document);
-		Webss(Folder&& folder);
 		Webss(Dictionary&& dictionary);
 		Webss(List&& list);
 		Webss(Tuple&& tuple);
@@ -67,10 +66,10 @@ namespace webss
 		Webss(BlockId&& blockId);
 		Webss(Block&& block);
 		Webss(Namespace&& nspace);
+		Webss(Enum&& tEnum, bool dummy);
 
 		Webss(const std::string& s);
 		Webss(const Document& document);
-		Webss(const Folder& folder);
 		Webss(const Dictionary& dictionary);
 		Webss(const List& list);
 		Webss(const Tuple& tuple);
@@ -82,6 +81,7 @@ namespace webss
 		Webss(const BlockId& blockId);
 		Webss(const Block& block);
 		Webss(const Namespace& nspace);
+		Webss(const Enum& tEnum, bool dummy);
 
 		Webss(FunctionHeadStandard&& head, Webss&& body);
 
@@ -114,7 +114,6 @@ namespace webss
 		double getDouble() const;
 		const std::string& getString() const;
 		const Document& getDocument() const;
-		const Folder& getFolder() const;
 		const Dictionary& getDictionary() const;
 		const List& getList() const;
 		const Tuple& getTuple() const;
@@ -126,6 +125,7 @@ namespace webss
 		const BlockId& getBlockId() const;
 		const Block& getBlock() const;
 		const Namespace& getNamespace() const;
+		const Enum& getEnum() const;
 
 		bool isNone() const;
 		bool isNull() const;
@@ -134,7 +134,6 @@ namespace webss
 		bool isDouble() const;
 		bool isString() const;
 		bool isDocument() const;
-		bool isFolder() const;
 		bool isDictionary() const;
 		bool isList() const;
 		bool isTuple() const;
@@ -144,6 +143,7 @@ namespace webss
 		bool isBlockId() const;
 		bool isBlock() const;
 		bool isNamespace() const;
+		bool isEnum() const;
 
 		bool isValue() const;
 
@@ -157,7 +157,6 @@ namespace webss
 			double tDouble;
 			std::string* tString;
 			Document* document;
-			Folder* folder;
 			Dictionary* dictionary;
 			List* list;
 			Tuple* tuple;

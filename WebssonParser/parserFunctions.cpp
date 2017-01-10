@@ -43,14 +43,14 @@ Webss Parser::parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tupl
 	{
 	case CHAR_COLON:
 		if (++it != CHAR_COLON || *skipJunkToValid(++it) != OPEN_TUPLE)
-			throw runtime_error(webss_ERROR_UNEXPECTED);
+			throw runtime_error(ERROR_UNEXPECTED);
 		return functionParseTupleText(++it, defaultTuple);
 	case OPEN_TUPLE:
 		return defaultTuple.containerText ? functionParseTupleText(++it, defaultTuple) : functionParseTuple(++it, defaultTuple);
 	case OPEN_LIST:
 		return defaultTuple.containerText ? FUNC_LIST(functionParseTupleText) : FUNC_LIST(functionParseTuple);
 	default:
-		throw runtime_error(webss_ERROR_UNEXPECTED);
+		throw runtime_error(ERROR_UNEXPECTED);
 	}
 #undef FUNC_LIST
 }
@@ -140,7 +140,7 @@ void Parser::functionParseTupleNameStart(It& it, Tuple& tuple, const FunctionHea
 		tuple.at(index) = parseBlockValue(it, CON, keyPair.first);
 		break;
 	default:
-		throw runtime_error(webss_ERROR_UNEXPECTED);
+		throw runtime_error(ERROR_UNEXPECTED);
 	}
 	if (defaultTuple.at(index).isFunctionHead()) //check later; avoids duplication of code
 		throw runtime_error(ERROR_FUNCTION_BODY);
@@ -194,13 +194,13 @@ List Parser::functionParseList(It& it, const FunctionHeadStandard::Tuple& defaul
 			break;
 		case CHAR_COLON:
 			if (++it != CHAR_COLON || *skipJunkToValid(++it) != OPEN_TUPLE)
-				throw runtime_error(webss_ERROR_UNEXPECTED);
+				throw runtime_error(ERROR_UNEXPECTED);
 			list.add(functionParseTupleText(++it, defaultTuple));
 			break;
 		default:
 			if (checkSeparator(it))
 				continue;
-			throw runtime_error(webss_ERROR_UNEXPECTED);
+			throw runtime_error(ERROR_UNEXPECTED);
 		}
 		skipJunk(it); //tuples are not required to be separated; I'll have to think about whether or not it should be kept that way
 	} while (it);

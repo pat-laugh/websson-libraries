@@ -2,10 +2,9 @@
 //Copyright(c) 2016 Patrick Laughrea
 #pragma once
 
-#include <map>
+#include <set>
 #include <string>
 #include "variable.h"
-#include "lessPtr.h"
 
 namespace webss
 {
@@ -14,7 +13,10 @@ namespace webss
 	{
 	public:
 		using Variable = BasicVariable<Webss>;
-		using Data = std::map<std::string*, Variable, less_ptr<std::string>>;
+	private:
+		struct less_ptr { bool operator()(const Variable& t1, const Variable& t2) const { return t1.getName() < t2.getName(); } };
+	public:
+		using Data = std::set<Variable, less_ptr>;
 		using size_type = typename Data::size_type;
 
 		BasicNamespace(std::string&& name) : name(std::move(name)) {}
@@ -59,13 +61,11 @@ namespace webss
 
 		void add(Variable&& var)
 		{
-			auto varName = const_cast<std::string*>(&var.getName());
-			data.insert({ varName, std::move(var) });
+			data.insert(std::move(var));
 		}
 		void add(const Variable& var)
 		{
-			auto varName = const_cast<std::string*>(&var.getName());
-			data.insert({ varName, var });
+			data.insert(var);
 		}
 
 		void addSafe(Variable&& var)
@@ -94,12 +94,24 @@ namespace webss
 			addSafe(std::move(var));
 		}
 
-		bool has(const std::string& key) const { return data.find(const_cast<std::string*>(&key)) != data.end(); }
+		bool has(const std::string& key) const { return data.find(Variable(key, Webss())) != data.end(); }
 
-		Variable& operator[](const std::string& key) { return data.find(const_cast<std::string*>(&key))->second; } //find is better, no key created; wonder why they thought a side-effect to a bad access would be good...
-		const Variable& operator[](const std::string& key) const { return data.find(const_cast<std::string*>(&key))->second; } //[] doesn't have const and find is as fast
-		Variable& at(const std::string& key) { return data.at(const_cast<std::string*>(&key)); }
-		const Variable& at(const std::string& key) const { return data.at(const_cast<std::string*>(&key)); }
+		Variable& operator[](const std::string& key) { return *data.find(Variable(key, Webss())); } //find is better, no key created; wonder why they thought a side-effect to a bad access would be good...
+		const Variable& operator[](const std::string& key) const { return *data.find(Variable(key, Webss())); } //[] doesn't have const and find is as fast
+		Variable& at(const std::string& key)
+		{
+			auto it = data.find(Variable(key, Webss()));
+			if (it == data.end())
+				throw std::runtime_error("key is not in namespace");
+			return *it;
+		}
+		const Variable& at(const std::string& key) const
+		{
+			auto it = data.find(Variable(key, Webss()));
+			if (it == data.end())
+				throw std::runtime_error("key is not in namespace");
+			return *it;
+		}
 
 		typename Data::iterator begin() { return data.begin(); }
 		typename Data::iterator end() { return data.end(); }

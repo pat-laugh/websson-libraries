@@ -60,7 +60,7 @@ void Parser::parseBinaryHead(It& it, FunctionHeadBinary& fhead)
 	case KeyType::VARIABLE:
 		throw runtime_error("can't have variable as key");
 	default:
-		throw runtime_error(webss_ERROR_UNEXPECTED);
+		throw runtime_error(ERROR_UNEXPECTED);
 	}
 
 	sizeHead.setDefaultValue(Webss(parseValueEqual(++it, ConType::FUNCTION_HEAD)));
@@ -268,7 +268,7 @@ ParamBinary::SizeHead Parser::parseBinarySizeHead(It& it)
 		new (&bhead) bhead_t(move(headSwitch.fheadBinary));
 	}
 	else
-		throw runtime_error(webss_ERROR_UNEXPECTED);
+		throw runtime_error(ERROR_UNEXPECTED);
 
 	skipJunkToValidCondition(it, [&]() { return *it == CLOSE_TUPLE; });
 	bhead.flag = flag;
@@ -302,7 +302,7 @@ ParamBinary::SizeList Parser::parseBinarySizeList(It& it)
 	else if (isNumberStart(*it))
 		new (&blist) blist_t(checkBinarySize(parseNumber(it).getInt()));
 	else
-		throw runtime_error(webss_ERROR_UNEXPECTED);
+		throw runtime_error(ERROR_UNEXPECTED);
 
 	skipJunkToValidCondition(it, [&]() { return *it == CLOSE_LIST; });
 	++it;

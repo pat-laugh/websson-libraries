@@ -6,6 +6,8 @@
 using namespace std;
 using namespace webss;
 
+const char* ERROR_VOID = "empty value";
+
 //adds the char corresponding to an escape; for serialization
 //REQUIREMENT: the char must be an escapable char
 void addEscapedChar(string& str, char c)
@@ -31,12 +33,7 @@ void addEscapedChar(string& str, char c)
 
 bool Parser::checkSeparator(It& it)
 {
-	if (*it == separator)
-	{
-		skipJunk(++it);
-		return true;
-	}
-	return false;
+	return checkSeparatorVoid(it, []() { throw runtime_error(ERROR_VOID); });
 }
 
 bool Parser::checkSeparatorVoid(It& it, function<void()> funcIsVoid)
@@ -54,8 +51,7 @@ bool Parser::checkSeparatorVoid(It& it, function<void()> funcIsVoid)
 
 void Parser::checkContainerEnd(It& it)
 {
-	lineGreed = false;
-	++it;
+	checkContainerEndVoid(it, []() { throw runtime_error(ERROR_VOID); });
 }
 
 void Parser::checkContainerEndVoid(It& it, function<void()> funcIsVoid)
@@ -68,16 +64,7 @@ void Parser::checkContainerEndVoid(It& it, function<void()> funcIsVoid)
 
 bool Parser::checkEmptyContainer(It& it, ConType con)
 {
-//	while (*skipJunkToValid(it) == separator)
-//		++it;
-	if (*skipJunkToValid(it) == separator)
-		throw runtime_error("empty value");
-	if (con.isEnd(*it))
-	{
-		++it;
-		return true;
-	}
-	return false;
+	return checkEmptyContainerVoid(it, con);
 }
 
 bool Parser::checkEmptyContainerVoid(It& it, ConType con)
@@ -93,11 +80,7 @@ bool Parser::checkEmptyContainerVoid(It& it, ConType con)
 
 void Parser::checkToNextElement(It& it, ConType con)
 {
-	if (!lineGreed)
-		cleanLine(it, con, language);
-	else
-		lineGreed = false;
-	skipJunk(it);
+	checkToNextElementVoid(it, con);
 }
 
 void Parser::checkToNextElementVoid(It& it, ConType con)
@@ -112,15 +95,7 @@ void Parser::checkToNextElementVoid(It& it, ConType con)
 
 bool Parser::checkOtherValues(It& it, function<void()> funcIsNameStart, function<void()> funcIsNumberStart)
 {
-	if (checkSeparator(it))
-		return true;
-	else if (isNameStart(*it))
-		funcIsNameStart();
-	else if (isNumberStart(*it))
-		funcIsNumberStart();
-	else
-		throw runtime_error(webss_ERROR_UNEXPECTED);
-	return false;
+	return checkOtherValuesVoid(it, []() { throw runtime_error(ERROR_VOID); }, move(funcIsNameStart), move(funcIsNumberStart));
 }
 
 bool Parser::checkOtherValuesVoid(It& it, function<void()> funcIsVoid, function<void()> funcIsNameStart, function<void()> funcIsNumberStart)
@@ -132,7 +107,7 @@ bool Parser::checkOtherValuesVoid(It& it, function<void()> funcIsVoid, function<
 	else if (isNumberStart(*it))
 		funcIsNumberStart();
 	else
-		throw runtime_error(webss_ERROR_UNEXPECTED);
+		throw runtime_error(ERROR_UNEXPECTED);
 	return false;
 }
 

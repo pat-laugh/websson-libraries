@@ -31,8 +31,24 @@ namespace webss
 
 #ifdef GET_LINE
 		int getLine() { return line; }
+		int getCharCol() { return col; }
 	protected:
 		int line = 1;
+		int col = 0;
+
+		void addLine()
+		{
+			++line;
+			col = 0;
+		}
+
+		void checkChar(char c)
+		{
+			if (c == '\n')
+				addLine();
+			else
+				++col;
+		}
 #endif
 	};
 #undef This
@@ -55,8 +71,8 @@ namespace webss
 			c1 = c2;
 			s1 = s2;
 #ifdef GET_LINE
-			if (c1 == '\n' && good())
-				++line;
+			if (good())
+				checkChar(c1);
 #endif
 			c2 = in.get();
 			s2 = in.rdstate();
@@ -68,10 +84,10 @@ namespace webss
 			c1 = in.get();
 			s1 = in.rdstate();
 #ifdef GET_LINE
-			if (c2 == '\n' && peekGood())
-				++line;
-			if (c1 == '\n' && good())
-				++line;
+			if (peekGood())
+				checkChar(c2);
+			if (good())
+				checkChar(c1);
 #endif
 			c2 = in.get();
 			s2 = in.rdstate();
@@ -96,8 +112,8 @@ namespace webss
 		This(const std::string& in) : in(in), it(in.begin())
 		{
 #ifdef GET_LINE
-			if (good() && *it == '\n')
-				++line;
+			if (good())
+				checkChar(*it);
 #endif
 		}
 		~This() {}
@@ -106,8 +122,8 @@ namespace webss
 		{
 			++it;
 #ifdef GET_LINE
-			if (good() && *it == '\n')
-				++line;
+			if (good())
+				checkChar(*it);
 #endif
 			return *this;
 		} //prefix

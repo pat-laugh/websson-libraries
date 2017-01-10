@@ -1,6 +1,7 @@
 //MIT License
 //Copyright(c) 2016 Patrick Laughrea
 #include "parser.h"
+#include "patternsContainers.h"
 
 using namespace std;
 using namespace webss;
@@ -50,7 +51,7 @@ FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 	case KeyType::SCOPE:
 		return checkFunctionHeadType(it, parseScopedValue(it, keyPair.first));
 	default:
-		throw runtime_error(webss_ERROR_UNEXPECTED);
+		throw runtime_error(ERROR_UNEXPECTED);
 	}
 }
 
@@ -84,49 +85,27 @@ FunctionHeadSwitch Parser::checkFunctionHeadType(It& it, const Webss& webss)
 	}
 }
 
+void Parser::checkFheadVoid(It& it)
+{
+	//the first param of fheads is checked before calling the appropriate function, so the function
+	//receives as if the first param was empty
+	if (!it)
+		throw runtime_error(ERROR_EXPECTED);
+	isVoid = false;
+}
+
 FunctionHeadStandard Parser::parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead)
 {
-	do
-	{
-		switch (*it)
-		{
-		case OPEN_FUNCTION:
-			parseStandardParameterFunctionHead(it, fhead);
-			break;
-		case CHAR_COLON:
-			parseStandardParameterFunctionHeadText(it, fhead);
-			break;
-		case CLOSE_FUNCTION:
-			checkContainerEnd(it);
-			return move(fhead);
-		default:
-			if (checkOtherValues(it, [&]() { parseFunctionHeadNameStart(it, fhead); }, []() { THROW_ERROR; }))
-				continue;
-		}
-		checkToNextElement(it, CON);
-	} while (it);
-	throw runtime_error(ERROR_EXPECTED);
+#define ExtraCasesFheadStandard \
+	ExtraCase(OPEN_FUNCTION, parseStandardParameterFunctionHead(it, fhead)) \
+	ExtraCase(CHAR_COLON, parseStandardParameterFunctionHeadText(it, fhead))
+
+	PatternParse(checkFheadVoid(it), move(fhead), CON, CLOSE_FUNCTION, ExtraCasesFheadStandard, CheckOtherValues(parseFunctionHeadNameStart(it, fhead), THROW_ERROR))
 }
 
 FunctionHeadBinary Parser::parseFunctionHeadBinary(It& it, FunctionHeadBinary&& fhead)
 {
-	do
-	{
-		switch (*it)
-		{
-		case OPEN_TUPLE:
-			parseBinaryHead(++it, fhead);
-			break;
-		case CLOSE_FUNCTION:
-			checkContainerEnd(it);
-			return move(fhead);
-		default:
-			if (checkOtherValues(it, [&]() { parseFunctionHeadBinaryNameStart(it, fhead); }, []() { THROW_ERROR; }))
-				continue;
-		}
-		checkToNextElement(it, CON);
-	} while (it);
-	throw runtime_error(ERROR_EXPECTED);
+	PatternParse(checkFheadVoid(it), move(fhead), CON, CLOSE_FUNCTION, ExtraCase(OPEN_TUPLE, parseBinaryHead(++it, fhead)), CheckOtherValues(parseFunctionHeadBinaryNameStart(it, fhead), THROW_ERROR))
 }
 
 void Parser::parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead)
@@ -155,7 +134,7 @@ void Parser::parseStandardParameterFunctionHeadText(It& it, FunctionHeadStandard
 		throw runtime_error(webss_ERROR_EXPECTED_CHAR(CHAR_COLON));
 	skipJunkToValidCondition(++it, [&]() { return *it == OPEN_FUNCTION; });
 
-	auto head = parseFunctionHeadText(it);
+	auto head = parseFunctionHeadText(++it);
 	skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
 	parseFunctionHeadTextNameStart(it, fhead);
 	auto& lastParam = fhead.back();
@@ -182,7 +161,7 @@ void Parser::parseFunctionHeadNameStart(It& it, FunctionHeadStandard& fhead)
 		fhead.attach(checkIsFunctionHeadStandard(parseScopedValue(it, keyPair.first)));
 		return;
 	default:
-		throw runtime_error(webss_ERROR_UNEXPECTED);
+		throw runtime_error(ERROR_UNEXPECTED);
 	}
 }
 
@@ -221,7 +200,7 @@ void Parser::parseFunctionHeadBinaryNameStart(It& it, FunctionHeadBinary& fhead)
 		fhead.attach(checkIsFunctionHeadBinary(parseScopedValue(it, keyPair.first)));
 		return;
 	default:
-		throw runtime_error(webss_ERROR_UNEXPECTED);
+		throw runtime_error(ERROR_UNEXPECTED);
 	}
 }
 
@@ -229,24 +208,7 @@ void Parser::parseFunctionHeadBinaryNameStart(It& it, FunctionHeadBinary& fhead)
 
 FunctionHeadStandard Parser::parseFunctionHeadText(It& it)
 {
-	if (checkEmptyContainer(it, CON))
-		throw runtime_error(ERROR_EMPTY_FUNCTION_HEAD);
-
-	FunctionHeadStandard fhead(true);
-	do
-	{
-		switch (*it)
-		{
-		case CLOSE_FUNCTION:
-			checkContainerEnd(it);
-			return fhead;
-		default:
-			if (checkOtherValues(it, [&]() { parseFunctionHeadTextNameStart(it, fhead); }, []() { THROW_ERROR; }))
-				continue;
-		}
-		checkToNextElement(it, CON);
-	} while (it);
-	throw runtime_error(ERROR_EXPECTED);
+	PatternParse(FunctionHeadStandard cont(true); CheckEmpty(CON, throw runtime_error(ERROR_EMPTY_FUNCTION_HEAD)), cont, CON, CLOSE_FUNCTION, , CheckOtherValues(parseFunctionHeadTextNameStart(it, cont), THROW_ERROR))
 }
 
 #undef THROW_ERROR

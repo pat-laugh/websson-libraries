@@ -75,7 +75,7 @@ Webss Parser::parseValue(It& it, ConType con)
 	case CHAR_CSTRING:
 		return parseCString(++it);
 	default:
-		throw domain_error(webss_ERROR_UNEXPECTED);
+		throw domain_error(ERROR_UNEXPECTED);
 	}
 }
 
@@ -100,7 +100,7 @@ Webss Parser::parseValueColon(It& it, ConType con)
 	else if (*it != CHAR_COLON)
 		return parseLineString(it, con);
 	else
-		return parseContainerString(skipJunkToValid(++it));
+		return parseContainerText(skipJunkToValid(++it));
 }
 
 //DONE
@@ -115,7 +115,7 @@ Webss Parser::parseValueEqual(It& it, ConType con)
 			return parseNumber(it);
 		else if (isNameStart(*it))
 			return parseValueEqualNameStart(it, con);
-		throw runtime_error(webss_ERROR_UNEXPECTED);
+		throw runtime_error(ERROR_UNEXPECTED);
 	}
 }
 

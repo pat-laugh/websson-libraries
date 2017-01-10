@@ -119,7 +119,7 @@ int main()
 	{
 		string filename("testWebsson");
 		Parser parser;
-		Folder data;
+		Document data;
 		string path("C:\\Users\\Pat-Laugh\\Desktop\\");
 		string filenameIn = filename + ".txt";
 		string filenameOut = filename + "Out.txt";
@@ -139,7 +139,7 @@ int main()
 			if (fileOut.fail()) { cerr << "Error: failed to open file \"" << fileOutName << "\"" << endl; cin >> inChar; exit(EXIT_FAILURE); }
 			try
 			{
-				fileOut << deserializeAll(data.getMainDocument(), parser.vars);
+				fileOut << deserializeAll(data, parser.vars);
 				fileOut.flush();
 				cout << "No errors while deserializing" << endl;
 			}

@@ -43,14 +43,14 @@ Variable Parser::parseBlock(It& it)
 		break;
 	case OPEN_DICTIONARY: //namespace
 	{
-		auto nspace = parseNamespaceContainer(++it, name);
+		auto nspace = parseNamespace(++it, name);
 		new (&var) Variable(move(name), move(nspace));
 		break;
 	}
 	case OPEN_LIST: //enum
 	{
 		auto nspace = parseEnum(++it, name);
-		new (&var) Variable(move(name), move(nspace));
+		new (&var) Variable(move(name), Webss(move(nspace), true));
 		break;
 	}
 	case OPEN_FUNCTION: //fhead
@@ -78,7 +78,7 @@ Variable Parser::parseBlock(It& it)
 		break;
 	}
 	default:
-		throw runtime_error(webss_ERROR_UNEXPECTED);
+		throw runtime_error(ERROR_UNEXPECTED);
 	}
 	return var;
 }

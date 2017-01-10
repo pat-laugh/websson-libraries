@@ -83,7 +83,6 @@ Webss::Webss(type&& name) : t(WebssType::con), name(new type(move(name))) {}
 
 PATTERN_CONSTRUCT_MOVE(string, tString, PRIMITIVE_STRING)
 PATTERN_CONSTRUCT_MOVE(Document, document, DOCUMENT)
-PATTERN_CONSTRUCT_MOVE(Folder, folder, FOLDER)
 PATTERN_CONSTRUCT_MOVE(Dictionary, dictionary, DICTIONARY)
 PATTERN_CONSTRUCT_MOVE(List, list, LIST)
 PATTERN_CONSTRUCT_MOVE(Tuple, tuple, TUPLE)
@@ -95,13 +94,13 @@ PATTERN_CONSTRUCT_MOVE(FunctionBinary, funcBinary, FUNCTION_BINARY)
 PATTERN_CONSTRUCT_MOVE(BlockId, blockId, BLOCK_ID)
 PATTERN_CONSTRUCT_MOVE(Block, block, BLOCK_VALUE)
 PATTERN_CONSTRUCT_MOVE(Namespace, nspace, NAMESPACE)
+Webss::Webss(Enum&& name, bool) : t(WebssType::ENUM), nspace(new Namespace(move(name))) {}
 
 #define PATTERN_CONSTRUCT_CONST(type, name, con) \
 Webss::Webss(const type& name) : t(WebssType::con), name(new type(name)) {}
 
 PATTERN_CONSTRUCT_CONST(string, tString, PRIMITIVE_STRING)
 PATTERN_CONSTRUCT_CONST(Document, document, DOCUMENT)
-PATTERN_CONSTRUCT_CONST(Folder, folder, FOLDER)
 PATTERN_CONSTRUCT_CONST(Dictionary, dictionary, DICTIONARY)
 PATTERN_CONSTRUCT_CONST(List, list, LIST)
 PATTERN_CONSTRUCT_CONST(Tuple, tuple, TUPLE)
@@ -113,6 +112,7 @@ PATTERN_CONSTRUCT_CONST(FunctionBinary, funcBinary, FUNCTION_BINARY)
 PATTERN_CONSTRUCT_CONST(BlockId, blockId, BLOCK_ID)
 PATTERN_CONSTRUCT_CONST(Block, block, BLOCK_VALUE)
 PATTERN_CONSTRUCT_CONST(Namespace, nspace, NAMESPACE)
+Webss::Webss(const Enum& name, bool) : t(WebssType::ENUM), nspace(new Namespace(name)) {}
 
 Webss::Webss(FunctionHeadStandard&& head, Webss&& body) : t(WebssType::FUNCTION_STANDARD)
 {
@@ -142,9 +142,6 @@ void Webss::destroyUnion()
 		break;
 	case WebssType::DOCUMENT:
 		delete document;
-		break;
-	case WebssType::FOLDER:
-		delete folder;
 		break;
 	case WebssType::DICTIONARY:
 		delete dictionary;
@@ -176,7 +173,7 @@ void Webss::destroyUnion()
 	case WebssType::BLOCK_VALUE:
 		delete block;
 		break;
-	case WebssType::NAMESPACE:
+	case WebssType::NAMESPACE: case WebssType::ENUM:
 		delete nspace;
 		break;
 	case WebssType::VARIABLE:
@@ -232,9 +229,6 @@ void Webss::copyUnion(Webss&& o)
 	case WebssType::DOCUMENT:
 		document= o.document;
 		break;
-	case WebssType::FOLDER:
-		folder = o.folder;
-		break;
 	case WebssType::DICTIONARY:
 		dictionary = o.dictionary;
 		break;
@@ -265,7 +259,7 @@ void Webss::copyUnion(Webss&& o)
 	case WebssType::BLOCK_VALUE:
 		block = o.block;
 		break;
-	case WebssType::NAMESPACE:
+	case WebssType::NAMESPACE: case WebssType::ENUM:
 		nspace = o.nspace;
 		break;
 	case WebssType::VARIABLE:
@@ -300,9 +294,6 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::DOCUMENT:
 		document = new Document(*o.document);
 		break;
-	case WebssType::FOLDER:
-		folder = new Folder(*o.folder);
-		break;
 	case WebssType::DICTIONARY:
 		dictionary = new Dictionary(*o.dictionary);
 		break;
@@ -333,7 +324,7 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::BLOCK_VALUE:
 		block = new Block(*o.block);
 		break;
-	case WebssType::NAMESPACE:
+	case WebssType::NAMESPACE: case WebssType::ENUM:
 		nspace = new Namespace(*o.nspace);
 		break;
 	case WebssType::VARIABLE:
@@ -569,7 +560,6 @@ double Webss::getDouble() const { PATTERN_GET_CONST(tDouble, getDouble(), WebssT
 const std::string& Webss::getString() const { PATTERN_GET_CONST(*tString, getString(), WebssType::PRIMITIVE_STRING); }
 const Dictionary& Webss::getDictionary() const { PATTERN_GET_CONST(*dictionary, getDictionary(), WebssType::DICTIONARY); }
 const Document& Webss::getDocument() const { PATTERN_GET_CONST(*document, getDocument(), WebssType::DOCUMENT); }
-const Folder& Webss::getFolder() const { PATTERN_GET_CONST(*folder, getFolder(), WebssType::FOLDER); }
 const FunctionHeadStandard& Webss::getFunctionHeadStandard() const { PATTERN_GET_CONST(*fheadStandard, getFunctionHeadStandard(), WebssType::FUNCTION_HEAD_STANDARD); }
 const FunctionHeadBinary& Webss::getFunctionHeadBinary() const { PATTERN_GET_CONST(*fheadBinary, getFunctionHeadBinary(), WebssType::FUNCTION_HEAD_BINARY); }
 const FunctionStandard& Webss::getFunctionStandard() const { PATTERN_GET_CONST(*funcStandard, getFunctionStandard(), WebssType::FUNCTION_STANDARD); }
@@ -578,6 +568,7 @@ const FunctionBinary& Webss::getFunctionBinary() const { PATTERN_GET_CONST(*func
 const BlockId& Webss::getBlockId() const { PATTERN_GET_CONST(*blockId, getBlockId(), WebssType::BLOCK_ID); }
 const Block& Webss::getBlock() const { PATTERN_GET_CONST(*block, getBlock(), WebssType::BLOCK_VALUE); }
 const Namespace& Webss::getNamespace() const { PATTERN_GET_CONST(*nspace, getNamespace(), WebssType::NAMESPACE); }
+const Enum& Webss::getEnum() const { PATTERN_GET_CONST(*nspace, getEnum(), WebssType::ENUM); }
 
 type_int Webss::getInt() const
 {
@@ -651,12 +642,12 @@ bool Webss::isDouble() const { PATTERN_IS(WebssType::PRIMITIVE_DOUBLE, isDouble(
 bool Webss::isString() const { PATTERN_IS(WebssType::PRIMITIVE_STRING, isString()) }
 bool Webss::isDictionary() const { PATTERN_IS(WebssType::DICTIONARY, isDictionary()) }
 bool Webss::isDocument() const { PATTERN_IS(WebssType::DOCUMENT, isDocument()) }
-bool Webss::isFolder() const { PATTERN_IS(WebssType::FOLDER, isFolder()) }
 bool Webss::isFunctionHeadStandard() const { PATTERN_IS(WebssType::FUNCTION_HEAD_STANDARD, isFunctionHeadStandard()) }
 bool Webss::isFunctionHeadBinary() const { PATTERN_IS(WebssType::FUNCTION_HEAD_BINARY, isFunctionHeadBinary()) }
 bool Webss::isBlockId() const { PATTERN_IS(WebssType::BLOCK_ID, isBlockId()) }
 bool Webss::isBlock() const { PATTERN_IS(WebssType::BLOCK_VALUE, isBlock()) }
 bool Webss::isNamespace() const { PATTERN_IS(WebssType::NAMESPACE, isNamespace()) }
+bool Webss::isEnum() const { PATTERN_IS(WebssType::ENUM, isEnum()) }
 
 bool Webss::isList() const
 {

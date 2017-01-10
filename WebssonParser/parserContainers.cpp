@@ -1,239 +1,215 @@
 //MIT License
 //Copyright(c) 2016 Patrick Laughrea
 #include "parser.h"
+#include "patternsContainers.h"
 
 using namespace std;
 using namespace webss;
 
-Tuple Parser::parseTuple(It& it)
+class ParserContainers : public Parser
 {
-	return parseContainer<CLOSE_TUPLE, ConType::TUPLE>(it);
-}
+private:
+#define ExtraCasesEnum \
+	ExtraCase(KeyType::KEYNAME, cont.addSafe(move(keyPair.first), cont.size())) \
+	ExtraCase(KeyType::KEYWORD: case KeyType::VARIABLE: case KeyType::SCOPE: case KeyType::BLOCK_VALUE, throw runtime_error(ERROR_ANONYMOUS_KEY))
 
-void Parser::parseContainerNameStart(It& it, Tuple& tuple, ConType con)
-{
-	auto keyPair = parseKey(it);
-	switch (keyPair.second)
+	PatternParseNameStart(Dictionary, ConType::DICTIONARY, cont.addSafe(move(keyPair.first), parseValue(it, ConType::DICTIONARY)),
+		ExtraCase(KeyType::KEYWORD: case KeyType::KEYNAME: case KeyType::VARIABLE: case KeyType::SCOPE: case KeyType::BLOCK_VALUE, throw runtime_error(ERROR_ANONYMOUS_KEY)))
+	PatternParseNameStart(List, ConType::LIST, throw runtime_error(ERROR_ADD_KEY_LIST), ExtraCasesAnonymous(ConType::LIST))
+	PatternParseNameStart(Tuple, ConType::TUPLE, cont.addSafe(move(keyPair.first), parseValue(it, ConType::TUPLE)), ExtraCasesAnonymous(ConType::TUPLE))
+	PatternParseNameStart(Document, ConType::DOCUMENT, cont.addSafe(move(keyPair.first), parseValue(it, ConType::DOCUMENT)), ExtraCasesAnonymous(ConType::DOCUMENT))
+	PatternParseNameStart(Enum, ConType::LIST, throw runtime_error(ERROR_ADD_KEY_ENUM), ExtraCasesEnum)
+public:
+	Dictionary parseDictionary(It& it)
 	{
-	case webss_KEY_TYPE_ANY_CONTAINER_CHAR_VALUE:
-		tuple.addSafe(move(keyPair.first), parseValue(it, con));
-		break;
-	case KeyType::KEYWORD:
-		tuple.add(Keyword(keyPair.first));
-		break;
-	case KeyType::KEYNAME:
-		throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(keyPair.first));
-	case KeyType::VARIABLE:
-		tuple.add(checkIsValue(vars[keyPair.first]));
-		break;
-	case KeyType::SCOPE:
-		tuple.add(checkIsValue(parseScopedValue(it, keyPair.first)));
-		break;
-	case KeyType::BLOCK_VALUE:
-		tuple.add(parseBlockValue(it, con, keyPair.first));
-		break;
-	default:
-		throw runtime_error(webss_ERROR_UNEXPECTED);
+		PatternParse(Dictionary cont; CheckEmpty(ConType::DICTIONARY, return cont), cont, ConType::DICTIONARY, CLOSE_DICTIONARY, ExtraCase(CHAR_CSTRING, addJsonKeyvalue(++it, cont)), CheckOtherValues(parseNameStartDictionary(it, cont), throw runtime_error(ERROR_ANONYMOUS_KEY)))
 	}
-}
-
-#define CON ConType::LIST
-List Parser::parseList(It& it)
-{
-	if (checkEmptyContainer(it, CON))
-		return List();
-
-	List list;
-	do
+	List parseList(It& it)
 	{
-		switch (*it)
-		{
-		case CLOSE_LIST:
-			checkContainerEnd(it);
-			return list;
-		case webss_CHAR_ANY_CONTAINER_CHAR_VALUE:
-			list.add(parseValue(it, CON));
-			break;
-		default:
-			if (checkOtherValues(it, [&]() { parseListNameStart(it, list); }, [&]() { list.add(parseNumber(it)); }))
-				continue;
-		}
-		checkToNextElement(it, CON);
-	} while (it);
-	throw runtime_error(ERROR_CONTAINER_NOT_CLOSED);
-}
-
-void Parser::parseListNameStart(It& it, List& list)
-{
-	auto keyPair = parseKey(it);
-	switch (keyPair.second)
-	{
-	case webss_KEY_TYPE_ANY_CONTAINER_CHAR_VALUE:
-		throw runtime_error(ERROR_ADD_KEY_LIST);
-	case KeyType::KEYWORD:
-		list.add(Keyword(keyPair.first));
-		break;
-	case KeyType::KEYNAME:
-		throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(keyPair.first));
-	case KeyType::VARIABLE:
-		list.add(checkIsValue(vars[keyPair.first]));
-		break;
-	case KeyType::SCOPE:
-		list.add(checkIsValue(parseScopedValue(it, keyPair.first)));
-		break;
-	case KeyType::BLOCK_VALUE:
-		list.add(parseBlockValue(it, CON, keyPair.first));
-		break;
-	default:
-		throw runtime_error(webss_ERROR_UNEXPECTED);
+		PatternParse(List cont; CheckEmpty(ConType::LIST, return cont), cont, ConType::LIST, CLOSE_LIST, ExtraCase(webss_CHAR_ANY_CONTAINER_CHAR_VALUE, cont.add(parseValue(it, ConType::LIST))), CheckOtherValues(parseNameStartList(it, cont), cont.add(parseNumber(it))))
 	}
-}
-#undef CON
-
-Dictionary Parser::parseDictionary(It& it)
-{
-#define THROW_ERROR throw runtime_error(ERROR_ANONYMOUS_KEY)
-#define CON ConType::DICTIONARY
-	if (checkEmptyContainer(it, CON))
-		return Dictionary();
-
-	Dictionary dict;
-	do
+	Tuple parseTuple(It& it)
 	{
-		switch (*it)
-		{
-		case CLOSE_DICTIONARY:
-			checkContainerEnd(it);
-			return dict;
-		case CHAR_CSTRING:
-			addJsonKeyvalue(++it, dict);
-			break;
-		default:
-			if (checkSeparator(it))
-				continue;
-			if (!isNameStart(*it))
-				THROW_ERROR;
+		PatternParse(Tuple cont; CheckEmpty(ConType::TUPLE, return cont), cont, ConType::TUPLE, CLOSE_TUPLE, ExtraCase(webss_CHAR_ANY_CONTAINER_CHAR_VALUE, cont.add(parseValue(it, ConType::TUPLE))), CheckOtherValues(parseNameStartTuple(it, cont), cont.add(parseNumber(it))))
+	}
 
-			auto keyPair = parseKey(it);
-			switch (keyPair.second)
+	List parseListText(It& it)
+	{
+		PatternParse(List cont(true); CheckEmpty(ConType::LIST, return cont), cont, ConType::LIST, CLOSE_LIST, , cont.add(parseLineString(it, ConType::LIST));)
+	}
+	Tuple parseTupleText(It& it)
+	{
+		PatternParse(Tuple cont(true); CheckEmpty(ConType::TUPLE, return cont), cont, ConType::TUPLE, CLOSE_TUPLE, , cont.add(parseLineString(it, ConType::TUPLE));)
+	}
+
+#define CaseNamespace(Char, Func) ExtraCase(Char, checkMultiContainer(++it, [&]() { cont.add(Func); }))
+#define ExtraCasesNamespace \
+	CaseNamespace(CHAR_VARIABLE, parseVariable(it)) \
+	CaseNamespace(CHAR_BLOCK, parseBlock(it))
+
+	Namespace parseNamespace(It& it, const string& name)
+	{
+		PatternParse(Namespace cont(name); CheckEmpty(ConType::DICTIONARY, return cont), cont, ConType::DICTIONARY, CLOSE_DICTIONARY, ExtraCasesNamespace, throw runtime_error(ERROR_KEY_NAMESPACE);)
+	}
+	Enum parseEnum(It& it, const string& name)
+	{
+		PatternParse(Enum cont(name); CheckEmpty(ConType::LIST, return cont), cont, ConType::LIST, CLOSE_LIST, , CheckOtherValues(parseNameStartEnum(it, cont), throw runtime_error(ERROR_ANONYMOUS_KEY)))
+	}
+
+#define CON ConType::DOCUMENT
+	Document parseDocument(It& it)
+	{
+#ifdef GET_LINE
+		try
+		{
+#endif
+			Document doc;
+
+		documentHead:
+			if (!skipJunk(it))
+				return doc;
+
+			switch (*it)
 			{
-			case webss_KEY_TYPE_ANY_CONTAINER_CHAR_VALUE:
-				dict.addSafe(move(keyPair.first), parseValue(it, CON));
+			case CHAR_VARIABLE:
+				checkMultiContainer(++it, [&]() { vars.add(parseVariable(it)); });
 				break;
-			case KeyType::KEYWORD: case KeyType::KEYNAME: case KeyType::VARIABLE: case KeyType::SCOPE: case KeyType::BLOCK_VALUE:
-				THROW_ERROR;
+			case CHAR_BLOCK:
+				checkMultiContainer(++it, [&]() { vars.add(parseBlock(it)); });
+				break;
+			case CHAR_OPTION:
+#ifdef ALLOW_OPTION
+				checkMultiContainer(++it, [&]() { parseOption(it); });
+				break;
+#else
+				throw runtime_error("this parser does not have options");
+#endif
+			case CHAR_USING_NAMESPACE:
+				checkMultiContainer(++it, [&]() { parseUsingNamespace(it); });
+				break;
+			case CHAR_IMPORT:
+#ifdef ALLOW_OPTION
+				checkMultiContainer(++it, [&]() { parseImport(it); });
+				break;
+#else
+				throw runtime_error("this parser cannot import documents");
+#endif
 			default:
-				throw runtime_error(webss_ERROR_UNEXPECTED);
+				goto documentBody;
 			}
-		}
-		checkToNextElement(it, CON);
-	} while (it);
-	throw runtime_error(ERROR_CONTAINER_NOT_CLOSED);
-#undef CON
-#undef THROW_ERROR
-}
+			checkToNextElement(it, CON);
+			goto documentHead;
 
-Namespace Parser::parseNamespaceContainer(It& it, const string& name)
-{
-#define THROW_ERROR throw runtime_error(ERROR_ANONYMOUS_KEY)
-#define CON ConType::DICTIONARY
-	Namespace nspace(name);
-	if (checkEmptyContainer(it, CON))
-		return nspace;
-
-	do
-	{
-		switch (*it)
-		{
-		case CLOSE_DICTIONARY:
-			checkContainerEnd(it);
-			return nspace;
-		case CHAR_VARIABLE:
-			checkMultiContainer(++it, [&]() { nspace.add(parseVariable(it)); });
-			break;
-		case CHAR_BLOCK:
-			checkMultiContainer(++it, [&]() { nspace.add(parseBlock(it)); });
-			break;
-		default:
-			if (checkSeparator(it))
-				continue;
-			throw runtime_error(webss_ERROR_UNEXPECTED);
-		}
-		checkToNextElement(it, CON);
-	} while (it);
-	throw runtime_error(ERROR_CONTAINER_NOT_CLOSED);
-#undef CON
-#undef THROW_ERROR
-}
-
-Namespace Parser::parseEnum(It& it, const string& name)
-{
-#define THROW_ERROR throw runtime_error(ERROR_ANONYMOUS_KEY)
-#define CON ConType::LIST
-	Namespace nspace(move(name));
-	if (checkEmptyContainer(it, CON))
-		return nspace;
-
-	do
-	{
-		switch (*it)
-		{
-		case CLOSE_LIST:
-			checkContainerEnd(it);
-			return nspace;
-		default:
-			if (checkSeparator(it))
-				continue;
-			if (!isNameStart(*it))
-				THROW_ERROR;
-
-			auto keyPair = parseKey(it);
-			switch (keyPair.second)
+		documentBody:
+			do
 			{
-			case KeyType::KEYNAME:
-				nspace.addSafe(move(keyPair.first), nspace.size());
-				break;
-			case KeyType::KEYWORD: case KeyType::VARIABLE: case KeyType::SCOPE: case KeyType::BLOCK_VALUE:
-				THROW_ERROR;
-			default:
-				throw runtime_error(webss_ERROR_UNEXPECTED);
-			}
+				switch (*it)
+				{
+				case webss_CHAR_ANY_CONTAINER_CHAR_VALUE:
+					doc.add(parseValue(it, CON));
+					break;
+				default:
+					if (checkOtherValues(it, [&]() { parseNameStartDocument(it, doc); }, [&]() { doc.add(parseNumber(it)); }))
+						continue;
+				}
+				checkToNextElement(it, CON);
+			} while (it);
+			return doc;
+#ifdef GET_LINE
 		}
-		checkToNextElement(it, CON);
-	} while (it);
-	throw runtime_error(ERROR_CONTAINER_NOT_CLOSED);
+		catch (exception e)
+		{
+			string consoleClarification;
+			if (it)
+			{
+				consoleClarification = consoleClarification + " \'" + *it + "\' ";
+				switch (*it)
+				{
+				case '<': case '>':
+					consoleClarification += "(angle bracket / chevron)";
+					break;
+				case '{': case '}':
+					consoleClarification += "(curly bracket / brace)";
+					break;
+				case '(': case ')':
+					consoleClarification += "(round bracket / parenthesis)";
+					break;
+				case '[': case ']':
+					consoleClarification += "(square bracket)";
+					break;
+				case '~':
+					consoleClarification += "(using namespace)";
+					break;
+				case '!':
+					consoleClarification += "(block declaration)";
+					break;
+				case '@':
+					consoleClarification += "(import)";
+					break;
+				case '#':
+					consoleClarification += "(option)";
+					break;
+				case '&':
+					consoleClarification += "(self)";
+					break;
+				case '?':
+					consoleClarification += "(variable declaration)";
+					break;
+				case '.':
+					consoleClarification += "(scope)";
+					break;
+				default:
+					break;
+				}
+			}
+
+			throw runtime_error(string("[ln " + to_string(it.getLine()) + ", ch " + to_string(it.getCharCol()) + "] " + e.what() + consoleClarification).c_str());
+		}
+#endif
+	}
 #undef CON
-#undef THROW_ERROR
-}
+};
 
-Tuple Parser::parseTupleText(It& it)
+#define parserContainers static_cast<ParserContainers*>(this)
+
+Dictionary Parser::parseDictionary(It& it) { return parserContainers->parseDictionary(it); }
+Tuple Parser::parseTuple(It& it) { return parserContainers->parseTuple(it); }
+List Parser::parseList(It& it) { return parserContainers->parseList(it); }
+
+Tuple Parser::parseTupleText(It& it) { return parserContainers->parseTupleText(it); }
+List Parser::parseListText(It& it) { return parserContainers->parseListText(it); }
+
+Namespace Parser::parseNamespace(It& it, const string& name) { return parserContainers->parseNamespace(it, name); }
+Enum Parser::parseEnum(It& it, const string& name) { return parserContainers->parseEnum(it, name); }
+
+Document Parser::parseDocument(It& it) { return parserContainers->parseDocument(it); }
+
+void Parser::checkMultiContainer(It& it, function<void()> func)
 {
-	return Tuple(parseContainerText<CLOSE_TUPLE, ConType::TUPLE>(it), true);
-}
-
-List Parser::parseListText(It& it)
-{
-	return List(parseContainerText<CLOSE_LIST, ConType::LIST>(it), true);
-}
-
-string Parser::parseDictionaryText(It& it)
-{
-	if (*skipJunkToValid(it) == CLOSE_DICTIONARY)
-		return "";
-
-	string text;
-	int countStartEnd = 1; //count of dictionary start - dictionary end
-	bool addSpace = false; //== false if last char was \e or \s
-loopStart:
-	text += parseLineStringTextDictionary(it, countStartEnd, addSpace); //function throws errors if it is end or dictionary not closed
-	if (countStartEnd == 0)
+	if (*skipJunkToValid(it) != OPEN_DICTIONARY)
+		func();
+	else
 	{
 		++it;
-		return text;
+		PatternParse(CheckEmpty(ConType::DICTIONARY, return), , ConType::DICTIONARY, CLOSE_DICTIONARY, , func();)
 	}
-	if (addSpace)
-		text += ' ';
-	goto loopStart;
+}
+
+Webss Parser::parseContainerText(It& it)
+{
+	switch (*it)
+	{
+	case OPEN_DICTIONARY:
+		return parseDictionaryText(++it);
+	case OPEN_LIST:
+		return parseListText(++it);
+	case OPEN_TUPLE:
+		return parseTupleText(++it);
+	case OPEN_FUNCTION:
+		return parseFunctionText(++it);
+	default:
+		throw runtime_error(ERROR_UNEXPECTED);
+	}
 }
 
 Block Parser::parseBlockValue(It& it, ConType con, const string& blockName)

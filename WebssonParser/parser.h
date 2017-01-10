@@ -117,13 +117,13 @@ namespace webss
 		Parser();
 		Parser(Language lang);
 
-		Folder parse(const std::string& in);
-		Folder parse(std::istream& in);
+		Document parse(const std::string& in);
+		Document parse(std::istream& in);
 
 		void setLanguage(Language lang);
 		void addVariable(std::string&& name, Webss&& value);
 		void addBlock(std::string&& name, type_int value);
-	private:
+	protected:
 		Language language;
 		char separator;
 		bool lineGreed = false;
@@ -136,72 +136,18 @@ namespace webss
 		BasicVariablesManager<type_binary_size> varsTypeBinarySize;
 		BasicVariablesManager<type_int> varsTypeInt;
 
-		Folder parseDocument(It& it);
-		void readOption(It& it);
-		void getNamespace(It& it);
+		Document parseDocument(It& it);
+		void parseOption(It& it);
+		void parseUsingNamespace(It& it);
 		void checkMultiContainer(It& it, std::function<void()> func);
-		void parseDocumentNameStart(It& it, Document& doc);
-
-		//parserContainers.cpp
-		template <const char END, const ConType::Enum CON>
-		Tuple parseContainer(It& it)
-		{
-			Tuple tuple;
-			if (checkEmptyContainer(it, CON))
-				return tuple;
-
-			do
-			{
-				switch (*it)
-				{
-				case END:
-					checkContainerEnd(it);
-					return tuple;
-				case webss_CHAR_ANY_CONTAINER_CHAR_VALUE:
-					tuple.add(parseValue(it, CON));
-					break;
-				default:
-					if (checkOtherValues(it, [&]() { parseContainerNameStart(it, tuple, CON); }, [&]() { tuple.add(parseNumber(it)); }))
-						continue;
-				}
-				checkToNextElement(it, CON);
-			} while (it);
-			throw std::runtime_error(ERROR_CONTAINER_NOT_CLOSED);
-		}
-
-		template <const char END, const ConType::Enum CON>
-		std::vector<Webss> parseContainerText(It& it)
-		{
-			std::vector<Webss> data;
-			if (checkEmptyContainer(it, CON))
-				return data;
-
-			do
-			{
-				switch (*it)
-				{
-				case END:
-					checkContainerEnd(it);
-					return data;
-				default:
-					if (checkSeparator(it))
-						continue;
-					data.push_back(parseLineString(it, CON));
-					checkToNextElement(it, CON);
-				}
-			} while (it);
-			throw std::runtime_error(ERROR_CONTAINER_NOT_CLOSED);
-		}
 
 		Tuple parseTuple(It& it);
-		void parseContainerNameStart(It& it, Tuple& tuple, ConType con = ConType::TUPLE);
 		List parseList(It& it);
-		void parseListNameStart(It& it, List& list);
-		Dictionary parseDictionary(It& it);
-		Namespace parseNamespaceContainer(It& it, const std::string& name);
-		Namespace parseEnum(It& it, const std::string& name);
 		Tuple parseTupleText(It& it);
 		List parseListText(It& it);
+		Dictionary parseDictionary(It& it);
+		Namespace parseNamespace(It& it, const std::string& name);
+		Enum parseEnum(It& it, const std::string& name);
 		std::string parseDictionaryText(It& it);
 		Block parseBlockValue(It& it, ConType con, const std::string& blockName);
 		Block parseBlockValue(It& it, ConType con, const BasicVariable<BlockId>& blockName);
@@ -219,7 +165,7 @@ namespace webss
 		Webss parseNumber(It& it);
 
 		//parserStrings.cpp
-		Webss parseContainerString(It& it);
+		Webss parseContainerText(It& it);
 		std::string parseLineString(It& it, ConType con);
 		std::string parseLineStringTextDictionary(It& it, int& countStartEnd, bool& addSpace);
 		std::string parseCString(It& it);
@@ -236,6 +182,7 @@ namespace webss
 		FunctionHeadSwitch parseFunctionHead(It& it);
 		FunctionHeadSwitch checkFunctionHeadType(It& it, const Variable& var);
 		FunctionHeadSwitch checkFunctionHeadType(It& it, const Webss& webss);
+		void checkFheadVoid(It& it);
 		FunctionHeadStandard parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead);
 		FunctionHeadBinary parseFunctionHeadBinary(It & it, FunctionHeadBinary&& fhead);
 		void parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead);
