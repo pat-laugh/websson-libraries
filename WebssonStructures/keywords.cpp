@@ -82,20 +82,16 @@ int Keyword::getSize() const
 {
 	switch (e)
 	{
-	case Keyword::BOOL:
-		return 1;
-	case Keyword::INT1:
+	case Keyword::BOOL: case Keyword::INT1:
 		return 1;
 	case Keyword::INT2:
 		return 2;
-	case Keyword::INT4:
+	case Keyword::INT4: case Keyword::DEC4:
 		return 4;
-	case Keyword::INT8:
+	case Keyword::INT8: case Keyword::DEC8:
 		return 8;
-	case Keyword::DEC4:
-		return 4;
-	case Keyword::DEC8:
-		return 8;
+	case Keyword::STRING:
+		return 0;
 	default:
 		throw domain_error("can't get size of keyword " + toString());
 	}

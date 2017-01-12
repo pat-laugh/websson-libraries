@@ -9,7 +9,7 @@ bool webss::isKeyChar(char c)
 {
 	switch (c)
 	{
-	case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case OPEN_FUNCTION: case CHAR_COLON: case CHAR_EQUAL: case CHAR_CSTRING:
+	case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case OPEN_FUNCTION: case CHAR_COLON: case CHAR_EQUAL: case CHAR_CSTRING: case CHAR_ALIAS:
 		return true;
 	default:
 		return false;
@@ -34,6 +34,8 @@ KeyType webss::getKeyType(char c)
 		return KeyType::EQUAL;
 	case CHAR_CSTRING:
 		return KeyType::CSTRING;
+	case CHAR_ALIAS:
+		return KeyType::ALIAS;
 	default:
 		throw domain_error(ERROR_UNDEFINED);
 	}

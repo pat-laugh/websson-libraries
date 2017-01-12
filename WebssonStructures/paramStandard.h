@@ -58,7 +58,7 @@ namespace webss
 		}
 
 		bool hasDefaultValue() const { return defaultValue.get() != nullptr; }
-		bool isFunctionHead() const { return typeFhead != TypeFhead::NONE; }
+		bool hasFunctionHead() const { return typeFhead != TypeFhead::NONE; }
 
 		const Webss& getDefaultValue() const { return *defaultValue; }
 		const Default& getDefaultPointer() const { return defaultValue; }

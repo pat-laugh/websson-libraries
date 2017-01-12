@@ -15,6 +15,7 @@ namespace webss
 		using Tuple = BasicTuple<Parameter>;
 		using Pointer = std::shared_ptr<Tuple>;
 		using Variable = BasicVariable<BasicFunctionHead>;
+		using size_type = Tuple::size_type;
 
 		BasicFunctionHead() : t(Type::NONE) {}
 		explicit BasicFunctionHead(bool containerText) : t(Type::TUPLE), tuple(new Tuple(containerText)) {}
@@ -49,6 +50,7 @@ namespace webss
 		bool hasVariable() const { return t == Type::VAR; }
 		bool empty() const { return getParameters().empty(); }
 		bool isText() const { return getParameters().containerText; }
+		size_type size() const { return getParameters().size(); }
 
 		Parameter& back() { return const_cast<Parameter&>(getParameters().back()); }
 		const Parameter& back() const { return getParameters().back(); }
@@ -71,6 +73,11 @@ namespace webss
 		const std::string& getVarName() const
 		{
 			return var.getName();
+		}
+
+		void attachAlias(std::string&& key)
+		{
+			getParameters().addAliasSafe(std::move(key), size() - 1);
 		}
 
 		void attachEmpty(std::string&& key)

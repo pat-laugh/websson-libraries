@@ -167,3 +167,29 @@ Parser::OtherValue Parser::checkOtherValueVariable(It& it, ConType con, const Va
 	}
 	return{ var };
 }
+
+void Parser::parseOtherValue(It& it, ConType con, std::function<void(string&& key, Webss&& value)> funcKeyValue, function<void(string&& key)> funcKeyOnly, function<void(Webss&& value)> funcValueOnly, function<void(const Variable& abstractEntity)> funcAbstractEntity, function<void (string&& key)> funcAlias)
+{
+	auto other = parseOtherValue(it, con);
+	switch (other.type)
+	{
+	case OtherValue::Type::KEY_VALUE:
+		funcKeyValue(move(other.key), move(other.value));
+		break;
+	case OtherValue::Type::KEY_ONLY:
+		funcKeyOnly(move(other.key));
+		break;
+	case OtherValue::Type::VALUE_ONLY:
+		funcValueOnly(move(other.value));
+		break;
+	case OtherValue::Type::ABSTRACT_ENTITY:
+		funcAbstractEntity(other.abstractEntity);
+		break;
+	default:
+		auto it = other.aliases.begin();
+		(other.type == OtherValue::Type::KEY_VALUE_ALIASES ? funcKeyValue(move(*it), move(other.value)) : funcKeyOnly(move(*it)));
+		while (++it != other.aliases.end())
+			funcAlias(move(*it));
+		break;
+	}
+}

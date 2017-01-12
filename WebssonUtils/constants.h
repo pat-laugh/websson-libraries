@@ -18,4 +18,6 @@ namespace webss
 	const char CHAR_CONCRETE_ENTITY = '?';
 	const char CHAR_ABSTRACT_ENTITY = '!';
 	const char CHAR_BLOCK = '+';
+	const char CHAR_ALIAS = '|';
+	const char CHAR_POINTER = '*';
 }

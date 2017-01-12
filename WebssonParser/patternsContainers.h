@@ -40,3 +40,16 @@ case OtherValue::Type::ABSTRACT_ENTITY: \
 default: \
 	throw logic_error(""); \
 }
+
+#define OtherValue(funcKeyValue, funcKeyOnly, funcValueOnly, funcAbstractEntity, funcAlias) \
+[&](string&& key, Webss&& value) { funcKeyValue; }, \
+[&](string&& key) { funcKeyOnly; }, \
+[&](Webss&& value) { funcValueOnly; }, \
+[&](const Variable& abstractEntity) { funcAbstractEntity; }, \
+[&](string&& key) { funcAlias; }
+
+#define CaseKeyValue [&](string&& key, Webss&& value)
+#define CaseKeyOnly [&](string&& key)
+#define CaseValueOnly [&](Webss&& value)
+#define CaseAbstractEntity [&](const Variable& abstractEntity)
+#define CaseAlias [&](string&& key)

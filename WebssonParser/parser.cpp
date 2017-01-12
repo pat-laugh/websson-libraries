@@ -94,19 +94,3 @@ isEnd:
 	skipLine(++it);
 }
 
-void Parser::parseUsingNamespace(It& it)
-{
-	if (!isNameStart(*it))
-		throw runtime_error(ERROR_UNEXPECTED);
-
-	auto name = parseName(it);
-	if (!vars.hasVariable(name))
-		throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(name));
-
-	const auto& content = vars[name].getContent();
-	if (!content.isDictionary())
-		throw runtime_error("namespace name must be a variable of type dictionary");
-	for (const auto& keyValue : content.getDictionary())
-		vars.addSafe(keyValue.first, keyValue.second);
-}
-

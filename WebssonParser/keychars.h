@@ -9,7 +9,7 @@ namespace webss
 	//this is for when a named value (a key) is parsed; the char after determines its "type"
 	enum class KeyType
 	{
-		DICTIONARY, LIST, TUPLE, FUNCTION, COLON, EQUAL, CSTRING,
+		DICTIONARY, LIST, TUPLE, FUNCTION, COLON, EQUAL, CSTRING, ALIAS,
 		KEYWORD, KEYNAME, VARIABLE, SCOPE, BLOCK_VALUE
 	};
 

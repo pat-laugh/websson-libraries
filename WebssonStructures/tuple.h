@@ -86,6 +86,14 @@ namespace webss
 			data.push_back(value);
 		}
 
+		void addAliasSafe(std::string&& key, size_type index)
+		{
+			if (has(key))
+				throw std::runtime_error(ERROR_DUPLICATE_KEY_TUPLE + key);
+
+			keys->insert({ key, index });
+		}
+
 		bool has(size_type index) const { index < data.size(); }
 		bool has(const std::string& key) const { return keys->find(key) != keys->end(); }
 

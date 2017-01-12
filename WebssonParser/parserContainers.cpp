@@ -143,7 +143,7 @@ Document Parser::parseDocument(It& it)
 		switch (*it)
 		{
 		case CHAR_CONCRETE_ENTITY:
-			checkMultiContainer(++it, [&]() { vars.add(parseConcreteEntity(it)); });
+			checkMultiContainer(++it, [&]() { parseConcreteEntity(it, [&](const Variable& var) { vars.add(var); }); });
 			break;
 		case CHAR_ABSTRACT_ENTITY:
 			checkMultiContainer(++it, [&]() { vars.add(parseAbstractEntity(it)); });
@@ -219,14 +219,4 @@ Webss Parser::parseContainerText(It& it)
 	default:
 		throw runtime_error(ERROR_UNEXPECTED);
 	}
-}
-
-Block Parser::parseBlockValue(It& it, ConType con, const string& blockName)
-{
-	return Block(varsBlockId[blockName], checkIsConcrete(parseValueEqual(it, con)));
-}
-
-Block Parser::parseBlockValue(It& it, ConType con, const BasicVariable<BlockId>& blockId)
-{
-	return Block(blockId, checkIsConcrete(parseValueEqual(it, con)));
 }

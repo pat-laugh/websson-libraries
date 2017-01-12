@@ -63,12 +63,8 @@ Webss::Webss(Keyword keyword)
 		t = WebssType::PRIMITIVE_BOOL;
 		tBool = true;
 		break;
-	case Keyword::BOOL: case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8: case Keyword::DEC4: case Keyword::DEC8:
-		t = WebssType::PRIMITIVE_INT;
-		tInt = keyword.getSize();
-		break;
 	default:
-		throw domain_error("unknow keyword: " + keyword.toString());
+		throw runtime_error("can't get keyword value: " + keyword.toString());
 	}
 }
 Webss::Webss(int tInt) : t(WebssType::PRIMITIVE_INT), tInt(tInt) {}

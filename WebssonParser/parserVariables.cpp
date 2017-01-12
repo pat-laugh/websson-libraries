@@ -1,15 +1,20 @@
 //MIT License
 //Copyright(c) 2016 Patrick Laughrea
 #include "parser.h"
+#include "patternsContainers.h"
 
 using namespace std;
 using namespace webss;
 
-Variable Parser::parseConcreteEntity(It& it)
+void Parser::parseConcreteEntity(It& it, function<void(const Variable& var)> funcForEach)
 {
-	auto name = parseNameSafe(it);
-	skipJunkToValidCondition(it, [&]() { return isKeyChar(*it); });
-	return Variable(move(name), parseCharValue(it, ConType::DOCUMENT));
+	Variable var;
+	parseOtherValue(it, ConType::DOCUMENT,
+		CaseKeyValue{ new (&var) Variable(move(key), move(value)); funcForEach(var); },
+		CaseKeyOnly{ throw runtime_error(ERROR_EXPECTED); },
+		CaseValueOnly{ throw runtime_error(ERROR_UNEXPECTED); },
+		CaseAbstractEntity{ throw runtime_error(webss_ERROR_VARIABLE_EXISTS(abstractEntity.getName())); },
+		CaseAlias{ Variable alias(move(key), Webss(var)); funcForEach(alias); });
 }
 
 Variable Parser::parseAbstractEntity(It& it)
@@ -100,4 +105,22 @@ string Parser::parseVariableString(It& it)
 bool Parser::nameExists(const string& name)
 {
 	return isKeyword(name) || vars.hasVariable(name) || varsBlockId.hasVariable(name);
+}
+
+void Parser::parseUsingNamespace(It& it, function<void(const Variable& var)> funcForEach)
+{
+	if (*skipJunkToValid(it) == OPEN_FUNCTION)
+		//....
+		return;
+
+	parseOtherValue(it, ConType::DOCUMENT,
+		CaseKeyValue{ throw runtime_error(ERROR_UNEXPECTED); },
+		CaseKeyOnly{ throw runtime_error(ERROR_UNEXPECTED); },
+		CaseValueOnly{ throw runtime_error(ERROR_UNEXPECTED); },
+		CaseAbstractEntity
+		{
+			for (const auto& var : checkIsNamespace(abstractEntity))
+				funcForEach(var);
+		},
+		CaseAlias{ throw runtime_error(ERROR_UNEXPECTED); });
 }

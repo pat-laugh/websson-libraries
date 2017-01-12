@@ -132,17 +132,20 @@ namespace webss
 		class OtherValue
 		{
 		public:
-			enum class Type { KEY_VALUE, VALUE_ONLY, KEY_ONLY, ABSTRACT_ENTITY };
+			enum class Type { KEY_VALUE, VALUE_ONLY, KEY_ONLY, ABSTRACT_ENTITY, KEY_VALUE_ALIASES, KEY_ONLY_ALIASES };
 
 			OtherValue(std::string&& key, Webss&& value) : type(Type::KEY_VALUE), key(std::move(key)), value(std::move(value)) {}
 			OtherValue(Webss&& value) : type(Type::VALUE_ONLY), value(std::move(value)) {}
 			OtherValue(std::string&& key) : type(Type::KEY_ONLY), key(std::move(key)) {}
 			OtherValue(const Variable& var) : type(Type::ABSTRACT_ENTITY), abstractEntity(var) {}
+			OtherValue(std::vector<std::string>&& aliases, Webss&& value) : type(Type::KEY_VALUE_ALIASES), aliases(std::move(aliases)), value(std::move(value)) {}
+			OtherValue(std::vector<std::string>&& aliases) : type(Type::KEY_ONLY_ALIASES), aliases(std::move(aliases)) {}
 
 			Type type;
 			std::string key;
 			Webss value;
 			Variable abstractEntity;
+			std::vector<std::string> aliases;
 		};
 
 		
@@ -156,7 +159,6 @@ namespace webss
 
 		Document parseDocument(It& it);
 		void parseOption(It& it);
-		void parseUsingNamespace(It& it);
 		void checkMultiContainer(It& it, std::function<void()> func);
 
 		Tuple parseTuple(It& it);
@@ -167,8 +169,6 @@ namespace webss
 		Namespace parseNamespace(It& it, const std::string& name);
 		Enum parseEnum(It& it, const std::string& name);
 		std::string parseDictionaryText(It& it);
-		Block parseBlockValue(It& it, ConType con, const std::string& blockName);
-		Block parseBlockValue(It& it, ConType con, const BasicVariable<BlockId>& blockName);
 
 		//parserKeyValues.cpp
 		std::pair<std::string, KeyType> parseKey(It& it);
@@ -178,7 +178,8 @@ namespace webss
 		Webss parseValueEqual(It& it, ConType con);
 		const Variable& parseScopedValue(It& it, const std::string& varName);
 		OtherValue parseOtherValue(It& it, ConType con);
-		Parser::OtherValue checkOtherValueVariable(It& it, ConType con, const Variable& var);
+		OtherValue checkOtherValueVariable(It& it, ConType con, const Variable& var);
+		void parseOtherValue(It& it, ConType con, std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Variable& abstractEntity)> funcAbstractEntity, std::function<void(std::string&& key)> funcAlias);
 
 		//parserNumbers.cpp
 		Webss parseNumber(It& it);
@@ -190,12 +191,13 @@ namespace webss
 		std::string parseCString(It& it);
 
 		//parserVariables.cpp
-		Variable parseConcreteEntity(It& it);
+		void parseConcreteEntity(It& it, std::function<void(const Variable& var)> funcForEach);
 		Variable parseAbstractEntity(It& it);
 		std::string parseName(It& it);
 		std::string parseNameSafe(It& it);
 		std::string parseVariableString(It& it);
 		bool nameExists(const std::string& name);
+		void parseUsingNamespace(It& it, std::function<void(const Variable& var)> funcForEach);
 
 		//parserFunctions.cpp
 		FunctionHeadSwitch parseFunctionHead(It& it);
@@ -217,7 +219,6 @@ namespace webss
 	//	Webss parseFunctionDictionary(It& it, const Tuple& defaultTuple);
 		Webss parseFunctionContainer(It& it, const ParamStandard& defaultValue);
 		Tuple functionParseTuple(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
-		void functionParseTupleNameStart(It& it, Tuple& tuple, const FunctionHeadStandard::Tuple& defaultTuple, Tuple::size_type index);
 		Tuple functionParseTupleText(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
 		List functionParseList(It& it, const FunctionHeadStandard::Tuple& defaultTuple, std::function<Tuple(It& it, const FunctionHeadStandard::Tuple& defaultTuple)> func);
 
@@ -236,11 +237,10 @@ namespace webss
 		bool checkEmptyContainer(It& it, ConType con);
 		bool checkEmptyContainerVoid(It& it, ConType con);
 		void checkToNextElement(It& it, ConType con);
-		void checkToNextElementVoid(It& it, ConType con);
 		bool checkOtherValuesVoid(It& it, std::function<void()> funcIsVoid, std::function<void()> funcIsNameStart, std::function<void()> funcIsNumberStart);
 		void checkEscapedChar(It& it, std::string& line, std::function<void()> funcIsSENT);
 		bool checkVariableString(It& it, std::string& line);
 		const BasicVariable<FunctionHeadStandard>& checkVarFheadStandard(const Variable& var);
 		const BasicVariable<FunctionHeadBinary>& checkVarFheadBinary(const Variable& var);
-	};
+};
 }

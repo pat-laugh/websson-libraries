@@ -1,6 +1,7 @@
 //MIT License
 //Copyright(c) 2016 Patrick Laughrea
 #include "parser.h"
+#include "patternsContainers.h"
 
 using namespace std;
 using namespace webss;
@@ -104,52 +105,46 @@ Tuple Parser::functionParseTuple(It& it, const FunctionHeadStandard::Tuple& defa
 		case webss_CHAR_ANY_CONTAINER_CHAR_VALUE:
 			tuple.at(index) = parseFunctionContainer(it, defaultTuple.at(index));
 			break;
-		case CHAR_SELF:
-			tuple.at(index) = parseFunctionContainer(++it, FunctionHeadStandard(defaultTuple));
+		case CHAR_POINTER: //named access
+		{
+			if (!isNameStart(*skipJunkToValid(it)))
+				throw runtime_error(ERROR_UNEXPECTED);
+			auto name = parseName(it);
+			tuple.at(name) = parseFunctionContainer(it, defaultTuple.at(name));
 			break;
+		}
+		case CHAR_SELF: //allow named acces like for pointer, perhaps self should be removed, but it does have a real use with binary functions...
+		{				//what I need to do is allow binary to access a specific fhead within the binary data; nvm not possible
+			if (!isNameStart(*skipJunkToValid(it)))
+				tuple.at(index) = parseFunctionContainer(++it, FunctionHeadStandard(defaultTuple));
+			else
+			{
+				auto name = parseName(it);
+				tuple.at(name) = parseFunctionContainer(++it, FunctionHeadStandard(defaultTuple));
+			}
+			break;
+		}
 		default:
 			if (checkSeparatorVoid(it, [&]() { setVoid(tuple, defaultTuple, index++); }))
 				continue;
-			else if (isNameStart(*it))
-				functionParseTupleNameStart(it, tuple, defaultTuple, index);
-			else if (isNumberStart(*it))
-				tuple.at(index) = parseFunctionContainer(it, defaultTuple.at(index));
-			else
-				throw runtime_error(ERROR_UNEXPECTED);
+
+			parseOtherValue(it, CON,
+				CaseKeyValue{ throw runtime_error(ERROR_UNEXPECTED); },
+				CaseKeyOnly{ throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(key)); },
+				CaseValueOnly
+				{
+					if (defaultTuple.at(index).hasFunctionHead())
+						throw runtime_error(ERROR_UNEXPECTED);
+					tuple.at(index) = move(value);
+				},
+				CaseAbstractEntity{ throw runtime_error(ERROR_UNEXPECTED); },
+				CaseAlias{ throw runtime_error(ERROR_UNEXPECTED); });
+			break;
 		}
 		++index;
-		checkToNextElementVoid(it, CON);
+		checkToNextElement(it, CON);
 	} while (it);
 	throw runtime_error(ERROR_EXPECTED);
-}
-
-void Parser::functionParseTupleNameStart(It& it, Tuple& tuple, const FunctionHeadStandard::Tuple& defaultTuple, Tuple::size_type index)
-{
-	auto keyPair = parseKey(it);
-	switch (keyPair.second)
-	{
-	case webss_KEY_TYPE_ANY_CONTAINER_CHAR_VALUE:
-		tuple.at(keyPair.first) = parseFunctionContainer(it, defaultTuple.at(keyPair.first));
-		return;
-	case KeyType::KEYWORD:
-		tuple.at(index) = Webss(Keyword(keyPair.first));
-		break;
-	case KeyType::KEYNAME:
-		throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(keyPair.first));
-	case KeyType::VARIABLE:
-		tuple.at(index) = Webss(checkIsConcrete(vars[keyPair.first]));
-		break;
-	case KeyType::SCOPE:
-		tuple.at(index) = checkIsConcrete(parseScopedValue(it, keyPair.first));
-		break;
-	case KeyType::BLOCK_VALUE:
-		tuple.at(index) = parseBlockValue(it, CON, keyPair.first);
-		break;
-	default:
-		throw runtime_error(ERROR_UNEXPECTED);
-	}
-	if (defaultTuple.at(index).isFunctionHead()) //check later; avoids duplication of code
-		throw runtime_error(ERROR_FUNCTION_BODY);
 }
 
 Tuple Parser::functionParseTupleText(It& it, const FunctionHeadStandard::Tuple& defaultTuple)
@@ -174,7 +169,7 @@ Tuple Parser::functionParseTupleText(It& it, const FunctionHeadStandard::Tuple& 
 				continue;
 			tuple.at(index++) = parseLineString(it, CON);
 		}
-		checkToNextElementVoid(it, CON);
+		checkToNextElement(it, CON);
 	} while (it);
 	throw runtime_error(ERROR_EXPECTED);
 }

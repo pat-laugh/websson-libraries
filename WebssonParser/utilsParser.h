@@ -17,6 +17,5 @@ namespace webss
 	Webss&& checkIsConcrete(Webss&& webss);
 	const Webss& checkIsConcrete(const Webss& webss);
 	const BasicVariable<Webss>& checkIsConcrete(const BasicVariable<Webss>& var);
-	const FunctionHeadStandard& checkIsFunctionHeadStandard(const Webss& webss);
-	const FunctionHeadBinary& checkIsFunctionHeadBinary(const Webss& webss);
+	const Namespace& checkIsNamespace(const BasicVariable<Webss>& var);
 }

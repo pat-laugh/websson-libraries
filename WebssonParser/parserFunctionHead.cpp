@@ -9,8 +9,12 @@ using namespace webss;
 const char ERROR_TEXT_FUNCTION_HEAD[] = "values in text function head must be of type string";
 const char ERROR_BINARY_FUNCTION[] = "all values in a binary function must be binary";
 
-#define CON ConType::FUNCTION_HEAD
+const ConType CON = ConType::FUNCTION_HEAD;
+
 #define THROW_ERROR throw runtime_error(ERROR_ANONYMOUS_KEY)
+#define THROW_ERROR_ANONYMOUS_KEY throw runtime_error(ERROR_ANONYMOUS_KEY)
+#define THROW_ERROR_TEXT_FUNCTION_HEAD throw runtime_error(ERROR_TEXT_FUNCTION_HEAD)
+#define THROW_ERROR_BINARY_FUNCTION throw runtime_error(ERROR_BINARY_FUNCTION)
 
 FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 {
@@ -141,27 +145,47 @@ void Parser::parseStandardParameterFunctionHeadText(It& it, FunctionHeadStandard
 
 void Parser::parseOtherValuesFheadStandardParam(It& it, FunctionHeadStandard& fhead)
 {
-	PatternOtherValues(CON, fhead.attach(move(other.key), move(other.value)), THROW_ERROR, fhead.attachEmpty(move(other.key)), throw runtime_error(ERROR_UNEXPECTED))
+	parseOtherValue(it, CON,
+		CaseKeyValue{ fhead.attach(move(key), move(value)); },
+		CaseKeyOnly{ fhead.attachEmpty(move(key)); },
+		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
+		CaseAbstractEntity{ throw runtime_error(ERROR_UNEXPECTED); },
+		CaseAlias{ fhead.attachAlias(move(key)); });
 }
 
 void Parser::parseOtherValuesFheadStandard(It& it, FunctionHeadStandard& fhead)
 {
-	PatternOtherValues(CON, fhead.attach(move(other.key), move(other.value)), THROW_ERROR, fhead.attachEmpty(move(other.key)), fhead.attach(checkVarFheadStandard(other.abstractEntity)))
+	parseOtherValue(it, CON,
+		CaseKeyValue{ fhead.attach(move(key), move(value)); },
+		CaseKeyOnly{ fhead.attachEmpty(move(key)); },
+		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
+		CaseAbstractEntity{ fhead.attach(checkVarFheadStandard(abstractEntity)); },
+		CaseAlias{ fhead.attachAlias(move(key)); });
 }
 
 void Parser::parseOtherValuesFheadText(It& it, FunctionHeadStandard& fhead)
 {
-#define IsKeyValue \
-if (!other.value.isString()) \
-	throw runtime_error(ERROR_TEXT_FUNCTION_HEAD); \
-fhead.attach(move(other.key), move(other.value))
-
-	PatternOtherValues(CON, IsKeyValue, THROW_ERROR, fhead.attachEmpty(move(other.key)), throw runtime_error(ERROR_TEXT_FUNCTION_HEAD))
+	parseOtherValue(it, CON,
+		CaseKeyValue
+		{
+			if (!value.isString())
+				throw runtime_error(ERROR_TEXT_FUNCTION_HEAD);
+			fhead.attach(move(key), move(value));
+		},
+		CaseKeyOnly{ fhead.attachEmpty(move(key)); },
+		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
+		CaseAbstractEntity{ throw runtime_error(ERROR_TEXT_FUNCTION_HEAD); },
+		CaseAlias{ fhead.attachAlias(move(key)); });
 }
 
 void Parser::parseOtherValuesFheadBinary(It& it, FunctionHeadBinary& fhead)
 {
-	PatternOtherValues(CON, throw runtime_error(ERROR_BINARY_FUNCTION), THROW_ERROR, throw runtime_error(ERROR_BINARY_FUNCTION), fhead.attach(checkVarFheadBinary(other.abstractEntity)))
+	parseOtherValue(it, CON,
+		CaseKeyValue{ throw runtime_error(ERROR_BINARY_FUNCTION); },
+		CaseKeyOnly{ throw runtime_error(ERROR_BINARY_FUNCTION); },
+		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
+		CaseAbstractEntity{ fhead.attach(checkVarFheadBinary(abstractEntity)); },
+		CaseAlias{ throw runtime_error(ERROR_BINARY_FUNCTION); });
 }
 
 #undef THROW_ERROR

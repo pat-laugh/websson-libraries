@@ -65,14 +65,8 @@ const BasicVariable<Webss>& webss::checkIsConcrete(const BasicVariable<Webss>& v
 	return var;
 }
 
-const FunctionHeadStandard& webss::checkIsFunctionHeadStandard(const Webss& webss)
+const Namespace& webss::checkIsNamespace(const BasicVariable<Webss>& var)
 {
-	try { return webss.getFunctionHeadStandard(); }
-	catch (exception e) { throw runtime_error(e.what()); }
-}
-
-const FunctionHeadBinary& webss::checkIsFunctionHeadBinary(const Webss& webss)
-{
-	try { return webss.getFunctionHeadBinary(); }
-	catch (exception e) { throw runtime_error(e.what()); }
+	try { return var.getContent().getNamespace(); }
+	catch (exception e) { throw runtime_error("expected a namespace"); }
 }

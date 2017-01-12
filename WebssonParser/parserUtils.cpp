@@ -80,11 +80,6 @@ bool Parser::checkEmptyContainerVoid(It& it, ConType con)
 
 void Parser::checkToNextElement(It& it, ConType con)
 {
-	checkToNextElementVoid(it, con);
-}
-
-void Parser::checkToNextElementVoid(It& it, ConType con)
-{
 	if (!lineGreed)
 		cleanLine(it, con, language);
 	else
