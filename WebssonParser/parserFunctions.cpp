@@ -104,9 +104,9 @@ Tuple Parser::functionParseTuple(It& it, const FunctionHeadStandard::Tuple& defa
 		case webss_CHAR_ANY_CONTAINER_CHAR_VALUE:
 			tuple.at(index) = parseFunctionContainer(it, defaultTuple.at(index));
 			break;
-//		case CHAR_SELF:
-//			tuple.at(index) = parseFunctionContainer(++it, FunctionHead(const_cast<Tuple*>(&defaultTuple)));
-//			break;
+		case CHAR_SELF:
+			tuple.at(index) = parseFunctionContainer(++it, FunctionHeadStandard(defaultTuple));
+			break;
 		default:
 			if (checkOtherValuesVoid(it, [&]() { setVoid(tuple, defaultTuple, index++); }, [&]() { return functionParseTupleNameStart(it, tuple, defaultTuple, index); }, [&]() { return tuple.at(index) = parseFunctionContainer(it, defaultTuple.at(index)); }))
 				continue;

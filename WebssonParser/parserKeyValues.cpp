@@ -23,6 +23,7 @@ else if (!skipJunk(++it) || !(ConditionSuccess)) \
 else \
 	{ Success; } }
 
+//DONE
 pair<string, KeyType> Parser::parseKey(It& it)
 {
 	string key = parseName(it);
@@ -37,6 +38,7 @@ pair<string, KeyType> Parser::parseKey(It& it)
 	return{ move(key), keyType };
 }
 
+//DONE
 Webss Parser::parseCharValue(It& it, ConType con)
 {
 	switch (*it)
@@ -60,11 +62,10 @@ Webss Parser::parseCharValue(It& it, ConType con)
 	}
 }
 
+//DONE
 void Parser::addJsonKeyvalue(It& it, Dictionary& dict)
 {
-	skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
-
-	auto keyPair = parseKey(it);
+	auto keyPair = parseKey(skipJunkToValidCondition(it, [&]() { return isNameStart(*it); }));
 	if (keyPair.second != KeyType::CSTRING)
 		throw runtime_error("invalid key name in supposed Json key-value");
 
@@ -72,16 +73,13 @@ void Parser::addJsonKeyvalue(It& it, Dictionary& dict)
 	dict.addSafe(move(keyPair.first), parseValueEqual(++it, ConType::DICTIONARY));
 }
 
+//DONE
 Webss Parser::parseValueColon(It& it, ConType con)
 {
-	if (!it)
-		return string("");
-	else if (*it != CHAR_COLON)
-		return parseLineString(it, con);
-	else
-		return parseContainerText(skipJunkToValid(++it));
+	return it != CHAR_COLON ? parseLineString(it, con) : parseContainerText(skipJunkToValid(++it));
 }
 
+//DONE
 Webss Parser::parseValueEqual(It& it, ConType con)
 {
 	switch (*skipJunkToValid(it))
@@ -89,37 +87,15 @@ Webss Parser::parseValueEqual(It& it, ConType con)
 	case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case OPEN_FUNCTION: case CHAR_COLON: case CHAR_CSTRING:
 		return parseCharValue(it, con);
 	default:
-		if (isNumberStart(*it))
-			return parseNumber(it);
-		else if (isNameStart(*it))
-			return parseValueEqualNameStart(it, con);
-		throw runtime_error(ERROR_UNEXPECTED);
+		auto other = parseOtherValue(it, con);
+		if (other.type == OtherValue::Type::VALUE_ONLY)
+			return move(other.value);
 	}
+	throw runtime_error(ERROR_VALUE);
 }
 
-Webss Parser::parseValueEqualNameStart(It& it, ConType con)
-{
-	auto keyPair = parseKey(it);
-	switch (keyPair.second)
-	{
-	case KeyType::KEYWORD:
-		return Keyword(keyPair.first);
-	case KeyType::KEYNAME:
-		throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(keyPair.first));
-	case KeyType::VARIABLE:
-		return checkIsConcrete(vars[keyPair.first]);
-	case KeyType::SCOPE:
-		return checkIsConcrete(parseScopedValue(it, keyPair.first));
-	case KeyType::BLOCK_VALUE:
-		return parseBlockValue(it, con, keyPair.first);
-	default:
-		throw runtime_error("assigned named value must be a keyword or a variable");
-	}
-}
-
-//TODO: if last scoped item is a block, get block value
-//*it must point to scope char
-const Variable& Parser::parseScopedValue(It& it, const string& varName)
+//DONE
+const Variable& Parser::parseScopedValue(It& it, const string& varName) //used to be at line 121 now at line 98!
 {
 	try
 	{
@@ -139,6 +115,7 @@ const Variable& Parser::parseScopedValue(It& it, const string& varName)
 	}
 }
 
+//DONE
 Parser::OtherValue Parser::parseOtherValue(It& it, ConType con)
 {
 	using Type = OtherValue::Type;

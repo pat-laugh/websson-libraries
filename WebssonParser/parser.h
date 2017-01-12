@@ -171,7 +171,6 @@ namespace webss
 		void addJsonKeyvalue(It& it, Dictionary& dict);
 		Webss parseValueColon(It& it, ConType con);
 		Webss parseValueEqual(It& it, ConType con);
-		Webss parseValueEqualNameStart(It& it, ConType con);
 		const Variable& parseScopedValue(It& it, const std::string& varName);
 		OtherValue parseOtherValue(It& it, ConType con);
 		Parser::OtherValue checkOtherValueVariable(It& it, ConType con, const Variable& var);
