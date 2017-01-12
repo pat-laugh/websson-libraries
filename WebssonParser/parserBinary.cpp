@@ -240,14 +240,14 @@ ParamBinary::SizeHead Parser::parseBinarySizeHead(It& it)
 		}
 		else if (vars.hasVariable(name))
 		{
-			const auto& content = vars[name].getContent();
-			switch (vars[name].getContent().getType())
+			const auto& var = vars[name];
+			switch (var.getContent().getType())
 			{
 			case WebssType::FUNCTION_HEAD_BINARY:
-				new (&bhead) bhead_t(checkVariableFunctionHeadBinary(name));
+				new (&bhead) bhead_t(checkVarFheadBinary(var));
 				break;
 			case WebssType::PRIMITIVE_INT:
-				new (&bhead) bhead_t(checkVariableTypeBinarySize(name));
+				new (&bhead) bhead_t(checkVariableTypeBinarySize(var));
 				break;
 			default:
 				throw runtime_error(ERROR_BINARY_SIZE_HEAD);

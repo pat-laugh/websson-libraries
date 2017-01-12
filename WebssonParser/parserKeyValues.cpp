@@ -125,11 +125,11 @@ Parser::OtherValue Parser::parseOtherValue(It& it, ConType con)
 		switch (keyPair.second)
 		{
 		case webss_KEY_TYPE_ANY_CONTAINER_CHAR_VALUE:
-			return{ Type::KEY_VALUE, move(keyPair.first), parseCharValue(it, con) };
+			return{ move(keyPair.first), parseCharValue(it, con) };
 		case KeyType::KEYWORD:
-			return{ Type::VALUE_ONLY, string(), Keyword(keyPair.first) };
+			return{ Keyword(keyPair.first) };
 		case KeyType::KEYNAME:
-			return{ Type::KEY_ONLY, move(keyPair.first) };
+			return{ move(keyPair.first) };
 		case KeyType::VARIABLE:
 			return checkOtherValueVariable(it, con, vars[keyPair.first]);
 		case KeyType::SCOPE:
@@ -139,7 +139,7 @@ Parser::OtherValue Parser::parseOtherValue(It& it, ConType con)
 		}
 	}
 	else if (isNumberStart(*it))
-		return{ Type::VALUE_ONLY, string(), parseNumber(it) };
+		return{ parseNumber(it) };
 	else
 		throw runtime_error(ERROR_UNEXPECTED);
 }
@@ -149,21 +149,21 @@ Parser::OtherValue Parser::checkOtherValueVariable(It& it, ConType con, const Va
 	using Type = OtherValue::Type;
 	const auto& content = var.getContent();
 	if (content.isConcrete())
-		return{ Type::VALUE_ONLY, string(), var };
+		return{ Webss(var) };
 	
 	switch (content.getType())
 	{
 	case WebssType::BLOCK_HEAD:
 	case WebssType::FUNCTION_HEAD_BINARY:
-		PatternLineGreed(*it == OPEN_TUPLE, return{ Type::VALUE_ONLY, string(), parseFunctionBodyBinary(it, content.getFunctionHeadBinary().getParameters()) }, break)
+		PatternLineGreed(*it == OPEN_TUPLE, return{ parseFunctionBodyBinary(it, content.getFunctionHeadBinary().getParameters()) }, break)
 	case WebssType::FUNCTION_HEAD_MANDATORY:
 		//...
 	case WebssType::FUNCTION_HEAD_SCOPED:
 		//...
 	case WebssType::FUNCTION_HEAD_STANDARD:
-		PatternLineGreed(*it == OPEN_TUPLE, return{ Type::VALUE_ONLY, string(), parseFunctionBodyStandard(it, content.getFunctionHeadStandard().getParameters()) }, break)
+		PatternLineGreed(*it == OPEN_TUPLE, return{ parseFunctionBodyStandard(it, content.getFunctionHeadStandard().getParameters()) }, break)
 	default:
 		break;
 	}
-	return{ Type::ABSTRACT_ENTITY, string(), Webss(), var };
+	return{ var };
 }

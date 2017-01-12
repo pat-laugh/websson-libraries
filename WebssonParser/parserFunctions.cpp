@@ -108,8 +108,14 @@ Tuple Parser::functionParseTuple(It& it, const FunctionHeadStandard::Tuple& defa
 			tuple.at(index) = parseFunctionContainer(++it, FunctionHeadStandard(defaultTuple));
 			break;
 		default:
-			if (checkOtherValuesVoid(it, [&]() { setVoid(tuple, defaultTuple, index++); }, [&]() { return functionParseTupleNameStart(it, tuple, defaultTuple, index); }, [&]() { return tuple.at(index) = parseFunctionContainer(it, defaultTuple.at(index)); }))
+			if (checkSeparatorVoid(it, [&]() { setVoid(tuple, defaultTuple, index++); }))
 				continue;
+			else if (isNameStart(*it))
+				functionParseTupleNameStart(it, tuple, defaultTuple, index);
+			else if (isNumberStart(*it))
+				tuple.at(index) = parseFunctionContainer(it, defaultTuple.at(index));
+			else
+				throw runtime_error(ERROR_UNEXPECTED);
 		}
 		++index;
 		checkToNextElementVoid(it, CON);

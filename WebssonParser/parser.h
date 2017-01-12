@@ -134,6 +134,11 @@ namespace webss
 		public:
 			enum class Type { KEY_VALUE, VALUE_ONLY, KEY_ONLY, ABSTRACT_ENTITY };
 
+			OtherValue(std::string&& key, Webss&& value) : type(Type::KEY_VALUE), key(std::move(key)), value(std::move(value)) {}
+			OtherValue(Webss&& value) : type(Type::VALUE_ONLY), value(std::move(value)) {}
+			OtherValue(std::string&& key) : type(Type::KEY_ONLY), key(std::move(key)) {}
+			OtherValue(const Variable& var) : type(Type::ABSTRACT_ENTITY), abstractEntity(var) {}
+
 			Type type;
 			std::string key;
 			Webss value;
@@ -144,8 +149,8 @@ namespace webss
 
 		BasicVariablesManager<BlockId> varsBlockId;
 
-		BasicVariablesManager<FunctionHeadStandard> varsFunctionHeadStandard;
-		BasicVariablesManager<FunctionHeadBinary> varsFunctionHeadBinary;
+		BasicVariablesManager<FunctionHeadStandard> varsFheadStandard;
+		BasicVariablesManager<FunctionHeadBinary> varsFheadBinary;
 		BasicVariablesManager<type_binary_size> varsTypeBinarySize;
 		BasicVariablesManager<type_int> varsTypeInt;
 
@@ -194,18 +199,17 @@ namespace webss
 
 		//parserFunctions.cpp
 		FunctionHeadSwitch parseFunctionHead(It& it);
-		FunctionHeadSwitch checkFunctionHeadType(It& it, const Variable& var);
-		FunctionHeadSwitch checkFunctionHeadType(It& it, const Webss& webss);
 		void checkFheadVoid(It& it);
 		FunctionHeadStandard parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead);
 		FunctionHeadBinary parseFunctionHeadBinary(It & it, FunctionHeadBinary&& fhead);
 		BlockHead parseBlockHead(It& it);
 		void parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead);
 		void parseStandardParameterFunctionHeadText(It& it, FunctionHeadStandard& fhead);
-		void parseFunctionHeadBinaryNameStart(It& it, FunctionHeadBinary& fhead);
+		void parseOtherValuesFheadStandardParam(It& it, FunctionHeadStandard& fhead);
+		void parseOtherValuesFheadStandard(It& it, FunctionHeadStandard& fhead);
+		void parseOtherValuesFheadText(It& it, FunctionHeadStandard& fhead);
+		void parseOtherValuesFheadBinary(It& it, FunctionHeadBinary& fhead);
 		FunctionHeadStandard parseFunctionHeadText(It& it);
-		void parseFunctionHeadNameStart(It& it, FunctionHeadStandard& fhead);
-		void parseFunctionHeadTextNameStart(It& it, FunctionHeadStandard& fhead);
 
 		Webss parseFunction(It& it);
 		Webss parseFunctionText(It& it);
@@ -233,12 +237,10 @@ namespace webss
 		bool checkEmptyContainerVoid(It& it, ConType con);
 		void checkToNextElement(It& it, ConType con);
 		void checkToNextElementVoid(It& it, ConType con);
-		bool checkOtherValues(It& it, std::function<void()> funcIsNameStart, std::function<void()> funcIsNumberStart);
 		bool checkOtherValuesVoid(It& it, std::function<void()> funcIsVoid, std::function<void()> funcIsNameStart, std::function<void()> funcIsNumberStart);
 		void checkEscapedChar(It& it, std::string& line, std::function<void()> funcIsSENT);
 		bool checkVariableString(It& it, std::string& line);
-		const BasicVariable<FunctionHeadStandard>& checkVariableFunctionHeadStandard(const std::string& name);
-		const BasicVariable<FunctionHeadBinary>& checkVariableFunctionHeadBinary(const std::string& name);
-		const BasicVariable<type_int>& checkVariableTypeInt(const std::string& name);
+		const BasicVariable<FunctionHeadStandard>& checkVarFheadStandard(const Variable& var);
+		const BasicVariable<FunctionHeadBinary>& checkVarFheadBinary(const Variable& var);
 	};
 }

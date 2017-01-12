@@ -93,11 +93,6 @@ void Parser::checkToNextElementVoid(It& it, ConType con)
 	skipJunk(it);
 }
 
-bool Parser::checkOtherValues(It& it, function<void()> funcIsNameStart, function<void()> funcIsNumberStart)
-{
-	return checkOtherValuesVoid(it, []() { throw runtime_error(ERROR_VOID); }, move(funcIsNameStart), move(funcIsNumberStart));
-}
-
 bool Parser::checkOtherValuesVoid(It& it, function<void()> funcIsVoid, function<void()> funcIsNameStart, function<void()> funcIsNumberStart)
 {
 	if (checkSeparatorVoid(it, move(funcIsVoid)))
@@ -145,26 +140,20 @@ bool Parser::checkVariableString(It& it, string& line)
 	return true;
 }
 
-const BasicVariable<FunctionHeadStandard>& Parser::checkVariableFunctionHeadStandard(const string& name)
+const BasicVariable<FunctionHeadStandard>& Parser::checkVarFheadStandard(const Variable& var)
 {
-	if (!varsFunctionHeadStandard.hasVariable(name))
-		try { varsFunctionHeadStandard.add(name, vars[name].getContent().getFunctionHeadStandard()); }
+	const auto& name = var.getName();
+	if (!varsFheadStandard.hasVariable(name))
+		try { varsFheadStandard.add(name, var.getContent().getFunctionHeadStandard()); }
 		catch (exception e) { throw runtime_error(e.what()); }
-	return varsFunctionHeadStandard[name];
+	return varsFheadStandard[name];
 }
 
-const BasicVariable<FunctionHeadBinary>& Parser::checkVariableFunctionHeadBinary(const string& name)
+const BasicVariable<FunctionHeadBinary>& Parser::checkVarFheadBinary(const Variable& var)
 {
-	if (!varsFunctionHeadBinary.hasVariable(name))
-		try { varsFunctionHeadBinary.add(name, vars[name].getContent().getFunctionHeadBinary()); }
-	catch (exception e) { throw runtime_error(e.what()); }
-	return varsFunctionHeadBinary[name];
-}
-
-const BasicVariable<type_int>& Parser::checkVariableTypeInt(const string& name)
-{
-	if (!varsTypeInt.hasVariable(name))
-		try { varsTypeInt.add(name, vars[name].getContent().getInt()); }
-	catch (exception e) { throw runtime_error(e.what()); }
-	return varsTypeInt[name];
+	const auto& name = var.getName();
+	if (!varsFheadBinary.hasVariable(name))
+		try { varsFheadBinary.add(name, var.getContent().getFunctionHeadBinary()); }
+		catch (exception e) { throw runtime_error(e.what()); }
+	return varsFheadBinary[name];
 }

@@ -26,8 +26,6 @@ FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 	case CHAR_CONCRETE_ENTITY: case CHAR_ABSTRACT_ENTITY: case CHAR_USING_NAMESPACE: //scoped function
 	case OPEN_DICTIONARY: //mandatory function
 	default:
-		if (!isNameStart(*it))
-			THROW_ERROR;
 		break;
 	}
 
@@ -35,51 +33,29 @@ FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 	//if not, then the fhead is a standard fhead
 
 	FunctionHeadStandard fhead;
-	auto keyPair = parseKey(it);
-	switch (keyPair.second)
+	auto other = parseOtherValue(it, CON);
+	switch (other.type)
 	{
-	case webss_KEY_TYPE_ANY_CONTAINER_CHAR_VALUE:
-		fhead.attach(move(keyPair.first), parseCharValue(it, CON));
+	case OtherValue::Type::KEY_VALUE:
+		fhead.attach(move(other.key), move(other.value));
 		return parseFunctionHeadStandard(it, move(fhead));
-	case KeyType::KEYWORD:
-		throw runtime_error(ERROR_KEYWORD_KEY);
-	case KeyType::KEYNAME:
-		fhead.attachEmpty(move(keyPair.first));
+	case OtherValue::Type::KEY_ONLY:
+		fhead.attachEmpty(move(other.key));
 		return parseFunctionHeadStandard(it, move(fhead));
-	case KeyType::VARIABLE:
-		return checkFunctionHeadType(it, vars[keyPair.first]);
-	case KeyType::SCOPE:
-		return checkFunctionHeadType(it, parseScopedValue(it, keyPair.first));
-	default:
-		throw runtime_error(ERROR_UNEXPECTED);
-	}
-}
-
-FunctionHeadSwitch Parser::checkFunctionHeadType(It& it, const Variable& var)
-{
-	switch (var.getContent().getType())
-	{
-	case WebssType::FUNCTION_HEAD_STANDARD:
-		return parseFunctionHeadStandard(it, FunctionHeadStandard(checkVariableFunctionHeadStandard(var.getName())));
-	case WebssType::FUNCTION_HEAD_BINARY:
-		return parseFunctionHeadBinary(it, FunctionHeadBinary(checkVariableFunctionHeadBinary(var.getName())));
-	case WebssType::FUNCTION_HEAD_SCOPED:
-	case WebssType::FUNCTION_HEAD_MANDATORY:
-	default:
-		THROW_ERROR;
-	}
-}
-
-FunctionHeadSwitch Parser::checkFunctionHeadType(It& it, const Webss& webss)
-{
-	switch (webss.getType())
-	{
-	case WebssType::FUNCTION_HEAD_STANDARD:
-		return parseFunctionHeadStandard(it, FunctionHeadStandard(webss.getFunctionHeadStandard()));
-	case WebssType::FUNCTION_HEAD_BINARY:
-		return parseFunctionHeadBinary(it, FunctionHeadBinary(webss.getFunctionHeadBinary()));
-	case WebssType::FUNCTION_HEAD_SCOPED:
-	case WebssType::FUNCTION_HEAD_MANDATORY:
+	case OtherValue::Type::ABSTRACT_ENTITY:
+		switch (other.abstractEntity.getContent().getType())
+		{
+		case WebssType::FUNCTION_HEAD_BINARY:
+			return parseFunctionHeadBinary(it, FunctionHeadBinary(checkVarFheadBinary(other.abstractEntity)));
+		case WebssType::FUNCTION_HEAD_MANDATORY:
+			break;
+		case WebssType::FUNCTION_HEAD_SCOPED:
+			break;
+		case WebssType::FUNCTION_HEAD_STANDARD:
+			return parseFunctionHeadStandard(it, FunctionHeadStandard(checkVarFheadStandard(other.abstractEntity)));
+		default:
+			break;
+		}
 	default:
 		THROW_ERROR;
 	}
@@ -100,12 +76,12 @@ void Parser::checkFheadVoid(It& it)
 
 FunctionHeadStandard Parser::parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead)
 {
-	PatternParse(checkFheadVoid(it), move(fhead), CON, CLOSE_FUNCTION, ExtraCasesFheadStandard, CheckOtherValues(parseFunctionHeadNameStart(it, fhead), THROW_ERROR))
+	PatternParse(checkFheadVoid(it), move(fhead), CON, CLOSE_FUNCTION, ExtraCasesFheadStandard, parseOtherValuesFheadStandard(it, fhead);)
 }
 
 FunctionHeadStandard Parser::parseFunctionHeadText(It& it)
 {
-	PatternParse(FunctionHeadStandard cont(true); CheckEmpty(CON, throw runtime_error(ERROR_EMPTY_FUNCTION_HEAD)), cont, CON, CLOSE_FUNCTION, , CheckOtherValues(parseFunctionHeadTextNameStart(it, cont), THROW_ERROR))
+	PatternParse(FunctionHeadStandard cont(true); CheckEmpty(CON, throw runtime_error(ERROR_EMPTY_FUNCTION_HEAD)), cont, CON, CLOSE_FUNCTION, , parseOtherValuesFheadText(it, cont);)
 }
 
 //similar to both standard fheads, but allows empty head
@@ -114,11 +90,11 @@ BlockHead Parser::parseBlockHead(It& it)
 	switch (*skipJunkToValid(it))
 	{
 	case OPEN_FUNCTION: //regular
-		PatternParse(++it; BlockHead fhead; CheckEmpty(CON, return fhead), fhead, CON, CLOSE_FUNCTION, ExtraCasesFheadStandard, CheckOtherValues(parseFunctionHeadNameStart(it, fhead), THROW_ERROR))
+		PatternParse(++it; BlockHead fhead; CheckEmpty(CON, return fhead), fhead, CON, CLOSE_FUNCTION, ExtraCasesFheadStandard, parseOtherValuesFheadStandard(it, fhead);)
 	case CHAR_COLON: //text
 		if (++it != CHAR_COLON || skipJunk(++it) != OPEN_FUNCTION)
 			throw runtime_error("expected text function head");
-		PatternParse(++it; BlockHead fhead(true); CheckEmpty(CON, return fhead), fhead, CON, CLOSE_FUNCTION, , CheckOtherValues(parseFunctionHeadTextNameStart(it, fhead), THROW_ERROR))
+		PatternParse(++it; BlockHead fhead(true); CheckEmpty(CON, return fhead), fhead, CON, CLOSE_FUNCTION, , parseOtherValuesFheadText(it, fhead);)
 	default:
 		throw runtime_error(ERROR_UNEXPECTED);
 	}
@@ -126,24 +102,27 @@ BlockHead Parser::parseBlockHead(It& it)
 
 FunctionHeadBinary Parser::parseFunctionHeadBinary(It& it, FunctionHeadBinary&& fhead)
 {
-	PatternParse(checkFheadVoid(it), move(fhead), CON, CLOSE_FUNCTION, ExtraCase(OPEN_TUPLE, parseBinaryHead(++it, fhead)), CheckOtherValues(parseFunctionHeadBinaryNameStart(it, fhead), THROW_ERROR))
+	PatternParse(checkFheadVoid(it), move(fhead), CON, CLOSE_FUNCTION, ExtraCase(OPEN_TUPLE, parseBinaryHead(++it, fhead)), parseOtherValuesFheadBinary(it, fhead);)
 }
 
 void Parser::parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead)
 {
 	using Type = FunctionHeadSwitch::Type;
 	auto headSwitch = parseFunctionHead(++it);
-	skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
-	parseFunctionHeadNameStart(it, fhead);
+	parseOtherValuesFheadStandardParam(it, fhead);
 	auto& lastParam = fhead.back();
 	switch (headSwitch.t)
 	{
-	case Type::STANDARD:
-		lastParam.setFunctionHead(move(headSwitch.fheadStandard));
-		return;
 	case Type::BINARY:
 		lastParam.setFunctionHead(move(headSwitch.fheadBinary));
-		return;
+		break;
+	case Type::MANDATORY:
+		//...
+	case Type::SCOPE:
+		//...
+	case Type::STANDARD:
+		lastParam.setFunctionHead(move(headSwitch.fheadStandard));
+		break;
 	default:
 		throw logic_error("");
 	}
@@ -156,73 +135,33 @@ void Parser::parseStandardParameterFunctionHeadText(It& it, FunctionHeadStandard
 	skipJunkToValidCondition(++it, [&]() { return *it == OPEN_FUNCTION; });
 
 	auto head = parseFunctionHeadText(++it);
-	skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
-	parseFunctionHeadTextNameStart(it, fhead);
-	auto& lastParam = fhead.back();
-	lastParam.setFunctionHead(move(head));
+	parseOtherValuesFheadStandardParam(it, fhead);
+	fhead.back().setFunctionHead(move(head));
 }
 
-void Parser::parseFunctionHeadNameStart(It& it, FunctionHeadStandard& fhead)
+void Parser::parseOtherValuesFheadStandardParam(It& it, FunctionHeadStandard& fhead)
 {
-	auto keyPair = parseKey(it);
-	switch (keyPair.second)
-	{
-	case webss_KEY_TYPE_ANY_CONTAINER_CHAR_VALUE:
-		fhead.attach(move(keyPair.first), parseCharValue(it, CON));
-		return;
-	case KeyType::KEYWORD:
-		throw runtime_error(ERROR_KEYWORD_KEY);
-	case KeyType::KEYNAME:
-		fhead.attach(move(keyPair.first), ParamStandard());
-		return;
-	case KeyType::VARIABLE:
-		fhead.attach(checkVariableFunctionHeadStandard(keyPair.first));
-		return;
-	case KeyType::SCOPE:
-		fhead.attach(checkIsFunctionHeadStandard(parseScopedValue(it, keyPair.first)));
-		return;
-	default:
-		throw runtime_error(ERROR_UNEXPECTED);
-	}
+	PatternOtherValues(CON, fhead.attach(move(other.key), move(other.value)), THROW_ERROR, fhead.attachEmpty(move(other.key)), throw runtime_error(ERROR_UNEXPECTED))
 }
 
-void Parser::parseFunctionHeadTextNameStart(It& it, FunctionHeadStandard& fhead)
+void Parser::parseOtherValuesFheadStandard(It& it, FunctionHeadStandard& fhead)
 {
-	auto keyPair = parseKey(it);
-	switch (keyPair.second)
-	{
-	case KeyType::COLON:
-		if (++it == CHAR_COLON)
-			throw runtime_error(ERROR_TEXT_FUNCTION_HEAD);
-		fhead.attach(move(keyPair.first), Webss(parseLineString(it, CON)));
-		return;
-	case KeyType::CSTRING:
-		fhead.attach(move(keyPair.first), Webss(parseCString(++it)));
-		return;
-	case KeyType::KEYWORD:
-		throw runtime_error(ERROR_KEYWORD_KEY);
-	case KeyType::KEYNAME:
-		fhead.attach(move(keyPair.first), Webss());
-		return;
-	default:
-		throw runtime_error(ERROR_TEXT_FUNCTION_HEAD);
-	}
+	PatternOtherValues(CON, fhead.attach(move(other.key), move(other.value)), THROW_ERROR, fhead.attachEmpty(move(other.key)), fhead.attach(checkVarFheadStandard(other.abstractEntity)))
 }
 
-void Parser::parseFunctionHeadBinaryNameStart(It& it, FunctionHeadBinary& fhead)
+void Parser::parseOtherValuesFheadText(It& it, FunctionHeadStandard& fhead)
 {
-	auto keyPair = parseKey(it);
-	switch (keyPair.second)
-	{
-	case KeyType::VARIABLE:
-		fhead.attach(checkIsFunctionHeadBinary(vars[keyPair.first].getContent()));
-		return;
-	case KeyType::SCOPE:
-		fhead.attach(checkIsFunctionHeadBinary(parseScopedValue(it, keyPair.first)));
-		return;
-	default:
-		throw runtime_error(ERROR_UNEXPECTED);
-	}
+#define IsKeyValue \
+if (!other.value.isString()) \
+	throw runtime_error(ERROR_TEXT_FUNCTION_HEAD); \
+fhead.attach(move(other.key), move(other.value))
+
+	PatternOtherValues(CON, IsKeyValue, THROW_ERROR, fhead.attachEmpty(move(other.key)), throw runtime_error(ERROR_TEXT_FUNCTION_HEAD))
+}
+
+void Parser::parseOtherValuesFheadBinary(It& it, FunctionHeadBinary& fhead)
+{
+	PatternOtherValues(CON, throw runtime_error(ERROR_BINARY_FUNCTION), THROW_ERROR, throw runtime_error(ERROR_BINARY_FUNCTION), fhead.attach(checkVarFheadBinary(other.abstractEntity)))
 }
 
 #undef THROW_ERROR

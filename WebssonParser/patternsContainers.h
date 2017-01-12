@@ -25,7 +25,18 @@
 
 #define ExtraCase(Head, Body) case Head: { Body; } break;
 
-#define CheckOtherValues(NameStart, NumberStart) { \
-	if (isNameStart(*it)) { NameStart; } \
-	else if (isNumberStart(*it)) { NumberStart; } \
-	else throw runtime_error(ERROR_UNEXPECTED); }
+#define PatternOtherValues(Con, KeyValue, ValueOnly, KeyOnly, AbstractEntity) \
+auto other = parseOtherValue(it, Con); \
+switch (other.type) \
+{ \
+case OtherValue::Type::KEY_VALUE: \
+	{ KeyValue; break; } \
+case OtherValue::Type::VALUE_ONLY: \
+	{ ValueOnly; break; } \
+case OtherValue::Type::KEY_ONLY: \
+	{ KeyOnly; break; } \
+case OtherValue::Type::ABSTRACT_ENTITY: \
+	{ AbstractEntity; break; } \
+default: \
+	throw logic_error(""); \
+}

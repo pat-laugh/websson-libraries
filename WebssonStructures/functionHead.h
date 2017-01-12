@@ -48,6 +48,7 @@ namespace webss
 
 		bool hasVariable() const { return t == Type::VAR; }
 		bool empty() const { return getParameters().empty(); }
+		bool isText() const { return getParameters().containerText; }
 
 		Parameter& back() { return const_cast<Parameter&>(getParameters().back()); }
 		const Parameter& back() const { return getParameters().back(); }
