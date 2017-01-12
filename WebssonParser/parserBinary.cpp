@@ -73,9 +73,7 @@ void Parser::parseBinaryHead(It& it, FunctionHeadBinary& fhead)
 //no dependency outside of parseBinary.cpp
 Tuple Parser::parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Tuple& parameters)
 {
-	if (*skipJunkToValid(it) == CHAR_EQUAL)
-		skipJunkToValid(++it);
-	if (*it != OPEN_TUPLE)
+	if (*skipJunkToValid(it) != OPEN_TUPLE)
 		throw runtime_error("first element of a binary function must be a tuple");
 
 	auto tuple = parseBinaryFunction(++it, parameters);

@@ -138,7 +138,7 @@ bool Parser::checkVariableString(It& it, string& line)
 {
 	if (!isNameStart(*it))
 	{
-		line += CHAR_VARIABLE;
+		line += CHAR_CONCRETE_ENTITY;
 		return false;
 	}
 	line += parseVariableString(it);

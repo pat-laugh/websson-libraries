@@ -129,6 +129,19 @@ namespace webss
 		bool lineGreed = false;
 		bool isVoid;
 
+		class OtherValue
+		{
+		public:
+			enum class Type { KEY_VALUE, VALUE_ONLY, KEY_ONLY, ABSTRACT_ENTITY };
+
+			Type type;
+			std::string key;
+			Webss value;
+			Variable abstractEntity;
+		};
+
+		
+
 		BasicVariablesManager<BlockId> varsBlockId;
 
 		BasicVariablesManager<FunctionHeadStandard> varsFunctionHeadStandard;
@@ -154,12 +167,14 @@ namespace webss
 
 		//parserKeyValues.cpp
 		std::pair<std::string, KeyType> parseKey(It& it);
-		Webss parseValue(It& it, ConType con);
+		Webss parseCharValue(It& it, ConType con);
 		void addJsonKeyvalue(It& it, Dictionary& dict);
 		Webss parseValueColon(It& it, ConType con);
 		Webss parseValueEqual(It& it, ConType con);
 		Webss parseValueEqualNameStart(It& it, ConType con);
 		const Variable& parseScopedValue(It& it, const std::string& varName);
+		OtherValue parseOtherValue(It& it, ConType con);
+		Parser::OtherValue checkOtherValueVariable(It& it, ConType con, const Variable& var);
 
 		//parserNumbers.cpp
 		Webss parseNumber(It& it);
@@ -171,8 +186,8 @@ namespace webss
 		std::string parseCString(It& it);
 
 		//parserVariables.cpp
-		Variable parseVariable(It& it);
-		Variable parseBlock(It& it);
+		Variable parseConcreteEntity(It& it);
+		Variable parseAbstractEntity(It& it);
 		std::string parseName(It& it);
 		std::string parseNameSafe(It& it);
 		std::string parseVariableString(It& it);
@@ -185,6 +200,7 @@ namespace webss
 		void checkFheadVoid(It& it);
 		FunctionHeadStandard parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead);
 		FunctionHeadBinary parseFunctionHeadBinary(It & it, FunctionHeadBinary&& fhead);
+		BlockHead parseBlockHead(It& it);
 		void parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead);
 		void parseStandardParameterFunctionHeadText(It& it, FunctionHeadStandard& fhead);
 		void parseFunctionHeadBinaryNameStart(It& it, FunctionHeadBinary& fhead);

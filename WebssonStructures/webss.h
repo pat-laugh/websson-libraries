@@ -26,6 +26,7 @@ namespace webss
 	using FunctionBinary = BasicFunctionSingle<FunctionHeadBinary, Webss>;
 //	using FunctionMandatory = BasicFunctionMandatory<Webss>;
 //	using FunctionScoped = BasicFunctionScoped<Webss>;
+	using BlockHead = FunctionHeadStandard;
 	using Block = BasicBlock<Webss>;
 	using Variable = BasicVariable<Webss>;
 	using Namespace = BasicNamespace<Webss>;
@@ -67,6 +68,7 @@ namespace webss
 		Webss(Block&& block);
 		Webss(Namespace&& nspace);
 		Webss(Enum&& tEnum, bool dummy);
+		Webss(BlockHead&& blockHead, bool dummy);
 
 		Webss(const std::string& s);
 		Webss(const Document& document);
@@ -82,6 +84,7 @@ namespace webss
 		Webss(const Block& block);
 		Webss(const Namespace& nspace);
 		Webss(const Enum& tEnum, bool dummy);
+		Webss(const BlockHead& blockHead, bool dummy);
 
 		Webss(FunctionHeadStandard&& head, Webss&& body);
 
@@ -126,6 +129,7 @@ namespace webss
 		const Block& getBlock() const;
 		const Namespace& getNamespace() const;
 		const Enum& getEnum() const;
+		const BlockHead& getBlockHead() const;
 
 		bool isNone() const;
 		bool isNull() const;
@@ -144,8 +148,9 @@ namespace webss
 		bool isBlock() const;
 		bool isNamespace() const;
 		bool isEnum() const;
+		bool isBlockHead() const;
 
-		bool isValue() const;
+		bool isConcrete() const;
 
 		bool isPrimitive() const;
 

@@ -131,10 +131,10 @@ void Parser::functionParseTupleNameStart(It& it, Tuple& tuple, const FunctionHea
 	case KeyType::KEYNAME:
 		throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(keyPair.first));
 	case KeyType::VARIABLE:
-		tuple.at(index) = Webss(checkIsValue(vars[keyPair.first]));
+		tuple.at(index) = Webss(checkIsConcrete(vars[keyPair.first]));
 		break;
 	case KeyType::SCOPE:
-		tuple.at(index) = checkIsValue(parseScopedValue(it, keyPair.first));
+		tuple.at(index) = checkIsConcrete(parseScopedValue(it, keyPair.first));
 		break;
 	case KeyType::BLOCK_VALUE:
 		tuple.at(index) = parseBlockValue(it, CON, keyPair.first);

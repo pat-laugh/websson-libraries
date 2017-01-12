@@ -34,8 +34,6 @@ KeyType webss::getKeyType(char c)
 		return KeyType::EQUAL;
 	case CHAR_CSTRING:
 		return KeyType::CSTRING;
-	case CHAR_SCOPE:
-		return KeyType::SCOPE;
 	default:
 		throw domain_error(ERROR_UNDEFINED);
 	}

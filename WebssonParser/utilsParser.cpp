@@ -44,24 +44,24 @@ Tuple webss::makeDefaultTuple(const FunctionHeadStandard::Tuple& defaultTuple)
 const char ERROR_IS_FUNCTION_HEAD[] = "unexpected value of type function head";
 const char ERROR_IS_NOT_FUNCTION_HEAD[] = "expected value of type function head";
 
-Webss&& webss::checkIsValue(Webss&& webss)
+Webss&& webss::checkIsConcrete(Webss&& webss)
 {
-	if (!webss.isValue())
-		throw runtime_error("expected a value");
+	if (!webss.isConcrete())
+		throw runtime_error("expected a concrete value");
 	return move(webss);
 }
 
-const Webss& webss::checkIsValue(const Webss& webss)
+const Webss& webss::checkIsConcrete(const Webss& webss)
 {
-	if (!webss.isValue())
-		throw runtime_error("expected a value");
+	if (!webss.isConcrete())
+		throw runtime_error("expected a concrete value");
 	return webss;
 }
 
-const BasicVariable<Webss>& webss::checkIsValue(const BasicVariable<Webss>& var)
+const BasicVariable<Webss>& webss::checkIsConcrete(const BasicVariable<Webss>& var)
 {
-	if (!var.getContent().isValue())
-		throw runtime_error("expected a value");
+	if (!var.getContent().isConcrete())
+		throw runtime_error("expected a concrete value");
 	return var;
 }
 

@@ -52,10 +52,10 @@
 	case KeyType::KEYNAME: \
 		throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(keyPair.first)); \
 	case KeyType::VARIABLE: \
-		cont.add(checkIsValue(vars[keyPair.first])); \
+		cont.add(checkIsConcrete(vars[keyPair.first])); \
 		break; \
 	case KeyType::SCOPE: \
-		cont.add(checkIsValue(parseScopedValue(it, keyPair.first))); \
+		cont.add(checkIsConcrete(parseScopedValue(it, keyPair.first))); \
 		break; \
 	case KeyType::BLOCK_VALUE: \
 		cont.add(parseBlockValue(it, CON, keyPair.first)); \

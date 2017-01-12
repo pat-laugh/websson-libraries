@@ -34,18 +34,6 @@ void addCharEscape(string& str, char c)
 	}
 }
 
-bool isBlock(const Webss& webss)
-{
-	switch (webss.getType())
-	{
-	case WebssType::FUNCTION_HEAD_BINARY: case WebssType::FUNCTION_HEAD_MANDATORY: case WebssType::FUNCTION_HEAD_SCOPED: case WebssType::FUNCTION_HEAD_STANDARD:
-	case WebssType::BLOCK_ID: case WebssType::NAMESPACE: case WebssType::ENUM:
-		return true;
-	default:
-		return false;
-	}
-}
-
 string webss::deserializeAll(const Document& doc)
 {
 	return deserializeDocument(doc);
@@ -60,7 +48,7 @@ string webss::deserializeAll(const Document& doc, const VariablesManager& vars)
 	for (auto varName : locals)
 	{
 		const auto& content = vars[*varName].getContent();
-		out += isBlock(content) ? CHAR_BLOCK : CHAR_VARIABLE;
+		out +=	content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
 		out += putKeyValue(*varName, content, ConType::DOCUMENT) + '\n';
 	}
 
@@ -258,7 +246,7 @@ string webss::putNamespace(const Namespace& nspace)
 		{
 			const auto& content = it->getContent();
 			string out;
-			out += isBlock(content) ? CHAR_BLOCK : CHAR_VARIABLE;
+			out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
 			out += it->getName();
 			out += deserializeWebss(content);
 			return out;

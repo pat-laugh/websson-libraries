@@ -95,6 +95,7 @@ PATTERN_CONSTRUCT_MOVE(BlockId, blockId, BLOCK_ID)
 PATTERN_CONSTRUCT_MOVE(Block, block, BLOCK_VALUE)
 PATTERN_CONSTRUCT_MOVE(Namespace, nspace, NAMESPACE)
 Webss::Webss(Enum&& name, bool) : t(WebssType::ENUM), nspace(new Namespace(move(name))) {}
+Webss::Webss(BlockHead&& name, bool) : t(WebssType::BLOCK_HEAD), fheadStandard(new FunctionHeadStandard(move(name))) {}
 
 #define PATTERN_CONSTRUCT_CONST(type, name, con) \
 Webss::Webss(const type& name) : t(WebssType::con), name(new type(name)) {}
@@ -113,6 +114,7 @@ PATTERN_CONSTRUCT_CONST(BlockId, blockId, BLOCK_ID)
 PATTERN_CONSTRUCT_CONST(Block, block, BLOCK_VALUE)
 PATTERN_CONSTRUCT_CONST(Namespace, nspace, NAMESPACE)
 Webss::Webss(const Enum& name, bool) : t(WebssType::ENUM), nspace(new Namespace(name)) {}
+Webss::Webss(const BlockHead& name, bool) : t(WebssType::BLOCK_HEAD), fheadStandard(new FunctionHeadStandard(name)) {}
 
 Webss::Webss(FunctionHeadStandard&& head, Webss&& body) : t(WebssType::FUNCTION_STANDARD)
 {
@@ -152,7 +154,7 @@ void Webss::destroyUnion()
 	case WebssType::TUPLE:
 		delete tuple;
 		break;
-	case WebssType::FUNCTION_HEAD_STANDARD:
+	case WebssType::FUNCTION_HEAD_STANDARD: case WebssType::BLOCK_HEAD:
 		delete fheadStandard;
 		break;
 	case WebssType::FUNCTION_HEAD_BINARY:
@@ -238,7 +240,7 @@ void Webss::copyUnion(Webss&& o)
 	case WebssType::TUPLE:
 		tuple = o.tuple;
 		break;
-	case WebssType::FUNCTION_HEAD_STANDARD:
+	case WebssType::FUNCTION_HEAD_STANDARD: case WebssType::BLOCK_HEAD:
 		fheadStandard = o.fheadStandard;
 		break;
 	case WebssType::FUNCTION_HEAD_BINARY:
@@ -303,7 +305,7 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::TUPLE:
 		tuple = new Tuple(*o.tuple);
 		break;
-	case WebssType::FUNCTION_HEAD_STANDARD:
+	case WebssType::FUNCTION_HEAD_STANDARD: case WebssType::BLOCK_HEAD:
 		fheadStandard = new FunctionHeadStandard(*o.fheadStandard);
 		break;
 	case WebssType::FUNCTION_HEAD_BINARY:
@@ -569,6 +571,7 @@ const BlockId& Webss::getBlockId() const { PATTERN_GET_CONST(*blockId, getBlockI
 const Block& Webss::getBlock() const { PATTERN_GET_CONST(*block, getBlock(), WebssType::BLOCK_VALUE); }
 const Namespace& Webss::getNamespace() const { PATTERN_GET_CONST(*nspace, getNamespace(), WebssType::NAMESPACE); }
 const Enum& Webss::getEnum() const { PATTERN_GET_CONST(*nspace, getEnum(), WebssType::ENUM); }
+const BlockHead& Webss::getBlockHead() const { PATTERN_GET_CONST(*fheadStandard, getBlockHead(), WebssType::BLOCK_HEAD); }
 
 type_int Webss::getInt() const
 {
@@ -648,6 +651,7 @@ bool Webss::isBlockId() const { PATTERN_IS(WebssType::BLOCK_ID, isBlockId()) }
 bool Webss::isBlock() const { PATTERN_IS(WebssType::BLOCK_VALUE, isBlock()) }
 bool Webss::isNamespace() const { PATTERN_IS(WebssType::NAMESPACE, isNamespace()) }
 bool Webss::isEnum() const { PATTERN_IS(WebssType::ENUM, isEnum()) }
+bool Webss::isBlockHead() const { PATTERN_IS(WebssType::BLOCK_HEAD, isBlockHead()) }
 
 bool Webss::isList() const
 {
@@ -711,7 +715,7 @@ bool Webss::isPrimitive() const
 	}
 }
 
-bool Webss::isValue() const
+bool Webss::isConcrete() const
 {
 	switch (t)
 	{
@@ -721,9 +725,9 @@ bool Webss::isValue() const
 	case WebssType::BLOCK_VALUE:
 		return true;
 	case WebssType::VARIABLE:
-		return var.getContent().isValue();
+		return var.getContent().isConcrete();
 	case WebssType::DEFAULT:
-		return tDefault->isValue();
+		return tDefault->isConcrete();
 	default:
 		return false;
 	}

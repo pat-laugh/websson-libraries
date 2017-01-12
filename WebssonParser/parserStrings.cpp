@@ -42,9 +42,9 @@ string Parser::parseLineString(It& it, ConType con)
 			}
 			line += CHAR_COMMENT;
 			goto switchStart;
-		case CHAR_VARIABLE:
+		case CHAR_CONCRETE_ENTITY:
 			if (!(++it))
-				return line + CHAR_VARIABLE;
+				return line + CHAR_CONCRETE_ENTITY;
 			if (!checkVariableString(it, line)) //if variable, iterator has to be checked
 				goto switchStart;
 			continue;
@@ -121,7 +121,7 @@ string Parser::parseLineStringTextDictionary(It& it, int& countStartEnd, bool& a
 			line += CHAR_COMMENT;
 			addSpace = true;
 			goto switchStart;
-		case CHAR_VARIABLE:
+		case CHAR_CONCRETE_ENTITY:
 		{
 			if (!(++it))
 				throw runtime_error(NOT_CLOSED);
@@ -193,7 +193,7 @@ string Parser::parseCString(It& it)
 	switchStart:
 		switch (*it)
 		{
-		case CHAR_VARIABLE:
+		case CHAR_CONCRETE_ENTITY:
 			if (!(++it))
 				throw runtime_error(NOT_CLOSED);
 			if (!checkVariableString(it, line))

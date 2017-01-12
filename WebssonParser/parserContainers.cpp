@@ -13,11 +13,11 @@ private:
 	ExtraCase(KeyType::KEYNAME, cont.addSafe(move(keyPair.first), cont.size())) \
 	ExtraCase(KeyType::KEYWORD: case KeyType::VARIABLE: case KeyType::SCOPE: case KeyType::BLOCK_VALUE, throw runtime_error(ERROR_ANONYMOUS_KEY))
 
-	PatternParseNameStart(Dictionary, ConType::DICTIONARY, cont.addSafe(move(keyPair.first), parseValue(it, ConType::DICTIONARY)),
+	PatternParseNameStart(Dictionary, ConType::DICTIONARY, cont.addSafe(move(keyPair.first), parseCharValue(it, ConType::DICTIONARY)),
 		ExtraCase(KeyType::KEYWORD: case KeyType::KEYNAME: case KeyType::VARIABLE: case KeyType::SCOPE: case KeyType::BLOCK_VALUE, throw runtime_error(ERROR_ANONYMOUS_KEY)))
 	PatternParseNameStart(List, ConType::LIST, throw runtime_error(ERROR_ADD_KEY_LIST), ExtraCasesAnonymous(ConType::LIST))
-	PatternParseNameStart(Tuple, ConType::TUPLE, cont.addSafe(move(keyPair.first), parseValue(it, ConType::TUPLE)), ExtraCasesAnonymous(ConType::TUPLE))
-	PatternParseNameStart(Document, ConType::DOCUMENT, cont.addSafe(move(keyPair.first), parseValue(it, ConType::DOCUMENT)), ExtraCasesAnonymous(ConType::DOCUMENT))
+	PatternParseNameStart(Tuple, ConType::TUPLE, cont.addSafe(move(keyPair.first), parseCharValue(it, ConType::TUPLE)), ExtraCasesAnonymous(ConType::TUPLE))
+	PatternParseNameStart(Document, ConType::DOCUMENT, cont.addSafe(move(keyPair.first), parseCharValue(it, ConType::DOCUMENT)), ExtraCasesAnonymous(ConType::DOCUMENT))
 	PatternParseNameStart(Enum, ConType::LIST, throw runtime_error(ERROR_ADD_KEY_ENUM), ExtraCasesEnum)
 public:
 	Dictionary parseDictionary(It& it)
@@ -26,11 +26,11 @@ public:
 	}
 	List parseList(It& it)
 	{
-		PatternParse(List cont; CheckEmpty(ConType::LIST, return cont), cont, ConType::LIST, CLOSE_LIST, ExtraCase(webss_CHAR_ANY_CONTAINER_CHAR_VALUE, cont.add(parseValue(it, ConType::LIST))), CheckOtherValues(parseNameStartList(it, cont), cont.add(parseNumber(it))))
+		PatternParse(List cont; CheckEmpty(ConType::LIST, return cont), cont, ConType::LIST, CLOSE_LIST, ExtraCase(webss_CHAR_ANY_CONTAINER_CHAR_VALUE, cont.add(parseCharValue(it, ConType::LIST))), CheckOtherValues(parseNameStartList(it, cont), cont.add(parseNumber(it))))
 	}
 	Tuple parseTuple(It& it)
 	{
-		PatternParse(Tuple cont; CheckEmpty(ConType::TUPLE, return cont), cont, ConType::TUPLE, CLOSE_TUPLE, ExtraCase(webss_CHAR_ANY_CONTAINER_CHAR_VALUE, cont.add(parseValue(it, ConType::TUPLE))), CheckOtherValues(parseNameStartTuple(it, cont), cont.add(parseNumber(it))))
+		PatternParse(Tuple cont; CheckEmpty(ConType::TUPLE, return cont), cont, ConType::TUPLE, CLOSE_TUPLE, ExtraCase(webss_CHAR_ANY_CONTAINER_CHAR_VALUE, cont.add(parseCharValue(it, ConType::TUPLE))), CheckOtherValues(parseNameStartTuple(it, cont), cont.add(parseNumber(it))))
 	}
 
 	List parseListText(It& it)
@@ -44,8 +44,8 @@ public:
 
 #define CaseNamespace(Char, Func) ExtraCase(Char, checkMultiContainer(++it, [&]() { cont.add(Func); }))
 #define ExtraCasesNamespace \
-	CaseNamespace(CHAR_VARIABLE, parseVariable(it)) \
-	CaseNamespace(CHAR_BLOCK, parseBlock(it))
+	CaseNamespace(CHAR_CONCRETE_ENTITY, parseConcreteEntity(it)) \
+	CaseNamespace(CHAR_ABSTRACT_ENTITY, parseAbstractEntity(it))
 
 	Namespace parseNamespace(It& it, const string& name)
 	{
@@ -54,6 +54,46 @@ public:
 	Enum parseEnum(It& it, const string& name)
 	{
 		PatternParse(Enum cont(name); CheckEmpty(ConType::LIST, return cont), cont, ConType::LIST, CLOSE_LIST, , CheckOtherValues(parseNameStartEnum(it, cont), throw runtime_error(ERROR_ANONYMOUS_KEY)))
+	}
+
+	string getItPosition(It& it)
+	{
+		return "[ln " + to_string(it.getLine()) + ", ch " + to_string(it.getCharCol()) + "]";
+	}
+
+	string getItCurrentChar(It& it)
+	{
+		if (!it)
+			return string("");
+
+		string out;
+		out += '\'';
+		if (*it == '\'' || *it == '\\')
+			out += '\\';
+		out = out + *it + "' ";
+
+		switch (*it)
+		{
+		case '~': out += "(using namespace)"; break;
+		case '!': out += "(entity declaration)"; break;
+		case '@': out += "(import)"; break;
+		case '#': out += "(option)"; break;
+		case '&': out += "(self)"; break;
+		case '|': out += "(name alias)"; break;
+		case ':': out += "(line string)"; break;
+		case '"': out += "(cstring)"; break;
+		case '?': out += "(variable declaration)"; break;
+		case '.': out += "(scope)"; break;
+		case '(': case ')':out += "(round bracket / parenthesis)"; break;
+		case '{': case '}': out += "(curly bracket / brace)"; break;
+		case '[': case ']': out += "(square bracket)"; break;
+		case '<': case '>': out += "(angle bracket / chevron)"; break;
+		default:
+			if (*it == separator)
+				out += "(separator)";
+			break;
+		}
+		return out;
 	}
 
 #define CON ConType::DOCUMENT
@@ -71,24 +111,20 @@ public:
 
 			switch (*it)
 			{
-			case CHAR_VARIABLE:
-				checkMultiContainer(++it, [&]() { vars.add(parseVariable(it)); });
+			case CHAR_CONCRETE_ENTITY:
+				checkMultiContainer(++it, [&]() { vars.add(parseConcreteEntity(it)); });
 				break;
-			case CHAR_BLOCK:
-				checkMultiContainer(++it, [&]() { vars.add(parseBlock(it)); });
+			case CHAR_ABSTRACT_ENTITY:
+				checkMultiContainer(++it, [&]() { vars.add(parseAbstractEntity(it)); });
 				break;
 			case CHAR_OPTION:
-#ifdef ALLOW_OPTION
 				checkMultiContainer(++it, [&]() { parseOption(it); });
 				break;
-#else
-				throw runtime_error("this parser does not have options");
-#endif
 			case CHAR_USING_NAMESPACE:
 				checkMultiContainer(++it, [&]() { parseUsingNamespace(it); });
 				break;
 			case CHAR_IMPORT:
-#ifdef ALLOW_OPTION
+#ifdef ALLOW_IMPORT
 				checkMultiContainer(++it, [&]() { parseImport(it); });
 				break;
 #else
@@ -106,11 +142,23 @@ public:
 				switch (*it)
 				{
 				case webss_CHAR_ANY_CONTAINER_CHAR_VALUE:
-					doc.add(parseValue(it, CON));
+					doc.add(parseCharValue(it, CON));
 					break;
 				default:
-					if (checkOtherValues(it, [&]() { parseNameStartDocument(it, doc); }, [&]() { doc.add(parseNumber(it)); }))
+					if (checkSeparator(it))
 						continue;
+					auto other = parseOtherValue(it, CON);
+					switch (other.type)
+					{
+					case OtherValue::Type::KEY_VALUE:
+						doc.addSafe(move(other.key), move(other.value));
+						break;
+					case OtherValue::Type::VALUE_ONLY:
+						doc.add(move(other.value));
+						break;
+					default:
+						throw runtime_error("unexpected value");
+					}
 				}
 				checkToNextElement(it, CON);
 			} while (it);
@@ -119,51 +167,7 @@ public:
 		}
 		catch (exception e)
 		{
-			string consoleClarification;
-			if (it)
-			{
-				consoleClarification = consoleClarification + " \'" + *it + "\' ";
-				switch (*it)
-				{
-				case '<': case '>':
-					consoleClarification += "(angle bracket / chevron)";
-					break;
-				case '{': case '}':
-					consoleClarification += "(curly bracket / brace)";
-					break;
-				case '(': case ')':
-					consoleClarification += "(round bracket / parenthesis)";
-					break;
-				case '[': case ']':
-					consoleClarification += "(square bracket)";
-					break;
-				case '~':
-					consoleClarification += "(using namespace)";
-					break;
-				case '!':
-					consoleClarification += "(block declaration)";
-					break;
-				case '@':
-					consoleClarification += "(import)";
-					break;
-				case '#':
-					consoleClarification += "(option)";
-					break;
-				case '&':
-					consoleClarification += "(self)";
-					break;
-				case '?':
-					consoleClarification += "(variable declaration)";
-					break;
-				case '.':
-					consoleClarification += "(scope)";
-					break;
-				default:
-					break;
-				}
-			}
-
-			throw runtime_error(string("[ln " + to_string(it.getLine()) + ", ch " + to_string(it.getCharCol()) + "] " + e.what() + consoleClarification).c_str());
+			throw runtime_error(string(getItPosition(it) + ' ' + e.what() + getItCurrentChar(it)).c_str());
 		}
 #endif
 	}
@@ -214,10 +218,10 @@ Webss Parser::parseContainerText(It& it)
 
 Block Parser::parseBlockValue(It& it, ConType con, const string& blockName)
 {
-	return Block(varsBlockId[blockName], checkIsValue(parseValueEqual(it, con)));
+	return Block(varsBlockId[blockName], checkIsConcrete(parseValueEqual(it, con)));
 }
 
 Block Parser::parseBlockValue(It& it, ConType con, const BasicVariable<BlockId>& blockId)
 {
-	return Block(blockId, checkIsValue(parseValueEqual(it, con)));
+	return Block(blockId, checkIsConcrete(parseValueEqual(it, con)));
 }
