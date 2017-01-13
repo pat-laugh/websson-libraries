@@ -13,11 +13,6 @@ namespace webss
 	//repeats until it is at the end or on a non-junk char
 	SmartIterator& skipJunk(SmartIterator& it);
 
-	//checks current char pointed by it; if junk advances it
-	//repeats until it is at the end or on a non-junk char
-	//if it is at the end, throws an error
-	SmartIterator& skipJunkToValid(SmartIterator& it);
-
 	//checks current char pointed by it; if whitespace advances it
 	//repeats until it is at the end or on a non-whitespace char (reminder: '\n' is not whitespace)
 	//also skips over comment if there is one, stopping at the end of the line
@@ -29,16 +24,23 @@ namespace webss
 
 	SmartIterator& skipMultilineComment(SmartIterator& it);
 
-	//calls skipWhitespace, then checks the char pointed by it
-	//if it is not a separator nor an end of container, an error is thrown
-	void cleanLine(SmartIterator& it, ConType con, Language lang);
+	//skips whitespace until either the end or a new line char is reached, else throws an error
+	//does not skip the new line char
+	bool checkLineEscape(SmartIterator& it);
+
+	bool checkComment(SmartIterator& it);
+
+	//checks current char pointed by it; if junk advances it
+	//repeats until it is at the end or on a non-junk char
+	//if it is at the end, throws an error
+	SmartIterator& skipJunkToValid(SmartIterator& it);
 
 	//checks current char pointed by it; if junk advances it
 	//repeats until it is at the end or on a non-junk char
 	//if it is at the end or the condition fails, throws an error
 	SmartIterator& skipJunkToValidCondition(SmartIterator& it, std::function<bool()> condition);
 
-	//skips whitespace until either the end or a new line char is reached, else throws an error
-	//does not skip the new line char
-	void checkLineEscape(SmartIterator& it);
+	//calls skipWhitespace, then checks the char pointed by it
+	//if it is not a separator nor an end of container, an error is thrown
+	void cleanLine(SmartIterator& it, ConType con, Language lang);
 }

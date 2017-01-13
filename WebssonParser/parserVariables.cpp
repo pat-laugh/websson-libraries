@@ -69,39 +69,6 @@ string Parser::parseNameSafe(It& it)
 	return name;
 }
 
-string Parser::parseVariableString(It& it)
-{
-	string varName = parseName(it);
-	if (!vars.hasVariable(varName))
-		throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(varName));
-
-	const Webss* value = &vars[varName].getContent();
-	do
-	{
-		if (it != CHAR_SCOPE)
-		{
-			if (it == CHAR_COLON && it.peekGood() && isNameBody(it.peek()))
-				++it;
-			if (!value->isString())
-				throw runtime_error(ERROR_VARIABLE_STRING);
-			
-			return value->getString();
-		}
-
-		if (!(++it) || !isNameStart(*it))
-		{
-			if (it == CHAR_COLON && it.peekGood() && isNameBody(it.peek()))
-				++it;
-			if (!value->isString())
-				throw runtime_error(ERROR_VARIABLE_STRING);
-			return value->getString() + CHAR_SCOPE;
-		}
-		if (!value->isDictionary())
-			throw runtime_error(ERROR_DEREFERENCED_VARIABLE);
-		value = &value->getDictionary().at(parseName(it));
-	} while (true);
-}
-
 bool Parser::nameExists(const string& name)
 {
 	return isKeyword(name) || vars.hasVariable(name) || varsBlockId.hasVariable(name);

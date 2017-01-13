@@ -189,13 +189,15 @@ namespace webss
 		std::string parseLineString(It& it, ConType con);
 		std::string parseLineStringTextDictionary(It& it, int& countStartEnd, bool& addSpace);
 		std::string parseCString(It& it);
+		void checkEscapedChar(It& it, std::string& line, std::function<void()> funcIsSENT);
+		bool checkVariableString(It& it, std::string& line);
+		std::string parseVariableString(It& it);
 
 		//parserVariables.cpp
 		void parseConcreteEntity(It& it, std::function<void(const Variable& var)> funcForEach);
 		Variable parseAbstractEntity(It& it);
 		std::string parseName(It& it);
 		std::string parseNameSafe(It& it);
-		std::string parseVariableString(It& it);
 		bool nameExists(const std::string& name);
 		void parseUsingNamespace(It& it, std::function<void(const Variable& var)> funcForEach);
 
@@ -238,8 +240,6 @@ namespace webss
 		bool checkEmptyContainerVoid(It& it, ConType con);
 		void checkToNextElement(It& it, ConType con);
 		bool checkOtherValuesVoid(It& it, std::function<void()> funcIsVoid, std::function<void()> funcIsNameStart, std::function<void()> funcIsNumberStart);
-		void checkEscapedChar(It& it, std::string& line, std::function<void()> funcIsSENT);
-		bool checkVariableString(It& it, std::string& line);
 		const BasicVariable<FunctionHeadStandard>& checkVarFheadStandard(const Variable& var);
 		const BasicVariable<FunctionHeadBinary>& checkVarFheadBinary(const Variable& var);
 };

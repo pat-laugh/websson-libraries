@@ -1,35 +1,11 @@
 //MIT License
 //Copyright(c) 2016 Patrick Laughrea
 #include "parser.h"
-#include "unicode.h"
 
 using namespace std;
 using namespace webss;
 
 const char* ERROR_VOID = "empty value";
-
-//adds the char corresponding to an escape; for serialization
-//REQUIREMENT: the char must be an escapable char
-void addEscapedChar(string& str, char c)
-{
-	switch (c)
-	{
-	case '0': str += '\0'; break;
-	case 'a': str += '\a'; break;
-	case 'b': str += '\b'; break;
-	case 'f': str += '\f'; break;
-	case 'n': str += '\n'; break;
-	case 'r': str += '\r'; break;
-	case 't': str += '\t'; break;
-	case 'v': str += '\v'; break;
-
-	case 's': str += ' '; //no need for break
-	case 'e': break; //empty
-
-	default: //isSpecialAscii, else undefined behavior
-		str += c;
-	}
-}
 
 bool Parser::checkSeparator(It& it)
 {
@@ -99,40 +75,6 @@ bool Parser::checkOtherValuesVoid(It& it, function<void()> funcIsVoid, function<
 	else
 		throw runtime_error(ERROR_UNEXPECTED);
 	return false;
-}
-
-void Parser::checkEscapedChar(It& it, std::string& line, function<void()> funcIsSENT)
-{
-	if (!(++it))
-		return; //as if were followed by empty line
-	if (!isEscapableChar(*it))
-	{
-		checkLineEscape(it);
-		return;
-	}
-
-	switch (*it)
-	{
-	case 'x': case 'X': case 'u': case 'U':
-		addEscapedHex(it, line, language);
-		break;
-	case 's': case 'e': case 'n': case 't':
-		funcIsSENT();
-	default:
-		addEscapedChar(line, *it);
-		++it;
-	}
-}
-
-bool Parser::checkVariableString(It& it, string& line)
-{
-	if (!isNameStart(*it))
-	{
-		line += CHAR_CONCRETE_ENTITY;
-		return false;
-	}
-	line += parseVariableString(it);
-	return true;
 }
 
 const BasicVariable<FunctionHeadStandard>& Parser::checkVarFheadStandard(const Variable& var)

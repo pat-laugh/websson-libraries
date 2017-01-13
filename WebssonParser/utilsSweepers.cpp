@@ -27,7 +27,6 @@ What line escape does:
 */
 
 bool checkOperators(SmartIterator& it);
-bool checkComment(SmartIterator& it);
 
 SmartIterator& webss::skipJunk(SmartIterator& it)
 {
@@ -46,7 +45,7 @@ SmartIterator& webss::skipWhitespace(SmartIterator& it)
 			++it;
 		else
 		{
-			checkOperators(it)
+			checkOperators(it);
 			break;
 		}
 	return it;
@@ -118,7 +117,7 @@ bool webss::checkLineEscape(SmartIterator& it)
 	return true;
 }
 
-bool checkComment(SmartIterator& it)
+bool webss::checkComment(SmartIterator& it)
 {
 	if (it.peekEnd())
 		return false;
