@@ -16,7 +16,7 @@ namespace webss
 	class FunctionHeadSwitch
 	{
 	public:
-		enum class Type { NONE, STANDARD, BINARY, MANDATORY, SCOPE };
+		enum class Type { NONE, STANDARD, BINARY, SCOPED };
 		Type t;
 		union
 		{

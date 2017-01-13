@@ -23,7 +23,6 @@ else if (!skipJunk(++it) || !(ConditionSuccess)) \
 else \
 	{ Success; } }
 
-//DONE
 pair<string, KeyType> Parser::parseKey(It& it)
 {
 	string key = parseName(it);
@@ -34,11 +33,9 @@ pair<string, KeyType> Parser::parseKey(It& it)
 		PatternLineGreed(*it == CHAR_SCOPE, keyType = KeyType::SCOPE, keyType = KeyType::VARIABLE)
 	else
 		PatternLineGreed(isKeyChar(*it), keyType = getKeyType(*it), keyType = KeyType::KEYNAME)
-
 	return{ move(key), keyType };
 }
 
-//DONE
 Webss Parser::parseCharValue(It& it, ConType con)
 {
 	switch (*it)
@@ -62,7 +59,6 @@ Webss Parser::parseCharValue(It& it, ConType con)
 	}
 }
 
-//DONE
 void Parser::addJsonKeyvalue(It& it, Dictionary& dict)
 {
 	auto keyPair = parseKey(skipJunkToValidCondition(it, [&]() { return isNameStart(*it); }));
@@ -73,13 +69,11 @@ void Parser::addJsonKeyvalue(It& it, Dictionary& dict)
 	dict.addSafe(move(keyPair.first), parseValueEqual(++it, ConType::DICTIONARY));
 }
 
-//DONE
 Webss Parser::parseValueColon(It& it, ConType con)
 {
 	return it != CHAR_COLON ? parseLineString(it, con) : parseContainerText(skipJunkToValid(++it));
 }
 
-//DONE
 Webss Parser::parseValueEqual(It& it, ConType con)
 {
 	switch (*skipJunkToValid(it))
@@ -94,7 +88,6 @@ Webss Parser::parseValueEqual(It& it, ConType con)
 	throw runtime_error(ERROR_VALUE);
 }
 
-//DONE
 const Variable& Parser::parseScopedValue(It& it, const string& varName) //used to be at line 121 now at line 98!
 {
 	try
@@ -115,10 +108,8 @@ const Variable& Parser::parseScopedValue(It& it, const string& varName) //used t
 	}
 }
 
-//DONE
 Parser::OtherValue Parser::parseOtherValue(It& it, ConType con)
 {
-	using Type = OtherValue::Type;
 	if (isNameStart(*it))
 	{
 		auto keyPair = parseKey(it);
@@ -135,18 +126,16 @@ Parser::OtherValue Parser::parseOtherValue(It& it, ConType con)
 		case KeyType::SCOPE:
 			return checkOtherValueVariable(it, con, parseScopedValue(it, keyPair.first));
 		default:
-			throw runtime_error(ERROR_UNEXPECTED);
+			break;
 		}
 	}
 	else if (isNumberStart(*it))
 		return{ parseNumber(it) };
-	else
-		throw runtime_error(ERROR_UNEXPECTED);
+	throw runtime_error(ERROR_UNEXPECTED);
 }
 
 Parser::OtherValue Parser::checkOtherValueVariable(It& it, ConType con, const Variable& var)
 {
-	using Type = OtherValue::Type;
 	const auto& content = var.getContent();
 	if (content.isConcrete())
 		return{ Webss(var) };
@@ -156,8 +145,6 @@ Parser::OtherValue Parser::checkOtherValueVariable(It& it, ConType con, const Va
 	case WebssType::BLOCK_HEAD:
 	case WebssType::FUNCTION_HEAD_BINARY:
 		PatternLineGreed(*it == OPEN_TUPLE, return{ parseFunctionBodyBinary(it, content.getFunctionHeadBinary().getParameters()) }, break)
-	case WebssType::FUNCTION_HEAD_MANDATORY:
-		//...
 	case WebssType::FUNCTION_HEAD_SCOPED:
 		//...
 	case WebssType::FUNCTION_HEAD_STANDARD:
@@ -187,7 +174,10 @@ void Parser::parseOtherValue(It& it, ConType con, std::function<void(string&& ke
 		break;
 	default:
 		auto it = other.aliases.begin();
-		(other.type == OtherValue::Type::KEY_VALUE_ALIASES ? funcKeyValue(move(*it), move(other.value)) : funcKeyOnly(move(*it)));
+		if (other.type == OtherValue::Type::KEY_VALUE_ALIASES)
+			funcKeyValue(move(*it), move(other.value));
+		else
+			funcKeyOnly(move(*it));
 		while (++it != other.aliases.end())
 			funcAlias(move(*it));
 		break;

@@ -689,7 +689,7 @@ bool Webss::isFunctionHead() const
 {
 	switch (t)
 	{
-	case WebssType::FUNCTION_HEAD_BINARY: case WebssType::FUNCTION_HEAD_MANDATORY: case WebssType::FUNCTION_HEAD_STANDARD:
+	case WebssType::FUNCTION_HEAD_BINARY: case WebssType::FUNCTION_HEAD_SCOPED: case WebssType::FUNCTION_HEAD_STANDARD:
 		return true;
 	default:
 		return false;
@@ -717,7 +717,7 @@ bool Webss::isConcrete() const
 	{
 	case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE: case WebssType::PRIMITIVE_STRING:
 	case WebssType::DICTIONARY: case WebssType::LIST: case WebssType::TUPLE:
-	case WebssType::FUNCTION_STANDARD: case WebssType::FUNCTION_BINARY: case WebssType::FUNCTION_SCOPED: case WebssType::FUNCTION_MANDATORY:
+	case WebssType::FUNCTION_STANDARD: case WebssType::FUNCTION_BINARY: case WebssType::FUNCTION_SCOPED:
 	case WebssType::BLOCK_VALUE:
 		return true;
 	case WebssType::VARIABLE:

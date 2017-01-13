@@ -24,7 +24,6 @@ namespace webss
 	using FunctionHeadBinary = BasicFunctionHead<ParamBinary>;
 	using FunctionStandard = BasicFunctionDual<FunctionHeadStandard, Webss>;
 	using FunctionBinary = BasicFunctionSingle<FunctionHeadBinary, Webss>;
-//	using FunctionMandatory = BasicFunctionMandatory<Webss>;
 //	using FunctionScoped = BasicFunctionScoped<Webss>;
 	using BlockHead = FunctionHeadStandard;
 	using Block = BasicBlock<Webss>;

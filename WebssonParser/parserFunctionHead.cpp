@@ -28,7 +28,9 @@ FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 	case OPEN_TUPLE:
 		return parseFunctionHeadBinary(it, FunctionHeadBinary());
 	case CHAR_CONCRETE_ENTITY: case CHAR_ABSTRACT_ENTITY: case CHAR_USING_NAMESPACE: //scoped function
-	case OPEN_DICTIONARY: //mandatory function
+		//...
+	case OPEN_DICTIONARY:
+		throw runtime_error("this parser cannot parse mandatory functions");
 	default:
 		break;
 	}
@@ -51,14 +53,12 @@ FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 		{
 		case WebssType::FUNCTION_HEAD_BINARY:
 			return parseFunctionHeadBinary(it, FunctionHeadBinary(checkVarFheadBinary(other.abstractEntity)));
-		case WebssType::FUNCTION_HEAD_MANDATORY:
-			break;
 		case WebssType::FUNCTION_HEAD_SCOPED:
 			break;
 		case WebssType::FUNCTION_HEAD_STANDARD:
 			return parseFunctionHeadStandard(it, FunctionHeadStandard(checkVarFheadStandard(other.abstractEntity)));
 		default:
-			break;
+			throw runtime_error(ERROR_UNEXPECTED);
 		}
 	default:
 		THROW_ERROR;
@@ -120,9 +120,7 @@ void Parser::parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fh
 	case Type::BINARY:
 		lastParam.setFunctionHead(move(headSwitch.fheadBinary));
 		break;
-	case Type::MANDATORY:
-		//...
-	case Type::SCOPE:
+	case Type::SCOPED:
 		//...
 	case Type::STANDARD:
 		lastParam.setFunctionHead(move(headSwitch.fheadStandard));

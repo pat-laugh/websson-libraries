@@ -6,21 +6,7 @@ using namespace std;
 using namespace webss;
 
 string webss::deserializeFunctionStandard(const FunctionStandard& func)
-{/*
- switch (head.getFunctionType())
- {
- case FunctionHead::FunctionType::BINARY:
- if (function.con != Function::BodyType::TUPLE)
- throw runtime_error("binary function body must be tuple");
- return deserializeBinaryFunctionHead(head) + OPEN_TUPLE + deserializeFunctionBinary(head.getTuple(), function.tuple) + CLOSE_TUPLE;
- //	case FunctionHead::FunctionType::MANDATORY: //(to be added at some point -- 16-12-05)
- //		break;
- //	case FunctionHead::FunctionType::ENUM: //to check later -- 16-12-09
- //		return deserializeEnum(head);
- default:
- break;
- }*/
-
+{
 	return deserializeFunctionHeadStandard(func) + (func.hasList
 		? deserializeFunctionBodyStandard(func.getParameters(), func.getList())
 		: deserializeFunctionBodyStandard(func.getParameters(), func.getTuple()));
