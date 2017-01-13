@@ -6,7 +6,7 @@ using namespace std;
 using namespace webss;
 
 #define PatternLineGreed(ConditionSuccess, Success, Failure) { \
-if (!skipWhitespace(it)) \
+if (!skipLineJunk(it)) \
 	{ Failure; } \
 else if (*it != '\n') \
 { \

@@ -15,7 +15,7 @@ using namespace webss;
 type_int getNumber(SmartIterator& it, NumberMagnitude mag, function<bool()> func1, function<int()> func2)
 {
 	type_int number = func2();
-	while (skipWhitespace(++it) && func1())
+	while (skipLineJunk(++it) && func1())
 		number = number * mag + func2();
 	return number;
 }
@@ -29,7 +29,7 @@ double checkDecimals(SmartIterator& it, NumberMagnitude mag, function<bool()> fu
 
 	do
 		numDouble += (double)func2() / (decimalMultiplier *= mag);
-	while (skipWhitespace(++it) && func1());
+	while (skipLineJunk(++it) && func1());
 	return numDouble;
 }
 
@@ -62,7 +62,7 @@ double webss::addNumberMagnitude(SmartIterator& it, double num, NumberMagnitude 
 bool webss::checkNumberStart(SmartIterator& it)
 {
 	bool negative = *it == '-';
-	if ((*it == '-' || *it == '+') && (!skipWhitespace(++it) || !isDigit(*it)))
+	if ((*it == '-' || *it == '+') && (!skipLineJunk(++it) || !isDigit(*it)))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
 	return negative;
 }

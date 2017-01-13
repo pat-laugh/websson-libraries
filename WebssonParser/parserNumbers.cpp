@@ -28,7 +28,7 @@ Webss Parser::parseNumber(It& it)
 
 	if (isDecimalSeparator(*it, language))
 	{
-		if (!skipWhitespace(++it))
+		if (!skipLineJunk(++it))
 			throw runtime_error(ERROR_EXPECTED_NUMBER);
 
 		auto decimals = getDecimals(it, magnitude);
@@ -44,17 +44,17 @@ Webss Parser::parseNumber(It& it)
 			throw runtime_error("invalid number");
 	}
 
-	if (!skipWhitespace(++it) || !isNumberStart(*it))
+	if (!skipLineJunk(++it) || !isNumberStart(*it))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
 	return addNumberMagnitude(it, numDouble, magnitude);
 }
 
 pair<type_int, NumberMagnitude> parseInt(It& it)
 {
-#define CHECK_FIRST_DIGIT(x) if (!skipWhitespace(++it) || !x) throw runtime_error(ERROR_EXPECTED_NUMBER)
+#define CHECK_FIRST_DIGIT(x) if (!skipLineJunk(++it) || !x) throw runtime_error(ERROR_EXPECTED_NUMBER)
 	if (*it == '0')
 	{
-		if (!skipWhitespace(++it))
+		if (!skipLineJunk(++it))
 			return{ 0, MAGNITUDE_DEC };
 
 		switch (*it)

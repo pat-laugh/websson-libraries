@@ -9,38 +9,28 @@
 
 namespace webss
 {
-	//checks current char pointed by it; if junk advances it
-	//repeats until it is at the end or on a non-junk char
+	//skips junk and valid junk operators (line escape and comments)
 	SmartIterator& skipJunk(SmartIterator& it);
 
-	//checks current char pointed by it; if whitespace advances it
-	//repeats until it is at the end or on a non-whitespace char (reminder: '\n' is not whitespace)
-	//also skips over comment if there is one, stopping at the end of the line
-	SmartIterator& skipWhitespace(SmartIterator& it);
+	//skips line junk and valid junk operators (line escape and comments)
+	SmartIterator& skipLineJunk(SmartIterator& it);
 
-	//checks current char pointed by it; if not '\n' advances it
-	//repeats until it is at the end or on a '\n' char
-	SmartIterator& skipLine(SmartIterator& it);
-
-	SmartIterator& skipMultilineComment(SmartIterator& it);
-
-	//skips whitespace until either the end or a new line char is reached, else throws an error
-	//does not skip the new line char
+	//if it points to a valid line escape, then skips it and returns true, else returns false
+	//throws an error if a valid line escape has an invalid operand (only line junk is allowed between '\\' and ('\n' or eof))
 	bool checkLineEscape(SmartIterator& it);
 
+	//if it points to a valid comment, then skips it and returns true, else returns false
 	bool checkComment(SmartIterator& it);
 
-	//checks current char pointed by it; if junk advances it
-	//repeats until it is at the end or on a non-junk char
-	//if it is at the end, throws an error
+	//skips junk and valid junk operators (line escape and comments) until valid non-junk char is met
+	//throws an error if eof is met
 	SmartIterator& skipJunkToValid(SmartIterator& it);
 
-	//checks current char pointed by it; if junk advances it
-	//repeats until it is at the end or on a non-junk char
-	//if it is at the end or the condition fails, throws an error
+	//skips junk and valid junk operators (line escape and comments) until valid non-junk char is met and then tests the condition
+	//throws an error if eof is met or if the condition fails
 	SmartIterator& skipJunkToValidCondition(SmartIterator& it, std::function<bool()> condition);
 
-	//calls skipWhitespace, then checks the char pointed by it
+	//calls skipLineJunk, then checks the char pointed by it
 	//if it is not a separator nor an end of container, an error is thrown
 	void cleanLine(SmartIterator& it, ConType con, Language lang);
 }

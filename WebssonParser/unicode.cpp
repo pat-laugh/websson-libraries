@@ -10,7 +10,7 @@ using namespace webss;
 
 //adds a unicode char to the string
 //REQUIREMENT: num must be a valid unicode character
-void addUnicode(string& str, unsigned int num)
+void putUnicode(string& str, unsigned int num)
 {
 	if (num < power2<7>::value)
 	{
@@ -68,17 +68,15 @@ unsigned int readHex(SmartIterator& it, unsigned int numDigits)
 	return hex;
 }
 
-void addContainedEscapedHex(SmartIterator& it, string& str, Language lang)
+void putContainedEscapedHex(SmartIterator& it, string& str, char separator)
 {
 	if (skipJunk(it) != '{')
 		throw runtime_error(webss_ERROR_EXPECTED_CHAR('{'));
-	char separator = getLanguageSeparator(lang);
 
 loopStart:
-	skipJunkToValid(++it);
-	if (isDigitHex(*it))
+	if (isDigitHex(*skipJunkToValid(++it)))
 	{
-		addUnicode(str, static_cast<unsigned int>(getNumberHex(it)));
+		putUnicode(str, static_cast<unsigned int>(getNumberHex(it)));
 		if (!it)
 			throw runtime_error(webss_ERROR_EXPECTED_CHAR('}'));
 	}
@@ -92,21 +90,21 @@ loopStart:
 	return;
 }
 
-void webss::addEscapedHex(SmartIterator& it, string& str, Language lang)
+void webss::putEscapedHex(SmartIterator& it, string& str, char separator)
 {
 	switch (*it)
 	{
 	case 'x':
-		addUnicode(str, readHex(++it, 2));
+		putUnicode(str, readHex(++it, 2));
 		return;
 	case 'u':
-		addUnicode(str, readHex(++it, 4));
+		putUnicode(str, readHex(++it, 4));
 		return;
 	case 'U':
-		addUnicode(str, readHex(++it, 8));
+		putUnicode(str, readHex(++it, 8));
 		return;
 	case 'X':
-		addContainedEscapedHex(++it, str, lang);
+		putContainedEscapedHex(++it, str, separator);
 		return;
 	default:
 		throw domain_error(ERROR_UNDEFINED);

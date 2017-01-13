@@ -23,7 +23,7 @@ namespace webss
 	bool isJunk(char c);
 
 	//junk except newline
-	bool isWhitespace(char c);
+	bool isLineJunk(char c);
 
 	//whether or not the char can be escaped
 	//CLARIFICATION: special escapes that require more than 1 char, like \x and \u ARE included

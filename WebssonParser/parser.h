@@ -168,7 +168,7 @@ namespace webss
 		Dictionary parseDictionary(It& it);
 		Namespace parseNamespace(It& it, const std::string& name);
 		Enum parseEnum(It& it, const std::string& name);
-		std::string parseDictionaryText(It& it);
+		Webss parseContainerText(It& it);
 
 		//parserKeyValues.cpp
 		std::pair<std::string, KeyType> parseKey(It& it);
@@ -185,13 +185,13 @@ namespace webss
 		Webss parseNumber(It& it);
 
 		//parserStrings.cpp
-		Webss parseContainerText(It& it);
 		std::string parseLineString(It& it, ConType con);
-		std::string parseLineStringTextDictionary(It& it, int& countStartEnd, bool& addSpace);
+		std::string parseMultilineString(It& it);
+		bool parseMultilineStringLine(It& it, string& text, int& countStartEnd);
 		std::string parseCString(It& it);
-		void checkEscapedChar(It& it, std::string& line, std::function<void()> funcIsSENT);
-		bool checkVariableString(It& it, std::string& line);
-		std::string parseVariableString(It& it);
+		void checkEscapedChar(It& it, std::string& line);
+		bool checkStringEntity(It& it, std::string& line);
+		const std::string& parseStringEntity(It& it);
 
 		//parserVariables.cpp
 		void parseConcreteEntity(It& it, std::function<void(const Variable& var)> funcForEach);

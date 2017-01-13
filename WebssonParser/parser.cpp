@@ -91,6 +91,7 @@ void Parser::parseOption(It& it)
 	throw runtime_error("could not read an option");
 isEnd:
 	separator = getLanguageSeparator(language);
-	skipLine(++it);
+	while (++it && *it != '\n') //skip line
+		;
 }
 

@@ -32,7 +32,7 @@ bool webss::isJunk(char c)
 	return c == ' ' || isControlAscii(c);
 }
 
-bool webss::isWhitespace(char c)
+bool webss::isLineJunk(char c)
 {
 	return c != '\n' && isJunk(c);
 }

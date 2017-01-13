@@ -209,7 +209,7 @@ Webss Parser::parseContainerText(It& it)
 	switch (*it)
 	{
 	case OPEN_DICTIONARY:
-		return parseDictionaryText(++it);
+		return parseMultilineString(++it);
 	case OPEN_LIST:
 		return parseListText(++it);
 	case OPEN_TUPLE:

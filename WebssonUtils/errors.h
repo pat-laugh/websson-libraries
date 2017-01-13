@@ -33,7 +33,6 @@ namespace webss
 	const char ERROR_ANONYMOUS_KEY[] = "can't have anonymous key in dictionary, function head or enum";
 	const char ERROR_CONTAINER_NOT_CLOSED[] = "container is not closed";
 	const char ERROR_NO_DEFAULT[] = "no default value, so value must be implemented";
-	const char ERROR_VARIABLE_STRING[] = "variable in string must be of type string";
 	const char ERROR_DEREFERENCED_VARIABLE[] = "dereferenced element must be a variable of type dictionary";
 	const char ERROR_FUNCTION_BODY[] = "expected function body";
 
