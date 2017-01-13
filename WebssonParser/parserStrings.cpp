@@ -1,9 +1,12 @@
 //MIT License
 //Copyright(c) 2016 Patrick Laughrea
 #include "parser.h"
+#include "unicode.h"
 
 using namespace std;
 using namespace webss;
+
+void addEscapedChar(string& str, char c);
 
 //HOW IT WORKS: starting whitespace is skipped, then stuff is read until line end
 //everytime a \s or \e is met, the minimum length of the output is set; this is because
@@ -14,12 +17,10 @@ using namespace webss;
 string Parser::parseLineString(It& it, ConType con)
 {
 	skipWhitespace(it);
-	if (!it)
-		return "";
 
 	string line;
 	auto minLength = line.length();
-	do
+	while (it)
 	{
 	switchStart:
 		if (isLineEnd(*it, con, language))
@@ -28,21 +29,10 @@ string Parser::parseLineString(It& it, ConType con)
 		switch (*it)
 		{
 		case CHAR_COMMENT:
-			if (!(++it))
-				return line + CHAR_COMMENT;
-			if (*it == CHAR_COMMENT) //is comment
-			{
-				skipLine(++it);
-				goto loopEnd;
-			}
-			else if (*it == '*')
-			{
-				skipMultilineComment(++it);
+			if (checkComment(it))
 				continue;
-			}
-			line += CHAR_COMMENT;
-			goto switchStart;
-		case CHAR_CONCRETE_ENTITY:
+			break;
+		case CHAR_CONCRETE_ENTITY: //TO IMPROVE
 			if (!(++it))
 				return line + CHAR_CONCRETE_ENTITY;
 			if (!checkVariableString(it, line)) //if variable, iterator has to be checked
@@ -54,10 +44,10 @@ string Parser::parseLineString(It& it, ConType con)
 		default:
 			break;
 		}
-		if (!isWhitespace(*it) || *it == ' ')
+		if (!isControlAscii(*it))
 			line += *it;
 		++it;
-	} while (it);
+	};
 loopEnd:
 	if (!line.empty())
 		while (line.back() == ' ' && line.length() > minLength)
@@ -105,23 +95,10 @@ string Parser::parseLineStringTextDictionary(It& it, int& countStartEnd, bool& a
 		switch (*it) //it is initially checked by caller
 		{
 		case CHAR_COMMENT:
-			if (!(++it))
-				throw runtime_error(NOT_CLOSED);
-			if (*it == CHAR_COMMENT)
-			{
-				skipLine(++it);
-				++it;
-				goto endLoop;
-			}
-			else if (*it == '*')
-			{
-				skipMultilineComment(++it);
+			if (checkComment(it))
 				continue;
-			}
-			line += CHAR_COMMENT;
-			addSpace = true;
-			goto switchStart;
-		case CHAR_CONCRETE_ENTITY:
+			break;
+		case CHAR_CONCRETE_ENTITY: //TO IMPROVE
 		{
 			if (!(++it))
 				throw runtime_error(NOT_CLOSED);
@@ -149,13 +126,12 @@ string Parser::parseLineStringTextDictionary(It& it, int& countStartEnd, bool& a
 		default:
 			break;
 		}
-		if (!isWhitespace(*it))
+		if (!isControlAscii(*it))
 		{
 			line += *it;
-			addSpace = true;
+			if (*it != ' ')
+				addSpace = true;
 		}
-		else if (*it == ' ')
-			line += *it;
 		++it;
 	} while (it);
 endLoop:
@@ -181,19 +157,19 @@ endLoop:
 	return line;
 }
 
+const char NOT_CLOSED[] = "string is not closed";
 string Parser::parseCString(It& it)
 {
-	static const char NOT_CLOSED[] = "string is not closed";
-	if (!it)
-		throw runtime_error(NOT_CLOSED);
-
 	string line;
-	do
+	while (it)
 	{
 	switchStart:
 		switch (*it)
 		{
-		case CHAR_CONCRETE_ENTITY:
+		case CHAR_CSTRING:
+			++it;
+			return line;
+		case CHAR_CONCRETE_ENTITY: //TO IMPROVE
 			if (!(++it))
 				throw runtime_error(NOT_CLOSED);
 			if (!checkVariableString(it, line))
@@ -202,22 +178,101 @@ string Parser::parseCString(It& it)
 		case '\\':
 			checkEscapedChar(it, line, []() {});
 			continue;
-		case CHAR_CSTRING:
-			++it;
-			return line;
+		case '\n':
+			throw runtime_error("can't have line break in cstring");
 		default:
 			break;
 		}
-		if (isJunk(*it))
-		{
-			if (*it == '\n')
-				throw runtime_error("can't have line break in cstring");
-			else if (*it == ' ') //other junk is ignored
-				line += ' ';
-		}
-		else
+		if (!isControlAscii(*it))
 			line += *it;
 		++it;
-	} while (it);
+	};
 	throw runtime_error(NOT_CLOSED);
+}
+
+//adds the char corresponding to an escape; for serialization
+//REQUIREMENT: the char must be an escapable char
+void addEscapedChar(string& str, char c)
+{
+	switch (c)
+	{
+	case '0': str += '\0'; break;
+	case 'a': str += '\a'; break;
+	case 'b': str += '\b'; break;
+	case 'f': str += '\f'; break;
+	case 'n': str += '\n'; break;
+	case 'r': str += '\r'; break;
+	case 't': str += '\t'; break;
+	case 'v': str += '\v'; break;
+
+	case 's': str += ' '; //no need for break
+	case 'e': break; //empty
+
+	default: //isSpecialAscii, else undefined behavior
+		str += c;
+	}
+}
+
+void Parser::checkEscapedChar(It& it, std::string& line, function<void()> funcIsSENT)
+{
+	if (checkLineEscape(it))
+		return;
+	if (!isEscapableChar(*(++it))) //no need to check it is valid since if not valid, would've been a line escape
+		throw runtime_error("invalid char escape");
+
+	switch (*(++it))
+	{
+	case 'x': case 'X': case 'u': case 'U':
+		addEscapedHex(it, line, language);
+		break;
+	case 's': case 'e': case 'n': case 't':
+		funcIsSENT();
+	default:
+		addEscapedChar(line, *it);
+		++it;
+	}
+}
+
+bool Parser::checkVariableString(It& it, string& line)
+{
+	if (!isNameStart(*it))
+	{
+		line += CHAR_CONCRETE_ENTITY;
+		return false;
+	}
+	line += parseVariableString(it);
+	return true;
+}
+
+string Parser::parseVariableString(It& it)
+{
+	string varName = parseName(it);
+	if (!vars.hasVariable(varName))
+		throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(varName));
+
+	const Webss* value = &vars[varName].getContent();
+	do
+	{
+		if (it != CHAR_SCOPE)
+		{
+			if (it == CHAR_COLON && it.peekGood() && isNameBody(it.peek()))
+				++it;
+			if (!value->isString())
+				throw runtime_error(ERROR_VARIABLE_STRING);
+
+			return value->getString();
+		}
+
+		if (!(++it) || !isNameStart(*it))
+		{
+			if (it == CHAR_COLON && it.peekGood() && isNameBody(it.peek()))
+				++it;
+			if (!value->isString())
+				throw runtime_error(ERROR_VARIABLE_STRING);
+			return value->getString() + CHAR_SCOPE;
+		}
+		if (!value->isDictionary())
+			throw runtime_error(ERROR_DEREFERENCED_VARIABLE);
+		value = &value->getDictionary().at(parseName(it));
+	} while (true);
 }
