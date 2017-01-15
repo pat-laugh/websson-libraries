@@ -28,7 +28,7 @@ string Parser::parseLineString(It& it, ConType con)
 	string::size_type minLength = 0;
 	while (it)
 	{
-		if (isLineEnd(*it, con, language))
+		if (isLineEnd(*it, con, separator))
 			break;
 
 		switch (*it)

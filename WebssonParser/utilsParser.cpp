@@ -26,11 +26,6 @@ void webss::setDefaultValue(Tuple& tuple, const FunctionHeadStandard::Tuple& def
 	::setDefaultValue(tuple[index], defaultTuple[index]);
 }
 
-void webss::setDefaultValueSafe(Tuple& tuple, const FunctionHeadStandard::Tuple& defaultTuple, Tuple::size_type index)
-{
-	::setDefaultValue(tuple.at(index), defaultTuple.at(index));
-}
-
 Tuple webss::makeDefaultTuple(const FunctionHeadStandard::Tuple& defaultTuple)
 {
 	Tuple tuple(defaultTuple.getSharedKeys(), defaultTuple.containerText);
@@ -43,27 +38,6 @@ Tuple webss::makeDefaultTuple(const FunctionHeadStandard::Tuple& defaultTuple)
 
 const char ERROR_IS_FUNCTION_HEAD[] = "unexpected value of type function head";
 const char ERROR_IS_NOT_FUNCTION_HEAD[] = "expected value of type function head";
-
-Webss&& webss::checkIsConcrete(Webss&& webss)
-{
-	if (!webss.isConcrete())
-		throw runtime_error("expected a concrete value");
-	return move(webss);
-}
-
-const Webss& webss::checkIsConcrete(const Webss& webss)
-{
-	if (!webss.isConcrete())
-		throw runtime_error("expected a concrete value");
-	return webss;
-}
-
-const BasicEntity<Webss>& webss::checkIsConcrete(const BasicEntity<Webss>& ent)
-{
-	if (!ent.getContent().isConcrete())
-		throw runtime_error("expected a concrete value");
-	return ent;
-}
 
 const Namespace& webss::checkIsNamespace(const BasicEntity<Webss>& ent)
 {

@@ -209,7 +209,6 @@ namespace webss
 		Entity parseAbstractEntity(It& it);
 		std::string parseName(It& it);
 		std::string parseNameSafe(It& it);
-		bool nameExists(const std::string& name);
 		void parseUsingNamespace(It& it, std::function<void(const Entity& ent)> funcForEach);
 
 		//parserFunctions.cpp
@@ -249,14 +248,8 @@ namespace webss
 
 
 
-
-		bool checkSeparator(It& it);
-		bool checkSeparatorVoid(It& it, std::function<void()> funcIsVoid);
-		void checkContainerEndVoid(It& it, std::function<void()> funcIsVoid);
 		
 		
-		void checkToNextElement(It& it, ConType con);
-		bool checkOtherValuesVoid(It& it, std::function<void()> funcIsVoid, std::function<void()> funcIsNameStart, std::function<void()> funcIsNumberStart);
 		const BasicEntity<FunctionHeadStandard>& checkEntFheadStandard(const Entity& ent);
 		const BasicEntity<FunctionHeadBinary>& checkEntFheadBinary(const Entity& ent);
 };

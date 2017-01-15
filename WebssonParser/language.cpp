@@ -5,21 +5,6 @@
 using namespace std;
 using namespace webss;
 
-bool webss::isLineEnd(char c, ConType con, Language lang)
-{
-	switch (c)
-	{
-	case '\n':
-		return true;
-	case CHAR_SEPARATOR:
-		return lang == Language::DEFAULT || lang == Language::EN;
-	case ';':
-		return lang == Language::INTL || lang == Language::FR;
-	default:
-		return con.isEnd(c);
-	}
-}
-
 bool webss::isNumberEnd(char c, Language lang)
 {
 	return !isDecimalSeparator(c, lang) && !isMagnitudeSeparator(c);

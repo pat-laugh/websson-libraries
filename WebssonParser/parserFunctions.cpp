@@ -74,7 +74,7 @@ void checkDefaultValues(Tuple& tuple, const FunctionHeadStandard::Tuple& default
 {
 	for (Tuple::size_type index = 0; index < tuple.size(); ++index)
 		if (tuple.at(index).t == WebssType::NONE)
-			setDefaultValueSafe(tuple, defaultTuple, index);
+			setDefaultValue(tuple, defaultTuple, index);
 }
 
 Tuple Parser::functionParseTuple(It& it, const FunctionHeadStandard::Tuple& defaultTuple)

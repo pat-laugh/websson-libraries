@@ -63,15 +63,10 @@ string Parser::parseName(It& it)
 string Parser::parseNameSafe(It& it)
 {
 	skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
-	string name = parseName(it);
-	if (nameExists(name))
-		throw runtime_error(webss_ERROR_ENTITY_EXISTS(name));
-	return name;
-}
-
-bool Parser::nameExists(const string& name)
-{
-	return isKeyword(name) || ents.hasEntity(name) || entsBlockId.hasEntity(name);
+	auto nameType = parseNameType(it);
+	if (nameType.type == NameType::NAME)
+		return move(nameType.name);
+	throw runtime_error("entity name must neither be an existing entity's name or a keyword");
 }
 
 void Parser::parseUsingNamespace(It& it, function<void(const Entity& ent)> funcForEach)
