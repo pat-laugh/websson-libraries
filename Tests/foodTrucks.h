@@ -15,7 +15,7 @@ const std::string schemaTime[] = { "hours", "mins" };
 class Person
 {
 public:
-	using Variable = BasicVariable<Webss>;
+	using Entity = BasicEntity<Webss>;
 	struct Address
 	{
 	public:
@@ -166,7 +166,7 @@ public:
 		return Function(Person::getSchema(), std::move(tuple));
 	}
 
-	Webss deserialize(const std::shared_ptr<Variable>& var)
+	Webss deserialize(const std::shared_ptr<Entity>& ent)
 	{
 		Tuple tuple;
 		tuple.add(firstName);
@@ -196,7 +196,7 @@ public:
 			tuple.add(WebssType::DEFAULT);
 		else
 			tuple.add(spouse->deserialize());
-		return Function(var, std::move(tuple));
+		return Function(ent, std::move(tuple));
 	}
 
 	static Tuple* getSchema()

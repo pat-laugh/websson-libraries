@@ -4,7 +4,7 @@
 
 #include <memory>
 
-#include "variable.h"
+#include "entity.h"
 #include "types.h"
 
 namespace webss
@@ -12,12 +12,12 @@ namespace webss
 	class BlockId
 	{
 	public:
-		using Variable = BasicVariable<type_int>;
+		using Entity = BasicEntity<WebssInt>;
 
-		BlockId(std::string&& name, type_int index) : name(std::move(name)), hasVar(false), index(index) {}
-		BlockId(const std::string& name, type_int index) : name(name), hasVar(false), index(index) {}
-		BlockId(std::string&& name, const Variable& var) : name(std::move(name)), hasVar(true), var(var) {}
-		BlockId(const std::string& name, const Variable& var) : name(name), hasVar(true), var(var) {}
+		BlockId(std::string&& name, WebssInt index) : name(std::move(name)), hasEnt(false), index(index) {}
+		BlockId(const std::string& name, WebssInt index) : name(name), hasEnt(false), index(index) {}
+		BlockId(std::string&& name, const Entity& ent) : name(std::move(name)), hasEnt(true), ent(ent) {}
+		BlockId(const std::string& name, const Entity& ent) : name(name), hasEnt(true), ent(ent) {}
 
 		BlockId(BlockId&& o) : name(std::move(o.name)) { copyUnion(std::move(o)); }
 		BlockId(const BlockId& o) : name(o.name) { copyUnion(o); }
@@ -25,40 +25,40 @@ namespace webss
 		~BlockId() { destroyUnion(); }
 
 		const std::string& getName() const { return name; }
-		type_int getIndex() const { return hasVar ? var.getContent() : index; }
-		bool hasVariable() const { return hasVar; }
-		const std::string& getVarName() const { return var.getName(); }
+		WebssInt getIndex() const { return hasEnt ? ent.getContent() : index; }
+		bool hasEntity() const { return hasEnt; }
+		const std::string& getEntName() const { return ent.getName(); }
 	private:
 		std::string name;
-		bool hasVar;
+		bool hasEnt;
 		union
 		{
-			type_int index; 
-			Variable var;
+			WebssInt index; 
+			Entity ent;
 		};
 
 		void copyUnion(BlockId&& o)
 		{
-			if ((hasVar = o.hasVar))
+			if ((hasEnt = o.hasEnt))
 			{
-				new (&var) Variable(std::move(o.var));
-				o.hasVar = false;
+				new (&ent) Entity(std::move(o.ent));
+				o.hasEnt = false;
 			}
 			else
 				index = o.index;
 		}
 		void copyUnion(const BlockId& o)
 		{
-			if ((hasVar = o.hasVar))
-				new (&var) Variable(o.var);
+			if ((hasEnt = o.hasEnt))
+				new (&ent) Entity(o.ent);
 			else
 				index = o.index;
 		}
 
 		void destroyUnion()
 		{
-			if (hasVar)
-				var.~BasicVariable();
+			if (hasEnt)
+				ent.~BasicEntity();
 		}
 	};
 
@@ -66,10 +66,10 @@ namespace webss
 	class BasicBlock
 	{
 	public:
-		using Variable = BasicVariable<BlockId>;
+		using Entity = BasicEntity<BlockId>;
 
-		BasicBlock(const Variable& id, Webss&& value) : id(id), value(std::move(value)) {}
-		BasicBlock(const Variable& id, const Webss& value) : id(id), value(value) {}
+		BasicBlock(const Entity& id, Webss&& value) : id(id), value(std::move(value)) {}
+		BasicBlock(const Entity& id, const Webss& value) : id(id), value(value) {}
 
 		~BasicBlock() {}
 
@@ -96,10 +96,10 @@ namespace webss
 		}
 
 		const std::string& getName() const { return id.getName(); }
-		type_int getIndex() const { return id.getContent().getIndex(); }
+		WebssInt getIndex() const { return id.getContent().getIndex(); }
 		const Webss& getValue() const { return value; }
 	private:
-		Variable id;
+		Entity id;
 		Webss value;
 	};
 }

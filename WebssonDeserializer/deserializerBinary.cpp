@@ -6,7 +6,7 @@ using namespace std;
 using namespace webss;
 
 //returns a string containing a number encoded in UTF-7 encoding thing
-string writeBinarySize(type_binary_size num)
+string writeBinarySize(WebssBinarySize num)
 {
 	string out;
 	if (num < power2<7>::value)
@@ -42,7 +42,7 @@ string writeBinarySize(type_binary_size num)
 }
 
 //returns a string containing the specified number of bytes from the number in little endian
-string writeBytes(type_binary_size num, char* value)
+string writeBytes(WebssBinarySize num, char* value)
 {
 	string out;
 	out.reserve(num);
@@ -131,7 +131,7 @@ string webss::deserializeBinaryElement(const ParamBinary::SizeHead& bhead, const
 		case Keyword::BOOL:
 			return writeBytes(1, reinterpret_cast<char*>(const_cast<bool*>(&webss.tBool)));
 		case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8:
-			return writeBytes(bhead.keyword.getSize(), reinterpret_cast<char*>(const_cast<type_int*>(&webss.tInt)));
+			return writeBytes(bhead.keyword.getSize(), reinterpret_cast<char*>(const_cast<WebssInt*>(&webss.tInt)));
 		case Keyword::DEC4: case Keyword::DEC8:
 			return writeBytes(bhead.keyword.getSize(), reinterpret_cast<char*>(const_cast<double*>(&webss.tDouble)));
 		default:
@@ -165,7 +165,7 @@ string webss::deserializeBinarySizeHead(const ParamBinary::SizeHead& bhead)
 		out += deserializeFunctionHeadBinary(*bhead.fhead);
 		break;
 	case Type::EMPTY_VARIABLE_NUMBER: case Type::VARIABLE_NUMBER: case Type::VARIABLE_FUNCTION_HEAD:
-		out += bhead.getVarName();
+		out += bhead.getEntName();
 		break;
 	default:
 		throw domain_error(ERROR_UNDEFINED);
@@ -189,7 +189,7 @@ string webss::deserializeBinarySizeList(const ParamBinary::SizeList& blist)
 		out += to_string(blist.number);
 		break;
 	case Type::EMPTY_VARIABLE_NUMBER: case Type::VARIABLE_NUMBER:
-		out += blist.getVarName();
+		out += blist.getEntName();
 		break;
 	default:
 		throw domain_error(ERROR_UNDEFINED);

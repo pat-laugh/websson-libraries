@@ -3,7 +3,7 @@
 #pragma once
 
 #include "tuple.h"
-#include "variable.h"
+#include "entity.h"
 #include <cassert>
 
 namespace webss
@@ -14,12 +14,12 @@ namespace webss
 	public:
 		using Tuple = BasicTuple<Parameter>;
 		using Pointer = std::shared_ptr<Tuple>;
-		using Variable = BasicVariable<BasicFunctionHead>;
-		using size_type = Tuple::size_type;
+		using Entity = BasicEntity<BasicFunctionHead>;
+		using size_type = typename Tuple::size_type;
 
 		BasicFunctionHead() : t(Type::NONE) {}
 		explicit BasicFunctionHead(bool containerText) : t(Type::TUPLE), tuple(new Tuple(containerText)) {}
-		BasicFunctionHead(const Variable& var) : t(Type::VAR), var(var) {}
+		BasicFunctionHead(const Entity& ent) : t(Type::VAR), ent(ent) {}
 		BasicFunctionHead(Tuple&& tuple) : t(Type::TUPLE), tuple(new Tuple(std::move(tuple))) {}
 		BasicFunctionHead(const Tuple& tuple) : t(Type::TUPLE), tuple(new Tuple(tuple)) {}
 		BasicFunctionHead(const Pointer& pointer) : t(Type::POINTER), pointer(pointer) {}
@@ -47,10 +47,10 @@ namespace webss
 			return *this;
 		}
 
-		bool hasVariable() const { return t == Type::VAR; }
+		bool hasEntity() const { return t == Type::VAR; }
 		bool empty() const { return getParameters().empty(); }
 		bool isText() const { return getParameters().containerText; }
-		size_type size() const { return getParameters().size(); }
+		typename size_type size() const { return getParameters().size(); }
 
 		Parameter& back() { return const_cast<Parameter&>(getParameters().back()); }
 		const Parameter& back() const { return getParameters().back(); }
@@ -64,20 +64,15 @@ namespace webss
 			case Type::POINTER:
 				return *pointer;
 			case Type::VAR:
-				return var.getContent().getParameters();
+				return ent.getContent().getParameters();
 			default:
 				throw std::logic_error("");
 			}
 		}
 
-		const std::string& getVarName() const
+		const std::string& getEntName() const
 		{
-			return var.getName();
-		}
-
-		void attachAlias(std::string&& key)
-		{
-			getParameters().addAliasSafe(std::move(key), size() - 1);
+			return ent.getName();
 		}
 
 		void attachEmpty(std::string&& key)
@@ -90,7 +85,7 @@ namespace webss
 			switch (t)
 			{
 			case Type::VAR:
-				removeVariable();
+				removeEntity();
 				break;
 			case Type::POINTER:
 				removePointer();
@@ -106,14 +101,14 @@ namespace webss
 			tuple->addSafe(std::move(key), std::move(value));
 		}
 
-		void attach(const Variable& var2)
+		void attach(const Entity& ent2)
 		{
-			assert(!var2.getContent().empty()); //not problematic, but a function head shouldn't be empty anyway
+			assert(!ent2.getContent().empty()); //not problematic, but a function head shouldn't be empty anyway
 
 			switch (t)
 			{
 			case Type::VAR:
-				removeVariable();
+				removeEntity();
 				break;
 			case Type::POINTER:
 				removePointer();
@@ -123,14 +118,14 @@ namespace webss
 					break;
 				delete tuple;
 			case Type::NONE:
-				new (&var) Variable(var2);
+				new (&ent) Entity(ent2);
 				t = Type::VAR;
 				return;
 			default:
 				break;
 			}
 
-			tuple->merge(var2.getContent().getParameters());
+			tuple->merge(ent2.getContent().getParameters());
 		}
 
 		void attach(const BasicFunctionHead& value)
@@ -141,7 +136,7 @@ namespace webss
 			switch (t)
 			{
 			case Type::VAR:
-				removeVariable();
+				removeEntity();
 				break;
 			case Type::POINTER:
 				removePointer();
@@ -168,13 +163,13 @@ namespace webss
 		{
 			Tuple* tuple;
 			Pointer pointer;
-			Variable var;
+			Entity ent;
 		};
 
-		void removeVariable()
+		void removeEntity()
 		{
-			const auto& newTuple = var.getContent().getParameters().makeCompleteCopy();
-			var.~BasicVariable();
+			const auto& newTuple = ent.getContent().getParameters().makeCompleteCopy();
+			ent.~BasicEntity();
 			setTuple(newTuple);
 		}
 
@@ -202,7 +197,7 @@ namespace webss
 				pointer.~shared_ptr();
 				break;
 			case Type::VAR:
-				var.~BasicVariable();
+				ent.~BasicEntity();
 				break;
 			default:
 				break;
@@ -220,7 +215,7 @@ namespace webss
 				new (&pointer) Pointer(std::move(o.pointer));
 				break;
 			case Type::VAR:
-				new (&var) Variable(std::move(o.var));
+				new (&ent) Entity(std::move(o.ent));
 				break;
 			default:
 				break;
@@ -238,7 +233,7 @@ namespace webss
 				new (&pointer) Pointer(o.pointer);
 				break;
 			case Type::VAR:
-				new (&var) Variable(o.var);
+				new (&ent) Entity(o.ent);
 				break;
 			default:
 				break;

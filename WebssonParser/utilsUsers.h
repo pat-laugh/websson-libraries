@@ -14,9 +14,9 @@ namespace webss
 	//REQUIREMENT: num must be a valid unicode character representable in max 8 hex digits
 	void addHexEscape(std::string& str, unsigned int num);
 
-	ParamBinary makeBinary(Keyword keyword, type_binary_size sizeList = 1);
+	ParamBinary makeBinary(Keyword keyword, WebssBinarySize sizeList = 1);
 
-	ParamBinary makeBinaryDefault(Keyword keyword, Webss&& defaultValue, type_binary_size sizeList = 1);
+	ParamBinary makeBinaryDefault(Keyword keyword, Webss&& defaultValue, WebssBinarySize sizeList = 1);
 
-	ParamBinary makeBinarySelf(Keyword keyword, Webss&& defaultValue, type_binary_size sizeList = 1);
+	ParamBinary makeBinarySelf(Keyword keyword, Webss&& defaultValue, WebssBinarySize sizeList = 1);
 }

@@ -8,16 +8,9 @@ using namespace webss;
 Parser::Parser() : language(Language::DEFAULT), separator(CHAR_SEPARATOR) {}
 Parser::Parser(Language lang) : language(lang), separator(getLanguageSeparator(lang)) {}
 
-Document Parser::parse(const string& in)
-{
-	SmartStringIterator it(in);
-	return parseDocument(it);
-}
-Document Parser::parse(istream& in)
-{
-	SmartStreamIterator it(in);
-	return parseDocument(it);
-}
+Document Parser::parse(const istream& in) { return parseDocument(in); }
+Document Parser::parse(const stringstream& in) { return parseDocument(in); }
+Document Parser::parse(const string& in) { return parseDocument(in); }
 
 void Parser::setLanguage(Language lang)
 {
@@ -25,14 +18,14 @@ void Parser::setLanguage(Language lang)
 	separator = getLanguageSeparator(lang);
 }
 
-void Parser::addVariable(string&& name, Webss&& value)
+void Parser::addEntity(string&& name, Webss&& value)
 {
-	vars.add(move(name), move(value));
+	ents.add(move(name), move(value));
 }
-void Parser::addBlock(string&& name, type_int value)
+void Parser::addBlock(string&& name, WebssInt value)
 {
 	auto nameCopy = name;
-	varsBlockId.add(move(nameCopy), BlockId(move(name), value));
+	entsBlockId.add(move(nameCopy), BlockId(move(name), value));
 }
 
 void Parser::parseOption(It& it)

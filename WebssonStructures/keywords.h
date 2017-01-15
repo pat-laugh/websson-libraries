@@ -37,7 +37,7 @@ namespace webss
 		//if keyword is type, returns its size in bytes, else throws an error
 		int getSize() const;
 
-		//returns true if the keyword is a type: BOOL, INT1, INT2, INT4, INT8, DEC4, DEC8; else false
+		//returns true if the keyword is a type: BOOL, INT1, INT2, INT4, INT8, DEC4, DEC8, STRING; else false
 		bool isType() const;
 	private:
 		const Enum e;

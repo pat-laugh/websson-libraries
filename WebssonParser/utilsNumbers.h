@@ -11,9 +11,9 @@ namespace webss
 {
 	enum NumberMagnitude { MAGNITUDE_BIN = 2, MAGNITUDE_DEC = 10, MAGNITUDE_HEX = 16 };
 
-	type_int getNumberBin(SmartIterator& it); //parserNumbers
-	type_int getNumberDec(SmartIterator& it); //parserNumbers
-	type_int getNumberHex(SmartIterator& it); //parserNumbers, unicode
+	WebssInt getNumberBin(SmartIterator& it); //parserNumbers
+	WebssInt getNumberDec(SmartIterator& it); //parserNumbers
+	WebssInt getNumberHex(SmartIterator& it); //parserNumbers, unicode
 
 	//gets a decimal number (0 <= x < 1) based on mag
 	double getDecimals(SmartIterator& it, NumberMagnitude mag); //parserNumbers

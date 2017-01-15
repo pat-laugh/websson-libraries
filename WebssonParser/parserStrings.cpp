@@ -122,7 +122,7 @@ bool Parser::parseMultilineStringLine(It& it, string& text, int& countStartEnd)
 	} while (it);
 endLoop:
 	trimLineSpace(text, minLength);
-	return text.length() != minLength; //minLength only set when any of escapes SENT or variable is met
+	return text.length() != minLength; //minLength only set when any of escapes SENT or entity is met
 }
 
 string Parser::parseCString(It& it)
@@ -207,7 +207,7 @@ const string& Parser::parseStringEntity(It& it)
 {
 	try
 	{
-		const Webss* value = &vars.at(parseName(it)).getContent();
+		const Webss* value = &ents.at(parseName(it)).getContent();
 		while (it == CHAR_SCOPE && it.peekGood() && isNameStart(it.peek()))
 			value = &value->getNamespace().at(parseName(++it)).getContent();
 		return value->getString();

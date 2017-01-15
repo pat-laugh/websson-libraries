@@ -31,8 +31,8 @@ namespace webss
 
 		BasicParamStandard(FheadStandard&& o) : typeFhead(TypeFhead::STANDARD), fheadStd(new FheadStandard(std::move(o))) {}
 		BasicParamStandard(const FheadStandard& o) : typeFhead(TypeFhead::STANDARD), fheadStd(new FheadStandard(o)) {}
-		BasicParamStandard(FheadBinary&& o) : typeFhead(TypeFhead::BINARY), varFheadBin(new FheadBinary(std::move(o))) {}
-		BasicParamStandard(const FheadBinary& o) : typeFhead(TypeFhead::BINARY), varFheadBin(new FheadBinary(o)) {}
+		BasicParamStandard(FheadBinary&& o) : typeFhead(TypeFhead::BINARY), entFheadBin(new FheadBinary(std::move(o))) {}
+		BasicParamStandard(const FheadBinary& o) : typeFhead(TypeFhead::BINARY), entFheadBin(new FheadBinary(o)) {}
 		~BasicParamStandard() { destroyUnion(); }
 
 		BasicParamStandard(BasicParamStandard&& o) { copyUnion(std::move(o)); }

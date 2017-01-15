@@ -12,9 +12,9 @@ using namespace webss;
 #define FUNCTIONS_DEC [&]() { return isDigit(*it); }, [&]() { return charToInt(*it); }
 #define FUNCTIONS_HEX [&]() { return isDigitHex(*it); }, [&]() { return hexToInt(*it); }
 
-type_int getNumber(SmartIterator& it, NumberMagnitude mag, function<bool()> func1, function<int()> func2)
+WebssInt getNumber(SmartIterator& it, NumberMagnitude mag, function<bool()> func1, function<int()> func2)
 {
-	type_int number = func2();
+	WebssInt number = func2();
 	while (skipLineJunk(++it) && func1())
 		number = number * mag + func2();
 	return number;
@@ -33,9 +33,9 @@ double checkDecimals(SmartIterator& it, NumberMagnitude mag, function<bool()> fu
 	return numDouble;
 }
 
-type_int webss::getNumberBin(SmartIterator& it) { return getNumber(it, MAGNITUDE_BIN, FUNCTIONS_BIN); }
-type_int webss::getNumberDec(SmartIterator& it) { return getNumber(it, MAGNITUDE_DEC, FUNCTIONS_DEC); }
-type_int webss::getNumberHex(SmartIterator& it) { return getNumber(it, MAGNITUDE_HEX, FUNCTIONS_HEX); }
+WebssInt webss::getNumberBin(SmartIterator& it) { return getNumber(it, MAGNITUDE_BIN, FUNCTIONS_BIN); }
+WebssInt webss::getNumberDec(SmartIterator& it) { return getNumber(it, MAGNITUDE_DEC, FUNCTIONS_DEC); }
+WebssInt webss::getNumberHex(SmartIterator& it) { return getNumber(it, MAGNITUDE_HEX, FUNCTIONS_HEX); }
 
 double webss::getDecimals(SmartIterator& it, NumberMagnitude mag)
 {

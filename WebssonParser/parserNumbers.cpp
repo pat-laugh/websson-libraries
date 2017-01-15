@@ -8,7 +8,7 @@
 using namespace std;
 using namespace webss;
 
-std::pair<type_int, NumberMagnitude> parseInt(It& it);
+std::pair<WebssInt, NumberMagnitude> parseInt(It& it);
 
 Webss Parser::parseNumber(It& it)
 {
@@ -49,7 +49,7 @@ Webss Parser::parseNumber(It& it)
 	return addNumberMagnitude(it, numDouble, magnitude);
 }
 
-pair<type_int, NumberMagnitude> parseInt(It& it)
+pair<WebssInt, NumberMagnitude> parseInt(It& it)
 {
 #define CHECK_FIRST_DIGIT(x) if (!skipLineJunk(++it) || !x) throw runtime_error(ERROR_EXPECTED_NUMBER)
 	if (*it == '0')

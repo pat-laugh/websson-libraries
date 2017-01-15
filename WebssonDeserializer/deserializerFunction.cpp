@@ -45,7 +45,7 @@ string webss::deserializeFunctionBodyStandard(const FunctionHeadStandard::Tuple&
 	{
 		if (i == parameters.size())
 			throw runtime_error(ERROR_TOO_MANY_ELEMENTS);
-		if (parameters[i].isFunctionHead())
+		if (parameters[i].hasFunctionHead())
 		{
 			const auto& parameters2 = parameters[i].getFunctionHeadStandard().getParameters();
 			if (tuple[i].isList())
@@ -98,7 +98,7 @@ string webss::deserializeParameter(FUNC_PARAMS_STANDARD)
 	case WebssType::NONE:
 		return key;
 	case WebssType::VARIABLE:
-		return key + CHAR_EQUAL + webss.var.getName();
+		return key + CHAR_EQUAL + webss.ent.getName();
 	case WebssType::FUNCTION_STANDARD: case WebssType::FUNCTION_BINARY: case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
 		return key + CHAR_EQUAL + deserializeWebss(webss);
 	case WebssType::PRIMITIVE_STRING:
@@ -127,8 +127,8 @@ string webss::deserializeParameterString(FUNC_PARAMS_STANDARD)
 
 string webss::deserializeFunctionHeadStandard(const FunctionHeadStandard& fhead)
 {
-	if (fhead.hasVariable())
-		return OPEN_FUNCTION + fhead.getVarName() + CLOSE_FUNCTION;
+	if (fhead.hasEntity())
+		return OPEN_FUNCTION + fhead.getEntName() + CLOSE_FUNCTION;
 	if (fhead.empty())
 		return EMPTY_FUNCTION;
 	if (fhead.getParameters().containerText)
@@ -141,8 +141,8 @@ string webss::deserializeFunctionHeadStandard(const FunctionHeadStandard& fhead)
 #define FUNC_PARAMS_BINARY const string& key, const ParamBinary& value
 string webss::deserializeFunctionHeadBinary(const FunctionHeadBinary& fhead)
 {
-	if (fhead.hasVariable())
-		return OPEN_FUNCTION + fhead.getVarName() + CLOSE_FUNCTION;
+	if (fhead.hasEntity())
+		return OPEN_FUNCTION + fhead.getEntName() + CLOSE_FUNCTION;
 	if (fhead.empty())
 		throw runtime_error("binary function head can't be empty");
 	return deserializeParametersBinary(fhead, [](FUNC_PARAMS_BINARY) { return deserializeParameterBinary(key, value); });

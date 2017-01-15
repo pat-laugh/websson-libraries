@@ -39,17 +39,17 @@ string webss::deserializeAll(const Document& doc)
 	return deserializeDocument(doc);
 }
 
-string webss::deserializeAll(const Document& doc, const VariablesManager& vars)
+string webss::deserializeAll(const Document& doc, const EntityManager& ents)
 {
 	string out;
 
-	//first put local variables
-	auto locals = vars.getOrderedLocals();
-	for (auto varName : locals)
+	//first put local entities
+	auto locals = ents.getOrderedLocals();
+	for (auto entName : locals)
 	{
-		const auto& content = vars[*varName].getContent();
+		const auto& content = ents[*entName].getContent();
 		out +=	content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
-		out += putKeyValue(*varName, content, ConType::DOCUMENT) + '\n';
+		out += putKeyValue(*entName, content, ConType::DOCUMENT) + '\n';
 	}
 
 	return out + deserializeDocument(doc);
@@ -86,7 +86,7 @@ string webss::deserializeWebss(const Webss& webss)
 	case WebssType::BLOCK_VALUE:
 		return deserializeBlock(*webss.block);
 	case WebssType::VARIABLE:
-		return webss.var.getName();
+		return webss.ent.getName();
 	case WebssType::NAMESPACE:
 		return putNamespace(*webss.nspace);
 	case WebssType::ENUM:
@@ -105,13 +105,13 @@ string webss::putKeyValue(const string& key, const Webss& value, ConType stringC
 	case WebssType::DEFAULT:
 		throw domain_error("can't deserialize " + value.t.toString() + " with key");
 	case WebssType::VARIABLE:
-		return key + CHAR_EQUAL + value.var.getName();
+		return key + CHAR_EQUAL + value.ent.getName();
 	case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
 		return key + CHAR_EQUAL + deserializeWebss(value);
 	case WebssType::PRIMITIVE_STRING:
 		return key + CHAR_COLON + deserializeString(*value.tString, stringCon);
 	case WebssType::BLOCK_ID:
-		return key + OPEN_TUPLE + (value.getBlockId().hasVariable() ? value.getBlockId().getVarName() : to_string(value.getBlockId().getIndex()));
+		return key + OPEN_TUPLE + (value.getBlockId().hasEntity() ? value.getBlockId().getEntName() : to_string(value.getBlockId().getIndex()));
 	default:
 		return key + deserializeWebss(value);
 	}
@@ -260,8 +260,8 @@ string webss::putEnum(const Enum& tEnum)
 
 	//sort the enum...
 	vector<string*> elems(tEnum.size());
-	for (const auto& var : tEnum)
-		elems[var.getContent().getInt()] = const_cast<string*>(&var.getName());
+	for (const auto& ent : tEnum)
+		elems[static_cast<Enum::size_type>(ent.getContent().getInt())] = const_cast<string*>(&ent.getName());
 
 	auto it = elems.begin();
 	return OPEN_LIST + getSeparatedValues([&]() { return ++it != elems.end(); }, [&]()

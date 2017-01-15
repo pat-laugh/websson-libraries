@@ -4,7 +4,7 @@
 
 #include <set>
 #include <string>
-#include "variable.h"
+#include "entity.h"
 
 namespace webss
 {
@@ -12,11 +12,11 @@ namespace webss
 	class BasicNamespace
 	{
 	public:
-		using Variable = BasicVariable<Webss>;
+		using Entity = BasicEntity<Webss>;
 	private:
-		struct less_ptr { bool operator()(const Variable& t1, const Variable& t2) const { return t1.getName() < t2.getName(); } };
+		struct less_ptr { bool operator()(const Entity& t1, const Entity& t2) const { return t1.getName() < t2.getName(); } };
 	public:
-		using Data = std::set<Variable, less_ptr>;
+		using Data = std::set<Entity, less_ptr>;
 		using size_type = typename Data::size_type;
 
 		BasicNamespace(std::string&& name) : name(std::move(name)) {}
@@ -50,64 +50,64 @@ namespace webss
 
 		void add(std::string&& key, Webss&& value)
 		{
-			Variable var(std::move(key), std::move(value));
-			add(std::move(var));
+			Entity ent(std::move(key), std::move(value));
+			add(std::move(ent));
 		}
 		void add(const std::string& key, const Webss& value)
 		{
-			Variable var(key, value);
-			add(std::move(var));
+			Entity ent(key, value);
+			add(std::move(ent));
 		}
 
-		void add(Variable&& var)
+		void add(Entity&& ent)
 		{
-			data.insert(std::move(var));
+			data.insert(std::move(ent));
 		}
-		void add(const Variable& var)
+		void add(const Entity& ent)
 		{
-			data.insert(var);
+			data.insert(ent);
 		}
 
-		void addSafe(Variable&& var)
+		void addSafe(Entity&& ent)
 		{
-			if (has(var.getName()))
-				throw std::runtime_error(ERROR_DUPLICATE_KEY_NAMESPACE + var.getName());
+			if (has(ent.getName()))
+				throw std::runtime_error(ERROR_DUPLICATE_KEY_NAMESPACE + ent.getName());
 
-			add(std::move(var));
+			add(std::move(ent));
 		}
-		void addSafe(const Variable& var)
+		void addSafe(const Entity& ent)
 		{
-			if (has(var.getName()))
-				throw std::runtime_error(ERROR_DUPLICATE_KEY_NAMESPACE + var.getName());
+			if (has(ent.getName()))
+				throw std::runtime_error(ERROR_DUPLICATE_KEY_NAMESPACE + ent.getName());
 
-			add(var);
+			add(ent);
 		}
 
 		void addSafe(std::string&& key, Webss&& value)
 		{
-			Variable var(std::move(key), std::move(value));
-			addSafe(std::move(var));
+			Entity ent(std::move(key), std::move(value));
+			addSafe(std::move(ent));
 		}
 		void addSafe(const std::string& key, const Webss& value)
 		{
-			Variable var(key, value);
-			addSafe(std::move(var));
+			Entity ent(key, value);
+			addSafe(std::move(ent));
 		}
 
-		bool has(const std::string& key) const { return data.find(Variable(key, Webss())) != data.end(); }
+		bool has(const std::string& key) const { return data.find(Entity(key, Webss())) != data.end(); }
 
-		Variable& operator[](const std::string& key) { return *data.find(Variable(key, Webss())); } //find is better, no key created; wonder why they thought a side-effect to a bad access would be good...
-		const Variable& operator[](const std::string& key) const { return *data.find(Variable(key, Webss())); } //[] doesn't have const and find is as fast
-		Variable& at(const std::string& key)
+		Entity& operator[](const std::string& key) { return *data.find(Entity(key, Webss())); } //find is better, no key created; wonder why they thought a side-effect to a bad access would be good...
+		const Entity& operator[](const std::string& key) const { return *data.find(Entity(key, Webss())); } //[] doesn't have const and find is as fast
+		Entity& at(const std::string& key)
 		{
-			auto it = data.find(Variable(key, Webss()));
+			auto it = data.find(Entity(key, Webss()));
 			if (it == data.end())
 				throw std::runtime_error("key is not in namespace");
 			return *it;
 		}
-		const Variable& at(const std::string& key) const
+		const Entity& at(const std::string& key) const
 		{
-			auto it = data.find(Variable(key, Webss()));
+			auto it = data.find(Entity(key, Webss()));
 			if (it == data.end())
 				throw std::runtime_error("key is not in namespace");
 			return *it;

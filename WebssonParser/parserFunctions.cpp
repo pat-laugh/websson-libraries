@@ -137,8 +137,7 @@ Tuple Parser::functionParseTuple(It& it, const FunctionHeadStandard::Tuple& defa
 						throw runtime_error(ERROR_UNEXPECTED);
 					tuple.at(index) = move(value);
 				},
-				CaseAbstractEntity{ throw runtime_error(ERROR_UNEXPECTED); },
-				CaseAlias{ throw runtime_error(ERROR_UNEXPECTED); });
+				CaseAbstractEntity{ throw runtime_error(ERROR_UNEXPECTED); });
 			break;
 		}
 		++index;
@@ -178,33 +177,17 @@ Tuple Parser::functionParseTupleText(It& it, const FunctionHeadStandard::Tuple& 
 
 List Parser::functionParseList(It& it, const FunctionHeadStandard::Tuple& defaultTuple, function<Tuple(It& it, const FunctionHeadStandard::Tuple& defaultTuple)> func)
 {
-#define CON ConType::LIST
-	if (checkEmptyContainer(it, CON))
-		return List();
-
+	static const ConType CON = ConType::LIST;
 	List list;
+	if (checkEmptyContainer(it, CON))
+		return list;
 	do
-	{
-		switch (*it)
-		{
-		case CLOSE_LIST:
-			checkContainerEnd(it);
-			return list;
-		case OPEN_TUPLE:
+		if (*it == OPEN_TUPLE)
 			list.add(func(++it, defaultTuple));
-			break;
-		case CHAR_COLON:
-			if (++it != CHAR_COLON || *skipJunkToValid(++it) != OPEN_TUPLE)
-				throw runtime_error(ERROR_UNEXPECTED);
+		else if (*it == CHAR_COLON && ++it == CHAR_COLON && *skipJunkToValid(++it) == OPEN_TUPLE)
 			list.add(functionParseTupleText(++it, defaultTuple));
-			break;
-		default:
-			if (checkSeparator(it))
-				continue;
+		else
 			throw runtime_error(ERROR_UNEXPECTED);
-		}
-		skipJunk(it); //tuples are not required to be separated; I'll have to think about whether or not it should be kept that way
-	} while (it);
-	throw runtime_error(ERROR_EXPECTED);
-#undef CON
+	while (checkNextElementContainer(it, CON)); //make it so separators are not required (no need to clean line)
+	return list;
 }

@@ -27,7 +27,7 @@ namespace webss
 //	using FunctionScoped = BasicFunctionScoped<Webss>;
 	using BlockHead = FunctionHeadStandard;
 	using Block = BasicBlock<Webss>;
-	using Variable = BasicVariable<Webss>;
+	using Entity = BasicEntity<Webss>;
 	using Namespace = BasicNamespace<Webss>;
 	using Enum = Namespace;
 	using Default = std::shared_ptr<Webss>;
@@ -47,7 +47,7 @@ namespace webss
 		explicit Webss(bool b);
 		Webss(Keyword keyword);
 		Webss(int i);
-		Webss(type_int i);
+		Webss(WebssInt i);
 		Webss(size_t i);
 		Webss(double d);
 
@@ -87,12 +87,12 @@ namespace webss
 
 		Webss(FunctionHeadStandard&& head, Webss&& body);
 
-		Webss(const BasicVariable<Webss>& var) : t(WebssType::VARIABLE), var(var) {}
+		Webss(const BasicEntity<Webss>& ent) : t(WebssType::VARIABLE), ent(ent) {}
 		Webss(const Default& tDefault) : t(WebssType::DEFAULT), tDefault(tDefault) {}
 
 		~Webss();
 
-		bool hasVariable() const;
+		bool hasEntity() const;
 
 		Webss& operator=(Webss&& o);
 		Webss& operator=(const Webss& o);
@@ -112,7 +112,7 @@ namespace webss
 		WebssType getType() const;
 
 		bool getBool() const;
-		type_int getInt() const;
+		WebssInt getInt() const;
 		double getDouble() const;
 		const std::string& getString() const;
 		const Document& getDocument() const;
@@ -157,7 +157,7 @@ namespace webss
 		union
 		{
 			bool tBool;
-			type_int tInt;
+			WebssInt tInt;
 			double tDouble;
 			std::string* tString;
 			Document* document;
@@ -172,7 +172,7 @@ namespace webss
 			BlockId* blockId;
 			Block* block;
 			Namespace* nspace;
-			BasicVariable<Webss> var;
+			BasicEntity<Webss> ent;
 			Default tDefault;
 		};
 

@@ -6,14 +6,14 @@ using namespace std;
 using namespace webss;
 
 const char ERROR_NO_DEFAULT[] = "no default value, so value must be implemented";
-const char ERROR_BINARY_SIZE_HEAD[] = "size of binary head must be a positive integer, binary function head or equivalent variable";
-const char ERROR_BINARY_SIZE_LIST[] = "size of binary list must be a positive integer or equivalent variable";
+const char ERROR_BINARY_SIZE_HEAD[] = "size of binary head must be a positive integer, binary function head or equivalent entity";
+const char ERROR_BINARY_SIZE_LIST[] = "size of binary list must be a positive integer or equivalent entity";
 
 void setDefaultValue(Webss& value, const ParamStandard& defaultValue);
 
 void setDefaultValue(Webss& value, const ParamStandard& defaultValue)
 {
-	if (defaultValue.isFunctionHead())
+	if (defaultValue.hasFunctionHead())
 		value = makeDefaultTuple(defaultValue.getFunctionHeadStandard().getParameters());
 	else if (!defaultValue.hasDefaultValue())
 		throw runtime_error(ERROR_NO_DEFAULT);
@@ -58,15 +58,15 @@ const Webss& webss::checkIsConcrete(const Webss& webss)
 	return webss;
 }
 
-const BasicVariable<Webss>& webss::checkIsConcrete(const BasicVariable<Webss>& var)
+const BasicEntity<Webss>& webss::checkIsConcrete(const BasicEntity<Webss>& ent)
 {
-	if (!var.getContent().isConcrete())
+	if (!ent.getContent().isConcrete())
 		throw runtime_error("expected a concrete value");
-	return var;
+	return ent;
 }
 
-const Namespace& webss::checkIsNamespace(const BasicVariable<Webss>& var)
+const Namespace& webss::checkIsNamespace(const BasicEntity<Webss>& ent)
 {
-	try { return var.getContent().getNamespace(); }
+	try { return ent.getContent().getNamespace(); }
 	catch (exception e) { throw runtime_error("expected a namespace"); }
 }

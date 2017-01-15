@@ -16,6 +16,6 @@ namespace webss
 	//parsers
 	Webss&& checkIsConcrete(Webss&& webss);
 	const Webss& checkIsConcrete(const Webss& webss);
-	const BasicVariable<Webss>& checkIsConcrete(const BasicVariable<Webss>& var);
-	const Namespace& checkIsNamespace(const BasicVariable<Webss>& var);
+	const BasicEntity<Webss>& checkIsConcrete(const BasicEntity<Webss>& ent);
+	const Namespace& checkIsNamespace(const BasicEntity<Webss>& ent);
 }

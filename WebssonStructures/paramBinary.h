@@ -20,8 +20,8 @@ namespace webss
 		{
 		public:
 			using FunctionHead = BasicFunctionHead<BasicParamBinary>;
-			using VariableFunctionHead = BasicVariable<FunctionHead>;
-			using VariableNumber = BasicVariable<type_binary_size>;
+			using EntityFunctionHead = BasicEntity<FunctionHead>;
+			using EntityNumber = BasicEntity<WebssBinarySize>;
 			using Default = std::shared_ptr<Webss>;
 			enum class Type { NONE, EMPTY, EMPTY_VARIABLE_NUMBER, KEYWORD, NUMBER, FUNCTION_HEAD, FUNCTION_HEAD_POINTER, VARIABLE_NUMBER, VARIABLE_FUNCTION_HEAD };
 			enum class Flag { NONE, DEFAULT, SELF };
@@ -30,9 +30,9 @@ namespace webss
 			union
 			{
 				Keyword keyword;
-				type_binary_size number;
-				VariableFunctionHead varFunctionHead;
-				VariableNumber varNumber;
+				WebssBinarySize number;
+				EntityFunctionHead entFunctionHead;
+				EntityNumber entNumber;
 				FunctionHead* fhead;
 			};
 
@@ -41,11 +41,25 @@ namespace webss
 
 
 			BasicSizeHead() : t(Type::NONE) {}
-			BasicSizeHead(Keyword keyword) : t(Type::KEYWORD), keyword(keyword) {}
-			BasicSizeHead(const VariableFunctionHead& newVar) : t(Type::VARIABLE_FUNCTION_HEAD), varFunctionHead(newVar) {}
-			BasicSizeHead(const VariableNumber& newVar) : varNumber(newVar)
+			BasicSizeHead(Keyword keyword)
 			{
-				auto num = newVar.getContent();
+				switch (keyword)
+				{
+				case Keyword::BOOL: case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8: case Keyword::DEC4: case Keyword::DEC8:
+					t = Type::KEYWORD;
+					this->keyword = keyword;
+					break;
+				case Keyword::STRING:
+					t = Type::EMPTY;
+					break;
+				default:
+					throw runtime_error("invalid binary type: " + keyword.toString());
+				}
+			}
+			BasicSizeHead(const EntityFunctionHead& newEnt) : t(Type::VARIABLE_FUNCTION_HEAD), entFunctionHead(newEnt) {}
+			BasicSizeHead(const EntityNumber& newEnt) : entNumber(newEnt)
+			{
+				auto num = newEnt.getContent();
 				if (num > 0)
 					t = Type::VARIABLE_NUMBER;
 				else if (num == 0)
@@ -53,7 +67,7 @@ namespace webss
 				else
 					throw std::runtime_error(ERROR_BINARY_SIZE_HEAD);
 			}
-			BasicSizeHead(type_binary_size number) : number(number)
+			BasicSizeHead(WebssBinarySize number) : number(number)
 			{
 				if (number > 0)
 					t = Type::NUMBER;
@@ -65,7 +79,6 @@ namespace webss
 			BasicSizeHead(FunctionHead&& o) : t(Type::FUNCTION_HEAD) { fhead = new FunctionHead(std::move(o)); }
 			BasicSizeHead(const FunctionHead& o) : t(Type::FUNCTION_HEAD) { fhead = new FunctionHead(o); }
 			BasicSizeHead(FunctionHead* o) : t(Type::FUNCTION_HEAD_POINTER) { fhead = o; }
-			~BasicSizeHead() { destroyUnion(); }
 
 			BasicSizeHead(Type t) : t(t)
 			{
@@ -77,6 +90,10 @@ namespace webss
 					throw std::domain_error(ERROR_UNDEFINED);
 				}
 			}
+
+			~BasicSizeHead() { destroyUnion(); }
+
+			
 
 			BasicSizeHead(BasicSizeHead&& o) { copyUnion(std::move(o)); }
 			BasicSizeHead(const BasicSizeHead& o) { copyUnion(o); }
@@ -110,14 +127,14 @@ namespace webss
 
 			void setDefaultValue(Webss&& value) { new (&defaultValue) Default(new Webss(std::move(value))); }
 
-			const std::string& getVarName() const
+			const std::string& getEntName() const
 			{
 				switch (t)
 				{
 				case Type::EMPTY_VARIABLE_NUMBER: case Type::VARIABLE_NUMBER:
-					return varNumber.getName();
+					return entNumber.getName();
 				case Type::VARIABLE_FUNCTION_HEAD:
-					return varFunctionHead.getName();
+					return entFunctionHead.getName();
 				default:
 					throw std::logic_error("");
 				}
@@ -130,13 +147,13 @@ namespace webss
 				case Type::FUNCTION_HEAD: case Type::FUNCTION_HEAD_POINTER:
 					return *fhead;
 				case Type::VARIABLE_FUNCTION_HEAD:
-					return varFunctionHead.getContent();
+					return entFunctionHead.getContent();
 				default:
 					throw std::domain_error("binary size head does not contain a function head");
 				}
 			}
 
-			type_binary_size size() const
+			WebssBinarySize size() const
 			{
 				switch (t)
 				{
@@ -145,15 +162,15 @@ namespace webss
 				case Type::NUMBER:
 					return number;
 				case Type::VARIABLE_NUMBER:
-					return varNumber.getContent();
+					return entNumber.getContent();
 				default:
 					throw std::domain_error(ERROR_UNDEFINED);
 				}
 			}
 
-			bool hasVariable() const { return t == Type::VARIABLE_FUNCTION_HEAD || t == Type::VARIABLE_NUMBER || t == Type::EMPTY_VARIABLE_NUMBER; }
+			bool hasEntity() const { return t == Type::VARIABLE_FUNCTION_HEAD || t == Type::VARIABLE_NUMBER || t == Type::EMPTY_VARIABLE_NUMBER; }
 		private:
-			static constexpr char* ERROR_BINARY_SIZE_HEAD = "size of binary head must be a positive integer, binary function head or equivalent variable";
+			static constexpr char* ERROR_BINARY_SIZE_HEAD = "size of binary head must be a positive integer, binary function head or equivalent entity";
 
 			void destroyUnion()
 			{
@@ -163,10 +180,10 @@ namespace webss
 					delete fhead;
 					break;
 				case Type::EMPTY_VARIABLE_NUMBER: case Type::VARIABLE_NUMBER:
-					varNumber.~BasicVariable();
+					entNumber.~BasicEntity();
 					break;
 				case Type::VARIABLE_FUNCTION_HEAD:
-					varFunctionHead.~BasicVariable();
+					entFunctionHead.~BasicEntity();
 					break;
 				default:
 					break;
@@ -189,10 +206,10 @@ namespace webss
 					fhead = o.fhead;
 					break;
 				case Type::EMPTY_VARIABLE_NUMBER: case Type::VARIABLE_NUMBER:
-					new (&varNumber) VariableNumber(std::move(o.varNumber));
+					new (&entNumber) EntityNumber(std::move(o.entNumber));
 					break;
 				case Type::VARIABLE_FUNCTION_HEAD:
-					new (&varFunctionHead) VariableFunctionHead(std::move(o.varFunctionHead));
+					new (&entFunctionHead) EntityFunctionHead(std::move(o.entFunctionHead));
 					break;
 				default:
 					throw std::domain_error(ERROR_UNDEFINED);
@@ -224,10 +241,10 @@ namespace webss
 					fhead = o.fhead;
 					break;
 				case Type::EMPTY_VARIABLE_NUMBER: case Type::VARIABLE_NUMBER:
-					new (&varNumber) VariableNumber(o.varNumber);
+					new (&entNumber) EntityNumber(o.entNumber);
 					break;
 				case Type::VARIABLE_FUNCTION_HEAD:
-					new (&varFunctionHead) VariableFunctionHead(o.varFunctionHead);
+					new (&entFunctionHead) EntityFunctionHead(o.entFunctionHead);
 					break;
 				default:
 					throw std::domain_error(ERROR_UNDEFINED);
@@ -241,20 +258,20 @@ namespace webss
 		class BasicSizeList
 		{
 		public:
-			using Variable = BasicVariable<type_binary_size>;
+			using Entity = BasicEntity<WebssBinarySize>;
 			enum class Type { NONE, EMPTY, EMPTY_VARIABLE_NUMBER, ONE, NUMBER, VARIABLE_NUMBER };
 
 			Type t;
 			union
 			{
-				type_binary_size number;
-				Variable var;
+				WebssBinarySize number;
+				Entity ent;
 			};
 
 			BasicSizeList() : t(Type::NONE) {}
-			BasicSizeList(const Variable& newVar) : var(newVar)
+			BasicSizeList(const Entity& newEnt) : ent(newEnt)
 			{
-				auto num = newVar.getContent();
+				auto num = newEnt.getContent();
 				if (num > 0)
 					t = Type::VARIABLE_NUMBER;
 				else if (num == 0)
@@ -262,7 +279,7 @@ namespace webss
 				else
 					throw std::runtime_error(ERROR_BINARY_SIZE_LIST);
 			}
-			BasicSizeList(type_binary_size number) : number(number)
+			BasicSizeList(WebssBinarySize number) : number(number)
 			{
 				if (number > 0)
 					t = Type::NUMBER;
@@ -310,33 +327,33 @@ namespace webss
 			bool isEmpty() const { return t == Type::EMPTY || t == Type::EMPTY_VARIABLE_NUMBER; }
 			bool isOne() const { return t == Type::ONE; }
 
-			type_binary_size size() const
+			WebssBinarySize size() const
 			{
 				switch (t)
 				{
 				case Type::NUMBER:
 					return number;
 				case Type::VARIABLE_NUMBER:
-					return var.getContent();
+					return ent.getContent();
 				default:
 					throw std::domain_error(ERROR_UNDEFINED);
 				}
 			}
 
-			bool hasVariable() const { return t == Type::VARIABLE_NUMBER || t == Type::EMPTY_VARIABLE_NUMBER; }
+			bool hasEntity() const { return t == Type::VARIABLE_NUMBER || t == Type::EMPTY_VARIABLE_NUMBER; }
 
-			const std::string& getVarName() const
+			const std::string& getEntName() const
 			{
-				assert(hasVariable());
-				return var.getName();
+				assert(hasEntity());
+				return ent.getName();
 			}
 		private:
-			static constexpr char* ERROR_BINARY_SIZE_LIST = "size of binary list must be a positive integer or equivalent variable";
+			static constexpr char* ERROR_BINARY_SIZE_LIST = "size of binary list must be a positive integer or equivalent entity";
 
 			void destroyUnion()
 			{
-				if (hasVariable())
-					var.~BasicVariable();
+				if (hasEntity())
+					ent.~BasicEntity();
 			}
 
 			void copyUnion(BasicSizeList&& o)
@@ -349,7 +366,7 @@ namespace webss
 					number = o.number;
 					break;
 				case Type::EMPTY_VARIABLE_NUMBER: case Type::VARIABLE_NUMBER:
-					new (&var) Variable(std::move(o.var));
+					new (&ent) Entity(std::move(o.ent));
 					break;
 				default:
 					throw std::domain_error(ERROR_UNDEFINED);
@@ -366,7 +383,7 @@ namespace webss
 					number = o.number;
 					break;
 				case Type::EMPTY_VARIABLE_NUMBER: case Type::VARIABLE_NUMBER:
-					new (&var) Variable(o.var);
+					new (&ent) Entity(o.ent);
 					break;
 				default:
 					throw std::domain_error(ERROR_UNDEFINED);

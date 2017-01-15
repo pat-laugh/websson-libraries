@@ -32,5 +32,8 @@ namespace webss
 
 	//calls skipLineJunk, then checks the char pointed by it
 	//if it is not a separator nor an end of container, an error is thrown
-	void cleanLine(SmartIterator& it, ConType con, Language lang);
+	void cleanLine(SmartIterator& it, ConType con, char separator);
+
+	//return true if c is end of line, separator or end of container, else false
+	bool isLineEnd(char c, ConType con, char separator);
 }

@@ -42,7 +42,7 @@ namespace webss
 			case WebssType::NONE:
 				return "none";
 			case WebssType::VARIABLE:
-				return "variable";
+				return "entity";
 			case WebssType::DEFAULT:
 				return "default";
 			case WebssType::PRIMITIVE_NULL:

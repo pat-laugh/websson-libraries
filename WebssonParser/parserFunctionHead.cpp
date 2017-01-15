@@ -35,7 +35,7 @@ FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 		break;
 	}
 
-	//if it's a variable, then the fhead is of the same type as the variable
+	//if it's a entity, then the fhead is of the same type as the entity
 	//if not, then the fhead is a standard fhead
 
 	FunctionHeadStandard fhead;
@@ -52,11 +52,11 @@ FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 		switch (other.abstractEntity.getContent().getType())
 		{
 		case WebssType::FUNCTION_HEAD_BINARY:
-			return parseFunctionHeadBinary(it, FunctionHeadBinary(checkVarFheadBinary(other.abstractEntity)));
+			return parseFunctionHeadBinary(it, FunctionHeadBinary(checkEntFheadBinary(other.abstractEntity)));
 		case WebssType::FUNCTION_HEAD_SCOPED:
 			break;
 		case WebssType::FUNCTION_HEAD_STANDARD:
-			return parseFunctionHeadStandard(it, FunctionHeadStandard(checkVarFheadStandard(other.abstractEntity)));
+			return parseFunctionHeadStandard(it, FunctionHeadStandard(checkEntFheadStandard(other.abstractEntity)));
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
@@ -147,8 +147,7 @@ void Parser::parseOtherValuesFheadStandardParam(It& it, FunctionHeadStandard& fh
 		CaseKeyValue{ fhead.attach(move(key), move(value)); },
 		CaseKeyOnly{ fhead.attachEmpty(move(key)); },
 		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
-		CaseAbstractEntity{ throw runtime_error(ERROR_UNEXPECTED); },
-		CaseAlias{ fhead.attachAlias(move(key)); });
+		CaseAbstractEntity{ throw runtime_error(ERROR_UNEXPECTED); });
 }
 
 void Parser::parseOtherValuesFheadStandard(It& it, FunctionHeadStandard& fhead)
@@ -157,8 +156,7 @@ void Parser::parseOtherValuesFheadStandard(It& it, FunctionHeadStandard& fhead)
 		CaseKeyValue{ fhead.attach(move(key), move(value)); },
 		CaseKeyOnly{ fhead.attachEmpty(move(key)); },
 		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
-		CaseAbstractEntity{ fhead.attach(checkVarFheadStandard(abstractEntity)); },
-		CaseAlias{ fhead.attachAlias(move(key)); });
+		CaseAbstractEntity{ fhead.attach(checkEntFheadStandard(abstractEntity)); });
 }
 
 void Parser::parseOtherValuesFheadText(It& it, FunctionHeadStandard& fhead)
@@ -172,8 +170,7 @@ void Parser::parseOtherValuesFheadText(It& it, FunctionHeadStandard& fhead)
 		},
 		CaseKeyOnly{ fhead.attachEmpty(move(key)); },
 		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
-		CaseAbstractEntity{ throw runtime_error(ERROR_TEXT_FUNCTION_HEAD); },
-		CaseAlias{ fhead.attachAlias(move(key)); });
+		CaseAbstractEntity{ throw runtime_error(ERROR_TEXT_FUNCTION_HEAD); });
 }
 
 void Parser::parseOtherValuesFheadBinary(It& it, FunctionHeadBinary& fhead)
@@ -182,8 +179,7 @@ void Parser::parseOtherValuesFheadBinary(It& it, FunctionHeadBinary& fhead)
 		CaseKeyValue{ throw runtime_error(ERROR_BINARY_FUNCTION); },
 		CaseKeyOnly{ throw runtime_error(ERROR_BINARY_FUNCTION); },
 		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
-		CaseAbstractEntity{ fhead.attach(checkVarFheadBinary(abstractEntity)); },
-		CaseAlias{ throw runtime_error(ERROR_BINARY_FUNCTION); });
+		CaseAbstractEntity{ fhead.attach(checkEntFheadBinary(abstractEntity)); });
 }
 
 #undef THROW_ERROR

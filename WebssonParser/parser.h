@@ -4,12 +4,11 @@
 
 #include "utilsSweepers.h"
 #include "utilsParser.h"
-#include "keychars.h"
 #include "language.h"
-#include "WebssonStructures/variablesManager.h"
+#include "WebssonStructures/entityManager.h"
+#include "WebssonUtils/stringBuilder.h"
 
 #define webss_CHAR_ANY_CONTAINER_CHAR_VALUE OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case OPEN_FUNCTION: case CHAR_COLON: case CHAR_EQUAL: case CHAR_CSTRING
-#define webss_KEY_TYPE_ANY_CONTAINER_CHAR_VALUE KeyType::DICTIONARY: case KeyType::LIST: case KeyType::TUPLE: case KeyType::FUNCTION: case KeyType::COLON: case KeyType::EQUAL: case KeyType::CSTRING
 
 namespace webss
 {
@@ -111,18 +110,19 @@ namespace webss
 	class Parser
 	{
 	public:
-		using VariablesManager = BasicVariablesManager<Webss>;
-		VariablesManager vars;
+		using EntityManager = BasicEntityManager<Webss>;
+		EntityManager ents;
 
 		Parser();
 		Parser(Language lang);
 
+		Document parse(const std::istream& in);
+		Document parse(const std::stringstream& in);
 		Document parse(const std::string& in);
-		Document parse(std::istream& in);
 
 		void setLanguage(Language lang);
-		void addVariable(std::string&& name, Webss&& value);
-		void addBlock(std::string&& name, type_int value);
+		void addEntity(std::string&& name, Webss&& value);
+		void addBlock(std::string&& name, WebssInt value);
 	protected:
 		Language language;
 		char separator;
@@ -132,32 +132,42 @@ namespace webss
 		class OtherValue
 		{
 		public:
-			enum class Type { KEY_VALUE, VALUE_ONLY, KEY_ONLY, ABSTRACT_ENTITY, KEY_VALUE_ALIASES, KEY_ONLY_ALIASES };
+			enum Type { KEY_VALUE, VALUE_ONLY, KEY_ONLY, ABSTRACT_ENTITY };
 
 			OtherValue(std::string&& key, Webss&& value) : type(Type::KEY_VALUE), key(std::move(key)), value(std::move(value)) {}
 			OtherValue(Webss&& value) : type(Type::VALUE_ONLY), value(std::move(value)) {}
 			OtherValue(std::string&& key) : type(Type::KEY_ONLY), key(std::move(key)) {}
-			OtherValue(const Variable& var) : type(Type::ABSTRACT_ENTITY), abstractEntity(var) {}
-			OtherValue(std::vector<std::string>&& aliases, Webss&& value) : type(Type::KEY_VALUE_ALIASES), aliases(std::move(aliases)), value(std::move(value)) {}
-			OtherValue(std::vector<std::string>&& aliases) : type(Type::KEY_ONLY_ALIASES), aliases(std::move(aliases)) {}
+			OtherValue(const Entity& ent) : type(Type::ABSTRACT_ENTITY), abstractEntity(ent) {}
 
 			Type type;
 			std::string key;
 			Webss value;
-			Variable abstractEntity;
-			std::vector<std::string> aliases;
+			Entity abstractEntity;
 		};
 
-		
+		class NameType
+		{
+		public:
+			enum Type { NAME, KEYWORD, ENTITY };
 
-		BasicVariablesManager<BlockId> varsBlockId;
+			NameType(std::string&& name) : type(Type::NAME), name(std::move(name)) {}
+			NameType(Keyword keyword) : type(Type::KEYWORD), keyword(keyword) {}
+			NameType(const Entity& entity) : type(Type::ENTITY), entity(entity) {}
 
-		BasicVariablesManager<FunctionHeadStandard> varsFheadStandard;
-		BasicVariablesManager<FunctionHeadBinary> varsFheadBinary;
-		BasicVariablesManager<type_binary_size> varsTypeBinarySize;
-		BasicVariablesManager<type_int> varsTypeInt;
+			Type type;
+			std::string name;
+			Keyword keyword;
+			Entity entity;
+		};
 
-		Document parseDocument(It& it);
+		BasicEntityManager<BlockId> entsBlockId;
+
+		BasicEntityManager<FunctionHeadStandard> entsFheadStandard;
+		BasicEntityManager<FunctionHeadBinary> entsFheadBinary;
+		BasicEntityManager<WebssBinarySize> entsTypeBinarySize;
+		BasicEntityManager<WebssInt> entsTypeInt;
+
+		Document parseDocument(It&& it);
 		void parseOption(It& it);
 		void checkMultiContainer(It& it, std::function<void()> func);
 
@@ -170,16 +180,17 @@ namespace webss
 		Enum parseEnum(It& it, const std::string& name);
 		Webss parseContainerText(It& it);
 
+		void parseImport(It& it);
+
 		//parserKeyValues.cpp
-		std::pair<std::string, KeyType> parseKey(It& it);
+		Parser::NameType parseNameType(It& it);
 		Webss parseCharValue(It& it, ConType con);
 		void addJsonKeyvalue(It& it, Dictionary& dict);
 		Webss parseValueColon(It& it, ConType con);
 		Webss parseValueEqual(It& it, ConType con);
-		const Variable& parseScopedValue(It& it, const std::string& varName);
 		OtherValue parseOtherValue(It& it, ConType con);
-		OtherValue checkOtherValueVariable(It& it, ConType con, const Variable& var);
-		void parseOtherValue(It& it, ConType con, std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Variable& abstractEntity)> funcAbstractEntity, std::function<void(std::string&& key)> funcAlias);
+		OtherValue checkOtherValueEntity(It& it, ConType con, const Entity& ent);
+		void parseOtherValue(It& it, ConType con, std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Entity& abstractEntity)> funcAbstractEntity);
 
 		//parserNumbers.cpp
 		Webss parseNumber(It& it);
@@ -187,19 +198,19 @@ namespace webss
 		//parserStrings.cpp
 		std::string parseLineString(It& it, ConType con);
 		std::string parseMultilineString(It& it);
-		bool parseMultilineStringLine(It& it, string& text, int& countStartEnd);
+		bool parseMultilineStringLine(It& it, std::string& text, int& countStartEnd);
 		std::string parseCString(It& it);
 		void checkEscapedChar(It& it, std::string& line);
 		bool checkStringEntity(It& it, std::string& line);
 		const std::string& parseStringEntity(It& it);
 
-		//parserVariables.cpp
-		void parseConcreteEntity(It& it, std::function<void(const Variable& var)> funcForEach);
-		Variable parseAbstractEntity(It& it);
+		//parserEntities.cpp
+		Entity parseConcreteEntity(It& it);
+		Entity parseAbstractEntity(It& it);
 		std::string parseName(It& it);
 		std::string parseNameSafe(It& it);
 		bool nameExists(const std::string& name);
-		void parseUsingNamespace(It& it, std::function<void(const Variable& var)> funcForEach);
+		void parseUsingNamespace(It& it, std::function<void(const Entity& ent)> funcForEach);
 
 		//parserFunctions.cpp
 		FunctionHeadSwitch parseFunctionHead(It& it);
@@ -227,20 +238,19 @@ namespace webss
 		//parserBinary.cpp
 		void parseBinaryHead(It& it, FunctionHeadBinary& fhead);
 		Tuple parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Tuple& parameters);
-		ParamBinary::SizeHead parseBinarySizeHead(It& it);
 		ParamBinary::SizeList parseBinarySizeList(It& it);
-		const BasicVariable<type_binary_size>& checkVariableTypeBinarySize(const std::string& name);
+		const BasicEntity<WebssBinarySize>& checkEntTypeBinarySize(const Entity& ent);
 
 		//parserUtils.cpp
 		bool checkSeparator(It& it);
 		bool checkSeparatorVoid(It& it, std::function<void()> funcIsVoid);
-		void checkContainerEnd(It& it);
 		void checkContainerEndVoid(It& it, std::function<void()> funcIsVoid);
 		bool checkEmptyContainer(It& it, ConType con);
+		bool checkNextElementContainer(It & it, ConType con);
 		bool checkEmptyContainerVoid(It& it, ConType con);
 		void checkToNextElement(It& it, ConType con);
 		bool checkOtherValuesVoid(It& it, std::function<void()> funcIsVoid, std::function<void()> funcIsNameStart, std::function<void()> funcIsNumberStart);
-		const BasicVariable<FunctionHeadStandard>& checkVarFheadStandard(const Variable& var);
-		const BasicVariable<FunctionHeadBinary>& checkVarFheadBinary(const Variable& var);
+		const BasicEntity<FunctionHeadStandard>& checkEntFheadStandard(const Entity& ent);
+		const BasicEntity<FunctionHeadBinary>& checkEntFheadBinary(const Entity& ent);
 };
 }

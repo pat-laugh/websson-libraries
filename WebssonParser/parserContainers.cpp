@@ -6,6 +6,14 @@
 using namespace std;
 using namespace webss;
 
+const char ERROR_INPUT_DICTIONARY[] = "dictionary can only have key-values";
+const char ERROR_INPUT_LIST[] = "list can only have concrete value-onlys";
+const char ERROR_INPUT_TUPLE[] = "tuple can only have concrete value-onlys or key-values";
+const char ERROR_INPUT_NAMESPACE[] = "namespace can only have entity definitions";
+const char ERROR_INPUT_ENUM[] = "enum can only have key-onlys";
+const char ERROR_INPUT_DOCUMENT[] = "document can only have concrete value-onlys or key-values";
+
+
 string getItPosition(It& it)
 {
 	return "[ln " + to_string(it.getLine()) + ", ch " + to_string(it.getCharCol()) + "]";
@@ -29,10 +37,9 @@ string getItCurrentChar(It& it)
 	case '@': out += "(import)"; break;
 	case '#': out += "(option)"; break;
 	case '&': out += "(self)"; break;
-	case '|': out += "(name alias)"; break;
 	case ':': out += "(line string)"; break;
 	case '"': out += "(cstring)"; break;
-	case '?': out += "(variable declaration)"; break;
+	case '?': out += "(entity declaration)"; break;
 	case '.': out += "(scope)"; break;
 	case '(': case ')':out += "(round bracket / parenthesis)"; break;
 	case '{': case '}': out += "(curly bracket / brace)"; break;
@@ -44,144 +51,152 @@ string getItCurrentChar(It& it)
 	return out;
 }
 
-#define PatternOtherValuesDictionary(Name, Con) \
-auto other = parseOtherValue(it, Con); \
-switch (other.type) \
-{ \
-case OtherValue::Type::KEY_VALUE: \
-	Name.addSafe(move(other.key), move(other.value)); \
-	break; \
-default: \
-	throw runtime_error("unexpected value"); \
-}
-
-#define PatternOtherValuesList(Name, Con) \
-auto other = parseOtherValue(it, Con); \
-switch (other.type) \
-{ \
-case OtherValue::Type::VALUE_ONLY: \
-	Name.add(move(other.value)); \
-	break; \
-default: \
-	throw runtime_error("unexpected value"); \
-}
-
-#define PatternOtherValuesTuple(Name, Con) \
-auto other = parseOtherValue(it, Con); \
-switch (other.type) \
-{ \
-case OtherValue::Type::KEY_VALUE: \
-	Name.addSafe(move(other.key), move(other.value)); \
-	break; \
-case OtherValue::Type::VALUE_ONLY: \
-	Name.add(move(other.value)); \
-	break; \
-default: \
-	throw runtime_error("unexpected value"); \
-}
-
-#define PatternOtherValuesEnum(Name, Con) \
-auto other = parseOtherValue(it, Con); \
-switch (other.type) \
-{ \
-case OtherValue::Type::KEY_ONLY: \
-	Name.addSafe(move(other.key), Name.size()); \
-	break; \
-default: \
-	throw runtime_error("unexpected value"); \
-}
-
 Dictionary Parser::parseDictionary(It& it)
 {
-	PatternParse(Dictionary cont; CheckEmpty(ConType::DICTIONARY, return cont), cont, ConType::DICTIONARY, CLOSE_DICTIONARY, ExtraCase(CHAR_CSTRING, addJsonKeyvalue(++it, cont)), PatternOtherValuesDictionary(cont, ConType::DICTIONARY))
+	static const ConType CON = ConType::DICTIONARY;
+	Dictionary dict;
+	if (checkEmptyContainer(it, CON))
+		return dict;
+	do
+		if (*it == CHAR_CSTRING)
+			addJsonKeyvalue(++it, dict);
+		else
+			parseOtherValue(it, CON,
+				CaseKeyValue{ dict.addSafe(move(key), move(value)); },
+				ErrorKeyOnly(ERROR_INPUT_DICTIONARY),
+				ErrorValueOnly(ERROR_INPUT_DICTIONARY),
+				ErrorAbstractEntity(ERROR_INPUT_DICTIONARY));
+	while (checkNextElementContainer(it, CON));
+	return dict;
 }
+
 List Parser::parseList(It& it)
 {
-	PatternParse(List cont; CheckEmpty(ConType::LIST, return cont), cont, ConType::LIST, CLOSE_LIST, ExtraCase(webss_CHAR_ANY_CONTAINER_CHAR_VALUE, cont.add(parseCharValue(it, ConType::LIST))), PatternOtherValuesList(cont, ConType::LIST))
+	static const ConType CON = ConType::LIST;
+	List list;
+	if (checkEmptyContainer(it, CON))
+		return list;
+	do
+		parseOtherValue(it, CON,
+			ErrorKeyValue(ERROR_INPUT_LIST),
+			ErrorKeyOnly(ERROR_INPUT_LIST),
+			CaseValueOnly{ list.add(move(value)); },
+			ErrorAbstractEntity(ERROR_INPUT_LIST));
+	while (checkNextElementContainer(it, CON));
+	return list;
 }
+
 Tuple Parser::parseTuple(It& it)
 {
-	PatternParse(Tuple cont; CheckEmpty(ConType::TUPLE, return cont), cont, ConType::TUPLE, CLOSE_TUPLE, ExtraCase(webss_CHAR_ANY_CONTAINER_CHAR_VALUE, cont.add(parseCharValue(it, ConType::TUPLE))), PatternOtherValuesTuple(cont, ConType::TUPLE))
+	static const ConType CON = ConType::TUPLE;
+	Tuple tuple;
+	if (checkEmptyContainer(it, CON))
+		return tuple;
+	do
+		parseOtherValue(it, CON,
+			CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
+			ErrorKeyOnly(ERROR_INPUT_TUPLE),
+			CaseValueOnly{ tuple.add(move(value)); },
+			ErrorAbstractEntity(ERROR_INPUT_TUPLE));
+	while (checkNextElementContainer(it, CON));
+	return tuple;
 }
 
 List Parser::parseListText(It& it)
 {
-	PatternParse(List cont(true); CheckEmpty(ConType::LIST, return cont), cont, ConType::LIST, CLOSE_LIST, , cont.add(parseLineString(it, ConType::LIST));)
+	static const ConType CON = ConType::LIST;
+	List list(true);
+	if (checkEmptyContainer(it, CON))
+		return list;
+	do
+		list.add(parseLineString(it, CON));
+	while (checkNextElementContainer(it, CON));
+	return list;
 }
 Tuple Parser::parseTupleText(It& it)
 {
-	PatternParse(Tuple cont(true); CheckEmpty(ConType::TUPLE, return cont), cont, ConType::TUPLE, CLOSE_TUPLE, , cont.add(parseLineString(it, ConType::TUPLE));)
+	static const ConType CON = ConType::TUPLE;
+	Tuple tuple(true);
+	if (checkEmptyContainer(it, CON))
+		return tuple;
+	do
+		tuple.add(parseLineString(it, CON));
+	while (checkNextElementContainer(it, CON));
+	return tuple;
 }
-
-#define CaseNamespace(Char, Func) ExtraCase(Char, checkMultiContainer(++it, [&]() { cont.add(Func); }))
-#define ExtraCasesNamespace \
-	CaseNamespace(CHAR_CONCRETE_ENTITY, parseConcreteEntity(it)) \
-	CaseNamespace(CHAR_ABSTRACT_ENTITY, parseAbstractEntity(it))
 
 Namespace Parser::parseNamespace(It& it, const string& name)
 {
-	PatternParse(Namespace cont(name); CheckEmpty(ConType::DICTIONARY, return cont), cont, ConType::DICTIONARY, CLOSE_DICTIONARY, ExtraCasesNamespace, throw runtime_error(ERROR_KEY_NAMESPACE);)
+	static const ConType CON = ConType::DICTIONARY;
+	Namespace nspace(name);
+	if (checkEmptyContainer(it, CON))
+		return nspace;
+	do
+		if (*it == CHAR_CONCRETE_ENTITY)
+			checkMultiContainer(++it, [&]() { nspace.add(parseConcreteEntity(it)); });
+		else if (*it == CHAR_ABSTRACT_ENTITY)
+			checkMultiContainer(++it, [&]() { nspace.add(parseAbstractEntity(it)); });
+		else
+			throw runtime_error(ERROR_INPUT_NAMESPACE);
+	while (checkNextElementContainer(it, CON));
+	return nspace;
 }
 Enum Parser::parseEnum(It& it, const string& name)
 {
-	PatternParse(Enum cont(name); CheckEmpty(ConType::LIST, return cont), cont, ConType::LIST, CLOSE_LIST, , PatternOtherValuesEnum(cont, ConType::LIST))
+	static const ConType CON = ConType::LIST;
+	Enum tEnum(name);
+	if (checkEmptyContainer(it, CON))
+		return tEnum;
+	do
+		parseOtherValue(it, CON,
+			ErrorKeyValue(ERROR_INPUT_ENUM),
+			CaseKeyOnly{ tEnum.add(move(key), tEnum.size()); },
+			ErrorValueOnly(ERROR_INPUT_ENUM),
+			ErrorAbstractEntity(ERROR_INPUT_ENUM));
+	while (checkNextElementContainer(it, CON));
+	return tEnum;
 }
 
-#define CON ConType::DOCUMENT
-Document Parser::parseDocument(It& it)
+Document Parser::parseDocument(It&& it)
 {
+	static const ConType CON = ConType::DOCUMENT;
 #ifdef GET_LINE
 	try
 	{
 #endif
 		Document doc;
-
-	documentHead:
-		if (!skipJunk(it))
+		if (checkEmptyContainer(it, CON))
 			return doc;
-
-		switch (*it)
-		{
-		case CHAR_CONCRETE_ENTITY:
-			checkMultiContainer(++it, [&]() { parseConcreteEntity(it, [&](const Variable& var) { vars.add(var); }); });
-			break;
-		case CHAR_ABSTRACT_ENTITY:
-			checkMultiContainer(++it, [&]() { vars.add(parseAbstractEntity(it)); });
-			break;
-		case CHAR_OPTION:
-			checkMultiContainer(++it, [&]() { parseOption(it); });
-			break;
-		case CHAR_USING_NAMESPACE:
-			checkMultiContainer(++it, [&]() { parseUsingNamespace(it); });
-			break;
-		case CHAR_IMPORT:
-#ifdef ALLOW_IMPORT
-			checkMultiContainer(++it, [&]() { parseImport(it); });
-			break;
-#else
-			throw runtime_error("this parser cannot import documents");
-#endif
-		default:
-			goto documentBody;
-		}
-		checkToNextElement(it, CON);
-		goto documentHead;
-
-	documentBody:
 		do
 		{
 			switch (*it)
 			{
-			case webss_CHAR_ANY_CONTAINER_CHAR_VALUE:
-				doc.add(parseCharValue(it, CON));
+			case CHAR_CONCRETE_ENTITY:
+				checkMultiContainer(++it, [&]() { ents.add(parseConcreteEntity(it)); });
 				break;
-			default:
-				if (checkSeparator(it))
-					continue;
-				PatternOtherValuesTuple(doc, ConType::DOCUMENT)
+			case CHAR_ABSTRACT_ENTITY:
+				checkMultiContainer(++it, [&]() { ents.add(parseAbstractEntity(it)); });
+				break;
+			case CHAR_OPTION:
+				checkMultiContainer(++it, [&]() { parseOption(it); });
+				break;
+			case CHAR_USING_NAMESPACE:
+				checkMultiContainer(++it, [&]() { parseUsingNamespace(it, [&](const Entity& entity) {ents.add(entity); }); });
+				break;
+			case CHAR_IMPORT:
+				checkMultiContainer(++it, [&]() { parseImport(it); });
+				break;
+			default: //parse body
+				do
+					parseOtherValue(it, CON,
+						CaseKeyValue{ doc.addSafe(move(key), move(value)); },
+						ErrorKeyOnly(ERROR_INPUT_DOCUMENT),
+						CaseValueOnly{ doc.add(move(value)); },
+						ErrorAbstractEntity(ERROR_INPUT_DOCUMENT));
+				while (checkNextElementContainer(it, CON));
+				return doc;
 			}
-			checkToNextElement(it, CON);
-		} while (it);
+		} while (checkNextElementContainer(it, CON));
 		return doc;
 #ifdef GET_LINE
 	}
@@ -191,17 +206,16 @@ Document Parser::parseDocument(It& it)
 	}
 #endif
 }
-#undef CON
 
 void Parser::checkMultiContainer(It& it, function<void()> func)
 {
+	static const ConType CON = ConType::DICTIONARY;
 	if (*skipJunkToValid(it) != OPEN_DICTIONARY)
 		func();
-	else
-	{
-		++it;
-		PatternParse(CheckEmpty(ConType::DICTIONARY, return), , ConType::DICTIONARY, CLOSE_DICTIONARY, , func();)
-	}
+	else if (!checkEmptyContainer(++it, CON))
+		do
+			func();
+		while (checkNextElementContainer(it, CON));
 }
 
 Webss Parser::parseContainerText(It& it)
@@ -219,4 +233,9 @@ Webss Parser::parseContainerText(It& it)
 	default:
 		throw runtime_error(ERROR_UNEXPECTED);
 	}
+}
+
+void Parser::parseImport(It& it)
+{
+	throw runtime_error("this parser cannot import documents");
 }

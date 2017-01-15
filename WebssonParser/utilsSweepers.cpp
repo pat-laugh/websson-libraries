@@ -43,7 +43,8 @@ void skipMultilineComment(SmartIterator& it)
 	if (!it)
 		throw runtime_error("multiline comment is not closed");
 	
-	for (int num = 1, char c = *it; ++it; c = *it)
+	int num = 1;
+	for (char c = *it; ++it; c = *it)
 		if (c == '*')
 		{
 			if (*it != '/')
@@ -125,8 +126,13 @@ SmartIterator& webss::skipJunkToValidCondition(SmartIterator& it, function<bool(
 	return it;
 }
 
-void webss::cleanLine(SmartIterator& it, ConType con, Language lang)
+void webss::cleanLine(SmartIterator& it, ConType con, char separator)
 {
-	if (skipLineJunk(it) && !isLineEnd(*it, con, lang))
+	if (skipLineJunk(it) && !isLineEnd(*it, con, separator))
 		throw runtime_error(ERROR_UNEXPECTED);
+}
+
+bool webss::isLineEnd(char c, ConType con, char separator)
+{
+	return c == '\n' || c == separator || con.isEnd(c);
 }

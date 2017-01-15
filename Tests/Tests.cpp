@@ -93,8 +93,8 @@ int main()
 	try
 	{
 	Tuple tuple;
-	tuple.add(person1.deserialize(parser.vars["Schema"]));
-	tuple.add(person2.deserialize(parser.vars["Schema"]));
+	tuple.add(person1.deserialize(parser.ents["Schema"]));
+	tuple.add(person2.deserialize(parser.ents["Schema"]));
 	fileOut << parser.deserializeAll(tuple);
 	fileOut.flush();
 	cout << "No errors while deserializing" << endl;
@@ -139,7 +139,7 @@ int main()
 			if (fileOut.fail()) { cerr << "Error: failed to open file \"" << fileOutName << "\"" << endl; cin >> inChar; exit(EXIT_FAILURE); }
 			try
 			{
-				fileOut << deserializeAll(data, parser.vars);
+				fileOut << deserializeAll(data, parser.ents);
 				fileOut.flush();
 				cout << "No errors while deserializing" << endl;
 			}

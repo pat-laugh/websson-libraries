@@ -42,6 +42,9 @@ namespace webss
 
 		//returns true c == con's end char, else false
 		bool isEnd(char c) const;
+
+		//returns true if con has an end char, else false
+		bool hasEndChar() const;
 	private:
 		const Enum e;
 	};

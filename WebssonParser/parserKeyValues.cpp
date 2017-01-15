@@ -23,17 +23,24 @@ else if (!skipJunk(++it) || !(ConditionSuccess)) \
 else \
 	{ Success; } }
 
-pair<string, KeyType> Parser::parseKey(It& it)
+Parser::NameType Parser::parseNameType(It& it)
 {
-	string key = parseName(it);
-	KeyType keyType;
-	if (isKeyword(key))
-		keyType = KeyType::KEYWORD;
-	else if (vars.hasVariable(key))
-		PatternLineGreed(*it == CHAR_SCOPE, keyType = KeyType::SCOPE, keyType = KeyType::VARIABLE)
-	else
-		PatternLineGreed(isKeyChar(*it), keyType = getKeyType(*it), keyType = KeyType::KEYNAME)
-	return{ move(key), keyType };
+	string name = parseName(it);
+	if (isKeyword(name))
+		return{ Keyword(name) };
+	else if (!ents.hasEntity(name))
+		return{ move(name) };
+
+	const Entity* ent = &ents[name];
+scopeLoop:
+	PatternLineGreed(*it == CHAR_SCOPE, /* continue below */, return{ *ent })
+	try
+	{
+		skipJunkToValidCondition(++it, [&]() { return isNameStart(*it); });
+		ent = &ent->getContent().getNamespace().at(parseName(it));
+		goto scopeLoop;
+	}
+	catch (exception e) { throw runtime_error("could not get scoped value"); }
 }
 
 Webss Parser::parseCharValue(It& it, ConType con)
@@ -61,12 +68,19 @@ Webss Parser::parseCharValue(It& it, ConType con)
 
 void Parser::addJsonKeyvalue(It& it, Dictionary& dict)
 {
-	auto keyPair = parseKey(skipJunkToValidCondition(it, [&]() { return isNameStart(*it); }));
-	if (keyPair.second != KeyType::CSTRING)
-		throw runtime_error("invalid key name in supposed Json key-value");
+	try
+	{
+		auto nameType = parseNameType(skipJunkToValidCondition(it, [&]() { return isNameStart(*it); }));
+		if (nameType.type != NameType::NAME && it != CHAR_CSTRING)
+			throw runtime_error("invalid key name in supposed Json key-value");
 
-	skipJunkToValidCondition(++it, [&]() { return *it == CHAR_COLON; });
-	dict.addSafe(move(keyPair.first), parseValueEqual(++it, ConType::DICTIONARY));
+		skipJunkToValidCondition(++it, [&]() { return *it == CHAR_COLON; });
+		dict.addSafe(move(nameType.name), parseValueEqual(++it, ConType::DICTIONARY));
+	}
+	catch (exception e)
+	{
+		throw runtime_error(string("while parsing supposed Json key-value, ") + e.what());
+	}
 }
 
 Webss Parser::parseValueColon(It& it, ConType con)
@@ -76,11 +90,8 @@ Webss Parser::parseValueColon(It& it, ConType con)
 
 Webss Parser::parseValueEqual(It& it, ConType con)
 {
-	switch (*skipJunkToValid(it))
+	if (*skipJunkToValid(it) != CHAR_EQUAL)
 	{
-	case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case OPEN_FUNCTION: case CHAR_COLON: case CHAR_CSTRING:
-		return parseCharValue(it, con);
-	default:
 		auto other = parseOtherValue(it, con);
 		if (other.type == OtherValue::Type::VALUE_ONLY)
 			return move(other.value);
@@ -88,45 +99,34 @@ Webss Parser::parseValueEqual(It& it, ConType con)
 	throw runtime_error(ERROR_VALUE);
 }
 
-const Variable& Parser::parseScopedValue(It& it, const string& varName) //used to be at line 121 now at line 98!
+bool isKeyChar(char c)
 {
-	try
+	switch (c)
 	{
-		Variable* var = &vars[varName];
-		pair<string, KeyType> keyPair;
-		do
-		{
-			skipJunkToValidCondition(++it, [&]() { return isNameStart(*it); });
-			keyPair = parseKey(it);
-			var = const_cast<Variable*>(&var->getContent().getNamespace().at(keyPair.first));
-		} while (keyPair.second == KeyType::SCOPE);
-		return *var;
-	}
-	catch (exception e)
-	{
-		throw runtime_error("could not get scoped value");
+	case webss_CHAR_ANY_CONTAINER_CHAR_VALUE:
+		return true;
+	default:
+		return false;
 	}
 }
 
 Parser::OtherValue Parser::parseOtherValue(It& it, ConType con)
 {
-	if (isNameStart(*it))
+	if (isKeyChar(*it))
+		return parseCharValue(it, con);
+	else if (isNameStart(*it))
 	{
-		auto keyPair = parseKey(it);
-		switch (keyPair.second)
+		auto nameType = parseNameType(it);
+		switch (nameType.type)
 		{
-		case webss_KEY_TYPE_ANY_CONTAINER_CHAR_VALUE:
-			return{ move(keyPair.first), parseCharValue(it, con) };
-		case KeyType::KEYWORD:
-			return{ Keyword(keyPair.first) };
-		case KeyType::KEYNAME:
-			return{ move(keyPair.first) };
-		case KeyType::VARIABLE:
-			return checkOtherValueVariable(it, con, vars[keyPair.first]);
-		case KeyType::SCOPE:
-			return checkOtherValueVariable(it, con, parseScopedValue(it, keyPair.first));
+		case NameType::NAME:
+			PatternLineGreed(isKeyChar(*it), return OtherValue(move(nameType.name), parseCharValue(it, con)), return{ move(nameType.name) })
+		case NameType::KEYWORD:
+			return{ nameType.keyword };
+		case NameType::ENTITY:
+			return checkOtherValueEntity(it, con, nameType.entity);
 		default:
-			break;
+			throw domain_error("");
 		}
 	}
 	else if (isNumberStart(*it))
@@ -134,15 +134,16 @@ Parser::OtherValue Parser::parseOtherValue(It& it, ConType con)
 	throw runtime_error(ERROR_UNEXPECTED);
 }
 
-Parser::OtherValue Parser::checkOtherValueVariable(It& it, ConType con, const Variable& var)
+Parser::OtherValue Parser::checkOtherValueEntity(It& it, ConType con, const Entity& ent)
 {
-	const auto& content = var.getContent();
+	const auto& content = ent.getContent();
 	if (content.isConcrete())
-		return{ Webss(var) };
+		return{ Webss(ent) };
 	
 	switch (content.getType())
 	{
 	case WebssType::BLOCK_HEAD:
+		//...
 	case WebssType::FUNCTION_HEAD_BINARY:
 		PatternLineGreed(*it == OPEN_TUPLE, return{ parseFunctionBodyBinary(it, content.getFunctionHeadBinary().getParameters()) }, break)
 	case WebssType::FUNCTION_HEAD_SCOPED:
@@ -152,10 +153,10 @@ Parser::OtherValue Parser::checkOtherValueVariable(It& it, ConType con, const Va
 	default:
 		break;
 	}
-	return{ var };
+	return{ ent };
 }
 
-void Parser::parseOtherValue(It& it, ConType con, std::function<void(string&& key, Webss&& value)> funcKeyValue, function<void(string&& key)> funcKeyOnly, function<void(Webss&& value)> funcValueOnly, function<void(const Variable& abstractEntity)> funcAbstractEntity, function<void (string&& key)> funcAlias)
+void Parser::parseOtherValue(It& it, ConType con, std::function<void(string&& key, Webss&& value)> funcKeyValue, function<void(string&& key)> funcKeyOnly, function<void(Webss&& value)> funcValueOnly, function<void(const Entity& abstractEntity)> funcAbstractEntity)
 {
 	auto other = parseOtherValue(it, con);
 	switch (other.type)
@@ -173,13 +174,6 @@ void Parser::parseOtherValue(It& it, ConType con, std::function<void(string&& ke
 		funcAbstractEntity(other.abstractEntity);
 		break;
 	default:
-		auto it = other.aliases.begin();
-		if (other.type == OtherValue::Type::KEY_VALUE_ALIASES)
-			funcKeyValue(move(*it), move(other.value));
-		else
-			funcKeyOnly(move(*it));
-		while (++it != other.aliases.end())
-			funcAlias(move(*it));
-		break;
+		throw domain_error("");
 	}
 }

@@ -6,16 +6,16 @@
 #include "WebssonUtils/endOfLine.h"
 #include "WebssonUtils/utilsWebss.h"
 #include "WebssonStructures/webss.h"
-#include "WebssonStructures/variablesManager.h"
+#include "WebssonStructures/entityManager.h"
 #include <functional>
 
 //#define REVERSE_ENDIANNESS_WRITE
 
 namespace webss
 {
-	using VariablesManager = BasicVariablesManager<Webss>;
+	using EntityManager = BasicEntityManager<Webss>;
 	std::string deserializeAll(const Document& doc);
-	std::string deserializeAll(const Document& doc, const VariablesManager& vars);
+	std::string deserializeAll(const Document& doc, const EntityManager& ents);
 
 	std::string deserializeWebss(const Webss& webss);
 

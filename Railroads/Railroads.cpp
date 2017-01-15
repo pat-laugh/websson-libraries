@@ -39,7 +39,7 @@ void readFiles()
 		"junk",
 		"keyValue",
 		"keyValueFunctionHead",
-		"keyValueVariableKeyword",
+		"keyValueEntityKeyword",
 		"keywordValue",
 		"lineString",
 		"list",
@@ -63,10 +63,10 @@ void readFiles()
 		"typeKeyword",
 		"usingNamespace",
 		"value",
-		"variableName",
-		"variableInitialization",
-		"variableKeywordInitialization",
-		"variableString",
+		"entityName",
+		"entityInitialization",
+		"entityKeywordInitialization",
+		"entityString",
 		"whitespace"
 	} };
 
@@ -74,7 +74,7 @@ void readFiles()
 
 	string path("C:\\Users\\Pat-Laugh\\Desktop\\WebSSON Doc\\Railroads\\");
 	{
-		string fileInName(path + "vars.txt");
+		string fileInName(path + "ents.txt");
 		cout << endl << fileInName << endl;
 		ifstream fileIn(fileInName, ios::binary);
 		if (fileIn.fail()) { cerr << ERROR_FAILED_OPEN_FILE << '"' << fileInName << '"' << endl; cin >> c; return; }

@@ -41,15 +41,12 @@ default: \
 	throw logic_error(""); \
 }
 
-#define OtherValue(funcKeyValue, funcKeyOnly, funcValueOnly, funcAbstractEntity, funcAlias) \
-[&](string&& key, Webss&& value) { funcKeyValue; }, \
-[&](string&& key) { funcKeyOnly; }, \
-[&](Webss&& value) { funcValueOnly; }, \
-[&](const Variable& abstractEntity) { funcAbstractEntity; }, \
-[&](string&& key) { funcAlias; }
+#define CaseKeyValue [&](std::string&& key, webss::Webss&& value)
+#define CaseKeyOnly [&](std::string&& key)
+#define CaseValueOnly [&](webss::Webss&& value)
+#define CaseAbstractEntity [&](const webss::Entity& abstractEntity)
 
-#define CaseKeyValue [&](string&& key, Webss&& value)
-#define CaseKeyOnly [&](string&& key)
-#define CaseValueOnly [&](Webss&& value)
-#define CaseAbstractEntity [&](const Variable& abstractEntity)
-#define CaseAlias [&](string&& key)
+#define ErrorKeyValue(Message) [](std::string&& key, webss::Webss&& value) { throw std::runtime_error(Message); }
+#define ErrorKeyOnly(Message) [](std::string&& key) { throw std::runtime_error(Message); }
+#define ErrorValueOnly(Message) [](webss::Webss&& value) { throw std::runtime_error(Message); }
+#define ErrorAbstractEntity(Message) [](const webss::Entity& abstractEntity) { throw std::runtime_error(Message); }

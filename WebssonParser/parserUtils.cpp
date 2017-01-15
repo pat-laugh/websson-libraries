@@ -5,7 +5,51 @@
 using namespace std;
 using namespace webss;
 
-const char* ERROR_VOID = "empty value";
+const char* ERROR_VOID = "can't have void element";
+
+bool checkContainerHasEndChar(It& it, ConType con)
+{
+	if (con.hasEndChar())
+		throw runtime_error(ERROR_EXPECTED);
+	return true;
+}
+
+bool checkContainerEnd(It& it, ConType con)
+{
+	if (!con.isEnd(*it))
+		return false;
+
+	++it;
+	return true;
+}
+
+bool Parser::checkEmptyContainer(It& it, ConType con)
+{
+	if (!skipJunk(it))
+		return checkContainerHasEndChar(it, con);
+	if (*it == separator)
+		throw runtime_error(ERROR_VOID);
+	return checkContainerEnd(it, con);
+}
+
+bool Parser::checkNextElementContainer(It& it, ConType con)
+{
+	if (!lineGreed)
+		cleanLine(it, con, separator);
+	else
+		lineGreed = false;
+
+	if (!skipJunk(it))
+		return checkContainerHasEndChar(it, con);
+	if (*it == separator)
+	{
+		if (!skipJunk(++it) || *it == separator || con.isEnd(*it))
+			throw runtime_error(ERROR_VOID);
+		return true;
+	}
+	return !checkContainerEnd(it, con);
+}
+
 
 bool Parser::checkSeparator(It& it)
 {
@@ -25,22 +69,12 @@ bool Parser::checkSeparatorVoid(It& it, function<void()> funcIsVoid)
 	return false;
 }
 
-void Parser::checkContainerEnd(It& it)
-{
-	checkContainerEndVoid(it, []() { throw runtime_error(ERROR_VOID); });
-}
-
 void Parser::checkContainerEndVoid(It& it, function<void()> funcIsVoid)
 {
 	if (isVoid)
 		funcIsVoid();
 	lineGreed = false;
 	++it;
-}
-
-bool Parser::checkEmptyContainer(It& it, ConType con)
-{
-	return checkEmptyContainerVoid(it, con);
 }
 
 bool Parser::checkEmptyContainerVoid(It& it, ConType con)
@@ -57,7 +91,7 @@ bool Parser::checkEmptyContainerVoid(It& it, ConType con)
 void Parser::checkToNextElement(It& it, ConType con)
 {
 	if (!lineGreed)
-		cleanLine(it, con, language);
+		cleanLine(it, con, separator);
 	else
 		lineGreed = false;
 	isVoid = false;
@@ -77,20 +111,20 @@ bool Parser::checkOtherValuesVoid(It& it, function<void()> funcIsVoid, function<
 	return false;
 }
 
-const BasicVariable<FunctionHeadStandard>& Parser::checkVarFheadStandard(const Variable& var)
+const BasicEntity<FunctionHeadStandard>& Parser::checkEntFheadStandard(const Entity& ent)
 {
-	const auto& name = var.getName();
-	if (!varsFheadStandard.hasVariable(name))
-		try { varsFheadStandard.add(name, var.getContent().getFunctionHeadStandard()); }
+	const auto& name = ent.getName();
+	if (!entsFheadStandard.hasEntity(name))
+		try { entsFheadStandard.add(name, ent.getContent().getFunctionHeadStandard()); }
 		catch (exception e) { throw runtime_error(e.what()); }
-	return varsFheadStandard[name];
+	return entsFheadStandard[name];
 }
 
-const BasicVariable<FunctionHeadBinary>& Parser::checkVarFheadBinary(const Variable& var)
+const BasicEntity<FunctionHeadBinary>& Parser::checkEntFheadBinary(const Entity& ent)
 {
-	const auto& name = var.getName();
-	if (!varsFheadBinary.hasVariable(name))
-		try { varsFheadBinary.add(name, var.getContent().getFunctionHeadBinary()); }
+	const auto& name = ent.getName();
+	if (!entsFheadBinary.hasEntity(name))
+		try { entsFheadBinary.add(name, ent.getContent().getFunctionHeadBinary()); }
 		catch (exception e) { throw runtime_error(e.what()); }
-	return varsFheadBinary[name];
+	return entsFheadBinary[name];
 }

@@ -34,7 +34,7 @@ void webss::addHexEscape(string& str, unsigned int num)
 #undef CHAR_BITS
 }
 
-ParamBinary webss::makeBinary(Keyword keyword, type_binary_size sizeList)
+ParamBinary webss::makeBinary(Keyword keyword, WebssBinarySize sizeList)
 {
 	if (!keyword.isType())
 		throw std::domain_error("invalid binary type: " + keyword.toString());
@@ -50,7 +50,7 @@ ParamBinary webss::makeBinary(Keyword keyword, type_binary_size sizeList)
 		throw std::domain_error(ERROR_BINARY_SIZE_LIST);
 }
 
-ParamBinary webss::makeBinaryDefault(Keyword keyword, Webss&& defaultValue, type_binary_size sizeList)
+ParamBinary webss::makeBinaryDefault(Keyword keyword, Webss&& defaultValue, WebssBinarySize sizeList)
 {
 	if (!keyword.isType())
 		throw std::domain_error("invalid binary type: " + keyword.toString());
@@ -68,7 +68,7 @@ ParamBinary webss::makeBinaryDefault(Keyword keyword, Webss&& defaultValue, type
 		throw std::domain_error(ERROR_BINARY_SIZE_LIST);
 }
 
-ParamBinary webss::makeBinarySelf(Keyword keyword, Webss&& defaultValue, type_binary_size sizeList)
+ParamBinary webss::makeBinarySelf(Keyword keyword, Webss&& defaultValue, WebssBinarySize sizeList)
 {
 	if (!keyword.isType())
 		throw std::domain_error("invalid binary type: " + keyword.toString());

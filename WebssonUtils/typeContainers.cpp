@@ -40,3 +40,8 @@ bool ConType::isEnd(char c) const
 		return false;
 	}
 }
+
+bool ConType::hasEndChar() const
+{
+	return e == ConType::DOCUMENT;
+}
