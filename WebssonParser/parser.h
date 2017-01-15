@@ -242,12 +242,19 @@ namespace webss
 		const BasicEntity<WebssBinarySize>& checkEntTypeBinarySize(const Entity& ent);
 
 		//parserUtils.cpp
+		bool checkEmptyContainer(It& it, ConType con);
+		bool checkNextElementContainer(It & it, ConType con);
+		bool checkEmptyContainerVoid(It& it, ConType con, std::function<void()> funcIsVoid);
+		bool checkNextElementContainerVoid(It & it, ConType con, std::function<void()> funcIsVoid);
+
+
+
+
 		bool checkSeparator(It& it);
 		bool checkSeparatorVoid(It& it, std::function<void()> funcIsVoid);
 		void checkContainerEndVoid(It& it, std::function<void()> funcIsVoid);
-		bool checkEmptyContainer(It& it, ConType con);
-		bool checkNextElementContainer(It & it, ConType con);
-		bool checkEmptyContainerVoid(It& it, ConType con);
+		
+		
 		void checkToNextElement(It& it, ConType con);
 		bool checkOtherValuesVoid(It& it, std::function<void()> funcIsVoid, std::function<void()> funcIsNameStart, std::function<void()> funcIsNumberStart);
 		const BasicEntity<FunctionHeadStandard>& checkEntFheadStandard(const Entity& ent);

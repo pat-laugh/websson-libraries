@@ -43,5 +43,5 @@ bool ConType::isEnd(char c) const
 
 bool ConType::hasEndChar() const
 {
-	return e == ConType::DOCUMENT;
+	return e != ConType::DOCUMENT;
 }

@@ -7,29 +7,29 @@ using namespace webss;
 
 const char* ERROR_VOID = "can't have void element";
 
-bool checkContainerHasEndChar(It& it, ConType con)
-{
-	if (con.hasEndChar())
-		throw runtime_error(ERROR_EXPECTED);
-	return true;
-}
-
 bool checkContainerEnd(It& it, ConType con)
 {
-	if (!con.isEnd(*it))
-		return false;
-
-	++it;
-	return true;
+	if (!skipJunk(it))
+	{
+		if (con.hasEndChar())
+			throw runtime_error(ERROR_EXPECTED);
+		return true;
+	}
+	if (con.isEnd(*it))
+	{
+		++it;
+		return true;
+	}
+	return false;
 }
 
 bool Parser::checkEmptyContainer(It& it, ConType con)
 {
-	if (!skipJunk(it))
-		return checkContainerHasEndChar(it, con);
+	if (checkContainerEnd(it, con))
+		return true;
 	if (*it == separator)
 		throw runtime_error(ERROR_VOID);
-	return checkContainerEnd(it, con);
+	return false;
 }
 
 bool Parser::checkNextElementContainer(It& it, ConType con)
@@ -39,16 +39,77 @@ bool Parser::checkNextElementContainer(It& it, ConType con)
 	else
 		lineGreed = false;
 
-	if (!skipJunk(it))
-		return checkContainerHasEndChar(it, con);
+	if (checkContainerEnd(it, con))
+		return false;
+	if (*it == separator && (checkContainerEnd(++it, con) || *it == separator))
+		throw runtime_error(ERROR_VOID);
+	return true;
+}
+
+bool Parser::checkEmptyContainerVoid(It& it, ConType con, function<void()> funcIsVoid)
+{
+	if (checkContainerEnd(it, con))
+		return true;
 	if (*it == separator)
 	{
-		if (!skipJunk(++it) || *it == separator || con.isEnd(*it))
-			throw runtime_error(ERROR_VOID);
-		return true;
+		funcIsVoid();
+	loopStart:
+		if (checkContainerEnd(++it, con))
+		{
+			funcIsVoid();
+			return true;
+		}
+		if (*it == separator)
+		{
+			funcIsVoid();
+			goto loopStart;
+		}
 	}
-	return !checkContainerEnd(it, con);
+	return false;
 }
+
+bool Parser::checkNextElementContainerVoid(It& it, ConType con, function<void()> funcIsVoid)
+{
+	if (!lineGreed)
+		cleanLine(it, con, separator);
+	else
+		lineGreed = false;
+
+	if (checkContainerEnd(it, con))
+		return false;
+	if (*it == separator)
+	{
+	loopStart:
+		if (checkContainerEnd(++it, con))
+		{
+			funcIsVoid();
+			return false;
+		}
+		if (*it == separator)
+		{
+			funcIsVoid();
+			goto loopStart;
+		}
+	}
+	return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 bool Parser::checkSeparator(It& it)
@@ -77,16 +138,7 @@ void Parser::checkContainerEndVoid(It& it, function<void()> funcIsVoid)
 	++it;
 }
 
-bool Parser::checkEmptyContainerVoid(It& it, ConType con)
-{
-	if (con.isEnd(*skipJunkToValid(it)))
-	{
-		++it;
-		return true;
-	}
-	isVoid = true;
-	return false;
-}
+
 
 void Parser::checkToNextElement(It& it, ConType con)
 {

@@ -40,23 +40,28 @@ FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 
 	FunctionHeadStandard fhead;
 	auto other = parseOtherValue(it, CON);
+	bool isEnd = !checkNextElementContainer(it, CON);
 	switch (other.type)
 	{
 	case OtherValue::Type::KEY_VALUE:
 		fhead.attach(move(other.key), move(other.value));
-		return parseFunctionHeadStandard(it, move(fhead));
+		return isEnd ? move(fhead) : parseFunctionHeadStandard(it, move(fhead));
 	case OtherValue::Type::KEY_ONLY:
 		fhead.attachEmpty(move(other.key));
-		return parseFunctionHeadStandard(it, move(fhead));
+		return isEnd ? move(fhead) : parseFunctionHeadStandard(it, move(fhead));
 	case OtherValue::Type::ABSTRACT_ENTITY:
 		switch (other.abstractEntity.getContent().getType())
 		{
 		case WebssType::FUNCTION_HEAD_BINARY:
-			return parseFunctionHeadBinary(it, FunctionHeadBinary(checkEntFheadBinary(other.abstractEntity)));
+		{
+			FunctionHeadBinary fheadBinary(FunctionHeadBinary(checkEntFheadBinary(other.abstractEntity)));
+			return isEnd ? move(fheadBinary) : parseFunctionHeadBinary(it, move(fheadBinary));
+		}
 		case WebssType::FUNCTION_HEAD_SCOPED:
 			break;
 		case WebssType::FUNCTION_HEAD_STANDARD:
-			return parseFunctionHeadStandard(it, FunctionHeadStandard(checkEntFheadStandard(other.abstractEntity)));
+			new (&fhead) FunctionHeadStandard(checkEntFheadStandard(other.abstractEntity));
+			return isEnd ? move(fhead) : parseFunctionHeadStandard(it, move(fhead));
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
@@ -71,21 +76,33 @@ void Parser::checkFheadVoid(It& it)
 	//receives as if the first param was empty
 	if (!it)
 		throw runtime_error(ERROR_EXPECTED);
-	isVoid = false;
+	if (*it == separator)
+		skipJunkToValid(it);
 }
-
-#define ExtraCasesFheadStandard \
-	ExtraCase(OPEN_FUNCTION, parseStandardParameterFunctionHead(it, fhead)) \
-	ExtraCase(CHAR_COLON, parseStandardParameterFunctionHeadText(it, fhead))
 
 FunctionHeadStandard Parser::parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead)
 {
-	PatternParse(checkFheadVoid(it), move(fhead), CON, CLOSE_FUNCTION, ExtraCasesFheadStandard, parseOtherValuesFheadStandard(it, fhead);)
+//	checkFheadVoid(it);
+	do
+		if (*it == OPEN_FUNCTION)
+			parseStandardParameterFunctionHead(it, fhead);
+		else if (*it == CHAR_COLON)
+			parseStandardParameterFunctionHeadText(it, fhead);
+		else
+			parseOtherValuesFheadStandard(it, fhead);
+	while (checkNextElementContainer(it, CON));
+	return move(fhead);
 }
 
 FunctionHeadStandard Parser::parseFunctionHeadText(It& it)
 {
-	PatternParse(FunctionHeadStandard cont(true); CheckEmpty(CON, throw runtime_error(ERROR_EMPTY_FUNCTION_HEAD)), cont, CON, CLOSE_FUNCTION, , parseOtherValuesFheadText(it, cont);)
+	FunctionHeadStandard fhead(true);
+	if (checkEmptyContainer(it, CON))
+		throw runtime_error(ERROR_EMPTY_FUNCTION_HEAD);
+	do
+		parseOtherValuesFheadText(it, fhead);
+	while (checkNextElementContainer(it, CON));
+	return fhead;
 }
 
 //similar to both standard fheads, but allows empty head
@@ -94,11 +111,35 @@ BlockHead Parser::parseBlockHead(It& it)
 	switch (*skipJunkToValid(it))
 	{
 	case OPEN_FUNCTION: //regular
-		PatternParse(++it; BlockHead fhead; CheckEmpty(CON, return fhead), fhead, CON, CLOSE_FUNCTION, ExtraCasesFheadStandard, parseOtherValuesFheadStandard(it, fhead);)
+	{
+		++it;
+		BlockHead fhead;
+		if (checkEmptyContainer(it, CON))
+			return fhead;
+		do
+			if (*it == OPEN_FUNCTION)
+				parseStandardParameterFunctionHead(it, fhead);
+			else if (*it == CHAR_COLON)
+				parseStandardParameterFunctionHeadText(it, fhead);
+			else
+				parseOtherValuesFheadStandard(it, fhead);
+		while (checkNextElementContainer(it, CON));
+		return fhead;
+	}
 	case CHAR_COLON: //text
+	{
 		if (++it != CHAR_COLON || skipJunk(++it) != OPEN_FUNCTION)
 			throw runtime_error("expected text function head");
-		PatternParse(++it; BlockHead fhead(true); CheckEmpty(CON, return fhead), fhead, CON, CLOSE_FUNCTION, , parseOtherValuesFheadText(it, fhead);)
+
+		++it;
+		BlockHead fhead;
+		if (checkEmptyContainer(it, CON))
+			return fhead;
+		do
+			parseOtherValuesFheadText(it, fhead);
+		while (checkNextElementContainer(it, CON));
+		return fhead;
+	}
 	default:
 		throw runtime_error(ERROR_UNEXPECTED);
 	}
@@ -106,7 +147,14 @@ BlockHead Parser::parseBlockHead(It& it)
 
 FunctionHeadBinary Parser::parseFunctionHeadBinary(It& it, FunctionHeadBinary&& fhead)
 {
-	PatternParse(checkFheadVoid(it), move(fhead), CON, CLOSE_FUNCTION, ExtraCase(OPEN_TUPLE, parseBinaryHead(++it, fhead)), parseOtherValuesFheadBinary(it, fhead);)
+//	checkFheadVoid(it);
+	do
+		if (*it == OPEN_TUPLE)
+			parseBinaryHead(++it, fhead);
+		else
+			parseOtherValuesFheadBinary(it, fhead);
+	while (checkNextElementContainer(it, CON));
+	return move(fhead);
 }
 
 void Parser::parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead)

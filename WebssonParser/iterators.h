@@ -7,6 +7,9 @@
 #include <string>
 
 #define GET_LINE
+#ifdef GET_LINE
+#define TAB_LENGTH 4
+#endif
 
 namespace webss
 {
@@ -70,7 +73,7 @@ namespace webss
 
 #ifdef GET_LINE
 		int getLine() { return line; }
-		int getCharCol() { return col; }
+		int getCol() { return col; }
 #endif
 	private:
 		std::stringstream in;
@@ -89,6 +92,8 @@ namespace webss
 		{
 			if (c == '\n')
 				addLine();
+			else if (c == '\t')
+				col += TAB_LENGTH;
 			else
 				++col;
 		}

@@ -116,6 +116,7 @@ int main()
 
 	return 0; */
 
+	do
 	{
 		string filename("testWebsson");
 		Parser parser;
@@ -156,6 +157,8 @@ int main()
 		fileIn.close();
 
 		cin >> inChar;
-	}
+		if (inChar == 'q')
+			break;
+	} while (true);
 	return 0;
 }

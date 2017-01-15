@@ -16,7 +16,7 @@ const char ERROR_INPUT_DOCUMENT[] = "document can only have concrete value-onlys
 
 string getItPosition(It& it)
 {
-	return "[ln " + to_string(it.getLine()) + ", ch " + to_string(it.getCharCol()) + "]";
+	return "[ln " + to_string(it.getLine()) + ", col " + to_string(it.getCol()) + "]";
 }
 
 string getItCurrentChar(It& it)
@@ -25,7 +25,7 @@ string getItCurrentChar(It& it)
 		return string("");
 
 	string out;
-	out += '\'';
+	out += " '";
 	if (*it == '\'' || *it == '\\')
 		out += '\\';
 	out = out + *it + "' ";
