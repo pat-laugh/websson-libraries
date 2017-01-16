@@ -136,3 +136,35 @@ bool webss::isLineEnd(char c, ConType con, char separator)
 {
 	return c == '\n' || c == separator || con.isEnd(c);
 }
+
+TypeContainer webss::skipJunkToContainer(SmartIterator& it)
+{
+	switch (*skipJunkToValid(it))
+	{
+	case OPEN_DICTIONARY:
+		return TypeContainer::DICTIONARY;
+	case OPEN_LIST:
+		return TypeContainer::LIST;
+	case OPEN_TUPLE:
+		return TypeContainer::TUPLE;
+	case OPEN_FUNCTION:
+		return TypeContainer::FUNCTION_HEAD;
+	case CHAR_COLON:
+		if (++it == CHAR_COLON)
+			switch (*skipJunkToValid(++it))
+			{
+			case OPEN_DICTIONARY:
+				return TypeContainer::TEXT_DICTIONARY;
+			case OPEN_LIST:
+				return TypeContainer::TEXT_LIST;
+			case OPEN_TUPLE:
+				return TypeContainer::TEXT_TUPLE;
+			case OPEN_FUNCTION:
+				return TypeContainer::TEXT_FUNCTION_HEAD;
+			default:
+				break;
+			}
+	default:
+		throw runtime_error(ERROR_UNEXPECTED);
+	}
+}

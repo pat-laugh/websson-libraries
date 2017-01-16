@@ -228,11 +228,15 @@ namespace webss
 		Webss parseFunction(It& it);
 		Webss parseFunctionText(It& it);
 		Webss parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
-	//	Webss parseFunctionDictionary(It& it, const Tuple& defaultTuple);
 		Webss parseFunctionContainer(It& it, const ParamStandard& defaultValue);
-		Tuple functionParseTuple(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
-		Tuple functionParseTupleText(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
-		List functionParseList(It& it, const FunctionHeadStandard::Tuple& defaultTuple, std::function<Tuple(It& it, const FunctionHeadStandard::Tuple& defaultTuple)> func);
+		Dictionary parseFunctionDictionaryStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
+		Dictionary parseFunctionDictionaryText(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
+		List parseFunctionListStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
+		List parseFunctionListText(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
+		Tuple parseFunctionTupleStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
+		Tuple parseFunctionTupleText(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
+
+		Dictionary parseFunctionDictionaryStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
 
 		//parserBinary.cpp
 		void parseBinaryHead(It& it, FunctionHeadBinary& fhead);

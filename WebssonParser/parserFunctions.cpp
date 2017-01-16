@@ -41,19 +41,134 @@ Webss Parser::parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tupl
 #define FUNC_LIST(parseTuple) functionParseList(++it, defaultTuple, [&](It& it, const FunctionHeadStandard::Tuple& defaultTuple) { return parseTuple(it, defaultTuple); })
 	switch (*skipJunkToValid(it))
 	{
+	case OPEN_DICTIONARY:
+
+	case OPEN_LIST:
+		return defaultTuple.containerText ? FUNC_LIST(parseFunctionTupleText) : FUNC_LIST(parseFunctionTupleStandard);
+	case OPEN_TUPLE:
+		return defaultTuple.containerText ? parseFunctionTupleText(++it, defaultTuple) : parseFunctionTupleStandard(++it, defaultTuple);
 	case CHAR_COLON:
 		if (++it != CHAR_COLON || *skipJunkToValid(++it) != OPEN_TUPLE)
 			throw runtime_error(ERROR_UNEXPECTED);
-		return functionParseTupleText(++it, defaultTuple);
-	case OPEN_TUPLE:
-		return defaultTuple.containerText ? functionParseTupleText(++it, defaultTuple) : functionParseTuple(++it, defaultTuple);
-	case OPEN_LIST:
-		return defaultTuple.containerText ? FUNC_LIST(functionParseTupleText) : FUNC_LIST(functionParseTuple);
+		return parseFunctionTupleText(++it, defaultTuple);
 	default:
 		throw runtime_error(ERROR_UNEXPECTED);
 	}
 #undef FUNC_LIST
 }
+
+
+
+
+
+Dictionary Parser::parseFunctionDictionaryStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple)
+{
+	static const ConType CON = ConType::DICTIONARY;
+	Dictionary dict;
+	if (checkEmptyContainer(it, CON))
+		return dict;
+	do
+	{
+		if (!isNameStart(*it))
+			throw runtime_error(ERROR_UNEXPECTED);
+		auto name = parseNameType(it);
+		if (name.type != NameType::NAME)
+			throw runtime_error(ERROR_UNEXPECTED);
+		switch (skipJunkToContainer(it))
+		{
+		case TypeContainer::TUPLE:
+			dict.addSafe(move(name.name), parseFunctionTupleStandard(++it, defaultTuple));
+			break;
+		case TypeContainer::LIST:
+			dict.addSafe(move(name.name), parseFunctionListStandard(++it, defaultTuple));
+			break;
+		case TypeContainer::TEXT_TUPLE:
+			dict.addSafe(move(name.name), parseFunctionTupleText(++it, defaultTuple));
+			break;
+		case TypeContainer::TEXT_LIST:
+			dict.addSafe(move(name.name), parseFunctionListText(++it, defaultTuple));
+			break;
+		default:
+			throw runtime_error(ERROR_UNEXPECTED);
+		}
+	} while (checkNextElementContainer(it, CON));
+	return dict;
+}
+
+Dictionary Parser::parseFunctionDictionaryText(It& it, const FunctionHeadStandard::Tuple& defaultTuple)
+{
+	static const ConType CON = ConType::DICTIONARY;
+	Dictionary dict;
+	if (checkEmptyContainer(it, CON))
+		return dict;
+	do
+	{
+		if (!isNameStart(*it))
+			throw runtime_error(ERROR_UNEXPECTED);
+		auto name = parseNameType(it);
+		if (name.type != NameType::NAME)
+			throw runtime_error(ERROR_UNEXPECTED);
+		if (*skipJunkToValid(it) == OPEN_TUPLE)
+			dict.addSafe(move(name.name), parseFunctionTupleText(it, defaultTuple));
+		else if (*it == OPEN_LIST)
+			dict.addSafe(move(name.name), parseFunctionListText(it, defaultTuple));
+		else if (*it == CHAR_COLON && ++it == CHAR_COLON)
+		{
+			if (*skipJunkToValid(it) == OPEN_TUPLE)
+				dict.addSafe(move(name.name), parseFunctionTupleText(it, defaultTuple));
+			else if (*it == OPEN_LIST)
+				dict.addSafe(move(name.name), parseFunctionListText(it, defaultTuple));
+			else
+				throw runtime_error(ERROR_UNEXPECTED);
+		}
+		else
+			throw runtime_error(ERROR_UNEXPECTED);
+	} while (checkNextElementContainer(it, CON));
+	return dict;
+}
+
+List Parser::parseFunctionListStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple)
+{
+	static const ConType CON = ConType::LIST;
+	List list;
+	if (checkEmptyContainer(it, CON))
+		return list;
+	do
+		if (*it == OPEN_TUPLE)
+			list.add(parseFunctionTupleStandard(++it, defaultTuple));
+		else if (*it == CHAR_COLON && ++it == CHAR_COLON && *skipJunkToValid(++it) == OPEN_TUPLE)
+			list.add(parseFunctionTupleText(++it, defaultTuple));
+		else
+			throw runtime_error(ERROR_UNEXPECTED);
+		while (checkNextElementContainer(it, CON)); //make it so separators are not required (no need to clean line)
+	return list;
+}
+
+List Parser::parseFunctionListText(It& it, const FunctionHeadStandard::Tuple& defaultTuple)
+{
+	static const ConType CON = ConType::LIST;
+	List list;
+	if (checkEmptyContainer(it, CON))
+		return list;
+	do
+		if (*it == OPEN_TUPLE)
+			list.add(parseFunctionTupleText(++it, defaultTuple));
+		else if (*it == CHAR_COLON && ++it == CHAR_COLON && *skipJunkToValid(++it) == OPEN_TUPLE)
+			list.add(parseFunctionTupleText(++it, defaultTuple));
+		else
+			throw runtime_error(ERROR_UNEXPECTED);
+		while (checkNextElementContainer(it, CON)); //make it so separators are not required (no need to clean line)
+	return list;
+}
+
+
+
+
+
+
+
+
+
 
 Webss Parser::parseFunctionContainer(It& it, const ParamStandard& defaultValue)
 {
@@ -77,7 +192,7 @@ void checkDefaultValues(Tuple& tuple, const FunctionHeadStandard::Tuple& default
 			setDefaultValue(tuple, defaultTuple, index);
 }
 
-Tuple Parser::functionParseTuple(It& it, const FunctionHeadStandard::Tuple& defaultTuple)
+Tuple Parser::parseFunctionTupleStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple)
 {
 	static const ConType CON = ConType::TUPLE;
 	Tuple tuple(defaultTuple.getSharedKeys());
@@ -142,11 +257,11 @@ Tuple Parser::functionParseTuple(It& it, const FunctionHeadStandard::Tuple& defa
 					ErrorKeyValue(ERROR_UNEXPECTED),
 					ErrorKeyOnly(webss_ERROR_UNDEFINED_KEYNAME(key)),
 					CaseValueOnly
-					{
-						if (defaultTuple.at(index).hasFunctionHead())
-							throw runtime_error(ERROR_UNEXPECTED);
-						tuple.at(index) = move(value);
-					},
+				{
+					if (defaultTuple.at(index).hasFunctionHead())
+					throw runtime_error(ERROR_UNEXPECTED);
+				tuple.at(index) = move(value);
+				},
 					ErrorAbstractEntity(ERROR_UNEXPECTED));
 				break;
 			}
@@ -157,7 +272,7 @@ Tuple Parser::functionParseTuple(It& it, const FunctionHeadStandard::Tuple& defa
 }
 
 
-Tuple Parser::functionParseTupleText(It& it, const FunctionHeadStandard::Tuple& defaultTuple)
+Tuple Parser::parseFunctionTupleText(It& it, const FunctionHeadStandard::Tuple& defaultTuple)
 {
 	static const ConType CON = ConType::TUPLE;
 	Tuple tuple(defaultTuple.getSharedKeys(), defaultTuple.containerText);
@@ -165,24 +280,7 @@ Tuple Parser::functionParseTupleText(It& it, const FunctionHeadStandard::Tuple& 
 	if (!checkEmptyContainerVoid(it, CON, [&]() { ++index; }))
 		do
 			tuple.at(index++) = parseLineString(it, CON);
-		while (checkNextElementContainerVoid(it, CON, [&]() { ++index; }));
+	while (checkNextElementContainerVoid(it, CON, [&]() { ++index; }));
 	checkDefaultValues(tuple, defaultTuple);
 	return tuple;
-}
-
-List Parser::functionParseList(It& it, const FunctionHeadStandard::Tuple& defaultTuple, function<Tuple(It& it, const FunctionHeadStandard::Tuple& defaultTuple)> func)
-{
-	static const ConType CON = ConType::LIST;
-	List list;
-	if (checkEmptyContainer(it, CON))
-		return list;
-	do
-		if (*it == OPEN_TUPLE)
-			list.add(func(++it, defaultTuple));
-		else if (*it == CHAR_COLON && ++it == CHAR_COLON && *skipJunkToValid(++it) == OPEN_TUPLE)
-			list.add(functionParseTupleText(++it, defaultTuple));
-		else
-			throw runtime_error(ERROR_UNEXPECTED);
-	while (checkNextElementContainer(it, CON)); //make it so separators are not required (no need to clean line)
-	return list;
 }

@@ -36,4 +36,7 @@ namespace webss
 
 	//return true if c is end of line, separator or end of container, else false
 	bool isLineEnd(char c, ConType con, char separator);
+
+	enum class TypeContainer { DICTIONARY, LIST, TUPLE, FUNCTION_HEAD, TEXT_DICTIONARY, TEXT_LIST, TEXT_TUPLE, TEXT_FUNCTION_HEAD };
+	TypeContainer skipJunkToContainer(SmartIterator& it);
 }
