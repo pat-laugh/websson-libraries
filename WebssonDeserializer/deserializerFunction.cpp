@@ -5,210 +5,310 @@
 using namespace std;
 using namespace webss;
 
-void webss::deserializeFunctionStandard(StringBuilder& out, const FunctionStandard& func)
+void webss::putFuncStandard(StringBuilder& out, const FunctionStandard& func)
 {
-	auto head = deserializeFunctionHeadStandard(func);
+	putFheadStandard(out, func);
 	switch (func.getType())
 	{
 	case WebssType::DICTIONARY:
-		return head + deserializeFunctionBodyStandardDictionary(func.getParameters(), func.getDictionary());
+		putFuncStandardDictionary(out, func.getParameters(), func.getDictionary());
+		break;
 	case WebssType::LIST:
-		return head + deserializeFunctionBodyStandardList(func.getParameters(), func.getList());
+		putFuncStandardList(out, func.getParameters(), func.getList());
+		break;
 	case WebssType::TUPLE:
-		return head + deserializeFunctionBodyStandardTuple(func.getParameters(), func.getTuple());
+		putFuncStandardTuple(out, func.getParameters(), func.getTuple());
+		break;
 	}
 }
 
-void webss::deserializeFunctionBinary(StringBuilder& out, const FunctionBinary& func)
+void webss::putFuncBinary(StringBuilder& out, const FunctionBinary& func)
 {
-	auto head = deserializeFunctionHeadBinary(func);
+	putFheadBinary(out, func);
 	switch (func.getType())
 	{
 	case WebssType::DICTIONARY:
-		return head + deserializeFunctionBodyBinaryDictionary(func.getParameters(), func.getDictionary());
+		putFuncBinaryDictionary(out, func.getParameters(), func.getDictionary());
+		break;
 	case WebssType::LIST:
-		return head + deserializeFunctionBodyBinaryList(func.getParameters(), func.getList());
+		putFuncBinaryList(out, func.getParameters(), func.getList());
+		break;
 	case WebssType::TUPLE:
-		return head + deserializeFunctionBodyBinaryTuple(func.getParameters(), func.getTuple());
+		putFuncBinaryTuple(out, func.getParameters(), func.getTuple());
+		break;
 	}
 }
 
-void webss::deserializeFunctionBodyStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Dictionary& dict)
+void webss::putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Dictionary& dict)
 {
 	if (dict.empty())
-		return EMPTY_DICTIONARY;
+	{
+		 out += EMPTY_DICTIONARY;
+		 return;
+	}
 
 	auto it = dict.begin();
-	return OPEN_DICTIONARY + getSeparatedValues([&]() { return ++it != dict.end(); }, [&]() { return it->first + (it->second.isList() ? deserializeFunctionBodyStandardList(params, it->second.getList()) : deserializeFunctionBodyStandardTuple(params, it->second.getTuple())); }) + CLOSE_DICTIONARY;
+	out += OPEN_DICTIONARY;
+	putSeparatedValues(out, [&]() { return ++it != dict.end(); }, [&]()
+	{
+		out += it->first;
+		if (it->second.isList())
+			putFuncStandardList(out, params, it->second.getList());
+		else
+			putFuncStandardTuple(out, params, it->second.getTuple());
+	});
+	out += CLOSE_DICTIONARY;
 }
 
-void webss::deserializeFunctionBodyStandardList(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const List& list)
+void webss::putFuncStandardList(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const List& list)
 {
 	if (list.empty())
-		return EMPTY_LIST;
+	{
+		out += EMPTY_LIST;
+		return;
+	}
 
 	auto it = list.begin();
-	return OPEN_LIST + getSeparatedValues([&]() { return ++it != list.end(); }, [&]() { return deserializeFunctionBodyStandardTuple(params, it->getTuple()); }) + CLOSE_LIST;
+	out += OPEN_LIST;
+	putSeparatedValues(out, [&]() { return ++it != list.end(); }, [&]() { putFuncStandardTuple(out, params, it->getTuple()); });
+	out += CLOSE_LIST;
 }
 
-void webss::deserializeFunctionBodyStandardTuple(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Tuple& tuple)
+void webss::putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Tuple& tuple)
 {
 	if (tuple.empty())
-		return EMPTY_TUPLE;
+	{
+		out += EMPTY_TUPLE;
+		return;
+	}
 
 	static const char ERROR_TOO_MANY_ELEMENTS[] = "too many elements in function tuple";
 	Tuple::size_type i = 0;
+	out += OPEN_TUPLE;
 	if (params.containerText)
-		return OPEN_TUPLE + getSeparatedValues([&]() { return ++i < tuple.size(); }, [&]()
 	{
-		if (i == params.size())
-			throw runtime_error(ERROR_TOO_MANY_ELEMENTS);
-		return deserializeString(tuple[i].getString(), ConType::TUPLE);
-	}) + CLOSE_TUPLE;
-
-	return OPEN_TUPLE + getSeparatedValues([&]() { return ++i < tuple.size(); }, [&]()
+		putSeparatedValues(out, [&]() { return ++i < tuple.size(); }, [&]()
+		{
+			if (i == params.size())
+				throw runtime_error(ERROR_TOO_MANY_ELEMENTS);
+			putString(out, tuple[i].getString(), ConType::TUPLE);
+		});
+	}
+	else
 	{
-		if (i == params.size())
-			throw runtime_error(ERROR_TOO_MANY_ELEMENTS);
-		if (params[i].hasFunctionHead())
+		putSeparatedValues(out, [&]() { return ++i < tuple.size(); }, [&]()
 		{
-			const auto& parameters2 = params[i].getFunctionHeadStandard().getParameters();
-			if (tuple[i].isList())
-				return deserializeFunctionBodyStandardList(parameters2, tuple[i].getList());
-			else if (tuple[i].isTuple())
-				return deserializeFunctionBodyStandardTuple(parameters2, tuple[i].getTuple());
-			else
-				throw runtime_error("implementation of function must be a list or tuple");
-		}
-
-		const Webss& webss = tuple[i];
-		switch (webss.t)
-		{
-		case WebssType::LIST:
-		{
-			const auto& list = webss.getList();
-			if (!list.empty())
+			if (i == params.size())
+				throw runtime_error(ERROR_TOO_MANY_ELEMENTS);
+			if (params[i].hasFunctionHead())
 			{
-				const auto& webss2 = list[0];
-				if (webss2.isTuple() && (&webss2.getTuple().getSharedKeys() == &params.getSharedKeys()))
-					return CHAR_SELF + deserializeFunctionBodyStandardList(params, list);
+				const auto& parameters2 = params[i].getFunctionHeadStandard().getParameters();
+				if (tuple[i].isList())
+					putFuncStandardList(out, parameters2, tuple[i].getList());
+				else if (tuple[i].isTuple())
+					putFuncStandardTuple(out, parameters2, tuple[i].getTuple());
+				else
+					throw runtime_error("implementation of function must be a list or tuple");
+				return;
 			}
-			return getValueOnly(webss, ConType::TUPLE);
-		}
-		case WebssType::TUPLE:
-			if (&webss.getTuple().getSharedKeys() == &params.getSharedKeys())
-				return CHAR_SELF + deserializeFunctionBodyStandardTuple(params, webss.getTuple());
-		default:
-			return getValueOnly(webss, ConType::TUPLE);
-		}
-	}) + CLOSE_TUPLE;
+
+			const Webss& webss = tuple[i];
+			switch (webss.t)
+			{
+			case WebssType::LIST:
+			{
+				const auto& list = webss.getList();
+				if (!list.empty())
+				{
+					const auto& webss2 = list[0];
+					if (webss2.isTuple() && (&webss2.getTuple().getSharedKeys() == &params.getSharedKeys()))
+					{
+						out += CHAR_SELF;
+						putFuncStandardList(out, params, list);
+					}
+				}
+				else
+					putValueOnly(out, webss, ConType::TUPLE);
+				return;
+			}
+			case WebssType::TUPLE:
+				if (&webss.getTuple().getSharedKeys() == &params.getSharedKeys())
+				{
+					out += CHAR_SELF;
+					putFuncStandardTuple(out, params, webss.getTuple());
+				}
+				return;
+			default:
+				putValueOnly(out, webss, ConType::TUPLE);
+			}
+		});
+	}
+	out += CLOSE_TUPLE;
 }
 
-#define FUNC_PARAMS_STANDARD StringBuilder& out, const string& key, const ParamStandard& value
-void webss::deserializeParametersStandard(StringBuilder& out, const FunctionHeadStandard& fhead, function<string(FUNC_PARAMS_STANDARD)> func)
+#define FUNC_PARAMS_STANDARD const string& key, const ParamStandard& value
+void webss::putParamsStandard(StringBuilder& out, const FunctionHeadStandard& fhead, function<void(FUNC_PARAMS_STANDARD)> func)
 {
 	auto keyValues = fhead.getParameters().getOrderedKeyValues();
 	auto it = keyValues.begin();
-	return OPEN_FUNCTION + getSeparatedValues([&]() { return ++it != keyValues.end(); }, [&]() { if (it->first == nullptr) throw runtime_error(ERROR_ANONYMOUS_KEY); return func(*it->first, *it->second); }) + CLOSE_FUNCTION;
+	out += OPEN_FUNCTION;
+	putSeparatedValues(out, [&]() { return ++it != keyValues.end(); }, [&]()
+	{
+		if (it->first == nullptr)
+			throw runtime_error(ERROR_ANONYMOUS_KEY);
+		func(*it->first, *it->second);
+	});
+	out += CLOSE_FUNCTION;
 }
 
-void webss::deserializeParameter(FUNC_PARAMS_STANDARD)
+void webss::putParamStandard(StringBuilder& out, FUNC_PARAMS_STANDARD)
 {
 	if (!value.hasDefaultValue())
-		return key;
+	{
+		out += key;
+		return;
+	}
 	
 	auto webss = value.getDefaultValue();
 	switch (webss.t)
 	{
 	case WebssType::NONE:
-		return key;
+		key;
+		break;
 	case WebssType::VARIABLE:
-		return key + CHAR_EQUAL + webss.ent.getName();
+		out += key + CHAR_EQUAL + webss.ent.getName();
+		break;
 	case WebssType::FUNCTION_STANDARD: case WebssType::FUNCTION_BINARY: case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
-		return key + CHAR_EQUAL + deserializeWebss(webss);
+		out += key + CHAR_EQUAL;
+		putWebss(out, webss);
+		break;
 	case WebssType::PRIMITIVE_STRING:
-		return key + CHAR_COLON + deserializeString(*webss.tString, ConType::FUNCTION_HEAD);
+		out += key + CHAR_COLON;
+		putString(out, *webss.tString, ConType::FUNCTION_HEAD);
+		break;
 	default:
-		return key + deserializeWebss(webss);
+		out += key;
+		putWebss(out, webss);
+		break;
 	}
 }
 
-void webss::deserializeParameterString(FUNC_PARAMS_STANDARD)
+void webss::putParamText(StringBuilder& out, FUNC_PARAMS_STANDARD)
 {
 	if (!value.hasDefaultValue())
-		return key;
+	{
+		out += key;
+		return;
+	}
 
 	auto webss = value.getDefaultValue();
 	switch (webss.t)
 	{
 	case WebssType::NONE:
-		return key;
+		out += key;
+		break;
 	case WebssType::PRIMITIVE_STRING:
-		return webss.tString->empty() ? key : key + CHAR_COLON + *webss.tString;
+		out += webss.tString->empty() ? key : key + CHAR_COLON + *webss.tString;
+		break;
 	default:
 		throw domain_error("invalid text function parameter type: " + webss.t.toString());
 	}
 }
 
-void webss::deserializeFunctionHeadStandard(StringBuilder& out, const FunctionHeadStandard& fhead)
+void webss::putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhead)
 {
 	if (fhead.hasEntity())
-		return OPEN_FUNCTION + fhead.getEntName() + CLOSE_FUNCTION;
-	if (fhead.empty())
-		return EMPTY_FUNCTION;
-	if (fhead.getParameters().containerText)
-		return ASSIGN_CONTAINER_STRING + deserializeParametersStandard(fhead, [](FUNC_PARAMS_STANDARD) { return deserializeParameterString(key, value); });
-	return deserializeParametersStandard(fhead, [](FUNC_PARAMS_STANDARD) { return deserializeParameter(key, value); });
+		out += OPEN_FUNCTION + fhead.getEntName() + CLOSE_FUNCTION;
+	else if (fhead.empty())
+		out += EMPTY_FUNCTION;
+	else if (fhead.getParameters().containerText)
+	{
+		out += ASSIGN_CONTAINER_STRING;
+		putParamsStandard(out, fhead, [&](FUNC_PARAMS_STANDARD) { putParamText(out, key, value); });
+	}
+	else
+		putParamsStandard(out, fhead, [&](FUNC_PARAMS_STANDARD) { putParamStandard(out, key, value); });
 }
 
 #undef FUNC_PARAMS_STANDARD
 
-#define FUNC_PARAMS_BINARY StringBuilder& out, const string& key, const ParamBinary& value
-void webss::deserializeFunctionHeadBinary(StringBuilder& out, const FunctionHeadBinary& fhead)
+#define FUNC_PARAMS_BINARY const string& key, const ParamBinary& value
+void webss::putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead)
 {
 	if (fhead.hasEntity())
-		return OPEN_FUNCTION + fhead.getEntName() + CLOSE_FUNCTION;
-	if (fhead.empty())
+		out += OPEN_FUNCTION + fhead.getEntName() + CLOSE_FUNCTION;
+	else if (fhead.empty())
 		throw runtime_error("binary function head can't be empty");
-	return deserializeParametersBinary(fhead, [](FUNC_PARAMS_BINARY) { return deserializeParameterBinary(key, value); });
+	else
+		putParamsBinary(out, fhead, [&](FUNC_PARAMS_BINARY) { putParamBinary(out, key, value); });
 }
 
-void webss::deserializeParametersBinary(StringBuilder& out, const FunctionHeadBinary& fhead, function<string(FUNC_PARAMS_BINARY)> func)
+void webss::putParamsBinary(StringBuilder& out, const FunctionHeadBinary& fhead, function<void(FUNC_PARAMS_BINARY)> func)
 {
 	auto keyValues = fhead.getParameters().getOrderedKeyValues();
 	auto it = keyValues.begin();
-	return OPEN_FUNCTION + getSeparatedValues([&]() { return ++it != keyValues.end(); }, [&]() { if (it->first == nullptr) throw runtime_error(ERROR_ANONYMOUS_KEY); return func(*it->first, *it->second); }) + CLOSE_FUNCTION;
+	out += OPEN_FUNCTION;
+	putSeparatedValues(out, [&]() { return ++it != keyValues.end(); }, [&]()
+	{
+		if (it->first == nullptr)
+			throw runtime_error(ERROR_ANONYMOUS_KEY);
+		func(*it->first, *it->second);
+	});
+	out += CLOSE_FUNCTION;
 }
 
-void webss::deserializeParameterBinary(FUNC_PARAMS_BINARY)
+void webss::putParamBinary(StringBuilder& out, FUNC_PARAMS_BINARY)
 {
-	string out = deserializeBinarySizeHead(value.sizeHead) + key + deserializeBinarySizeList(value.sizeList);
+	putBinarySizeHead(out, value.sizeHead);
+	out += key;
+	putBinarySizeList(out, value.sizeList);
 	if (value.sizeHead.flag != ParamBinary::SizeHead::Flag::NONE)
-		out += CHAR_EQUAL + getValueOnly(*value.sizeHead.defaultValue, ConType::FUNCTION_HEAD);
-	return out;
+	{
+		out += CHAR_EQUAL;
+		putValueOnly(out, *value.sizeHead.defaultValue, ConType::FUNCTION_HEAD);
+	}
 }
 
 #undef FUNC_PARAMS_BINARY
 
-void webss::deserializeFunctionBodyBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Dictionary& dict)
+void webss::putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Dictionary& dict)
 {
 	if (dict.empty())
-		return EMPTY_DICTIONARY;
+	{
+		out += EMPTY_DICTIONARY;
+		return;
+	}
 
 	auto it = dict.begin();
-	return OPEN_DICTIONARY + getSeparatedValues([&]() { return ++it != dict.end(); }, [&]() { return it->first + (it->second.isList() ? deserializeFunctionBodyBinaryList(params, it->second.getList()) : deserializeFunctionBodyBinaryTuple(params, it->second.getTuple())); }) + CLOSE_DICTIONARY;
+	out += OPEN_DICTIONARY;
+	putSeparatedValues(out, [&]() { return ++it != dict.end(); }, [&]()
+	{
+		out += it->first;
+		if (it->second.isList())
+			putFuncBinaryList(out, params, it->second.getList());
+		else
+			putFuncBinaryTuple(out, params, it->second.getTuple());
+	});
+	out += CLOSE_DICTIONARY;
 }
 
-void webss::deserializeFunctionBodyBinaryList(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const List& list)
+void webss::putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const List& list)
 {
 	if (list.empty())
-		return EMPTY_LIST;
+	{
+		out += EMPTY_LIST;
+		return;
+	}
 
 	auto it = list.begin();
-	return OPEN_LIST + getSeparatedValues([&]() { return ++it != list.end(); }, [&]() { return deserializeFunctionBodyBinaryTuple(params, it->getTuple()); }) + CLOSE_LIST;
+	out += OPEN_LIST;
+	putSeparatedValues(out, [&]() { return ++it != list.end(); }, [&]() { putFuncBinaryTuple(out, params, it->getTuple()); });
+	out += CLOSE_LIST;
 }
 
-void webss::deserializeFunctionBodyBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Tuple& tuple)
+void webss::putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Tuple& tuple)
 {
-	return OPEN_TUPLE + deserializeFunctionBodyBinary(params, tuple) + CLOSE_TUPLE;
+	out += OPEN_TUPLE;
+	putFuncBodyBinary(out, params, tuple);
+	out += CLOSE_TUPLE;
 }
