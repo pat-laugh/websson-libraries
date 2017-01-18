@@ -6,31 +6,50 @@
 using namespace std;
 using namespace webss;
 
-void putEscapedChar(string& str, char c);
-inline void putNonControlAscii(It& it, string& s)
+inline void putChar(It& it, StringBuilder& s)
 {
-	if (!isControlAscii(*it))
-		s += *it;
+	s += *it;
 	++it;
 }
 
-inline void trimLineSpace(string& line, string::size_type minLength)
+bool isEnd(It& it, function<bool()> endCondition)
 {
-	while (line.length() > minLength && line.back() == ' ')
-		line.pop_back();
+	return !it || *it == '\n' || endCondition();
+}
+
+bool hasNextChar(It& it, StringBuilder& line, function<bool()> endCondition = []() {})
+{
+	if (isEnd(it, endCondition))
+		return false;
+
+	if (isLineJunk(*it))
+	{
+		int spaces = 0;
+		do
+		{
+			if (*it == ' ')
+				++spaces;
+			if (isEnd(++it, endCondition))
+				return false;
+		} while (isLineJunk(*it));
+		if (*it == CHAR_COMMENT && checkComment(it) && isEnd(it, endCondition))
+			return false;
+		else if (*it == CHAR_ESCAPE && checkLineEscape(it) && isEnd(it, endCondition))
+			return false;
+		while (spaces-- > 0)
+			line += ' ';
+	}
+	
+	return true;
 }
 
 string Parser::parseLineString(It& it, ConType con)
 {
 	skipLineJunk(it);
 
-	string line;
-	string::size_type minLength = 0;
-	while (it)
+	StringBuilder line;
+	while (hasNextChar(it, line, [&]() { return *it == separator || con.isEnd(*it); }))
 	{
-		if (isLineEnd(*it, con, separator))
-			break;
-
 		switch (*it)
 		{
 		case CHAR_COMMENT:
@@ -39,34 +58,58 @@ string Parser::parseLineString(It& it, ConType con)
 			break;
 		case CHAR_CONCRETE_ENTITY:
 			if (checkStringEntity(it, line))
-			{
-				minLength = line.length();
 				continue;
-			}
 			break;
 		case CHAR_ESCAPE:
 			checkEscapedChar(it, line);
-			minLength = line.length();
 			continue;
 		default:
 			break;
 		}
-		putNonControlAscii(it, line);
-	};
-
-	trimLineSpace(line, minLength);
+		putChar(it, line);
+	}
 	return line;
 }
 
 string Parser::parseMultilineString(It& it)
 {
-	string text;
+	StringBuilder text;
 	if (*skipJunkToValid(++it) == CLOSE_DICTIONARY)
 		return text;
 
 	int countStartEnd = 1;
+	bool addSpace = false;
 loopStart:
-	bool addSpace = parseMultilineStringLine(it, text, countStartEnd);
+	while (hasNextChar(it, text, [&]() { return *it == CLOSE_DICTIONARY && --countStartEnd == 0; }))
+	{
+		switch (*it)
+		{
+		case CHAR_COMMENT:
+			if (checkComment(it))
+				continue;
+			break;
+		case CHAR_CONCRETE_ENTITY:
+			if (checkStringEntity(it, text))
+			{
+				addSpace = true;
+				continue;
+			}
+			break;
+		case CHAR_ESCAPE:
+			checkEscapedChar(it, text);
+			addSpace = false;
+			continue;
+		case OPEN_DICTIONARY:
+			++countStartEnd;
+			break;
+		default:
+			break;
+		}
+		addSpace = true;
+		putChar(it, text);
+	}
+	if (!it)
+		throw runtime_error("multiline string is not closed");
 	switch (countStartEnd)
 	{
 	default:
@@ -84,54 +127,15 @@ loopStart:
 	goto loopStart;
 }
 
-bool Parser::parseMultilineStringLine(It& it, string& text, int& countStartEnd)
-{
-	auto minLength = text.length();
-	do
-	{
-		switch (*it)
-		{
-		case '\n':
-			goto endLoop;
-		case CLOSE_DICTIONARY:
-			if (--countStartEnd == 0)
-				goto endLoop;
-			break;
-		case CHAR_COMMENT:
-			if (checkComment(it))
-				continue;
-			break;
-		case CHAR_CONCRETE_ENTITY:
-			if (checkStringEntity(it, text))
-			{
-				minLength = text.length() + 1; //allows 1 space to get in, else a space is added
-				continue;
-			}
-			break;
-		case CHAR_ESCAPE:
-			checkEscapedChar(it, text);
-			minLength = text.length();
-			continue;
-		case OPEN_DICTIONARY:
-			++countStartEnd;
-			break;
-		default:
-			break;
-		}
-		putNonControlAscii(it, text);
-	} while (it);
-endLoop:
-	trimLineSpace(text, minLength);
-	return text.length() != minLength; //minLength only set when any of escapes SENT or entity is met
-}
-
 string Parser::parseCString(It& it)
 {
-	string cstr;
+	StringBuilder cstr;
 	while (it)
 	{
 		switch (*it)
 		{
+		case '\n':
+			throw runtime_error("can't have line break in cstring");
 		case CHAR_CSTRING:
 			++it;
 			return cstr;
@@ -142,19 +146,17 @@ string Parser::parseCString(It& it)
 		case CHAR_ESCAPE:
 			checkEscapedChar(it, cstr);
 			continue;
-		case '\n':
-			throw runtime_error("can't have line break in cstring");
 		default:
 			break;
 		}
-		putNonControlAscii(it, cstr);
-	};
+		if (!isControlAscii(*it))
+			cstr += *it;
+		++it;
+	}
 	throw runtime_error("cstring is not closed");
 }
 
-//adds the char corresponding to an escape; for serialization
-//REQUIREMENT: the char must be an escapable char
-void putEscapedChar(string& str, char c)
+void putEscapedChar(StringBuilder& str, char c)
 {
 	switch (c)
 	{
@@ -175,7 +177,7 @@ void putEscapedChar(string& str, char c)
 	}
 }
 
-void Parser::checkEscapedChar(It& it, std::string& line)
+void Parser::checkEscapedChar(It& it, StringBuilder& line)
 {
 	if (checkLineEscape(it))
 		return;
@@ -194,7 +196,7 @@ void Parser::checkEscapedChar(It& it, std::string& line)
 	}
 }
 
-bool Parser::checkStringEntity(It& it, string& line)
+bool Parser::checkStringEntity(It& it, StringBuilder& line)
 {
 	if (it.peekEnd() || !isNameStart(it.peek()))
 		return false;
