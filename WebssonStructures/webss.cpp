@@ -17,7 +17,7 @@ Webss::Webss(WebssType t) : t(t)
 	case WebssType::NONE: case WebssType::DEFAULT: case WebssType::PRIMITIVE_NULL:
 		break;
 	case WebssType::DICTIONARY:
-		dictionary = new Dictionary();
+		dict = new Dictionary();
 		break;
 	case WebssType::LIST:
 		list = new List();
@@ -79,7 +79,7 @@ Webss::Webss(type&& name) : t(WebssType::con), name(new type(move(name))) {}
 
 PATTERN_CONSTRUCT_MOVE(string, tString, PRIMITIVE_STRING)
 PATTERN_CONSTRUCT_MOVE(Document, document, DOCUMENT)
-PATTERN_CONSTRUCT_MOVE(Dictionary, dictionary, DICTIONARY)
+PATTERN_CONSTRUCT_MOVE(Dictionary, dict, DICTIONARY)
 PATTERN_CONSTRUCT_MOVE(List, list, LIST)
 PATTERN_CONSTRUCT_MOVE(Tuple, tuple, TUPLE)
 PATTERN_CONSTRUCT_MOVE(FunctionHeadStandard, fheadStandard, FUNCTION_HEAD_STANDARD)
@@ -98,7 +98,7 @@ Webss::Webss(const type& name) : t(WebssType::con), name(new type(name)) {}
 
 PATTERN_CONSTRUCT_CONST(string, tString, PRIMITIVE_STRING)
 PATTERN_CONSTRUCT_CONST(Document, document, DOCUMENT)
-PATTERN_CONSTRUCT_CONST(Dictionary, dictionary, DICTIONARY)
+PATTERN_CONSTRUCT_CONST(Dictionary, dict, DICTIONARY)
 PATTERN_CONSTRUCT_CONST(List, list, LIST)
 PATTERN_CONSTRUCT_CONST(Tuple, tuple, TUPLE)
 PATTERN_CONSTRUCT_CONST(FunctionHeadStandard, fheadStandard, FUNCTION_HEAD_STANDARD)
@@ -112,10 +112,31 @@ PATTERN_CONSTRUCT_CONST(Namespace, nspace, NAMESPACE)
 Webss::Webss(const Enum& name, bool) : t(WebssType::ENUM), nspace(new Namespace(name)) {}
 Webss::Webss(const BlockHead& name, bool) : t(WebssType::BLOCK_HEAD), fheadStandard(new FunctionHeadStandard(name)) {}
 
+Webss::Webss(FunctionHeadBinary&& head, Webss&& body) : t(WebssType::FUNCTION_BINARY)
+{
+	switch (body.t)
+	{
+	case WebssType::DICTIONARY:
+		funcBinary = new FunctionBinary(move(head), move(*body.dict));
+		break;
+	case WebssType::LIST:
+		funcBinary = new FunctionBinary(move(head), move(*body.list));
+		break;
+	case WebssType::TUPLE:
+		funcBinary = new FunctionBinary(move(head), move(*body.tuple));
+		break;
+	default:
+		throw domain_error(ERROR_UNDEFINED);
+	}
+}
+
 Webss::Webss(FunctionHeadStandard&& head, Webss&& body) : t(WebssType::FUNCTION_STANDARD)
 {
 	switch (body.t)
 	{
+	case WebssType::DICTIONARY:
+		funcStandard = new FunctionStandard(move(head), move(*body.dict));
+		break;
 	case WebssType::LIST:
 		funcStandard = new FunctionStandard(move(head), move(*body.list));
 		break;
@@ -126,6 +147,8 @@ Webss::Webss(FunctionHeadStandard&& head, Webss&& body) : t(WebssType::FUNCTION_
 		throw domain_error(ERROR_UNDEFINED);
 	}
 }
+
+
 
 Webss::Webss(Webss&& o) { copyUnion(move(o)); }
 Webss::Webss(const Webss& o) { copyUnion(o); }
@@ -142,7 +165,7 @@ void Webss::destroyUnion()
 		delete document;
 		break;
 	case WebssType::DICTIONARY:
-		delete dictionary;
+		delete dict;
 		break;
 	case WebssType::LIST:
 		delete list;
@@ -228,7 +251,7 @@ void Webss::copyUnion(Webss&& o)
 		document= o.document;
 		break;
 	case WebssType::DICTIONARY:
-		dictionary = o.dictionary;
+		dict = o.dict;
 		break;
 	case WebssType::LIST:
 		list = o.list;
@@ -293,7 +316,7 @@ void Webss::copyUnion(const Webss& o)
 		document = new Document(*o.document);
 		break;
 	case WebssType::DICTIONARY:
-		dictionary = new Dictionary(*o.dictionary);
+		dict = new Dictionary(*o.dict);
 		break;
 	case WebssType::LIST:
 		list = new List(*o.list);
@@ -371,7 +394,7 @@ void Webss::add(const string& key, const Webss& value)
 		tuple->add(key, value);
 		break;
 	case WebssType::DICTIONARY:
-		dictionary->add(key, value);
+		dict->add(key, value);
 		break;
 	default:
 		throw domain_error(ERROR_ADD_KEY + t.toString());
@@ -385,7 +408,7 @@ void Webss::addSafe(const string& key, const Webss& value)
 		tuple->addSafe(key, value);
 		break;
 	case WebssType::DICTIONARY:
-		dictionary->addSafe(key, value);
+		dict->addSafe(key, value);
 		break;
 	default:
 		throw domain_error(ERROR_ADD_KEY + t.toString());
@@ -400,7 +423,7 @@ void Webss::add(string&& key, Webss&& value)
 		tuple->add(move(key), move(value));
 		break;
 	case WebssType::DICTIONARY:
-		dictionary->add(move(key), move(value));
+		dict->add(move(key), move(value));
 		break;
 	default:
 		throw domain_error(ERROR_ADD_KEY + t.toString());
@@ -414,7 +437,7 @@ void Webss::addSafe(string&& key, Webss&& value)
 		tuple->addSafe(move(key), move(value));
 		break;
 	case WebssType::DICTIONARY:
-		dictionary->addSafe(move(key), move(value));
+		dict->addSafe(move(key), move(value));
 		break;
 	default:
 		throw domain_error(ERROR_ADD_KEY + t.toString());
@@ -453,7 +476,7 @@ const Webss& Webss::operator[](const std::string& key) const
 	switch (t)
 	{
 	case WebssType::DICTIONARY:
-		return (*dictionary)[key];
+		return (*dict)[key];
 	case WebssType::TUPLE:
 		return (*tuple)[key];
 	case WebssType::FUNCTION_STANDARD:
@@ -499,7 +522,7 @@ const Webss& Webss::at(const std::string& key) const
 	switch (t)
 	{
 	case WebssType::DICTIONARY:
-		return dictionary->at(key);
+		return dict->at(key);
 	case WebssType::TUPLE:
 		return tuple->at(key);
 	case WebssType::FUNCTION_STANDARD:
@@ -542,10 +565,10 @@ WebssType Webss::getType() const
 		return ent.getContent().getType();
 	case WebssType::DEFAULT:
 		return tDefault->getType();
-	case WebssType::FUNCTION_STANDARD:
-		return funcStandard->hasList ? WebssType::LIST : WebssType::TUPLE;
 	case WebssType::FUNCTION_BINARY:
-		return WebssType::TUPLE;
+		return funcBinary->getType();
+	case WebssType::FUNCTION_STANDARD:
+		return funcStandard->getType();
 //	case WebssType::FUNCTION_SCOPED:
 //		return WebssType::TUPLE;
 	default:
@@ -556,7 +579,6 @@ WebssType Webss::getType() const
 bool Webss::getBool() const { PATTERN_GET_CONST(tBool, getBool(), WebssType::PRIMITIVE_BOOL); }
 double Webss::getDouble() const { PATTERN_GET_CONST(tDouble, getDouble(), WebssType::PRIMITIVE_DOUBLE); }
 const std::string& Webss::getString() const { PATTERN_GET_CONST(*tString, getString(), WebssType::PRIMITIVE_STRING); }
-const Dictionary& Webss::getDictionary() const { PATTERN_GET_CONST(*dictionary, getDictionary(), WebssType::DICTIONARY); }
 const Document& Webss::getDocument() const { PATTERN_GET_CONST(*document, getDocument(), WebssType::DOCUMENT); }
 const FunctionHeadStandard& Webss::getFunctionHeadStandard() const { PATTERN_GET_CONST(*fheadStandard, getFunctionHeadStandard(), WebssType::FUNCTION_HEAD_STANDARD); }
 const FunctionHeadBinary& Webss::getFunctionHeadBinary() const { PATTERN_GET_CONST(*fheadBinary, getFunctionHeadBinary(), WebssType::FUNCTION_HEAD_BINARY); }
@@ -584,6 +606,26 @@ WebssInt Webss::getInt() const
 
 	}
 }
+
+const Dictionary& Webss::getDictionary() const
+{
+	switch (t)
+	{
+	case WebssType::VARIABLE:
+		return ent.getContent().getDictionary();
+	case WebssType::DEFAULT:
+		return tDefault->getDictionary();
+	case WebssType::DICTIONARY:
+		return *dict;
+	case WebssType::FUNCTION_BINARY:
+		return funcBinary->getDictionary();
+	case WebssType::FUNCTION_STANDARD:
+		return funcStandard->getDictionary();
+	default:
+		throw logic_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::LIST).toString() + ERROR_COULD_NOT_GETs2 + t.toString());
+
+	}
+}
 const List& Webss::getList() const
 {
 	switch (t)
@@ -594,6 +636,8 @@ const List& Webss::getList() const
 		return tDefault->getList();
 	case WebssType::LIST:
 		return *list;
+	case WebssType::FUNCTION_BINARY:
+		return funcBinary->getList();
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->getList();
 	default:
@@ -611,10 +655,10 @@ const Tuple& Webss::getTuple() const
 		return tDefault->getTuple();
 	case WebssType::TUPLE:
 		return *tuple;
-	case WebssType::FUNCTION_STANDARD:
-		return funcStandard->getTuple();
 	case WebssType::FUNCTION_BINARY:
 		return funcBinary->getTuple();
+	case WebssType::FUNCTION_STANDARD:
+		return funcStandard->getTuple();
 	default:
 		throw logic_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::TUPLE).toString() + ERROR_COULD_NOT_GETs2 + t.toString());
 	}
@@ -639,7 +683,6 @@ bool Webss::isBool() const { PATTERN_IS(WebssType::PRIMITIVE_BOOL, isBool()) }
 bool Webss::isInt() const { PATTERN_IS(WebssType::PRIMITIVE_INT, isInt()) }
 bool Webss::isDouble() const { PATTERN_IS(WebssType::PRIMITIVE_DOUBLE, isDouble()) }
 bool Webss::isString() const { PATTERN_IS(WebssType::PRIMITIVE_STRING, isString()) }
-bool Webss::isDictionary() const { PATTERN_IS(WebssType::DICTIONARY, isDictionary()) }
 bool Webss::isDocument() const { PATTERN_IS(WebssType::DOCUMENT, isDocument()) }
 bool Webss::isFunctionHeadStandard() const { PATTERN_IS(WebssType::FUNCTION_HEAD_STANDARD, isFunctionHeadStandard()) }
 bool Webss::isFunctionHeadBinary() const { PATTERN_IS(WebssType::FUNCTION_HEAD_BINARY, isFunctionHeadBinary()) }
@@ -649,6 +692,24 @@ bool Webss::isNamespace() const { PATTERN_IS(WebssType::NAMESPACE, isNamespace()
 bool Webss::isEnum() const { PATTERN_IS(WebssType::ENUM, isEnum()) }
 bool Webss::isBlockHead() const { PATTERN_IS(WebssType::BLOCK_HEAD, isBlockHead()) }
 
+bool Webss::isDictionary() const
+{
+	switch (t)
+	{
+	case WebssType::VARIABLE:
+		return ent.getContent().isDictionary();
+	case WebssType::DEFAULT:
+		return tDefault->isDictionary();
+	case WebssType::LIST:
+		return true;
+	case WebssType::FUNCTION_BINARY:
+		return funcBinary->isDictionary();
+	case WebssType::FUNCTION_STANDARD:
+		return funcStandard->isDictionary();
+	default:
+		return false;
+	}
+}
 bool Webss::isList() const
 {
 	switch (t)
@@ -659,8 +720,10 @@ bool Webss::isList() const
 		return tDefault->isList();
 	case WebssType::LIST:
 		return true;
+	case WebssType::FUNCTION_BINARY:
+		return funcBinary->isList();
 	case WebssType::FUNCTION_STANDARD:
-		return funcStandard->hasList;
+		return funcStandard->isList();
 	default:
 		return false;
 	}
@@ -675,10 +738,10 @@ bool Webss::isTuple() const
 		return tDefault->isTuple();
 	case WebssType::TUPLE:
 		return true;
-	case WebssType::FUNCTION_STANDARD:
-		return !funcStandard->hasList;
 	case WebssType::FUNCTION_BINARY:
-		return true;
+		return funcBinary->isTuple();
+	case WebssType::FUNCTION_STANDARD:
+		return funcStandard->isTuple();
 	default:
 		return false;
 	}

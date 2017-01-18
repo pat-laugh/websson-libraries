@@ -1,7 +1,7 @@
 //MIT License
 //Copyright(c) 2016 Patrick Laughrea
 //sets constructors of function body
-//takes two parameters: ClassName and BodyParameter
+//takes two params: ClassName and BodyParameter
 
 #define HeadTuple typename head::Tuple
 #define HeadPointer typename head::Pointer

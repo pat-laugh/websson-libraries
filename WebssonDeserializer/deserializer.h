@@ -25,7 +25,7 @@ namespace webss
 	std::string getSeparatedValues(std::function<bool()> condition, std::function<std::string()> output);
 
 	std::string deserializeString(const std::string& str, ConType con);
-	std::string deserializeDictionary(const Dictionary& dictionary);
+	std::string deserializeDictionary(const Dictionary& dict);
 	std::string deserializeList(const List& list);
 	std::string deserializeTuple(const Tuple& tuple);
 	std::string deserializeDocument(const Document& doc);
@@ -38,8 +38,8 @@ namespace webss
 	std::string deserializeFunctionStandard(const FunctionStandard& func);
 	std::string deserializeFunctionBinary(const FunctionBinary& func);
 
-	std::string deserializeFunctionBodyStandard(const FunctionHeadStandard::Tuple& parameters, const List& list);
-	std::string deserializeFunctionBodyStandard(const FunctionHeadStandard::Tuple& parameters, const Tuple& tuple);
+	std::string deserializeFunctionBodyStandard(const FunctionHeadStandard::Tuple& params, const List& list);
+	std::string deserializeFunctionBodyStandard(const FunctionHeadStandard::Tuple& params, const Tuple& tuple);
 #define FUNC_PARAMS_STANDARD const std::string& key, const ParamStandard& value
 	std::string deserializeFunctionHeadStandard(const FunctionHeadStandard& fhead);
 	std::string deserializeParametersStandard(const FunctionHeadStandard& fhead, std::function<std::string(FUNC_PARAMS_STANDARD)> func);
@@ -52,7 +52,7 @@ namespace webss
 	std::string deserializeParameterBinary(FUNC_PARAMS_BINARY);
 	std::string deserializeParametersBinary(const FunctionHeadBinary& fhead, std::function<std::string(FUNC_PARAMS_BINARY)> func);
 #undef FUNC_PARAMS_BINARY
-	std::string deserializeFunctionBodyBinary(const FunctionHeadBinary::Tuple& parameters, const Tuple& data);
+	std::string deserializeFunctionBodyBinary(const FunctionHeadBinary::Tuple& params, const Tuple& data);
 	std::string deserializeBinary(const ParamBinary& bhead, const Webss& data);
 	std::string deserializeBinary(const ParamBinary& bhead, const Webss& data, std::function<std::string(const Webss& webss)> func);
 	std::string deserializeBinaryElement(const ParamBinary::SizeHead& bhead, const Webss& webss);

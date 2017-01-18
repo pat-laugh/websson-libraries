@@ -57,19 +57,19 @@ string writeBytes(WebssBinarySize num, char* value)
 	return out;
 }
 
-string webss::deserializeFunctionBodyBinary(const FunctionHeadBinary::Tuple& parameters, const Tuple& data)
+string webss::deserializeFunctionBodyBinary(const FunctionHeadBinary::Tuple& params, const Tuple& data)
 {
 	string out;
 	Tuple::size_type i = 0;
 	for (const auto& webss : data)
 	{
-		const auto& binary = parameters.at(i++);
+		const auto& binary = params.at(i++);
 		if (binary.sizeHead.flag == ParamBinary::SizeHead::Flag::NONE)
 			out += deserializeBinary(binary, webss);
 		else if (webss.t == WebssType::DEFAULT)
 			out += '\x01';
 		else if (binary.sizeHead.flag == ParamBinary::SizeHead::Flag::SELF)
-			out += '\x00' + deserializeFunctionBodyBinary(parameters, webss.getTuple());
+			out += '\x00' + deserializeFunctionBodyBinary(params, webss.getTuple());
 		else
 			out += '\x00' + deserializeBinary(binary, webss);
 	}
@@ -82,8 +82,8 @@ string webss::deserializeBinary(const ParamBinary& bhead, const Webss& data)
 	if (!sizeHead.isFunctionHead())
 		return deserializeBinary(bhead, data, [&](const Webss& webss) { return deserializeBinaryElement(sizeHead, webss); });
 
-	const auto& parameters = bhead.sizeHead.getFunctionHead().getParameters();
-	return deserializeBinary(bhead, data, [&](const Webss& webss) { return deserializeFunctionBodyBinary(parameters, webss.getTuple()); });
+	const auto& params = bhead.sizeHead.getFunctionHead().getParameters();
+	return deserializeBinary(bhead, data, [&](const Webss& webss) { return deserializeFunctionBodyBinary(params, webss.getTuple()); });
 }
 
 string deserializeBitList(const List& list)

@@ -2,79 +2,44 @@
 //Copyright(c) 2016 Patrick Laughrea
 #pragma once
 
-#include "tuple.h"
+#include "dictionary.h"
 #include "list.h"
+#include "tuple.h"
+#include "typeWebss.h"
 #include <cassert>
 
 namespace webss
 {
+#define This BasicFunctionBody
 	template <class Webss>
-	class BasicFunctionBodySingle
+	class This
 	{
 	public:
-		using Tuple = BasicTuple<Webss>;
-
-		Tuple tuple;
-
-		BasicFunctionBodySingle(Tuple&& tuple) : tuple(std::move(tuple)) {}
-		BasicFunctionBodySingle(const Tuple& tuple) : tuple(tuple) {}
-
-		virtual ~BasicFunctionBodySingle() {}
-
-		BasicFunctionBodySingle(BasicFunctionBodySingle&& o) : tuple(std::move(o.tuple)) {}
-		BasicFunctionBodySingle(const BasicFunctionBodySingle& o) : tuple(o.tuple) {}
-
-		BasicFunctionBodySingle& operator=(BasicFunctionBodySingle&& o)
-		{
-			if (this != &o)
-				tuple = std::move(o.tuple);
-			return *this;
-		}
-		BasicFunctionBodySingle& operator=(const BasicFunctionBodySingle& o)
-		{
-			if (this != &o)
-				tuple = o.tuple;
-			return *this;
-		}
-
-		const Tuple& getTuple() const { return tuple; }
-
-		Webss& operator[](int index) { return tuple[index]; }
-		const Webss& operator[](int index) const { return tuple[index]; }
-		Webss& at(int index) { return tuple.at(index); }
-		const Webss& at(int index) const { return tuple.at(index); }
-
-		Webss& operator[](const std::string& key) { return tuple[key]; }
-		const Webss& operator[](const std::string& key) const { return tuple[key]; }
-		Webss& at(const std::string& key) { return tuple.at(key); }
-		const Webss& at(const std::string& key) const { return tuple.at(key); }
-	};
-
-	template <class Webss>
-	class BasicFunctionBodyDual
-	{
-	public:
+		using Dictionary = BasicDictionary<Webss>;
 		using List = BasicList<Webss>;
 		using Tuple = BasicTuple<Webss>;
 
-		bool hasList;
+		WebssType type;
 		union
 		{
+			Dictionary dict;
 			List list;
 			Tuple tuple;
 		};
 
-		BasicFunctionBodyDual(List&& list) : hasList(true), list(std::move(list)) {}
-		BasicFunctionBodyDual(Tuple&& tuple) : hasList(false), tuple(std::move(tuple)) {}
-		BasicFunctionBodyDual(const List& list) : hasList(true), list(list) {}
-		BasicFunctionBodyDual(const Tuple& tuple) : hasList(false), tuple(tuple) {}
+		This(Dictionary&& dict) : type(WebssType::DICTIONARY), dict(std::move(dict)) {}
+		This(List&& list) : type(WebssType::LIST), list(std::move(list)) {}
+		This(Tuple&& tuple) : type(WebssType::TUPLE), tuple(std::move(tuple)) {}
+		This(const Dictionary& dict) : type(WebssType::DICTIONARY), dict(dict) {}
+		This(const List& list) : type(WebssType::LIST), list(list) {}
+		This(const Tuple& tuple) : type(WebssType::TUPLE), tuple(tuple) {}
 
-		virtual ~BasicFunctionBodyDual() {}
+		virtual ~This() {}
 
-		BasicFunctionBodyDual(BasicFunctionBodyDual&& o) { copyUnion(std::move(o)); }
-		BasicFunctionBodyDual(const BasicFunctionBodyDual& o) { copyUnion(o); }
+		This(This&& o) { copyUnion(std::move(o)); }
+		This(const This& o) { copyUnion(o); }
 
-		BasicFunctionBodyDual& operator=(BasicFunctionBodyDual&& o)
+		This& operator=(This&& o)
 		{
 			if (this != &o)
 			{
@@ -83,7 +48,7 @@ namespace webss
 			}
 			return *this;
 		}
-		BasicFunctionBodyDual& operator=(const BasicFunctionBodyDual& o)
+		This& operator=(const This& o)
 		{
 			if (this != &o)
 			{
@@ -93,68 +58,187 @@ namespace webss
 			return *this;
 		}
 
+		WebssType getType() const
+		{
+			return type;
+		}
+
+		const Dictionary& getDictionary() const
+		{
+			assert(type == WebssType::DICTIONARY);
+			return dict;
+		}
 		const List& getList() const
 		{
-			assert(hasList);
+			assert(type == WebssType::LIST);
 			return list;
 		}
 		const Tuple& getTuple() const
 		{
-			assert(!hasList);
+			assert(type == WebssType::TUPLE);
 			return tuple;
 		}
 
-		Webss& operator[](int index) { return hasList ? list[index] : tuple[index]; }
-		const Webss& operator[](int index) const { return hasList ? list[index] : tuple[index]; }
-		Webss& at(int index) { return hasList ? list.at(index) : tuple.at(index); }
-		const Webss& at(int index) const { return hasList ? list.at(index) : tuple.at(index); }
+		bool isDictionary() const
+		{
+			return type == WebssType::DICTIONARY;
+		}
+		bool isList() const
+		{
+			return type == WebssType::LIST;
+		}
+		bool isTuple() const
+		{
+			return type == WebssType::TUPLE;
+		}
+
+		Webss& operator[](int index)
+		{
+			switch (type)
+			{
+			case WebssType::DICTIONARY:
+				throw std::logic_error(ERROR_DICTIONARY_ACCESS_INDEX);
+			case WebssType::LIST:
+				return list[index];
+			case WebssType::TUPLE:
+				return tuple[index];
+			}
+		}
+		const Webss& operator[](int index) const
+		{
+			switch (type)
+			{
+			case WebssType::DICTIONARY:
+				throw std::logic_error(ERROR_DICTIONARY_ACCESS_INDEX);
+			case WebssType::LIST:
+				return list[index];
+			case WebssType::TUPLE:
+				return tuple[index];
+			}
+		}
+		Webss& at(int index)
+		{
+			switch (type)
+			{
+			case WebssType::DICTIONARY:
+				throw std::logic_error(ERROR_DICTIONARY_ACCESS_INDEX);
+			case WebssType::LIST:
+				return list.at(index);
+			case WebssType::TUPLE:
+				return tuple.at(index);
+			}
+		}
+		const Webss& at(int index) const
+		{
+			switch (type)
+			{
+			case WebssType::DICTIONARY:
+				throw std::logic_error(ERROR_DICTIONARY_ACCESS_INDEX);
+			case WebssType::LIST:
+				return list.at(index);
+			case WebssType::TUPLE:
+				return tuple.at(index);
+			}
+		}
 
 		Webss& operator[](const std::string& key)
 		{
-			assert(!hasList);
-			return tuple[key];
+			switch (type)
+			{
+			case WebssType::DICTIONARY:
+				return dict[key];
+			case WebssType::LIST:
+				throw std::logic_error(ERROR_LIST_ACCESS_KEY);
+			case WebssType::TUPLE:
+				return tuple[key];
+			}
 		}
 		const Webss& operator[](const std::string& key) const
 		{
-			assert(!hasList);
-			return tuple[key];
+			switch (type)
+			{
+			case WebssType::DICTIONARY:
+				return dict[key];
+			case WebssType::LIST:
+				throw std::logic_error(ERROR_LIST_ACCESS_KEY);
+			case WebssType::TUPLE:
+				return tuple[key];
+			}
 		}
 		Webss& at(const std::string& key)
 		{
-			if (hasList)
+			switch (type)
+			{
+			case WebssType::DICTIONARY:
+				return dict.at(key);
+			case WebssType::LIST:
 				throw std::logic_error(ERROR_LIST_ACCESS_KEY);
-			return tuple.at(key);
+			case WebssType::TUPLE:
+				return tuple.at(key);
+			}
 		}
 		const Webss& at(const std::string& key) const
 		{
-			if (hasList)
+			switch (type)
+			{
+			case WebssType::DICTIONARY:
+				return dict.at(key);
+			case WebssType::LIST:
 				throw std::logic_error(ERROR_LIST_ACCESS_KEY);
-			return tuple.at(key);
+			case WebssType::TUPLE:
+				return tuple.at(key);
+			}
 		}
 	private:
+		static constexpr char* ERROR_DICTIONARY_ACCESS_INDEX = "can't access dictionary with an index";
 		static constexpr char* ERROR_LIST_ACCESS_KEY = "can't access list with a key";
 
 		void destroyUnion()
 		{
-			if (hasList)
+			switch (type)
+			{
+			case WebssType::DICTIONARY:
+				dict.~BasicDictionary();
+				break;
+			case WebssType::LIST:
 				list.~BasicList();
-			else
+				break;
+			case WebssType::TUPLE:
 				tuple.~BasicTuple();
+				break;
+			}
 		}
 
-		void copyUnion(BasicFunctionBodyDual&& o)
+		void copyUnion(This&& o)
 		{
-			if ((hasList = o.hasList))
+			switch ((type = o.type))
+			{
+			case WebssType::DICTIONARY:
+				new (&dict) Dictionary(std::move(o.dict));
+				break;
+			case WebssType::LIST:
 				new (&list) List(std::move(o.list));
-			else
+				break;
+			case WebssType::TUPLE:
 				new (&tuple) Tuple(std::move(o.tuple));
+				break;
+			}
 		}
-		void copyUnion(const BasicFunctionBodyDual& o)
+		void copyUnion(const This& o)
 		{
-			if ((hasList = o.hasList))
+			switch ((type = o.type))
+			{
+			case WebssType::DICTIONARY:
+				new (&dict) Dictionary(o.dict);
+				break;
+			case WebssType::LIST:
 				new (&list) List(o.list);
-			else
+				break;
+			case WebssType::TUPLE:
 				new (&tuple) Tuple(o.tuple);
+				break;
+			}
 		}
 	};
+#undef This
 }

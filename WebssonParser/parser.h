@@ -228,19 +228,22 @@ namespace webss
 
 		Webss parseFunction(It& it);
 		Webss parseFunctionText(It& it);
-		Webss parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
-		Webss parseFunctionBodyText(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
+		Webss parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tuple& params);
+		Webss parseFunctionBodyText(It& it, const FunctionHeadStandard::Tuple& params);
 		Webss parseFunctionContainer(It& it, const ParamStandard& defaultValue);
-		Dictionary parseFunctionDictionaryStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
-		Dictionary parseFunctionDictionaryText(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
-		List parseFunctionListStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
-		List parseFunctionListText(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
-		Tuple parseFunctionTupleStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
-		Tuple parseFunctionTupleText(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
+		Dictionary parseFunctionDictionaryStandard(It& it, const FunctionHeadStandard::Tuple& params);
+		Dictionary parseFunctionDictionaryText(It& it, const FunctionHeadStandard::Tuple& params);
+		List parseFunctionListStandard(It& it, const FunctionHeadStandard::Tuple& params);
+		List parseFunctionListText(It& it, const FunctionHeadStandard::Tuple& params);
+		Tuple parseFunctionTupleStandard(It& it, const FunctionHeadStandard::Tuple& params);
+		Tuple parseFunctionTupleText(It& it, const FunctionHeadStandard::Tuple& params);
 
 		//parserBinary.cpp
 		void parseBinaryHead(It& it, FunctionHeadBinary& fhead);
-		Tuple parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Tuple& parameters);
+		Webss parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Tuple& params);
+		Dictionary parseFunctionDictionaryBinary(It& it, const FunctionHeadBinary::Tuple& params);
+		List parseFunctionListBinary(It& it, const FunctionHeadBinary::Tuple& params);
+		Tuple parseFunctionTupleBinary(It& it, const FunctionHeadBinary::Tuple& params);
 		ParamBinary::SizeList parseBinarySizeList(It& it);
 		const BasicEntity<WebssBinarySize>& checkEntTypeBinarySize(const Entity& ent);
 

@@ -70,7 +70,7 @@ string webss::deserializeWebss(const Webss& webss)
 	case WebssType::PRIMITIVE_DOUBLE:
 		return to_string(webss.tDouble);
 	case WebssType::DICTIONARY:
-		return deserializeDictionary(*webss.dictionary);
+		return deserializeDictionary(*webss.dict);
 	case WebssType::LIST:
 		return deserializeList(*webss.list);
 	case WebssType::TUPLE:
@@ -177,13 +177,13 @@ string webss::deserializeString(const string& str, ConType con)
 	return out;
 }
 
-string webss::deserializeDictionary(const Dictionary& dictionary)
+string webss::deserializeDictionary(const Dictionary& dict)
 {
-	if (dictionary.empty())
+	if (dict.empty())
 		return EMPTY_DICTIONARY;
 
-	auto it = dictionary.begin();
-	return OPEN_DICTIONARY + getSeparatedValues([&]() { return ++it != dictionary.end(); }, [&]() { return putKeyValue(it->first, it->second, ConType::DICTIONARY); }) + CLOSE_DICTIONARY;
+	auto it = dict.begin();
+	return OPEN_DICTIONARY + getSeparatedValues([&]() { return ++it != dict.end(); }, [&]() { return putKeyValue(it->first, it->second, ConType::DICTIONARY); }) + CLOSE_DICTIONARY;
 }
 
 string webss::deserializeList(const List& list)

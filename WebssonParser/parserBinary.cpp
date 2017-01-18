@@ -12,13 +12,13 @@ Webss parseBinary(It& it, const ParamBinary& bhead);
 void parseBitList(It& it, List& list, WebssBinarySize length);
 Webss parseBinary(It& it, const ParamBinary& bhead, function<Webss()> func);
 Webss parseBinaryElement(It& it, const ParamBinary::SizeHead& bhead);
-Tuple parseBinaryFunction(It& it, const FunctionHeadBinary::Tuple& parameters);
+Tuple parseBinaryFunction(It& it, const FunctionHeadBinary::Tuple& params);
 
 WebssBinarySize checkBinarySize(WebssInt sizeInt);
 
-void setDefaultValueBinary(Tuple& tuple, const FunctionHeadBinary::Tuple& defaultTuple, FunctionHeadBinary::Tuple::size_type index)
+void setDefaultValueBinary(Tuple& tuple, const FunctionHeadBinary::Tuple& params, FunctionHeadBinary::Tuple::size_type index)
 {
-	tuple[index] = Webss(defaultTuple[index].sizeHead.defaultValue);
+	tuple[index] = Webss(params[index].sizeHead.defaultValue);
 }
 
 #define BINARY_DEFAULT_VALUE 1
@@ -107,12 +107,65 @@ void Parser::parseBinaryHead(It& it, FunctionHeadBinary& fhead)
 
 //called only from parseFunction (parserFunctions.cpp)
 //no dependency outside of parseBinary.cpp
-Tuple Parser::parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Tuple& parameters)
+Webss Parser::parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Tuple& params)
 {
-	if (*skipJunkToValid(it) != OPEN_TUPLE)
-		throw runtime_error("first element of a binary function must be a tuple");
+	switch (skipJunkToContainer(it))
+	{
+	case TypeContainer::DICTIONARY:
+		return parseFunctionDictionaryBinary(it, params);
+	case TypeContainer::LIST:
+		return parseFunctionListBinary(it, params);
+	case TypeContainer::TUPLE:
+		return parseFunctionTupleBinary(it, params);
+	default:
+		throw runtime_error(ERROR_UNEXPECTED);
+	}
+}
 
-	auto tuple = parseBinaryFunction(++it, parameters);
+Dictionary Parser::parseFunctionDictionaryBinary(It& it, const FunctionHeadBinary::Tuple& params)
+{
+	static const ConType CON = ConType::DICTIONARY;
+	Dictionary dict;
+	if (checkEmptyContainer(it, CON))
+		return dict;
+	do
+	{
+		if (!isNameStart(*it))
+			throw runtime_error(ERROR_UNEXPECTED);
+		auto name = parseNameSafe(it);
+		switch (skipJunkToContainer(it))
+		{
+		case TypeContainer::LIST:
+			dict.addSafe(move(name), parseFunctionListBinary(++it, params));
+			break;
+		case TypeContainer::TUPLE:
+			dict.addSafe(move(name), parseFunctionTupleBinary(++it, params));
+			break;
+		default:
+			throw runtime_error(ERROR_UNEXPECTED);
+		}
+	} while (checkNextElementContainer(it, CON));
+	return dict;
+}
+
+List Parser::parseFunctionListBinary(It& it, const FunctionHeadBinary::Tuple& params)
+{
+	static const ConType CON = ConType::LIST;
+	List list;
+	if (checkEmptyContainer(it, CON))
+		return list;
+	do
+		if (skipJunkToContainer(it) == TypeContainer::TUPLE)
+			list.add(parseFunctionTupleBinary(++it, params));
+		else
+			throw runtime_error(ERROR_UNEXPECTED);
+	while (checkNextElementContainer(it, CON)); //make it so separators are not required (no need to clean line)
+	return list;
+}
+
+Tuple Parser::parseFunctionTupleBinary(It& it, const FunctionHeadBinary::Tuple& params)
+{
+	auto tuple = parseBinaryFunction(++it, params);
 	if (it != CLOSE_TUPLE)
 		throw runtime_error(webss_ERROR_EXPECTED_CHAR(CLOSE_TUPLE));
 	++it;
@@ -164,8 +217,8 @@ Webss parseBinary(It& it, const ParamBinary& bhead)
 	if (!bhead.sizeHead.isFunctionHead())
 		return parseBinary(it, bhead, [&]() { return parseBinaryElement(it, bhead.sizeHead); });
 
-	const auto& parameters = bhead.sizeHead.getFunctionHead().getParameters();
-	return parseBinary(it, bhead, [&]() { return parseBinaryFunction(it, parameters); });
+	const auto& params = bhead.sizeHead.getFunctionHead().getParameters();
+	return parseBinary(it, bhead, [&]() { return parseBinaryFunction(it, params); });
 }
 
 void parseBitList(It& it, List& list, WebssBinarySize length)
@@ -230,19 +283,19 @@ Webss parseBinaryElement(It& it, const ParamBinary::SizeHead& bhead)
 }
 #undef GET_BINARY_LENGTH
 
-Tuple parseBinaryFunction(It& it, const FunctionHeadBinary::Tuple& parameters)
+Tuple parseBinaryFunction(It& it, const FunctionHeadBinary::Tuple& params)
 {
 	using Bhead = ParamBinary::SizeHead;
-	Tuple tuple(parameters.getSharedKeys());
+	Tuple tuple(params.getSharedKeys());
 	for (Tuple::size_type i = 0; i < tuple.size(); ++i)
 	{
-		const auto& bhead = parameters[i];
+		const auto& bhead = params[i];
 		if (bhead.sizeHead.flag == Bhead::Flag::NONE)
 			tuple[i] = parseBinary(it, bhead);
 		else if (readByte(it) == BINARY_DEFAULT_VALUE)
-			setDefaultValueBinary(tuple, parameters, i);
+			setDefaultValueBinary(tuple, params, i);
 		else
-			tuple[i] = bhead.sizeHead.flag == Bhead::Flag::DEFAULT ? parseBinary(it, bhead) : parseBinaryFunction(it, parameters);
+			tuple[i] = bhead.sizeHead.flag == Bhead::Flag::DEFAULT ? parseBinary(it, bhead) : parseBinaryFunction(it, params);
 	}
 	return tuple;
 }

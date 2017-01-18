@@ -4,9 +4,7 @@
 
 #include "function.h"
 #include "block.h"
-#include "dictionary.h"
 #include "namespace.h"
-#include "typeWebss.h"
 #include "paramStandard.h"
 #include "document.h"
 
@@ -22,8 +20,8 @@ namespace webss
 	using ParamBinary = BasicParamBinary<Webss>;
 	using FunctionHeadStandard = BasicFunctionHead<ParamStandard>;
 	using FunctionHeadBinary = BasicFunctionHead<ParamBinary>;
-	using FunctionStandard = BasicFunctionDual<FunctionHeadStandard, Webss>;
-	using FunctionBinary = BasicFunctionSingle<FunctionHeadBinary, Webss>;
+	using FunctionStandard = BasicFunction<FunctionHeadStandard, Webss>;
+	using FunctionBinary = BasicFunction<FunctionHeadBinary, Webss>;
 //	using FunctionScoped = BasicFunctionScoped<Webss>;
 	using BlockHead = FunctionHeadStandard;
 	using Block = BasicBlock<Webss>;
@@ -55,7 +53,7 @@ namespace webss
 
 		Webss(std::string&& s);
 		Webss(Document&& document);
-		Webss(Dictionary&& dictionary);
+		Webss(Dictionary&& dict);
 		Webss(List&& list);
 		Webss(Tuple&& tuple);
 		Webss(FunctionHeadStandard&& fheadStandard);
@@ -71,7 +69,7 @@ namespace webss
 
 		Webss(const std::string& s);
 		Webss(const Document& document);
-		Webss(const Dictionary& dictionary);
+		Webss(const Dictionary& dict);
 		Webss(const List& list);
 		Webss(const Tuple& tuple);
 		Webss(const FunctionHeadStandard& fheadStandard);
@@ -85,6 +83,7 @@ namespace webss
 		Webss(const Enum& tEnum, bool dummy);
 		Webss(const BlockHead& blockHead, bool dummy);
 
+		Webss(FunctionHeadBinary&& head, Webss&& body);
 		Webss(FunctionHeadStandard&& head, Webss&& body);
 
 		Webss(const BasicEntity<Webss>& ent) : t(WebssType::VARIABLE), ent(ent) {}
@@ -161,7 +160,7 @@ namespace webss
 			double tDouble;
 			std::string* tString;
 			Document* document;
-			Dictionary* dictionary;
+			Dictionary* dict;
 			List* list;
 			Tuple* tuple;
 			FunctionHeadStandard* fheadStandard;

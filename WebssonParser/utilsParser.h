@@ -7,9 +7,9 @@
 namespace webss
 {
 	//parserFunctions
-	void setDefaultValue(Tuple& tuple, const FunctionHeadStandard::Tuple& defaultTuple, Tuple::size_type index);
+	void setDefaultValue(Tuple& tuple, const FunctionHeadStandard::Tuple& params, Tuple::size_type index);
 	//parserFunctions
-	Tuple makeDefaultTuple(const FunctionHeadStandard::Tuple& defaultTuple);
+	Tuple makeDefaultTuple(const FunctionHeadStandard::Tuple& params);
 
 	//parsers
 	const Namespace& checkIsNamespace(const BasicEntity<Webss>& ent);

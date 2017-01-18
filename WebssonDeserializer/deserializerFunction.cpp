@@ -7,7 +7,7 @@ using namespace webss;
 
 string webss::deserializeFunctionStandard(const FunctionStandard& func)
 {
-	return deserializeFunctionHeadStandard(func) + (func.hasList
+	return deserializeFunctionHeadStandard(func) + (func.isList()
 		? deserializeFunctionBodyStandard(func.getParameters(), func.getList())
 		: deserializeFunctionBodyStandard(func.getParameters(), func.getTuple()));
 }
@@ -17,37 +17,37 @@ string webss::deserializeFunctionBinary(const FunctionBinary& func)
 	return deserializeFunctionHeadBinary(func) + OPEN_TUPLE + deserializeFunctionBodyBinary(func.getParameters(), func.getTuple()) + CLOSE_TUPLE;
 }
 
-string webss::deserializeFunctionBodyStandard(const FunctionHeadStandard::Tuple& parameters, const List& list)
+string webss::deserializeFunctionBodyStandard(const FunctionHeadStandard::Tuple& params, const List& list)
 {
 	if (list.empty())
 		return EMPTY_LIST;
 
 	auto it = list.begin();
-	return OPEN_LIST + getSeparatedValues([&]() { return ++it != list.end(); }, [&]() { return deserializeFunctionBodyStandard(parameters, it->getTuple()); }) + CLOSE_LIST;
+	return OPEN_LIST + getSeparatedValues([&]() { return ++it != list.end(); }, [&]() { return deserializeFunctionBodyStandard(params, it->getTuple()); }) + CLOSE_LIST;
 }
 
-string webss::deserializeFunctionBodyStandard(const FunctionHeadStandard::Tuple& parameters, const Tuple& tuple)
+string webss::deserializeFunctionBodyStandard(const FunctionHeadStandard::Tuple& params, const Tuple& tuple)
 {
 	if (tuple.empty())
 		return EMPTY_TUPLE;
 
 	static const char ERROR_TOO_MANY_ELEMENTS[] = "too many elements in function tuple";
 	Tuple::size_type i = 0;
-	if (parameters.containerText)
+	if (params.containerText)
 		return OPEN_TUPLE + getSeparatedValues([&]() { return ++i < tuple.size(); }, [&]()
 	{
-		if (i == parameters.size())
+		if (i == params.size())
 			throw runtime_error(ERROR_TOO_MANY_ELEMENTS);
 		return deserializeString(tuple[i].getString(), ConType::TUPLE);
 	}) + CLOSE_TUPLE;
 
 	return OPEN_TUPLE + getSeparatedValues([&]() { return ++i < tuple.size(); }, [&]()
 	{
-		if (i == parameters.size())
+		if (i == params.size())
 			throw runtime_error(ERROR_TOO_MANY_ELEMENTS);
-		if (parameters[i].hasFunctionHead())
+		if (params[i].hasFunctionHead())
 		{
-			const auto& parameters2 = parameters[i].getFunctionHeadStandard().getParameters();
+			const auto& parameters2 = params[i].getFunctionHeadStandard().getParameters();
 			if (tuple[i].isList())
 				return deserializeFunctionBodyStandard(parameters2, tuple[i].getList());
 			else if (tuple[i].isTuple())
@@ -65,14 +65,14 @@ string webss::deserializeFunctionBodyStandard(const FunctionHeadStandard::Tuple&
 			if (!list.empty())
 			{
 				const auto& webss2 = list[0];
-				if (webss2.isTuple() && (&webss2.getTuple().getSharedKeys() == &parameters.getSharedKeys()))
-					return CHAR_SELF + deserializeFunctionBodyStandard(parameters, list);
+				if (webss2.isTuple() && (&webss2.getTuple().getSharedKeys() == &params.getSharedKeys()))
+					return CHAR_SELF + deserializeFunctionBodyStandard(params, list);
 			}
 			return getValueOnly(webss, ConType::TUPLE);
 		}
 		case WebssType::TUPLE:
-			if (&webss.getTuple().getSharedKeys() == &parameters.getSharedKeys())
-				return CHAR_SELF + deserializeFunctionBodyStandard(parameters, webss.getTuple());
+			if (&webss.getTuple().getSharedKeys() == &params.getSharedKeys())
+				return CHAR_SELF + deserializeFunctionBodyStandard(params, webss.getTuple());
 		default:
 			return getValueOnly(webss, ConType::TUPLE);
 		}
