@@ -6,7 +6,7 @@ using namespace std;
 using namespace webss;
 
 //returns a string containing a number encoded in UTF-7 encoding thing
-string writeBinarySize(WebssBinarySize num)
+void writeBinarySize(StringBuilder& out, WebssBinarySize num)
 {
 	string out;
 	if (num < power2<7>::value)
@@ -42,7 +42,7 @@ string writeBinarySize(WebssBinarySize num)
 }
 
 //returns a string containing the specified number of bytes from the number in little endian
-string writeBytes(WebssBinarySize num, char* value)
+void writeBytes(StringBuilder& out, WebssBinarySize num, char* value)
 {
 	string out;
 	out.reserve(num);
@@ -57,7 +57,7 @@ string writeBytes(WebssBinarySize num, char* value)
 	return out;
 }
 
-string webss::deserializeFunctionBodyBinary(const FunctionHeadBinary::Tuple& params, const Tuple& data)
+void webss::deserializeFunctionBodyBinary(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Tuple& data)
 {
 	string out;
 	Tuple::size_type i = 0;
@@ -76,7 +76,7 @@ string webss::deserializeFunctionBodyBinary(const FunctionHeadBinary::Tuple& par
 	return out;
 }
 
-string webss::deserializeBinary(const ParamBinary& bhead, const Webss& data)
+void webss::deserializeBinary(StringBuilder& out, const ParamBinary& bhead, const Webss& data)
 {
 	const auto& sizeHead = bhead.sizeHead;
 	if (!sizeHead.isFunctionHead())
@@ -86,7 +86,7 @@ string webss::deserializeBinary(const ParamBinary& bhead, const Webss& data)
 	return deserializeBinary(bhead, data, [&](const Webss& webss) { return deserializeFunctionBodyBinary(params, webss.getTuple()); });
 }
 
-string deserializeBitList(const List& list)
+void deserializeBitList(StringBuilder& out, const List& list)
 {
 	string out;
 	char c = 0;
@@ -105,7 +105,7 @@ string deserializeBitList(const List& list)
 	return out + c;
 }
 
-string webss::deserializeBinary(const ParamBinary& bhead, const Webss& data, function<string(const Webss& webss)> func)
+void webss::deserializeBinary(StringBuilder& out, const ParamBinary& bhead, const Webss& data, function<string(const Webss& webss)> func)
 {
 	if (bhead.sizeList.isOne())
 		return func(data);
@@ -123,7 +123,7 @@ string webss::deserializeBinary(const ParamBinary& bhead, const Webss& data, fun
 	return out;
 }
 
-string webss::deserializeBinaryElement(const ParamBinary::SizeHead& bhead, const Webss& webss)
+void webss::deserializeBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss)
 {
 	if (bhead.isKeyword())
 		switch (bhead.keyword)
@@ -143,7 +143,7 @@ string webss::deserializeBinaryElement(const ParamBinary::SizeHead& bhead, const
 		return webss.getString();
 }
 
-string webss::deserializeBinarySizeHead(const ParamBinary::SizeHead& bhead)
+void webss::deserializeBinarySizeHead(StringBuilder& out, const ParamBinary::SizeHead& bhead)
 {
 	using Type = ParamBinary::SizeHead::Type;
 	string out;
@@ -173,7 +173,7 @@ string webss::deserializeBinarySizeHead(const ParamBinary::SizeHead& bhead)
 	return out + CLOSE_TUPLE;
 }
 
-string webss::deserializeBinarySizeList(const ParamBinary::SizeList& blist)
+void webss::deserializeBinarySizeList(StringBuilder& out, const ParamBinary::SizeList& blist)
 {
 	using Type = ParamBinary::SizeList::Type;
 	string out;

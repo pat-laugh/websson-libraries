@@ -199,9 +199,7 @@ namespace webss
 		std::string parseLineString(It& it, ConType con);
 		std::string parseMultilineString(It& it);
 		std::string parseCString(It& it);
-		void checkEscapedChar(It& it, std::string& line);
 		void checkEscapedChar(It& it, StringBuilder& line);
-		bool checkStringEntity(It& it, std::string& line);
 		bool checkStringEntity(It& it, StringBuilder& line);
 		const std::string& parseStringEntity(It& it);
 

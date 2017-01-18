@@ -5,92 +5,111 @@
 using namespace std;
 using namespace webss;
 
-void addCharEscape(string& str, char c)
+void addCharEscape(StringBuilder& out, char c)
 {
-	str += '\\';
+	out += '\\';
 	switch (c)
 	{
-	case '\0': str += '0'; break;
-	case '\a': str += 'a'; break;
-	case '\b': str += 'b'; break;
-	case '\f': str += 'f'; break;
-	case '\n': str += 'n'; break;
-	case '\r': str += 'r'; break;
-	case '\t': str += 't'; break;
-	case '\v': str += 'v'; break;
+	case '\0': out += '0'; break;
+	case '\a': out += 'a'; break;
+	case '\b': out += 'b'; break;
+	case '\f': out += 'f'; break;
+	case '\n': out += 'n'; break;
+	case '\r': out += 'r'; break;
+	case '\t': out += 't'; break;
+	case '\v': out += 'v'; break;
 
-	case ' ': str += 's'; break;
+	case ' ': out += 's'; break;
 		//no empty char ''!
 
 	default:
 		if (!isControlAscii(c))
-			str += c;
+			out += c;
 		else
 		{
-			str += 'x';
-			str += hexToChar(c >> 4);
-			str += hexToChar(c & 0x0F);
+			out += 'x';
+			out += hexToChar(c >> 4);
+			out += hexToChar(c & 0x0F);
 		}
 	}
 }
 
 string webss::deserializeAll(const Document& doc)
 {
-	return deserializeDocument(doc);
+	StringBuilder out;
+	deserializeDocument(out, doc);
+	return out;
 }
 
 string webss::deserializeAll(const Document& doc, const EntityManager& ents)
 {
-	string out;
+	StringBuilder out;
 
 	//first put local entities
 	auto locals = ents.getOrderedLocals();
 	for (auto entName : locals)
 	{
 		const auto& content = ents[*entName].getContent();
-		out +=	content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
-		out += putKeyValue(*entName, content, ConType::DOCUMENT) + '\n';
+		out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
+		putKeyValue(out, *entName, content, ConType::DOCUMENT);
+		out += '\n';
 	}
 
-	return out + deserializeDocument(doc);
+	deserializeDocument(out, doc);
+	return out;
 }
 
-string webss::deserializeWebss(const Webss& webss)
+void webss::deserializeWebss(StringBuilder& out, const Webss& webss)
 {
 	switch (webss.t)
 	{
 	case WebssType::NONE: case WebssType::DEFAULT:
-		return "";
+		break;
 	case WebssType::PRIMITIVE_NULL:
-		return "N";
+		out += 'N';
+		break;
 	case WebssType::PRIMITIVE_BOOL:
-		return webss.tBool ? "T" : "F";
+		out += webss.tBool ? 'T' : 'F';
+		break;
 	case WebssType::PRIMITIVE_INT:
-		return to_string(webss.tInt);
+		out += to_string(webss.tInt);
+		break;
 	case WebssType::PRIMITIVE_DOUBLE:
-		return to_string(webss.tDouble);
+		out += to_string(webss.tDouble);
+		break;
 	case WebssType::DICTIONARY:
-		return deserializeDictionary(*webss.dict);
+		deserializeDictionary(out, *webss.dict);
+		break;
 	case WebssType::LIST:
-		return deserializeList(*webss.list);
+		deserializeList(out, *webss.list);
+		break;
 	case WebssType::TUPLE:
-		return deserializeTuple(*webss.tuple);
+		deserializeTuple(out, *webss.tuple);
+		break;
 	case WebssType::FUNCTION_STANDARD:
-		return deserializeFunctionStandard(*webss.funcStandard);
+		deserializeFunctionStandard(out, *webss.funcStandard);
+		break;
 	case WebssType::FUNCTION_BINARY:
-		return deserializeFunctionBinary(*webss.funcBinary);
+		deserializeFunctionBinary(out, *webss.funcBinary);
+		break;
 	case WebssType::FUNCTION_HEAD_STANDARD:
-		return deserializeFunctionHeadStandard(*webss.fheadStandard);
+		deserializeFunctionHeadStandard(out, *webss.fheadStandard);
+		break;
 	case WebssType::FUNCTION_HEAD_BINARY:
-		return deserializeFunctionHeadBinary(*webss.fheadBinary);
+		deserializeFunctionHeadBinary(out, *webss.fheadBinary);
+		break;
 	case WebssType::BLOCK_VALUE:
-		return deserializeBlock(*webss.block);
+		deserializeBlock(out, *webss.block);
+		break;
 	case WebssType::VARIABLE:
-		return webss.ent.getName();
+		out += webss.ent.getName();
+		break;
 	case WebssType::NAMESPACE:
-		return putNamespace(*webss.nspace);
+		putNamespace(out, *webss.nspace);
+		break;
 	case WebssType::ENUM:
-		return putEnum(*webss.nspace);
+		putEnum(out, *webss.nspace);
+		break;
 	case WebssType::PRIMITIVE_STRING: //type of string should be checked before calling function
 		throw domain_error("can't deserialize string without its container's type");
 	default:
@@ -98,54 +117,68 @@ string webss::deserializeWebss(const Webss& webss)
 	}
 }
 
-string webss::putKeyValue(const string& key, const Webss& value, ConType stringCon)
+void webss::putKeyValue(StringBuilder& out, const string& key, const Webss& value, ConType stringCon)
 {
 	switch (value.t)
 	{
 	case WebssType::DEFAULT:
 		throw domain_error("can't deserialize " + value.t.toString() + " with key");
 	case WebssType::VARIABLE:
-		return key + CHAR_EQUAL + value.ent.getName();
+		out += key + CHAR_EQUAL + value.ent.getName();
+		break;
 	case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
-		return key + CHAR_EQUAL + deserializeWebss(value);
+		out += key + CHAR_EQUAL;
+		deserializeWebss(out, value);
+		break;
 	case WebssType::PRIMITIVE_STRING:
-		return key + CHAR_COLON + deserializeString(*value.tString, stringCon);
+		out += key + CHAR_COLON;
+		deserializeString(out, *value.tString, stringCon);
+		break;
 	case WebssType::BLOCK_ID:
-		return key + OPEN_TUPLE + (value.getBlockId().hasEntity() ? value.getBlockId().getEntName() : to_string(value.getBlockId().getIndex()));
+		out += key + OPEN_TUPLE + (value.getBlockId().hasEntity() ? value.getBlockId().getEntName() : to_string(value.getBlockId().getIndex()));
+		break;
 	default:
-		return key + deserializeWebss(value);
+		out += key;
+		deserializeWebss(out, value);
+		break;
 	}
 }
 
 
-string webss::getValueOnly(const Webss& value, ConType stringCon)
+void webss::getValueOnly(StringBuilder& out, const Webss& value, ConType stringCon)
 {
-	return value.t == WebssType::PRIMITIVE_STRING ? ':' + deserializeString(*value.tString, stringCon) : deserializeWebss(value);
+	if (value.t != WebssType::PRIMITIVE_STRING)
+		deserializeWebss(out, value);
+	else
+	{
+		out += ':';
+		deserializeString(out, *value.tString, stringCon);
+	}
 }
 
 
-string webss::getSeparatedValues(function<bool()> condition, function<string()> output)
+void webss::getSeparatedValues(StringBuilder& out, function<bool()> condition, function<void()> output)
 {
-	string out;
-	out += output();
+	output();
 	while (condition())
-		out += CHAR_SEPARATOR + output();
-	return out;
+	{
+		out += CHAR_SEPARATOR;
+		output();
+	}
 }
 
-string webss::deserializeString(const string& str, ConType con)
+void webss::deserializeString(StringBuilder& out, const string& str, ConType con)
 {
 	if (str.empty())
-		return "";
-	string out;
-	out.reserve(str.size());
+		return;
+
 	auto it = str.begin();
 	//first char can't be ':'; first and last can't be ' '
 	if (*it == ' ' || *it == ':')
 	{
 		addCharEscape(out, *it);
 		if (++it == str.end())
-			return out;
+			return;
 	}
 
 	do
@@ -156,107 +189,141 @@ string webss::deserializeString(const string& str, ConType con)
 		{
 			out += '/';
 			if (++it == str.end())
-				return out;
+				return;
 
 			if (*it == '/' || *it == '*' || isMustEscapeChar(*it) || isLineEnd(*it, con))
 				addCharEscape(out, *it);
 			else
 				out += *it;
 		}
+		else if (*it == ' ' && it + 1 == str.end())
+			out += "\\s";
 		else
 			out += *it;
 	} while (++it != str.end());
-
-	//make sure last isn't ' '
-	if (out.back() == ' ')
-	{
-		out.back() = '\\';
-		out += 's';
-	}
-
-	return out;
 }
 
-string webss::deserializeDictionary(const Dictionary& dict)
+void webss::deserializeDictionary(StringBuilder& out, const Dictionary& dict)
 {
 	if (dict.empty())
-		return EMPTY_DICTIONARY;
+	{
+		out += EMPTY_DICTIONARY;
+		return;
+	}
 
 	auto it = dict.begin();
-	return OPEN_DICTIONARY + getSeparatedValues([&]() { return ++it != dict.end(); }, [&]() { return putKeyValue(it->first, it->second, ConType::DICTIONARY); }) + CLOSE_DICTIONARY;
+	out += OPEN_DICTIONARY;
+	getSeparatedValues(out, [&]() { return ++it != dict.end(); }, [&]() { putKeyValue(out, it->first, it->second, ConType::DICTIONARY); });
+	out += CLOSE_DICTIONARY;
 }
 
-string webss::deserializeList(const List& list)
+void webss::deserializeList(StringBuilder& out, const List& list)
 {
 	if (list.containerText)
 	{
-		string out(ASSIGN_CONTAINER_STRING);
+		out += ASSIGN_CONTAINER_STRING;
 		if (list.empty())
-			return out + EMPTY_LIST;
+		{
+			out += EMPTY_LIST;
+			return;
+		}
 		auto it = list.begin();
-		return out + OPEN_LIST + getSeparatedValues([&]() { return ++it != list.end(); }, [&]() { return deserializeString(it->getString(), ConType::LIST); }) + CLOSE_LIST;
+		out += OPEN_LIST;
+		getSeparatedValues(out, [&]() { return ++it != list.end(); }, [&]() { deserializeString(out, it->getString(), ConType::LIST); });
+		out += CLOSE_LIST;
 	}
-	if (list.empty())
-		return EMPTY_LIST;
 
+	if (list.empty())
+	{
+		out += EMPTY_LIST;
+		return;
+	}
 	auto it = list.begin();
-	return OPEN_LIST + getSeparatedValues([&]() { return ++it != list.end(); }, [&]() { return it->t == WebssType::PRIMITIVE_STRING ? ':' + deserializeString(*it->tString, ConType::LIST) : deserializeWebss(*it); }) + CLOSE_LIST;
+	out += OPEN_LIST;
+	getSeparatedValues(out, [&]() { return ++it != list.end(); }, [&]()
+	{
+		if (it->t != WebssType::PRIMITIVE_STRING)
+			deserializeWebss(out, *it);
+		else
+		{
+			out += ':';
+			deserializeString(out, *it->tString, ConType::LIST);
+		}
+	});
+	out += CLOSE_LIST;
 }
 
-string webss::deserializeTuple(const Tuple& tuple)
+void webss::deserializeTuple(StringBuilder& out, const Tuple& tuple)
 {
 	if (tuple.containerText)
 	{
-		string out(ASSIGN_CONTAINER_STRING);
+		out += ASSIGN_CONTAINER_STRING;
 		if (tuple.empty())
-			return out + EMPTY_TUPLE;
+		{
+			out += EMPTY_TUPLE;
+			return;
+		}
 		auto it = tuple.begin();
-		return out + OPEN_TUPLE + getSeparatedValues([&]() { return ++it != tuple.end(); }, [&]() { return deserializeString(it->getString(), ConType::TUPLE); }) + CLOSE_TUPLE;
+		out += OPEN_TUPLE;
+		getSeparatedValues(out, [&]() { return ++it != tuple.end(); }, [&]() { deserializeString(out, it->getString(), ConType::TUPLE); });
+		out += CLOSE_TUPLE;
 	}
 	if (tuple.empty())
-		return EMPTY_TUPLE;
+	{
+		out += EMPTY_TUPLE;
+		return;
+	}
 
 	auto keyValues = tuple.getOrderedKeyValues();
 	auto it = keyValues.begin();
-	return OPEN_TUPLE + getSeparatedValues([&]() { return ++it != keyValues.end(); }, [&]() { return it->first == nullptr ? getValueOnly(*it->second, ConType::TUPLE) : putKeyValue(*it->first, *it->second, ConType::TUPLE); }) + CLOSE_TUPLE;
+	out += OPEN_TUPLE;
+	getSeparatedValues(out, [&]() { return ++it != keyValues.end(); }, [&]() { it->first == nullptr ? getValueOnly(out, *it->second, ConType::TUPLE) : putKeyValue(out, *it->first, *it->second, ConType::TUPLE); });
+	out += CLOSE_TUPLE;
 }
 
-string webss::deserializeDocument(const Document& doc)
+void webss::deserializeDocument(StringBuilder& out, const Document& doc)
 {
 	if (doc.empty())
-		return "";
+		return;
 
 	auto keyValues = doc.getOrderedKeyValues();
 	auto it = keyValues.begin();
-	return getSeparatedValues([&]() { return ++it != keyValues.end(); }, [&]() { return it->first == nullptr ? getValueOnly(*it->second, ConType::DOCUMENT) : putKeyValue(*it->first, *it->second, ConType::DOCUMENT); });
+	getSeparatedValues(out, [&]() { return ++it != keyValues.end(); }, [&]() { it->first == nullptr ? getValueOnly(out, *it->second, ConType::DOCUMENT) : putKeyValue(out, *it->first, *it->second, ConType::DOCUMENT); });
 }
 
-string webss::deserializeBlock(const Block& block)
+void webss::deserializeBlock(StringBuilder& out, const Block& block)
 {
-	return block.getName() + deserializeWebss(block.getValue());
+	out += block.getName();
+	deserializeWebss(out, block.getValue());
 }
 
-string webss::putNamespace(const Namespace& nspace)
+void webss::putNamespace(StringBuilder& out, const Namespace& nspace)
 {
 	if (nspace.empty())
-		return EMPTY_DICTIONARY;
+	{
+		out += EMPTY_DICTIONARY;
+		return;
+	}
 
 	auto it = nspace.begin();
-	return OPEN_DICTIONARY + getSeparatedValues([&]() { return ++it != nspace.end(); }, [&]()
-		{
-			const auto& content = it->getContent();
-			string out;
-			out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
-			out += it->getName();
-			out += deserializeWebss(content);
-			return out;
-		}) + CLOSE_DICTIONARY;
+	out += OPEN_DICTIONARY;
+	getSeparatedValues(out, [&]() { return ++it != nspace.end(); }, [&]()
+	{
+		const auto& content = it->getContent();
+		out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
+		out += it->getName();
+		deserializeWebss(out, content);
+	});
+	out += CLOSE_DICTIONARY;
 }
 
-string webss::putEnum(const Enum& tEnum)
+void webss::putEnum(StringBuilder& out, const Enum& tEnum)
 {
 	if (tEnum.empty())
-		return EMPTY_LIST;
+	{
+		out += EMPTY_LIST;
+		return;
+	}
 
 	//sort the enum...
 	vector<string*> elems(tEnum.size());
@@ -264,8 +331,10 @@ string webss::putEnum(const Enum& tEnum)
 		elems[static_cast<Enum::size_type>(ent.getContent().getInt())] = const_cast<string*>(&ent.getName());
 
 	auto it = elems.begin();
-	return OPEN_LIST + getSeparatedValues([&]() { return ++it != elems.end(); }, [&]()
+	out += OPEN_LIST;
+	getSeparatedValues(out, [&]() { return ++it != elems.end(); }, [&]()
 	{
-		return **it;
-	}) + CLOSE_LIST;
+		out += **it;
+	});
+	out += CLOSE_LIST;
 }

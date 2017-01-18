@@ -7,6 +7,7 @@
 #include "WebssonUtils/utilsWebss.h"
 #include "WebssonStructures/webss.h"
 #include "WebssonStructures/entityManager.h"
+#include "WebssonUtils/stringBuilder.h"
 #include <functional>
 
 //#define REVERSE_ENDIANNESS_WRITE
@@ -17,47 +18,52 @@ namespace webss
 	std::string deserializeAll(const Document& doc);
 	std::string deserializeAll(const Document& doc, const EntityManager& ents);
 
-	std::string deserializeWebss(const Webss& webss);
+	void deserializeWebss(StringBuilder& out, const Webss& webss);
 
-	std::string putKeyValue(const std::string& key, const Webss& value, ConType stringCon);
-	std::string getValueOnly(const Webss& value, ConType stringCon);
+	void putKeyValue(StringBuilder& out, const std::string& key, const Webss& value, ConType stringCon);
+	void getValueOnly(StringBuilder& out, const Webss& value, ConType stringCon);
 
-	std::string getSeparatedValues(std::function<bool()> condition, std::function<std::string()> output);
+	void getSeparatedValues(StringBuilder& out, std::function<bool()> condition, std::function<void()> output);
 
-	std::string deserializeString(const std::string& str, ConType con);
-	std::string deserializeDictionary(const Dictionary& dict);
-	std::string deserializeList(const List& list);
-	std::string deserializeTuple(const Tuple& tuple);
-	std::string deserializeDocument(const Document& doc);
-	std::string deserializeBlock(const Block& block);
+	void deserializeString(StringBuilder& out, const std::string& str, ConType con);
+	void deserializeDictionary(StringBuilder& out, const Dictionary& dict);
+	void deserializeList(StringBuilder& out, const List& list);
+	void deserializeTuple(StringBuilder& out, const Tuple& tuple);
+	void deserializeDocument(StringBuilder& out, const Document& doc);
+	void deserializeBlock(StringBuilder& out, const Block& block);
 
-	std::string putNamespace(const Namespace& nspace);
+	void putNamespace(StringBuilder& out, const Namespace& nspace);
 
-	std::string putEnum(const Enum& tEnum);
+	void putEnum(StringBuilder& out, const Enum& tEnum);
 
-	std::string deserializeFunctionStandard(const FunctionStandard& func);
-	std::string deserializeFunctionBinary(const FunctionBinary& func);
+	void deserializeFunctionStandard(StringBuilder& out, const FunctionStandard& func);
+	void deserializeFunctionBinary(StringBuilder& out, const FunctionBinary& func);
 
-	std::string deserializeFunctionBodyStandard(const FunctionHeadStandard::Tuple& params, const List& list);
-	std::string deserializeFunctionBodyStandard(const FunctionHeadStandard::Tuple& params, const Tuple& tuple);
-#define FUNC_PARAMS_STANDARD const std::string& key, const ParamStandard& value
-	std::string deserializeFunctionHeadStandard(const FunctionHeadStandard& fhead);
-	std::string deserializeParametersStandard(const FunctionHeadStandard& fhead, std::function<std::string(FUNC_PARAMS_STANDARD)> func);
-	std::string deserializeParameter(FUNC_PARAMS_STANDARD);
-	std::string deserializeParameterString(FUNC_PARAMS_STANDARD);
-	std::string deserializeFunctionHeadBinary(const FunctionHeadBinary& fhead);
+	void deserializeFunctionBodyStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Tuple & params, const Dictionary & dict);
+	void deserializeFunctionBodyStandardList(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const List& list);
+	void deserializeFunctionBodyStandardTuple(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Tuple& tuple);
+#define FUNC_PARAMS_STANDARD StringBuilder& out, const std::string& key, const ParamStandard& value
+	void deserializeFunctionHeadStandard(StringBuilder& out, const FunctionHeadStandard& fhead);
+	void deserializeParametersStandard(StringBuilder& out, const FunctionHeadStandard& fhead, std::function<std::string(FUNC_PARAMS_STANDARD)> func);
+	void deserializeParameter(FUNC_PARAMS_STANDARD);
+	void deserializeParameterString(FUNC_PARAMS_STANDARD);
+	void deserializeFunctionHeadBinary(StringBuilder& out, const FunctionHeadBinary& fhead);
 #undef FUNC_PARAMS_STANDARD
 
-#define FUNC_PARAMS_BINARY const std::string& key, const ParamBinary& value
-	std::string deserializeParameterBinary(FUNC_PARAMS_BINARY);
-	std::string deserializeParametersBinary(const FunctionHeadBinary& fhead, std::function<std::string(FUNC_PARAMS_BINARY)> func);
+	void deserializeFunctionBodyBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Dictionary& dict);
+	void deserializeFunctionBodyBinaryList(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const List& list);
+	void deserializeFunctionBodyBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Tuple& tuple);
+
+#define FUNC_PARAMS_BINARY StringBuilder& out, const std::string& key, const ParamBinary& value
+	void deserializeParameterBinary(FUNC_PARAMS_BINARY);
+	void deserializeParametersBinary(StringBuilder& out, const FunctionHeadBinary& fhead, std::function<std::string(FUNC_PARAMS_BINARY)> func);
 #undef FUNC_PARAMS_BINARY
-	std::string deserializeFunctionBodyBinary(const FunctionHeadBinary::Tuple& params, const Tuple& data);
-	std::string deserializeBinary(const ParamBinary& bhead, const Webss& data);
-	std::string deserializeBinary(const ParamBinary& bhead, const Webss& data, std::function<std::string(const Webss& webss)> func);
-	std::string deserializeBinaryElement(const ParamBinary::SizeHead& bhead, const Webss& webss);
-	std::string deserializeBinarySizeHead(const ParamBinary::SizeHead& bhead);
-	std::string deserializeBinarySizeList(const ParamBinary::SizeList& blist);
+	void deserializeFunctionBodyBinary(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Tuple& data);
+	void deserializeBinary(StringBuilder& out, const ParamBinary& bhead, const Webss& data);
+	void deserializeBinary(StringBuilder& out, const ParamBinary& bhead, const Webss& data, std::function<std::string(const Webss& webss)> func);
+	void deserializeBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss);
+	void deserializeBinarySizeHead(StringBuilder& out, const ParamBinary::SizeHead& bhead);
+	void deserializeBinarySizeList(StringBuilder& out, const ParamBinary::SizeList& blist);
 }
 
 #ifdef REVERSE_ENDIANNESS_WRITE
