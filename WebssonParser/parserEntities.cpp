@@ -66,7 +66,7 @@ string Parser::parseNameSafe(It& it)
 	auto nameType = parseNameType(it);
 	if (nameType.type == NameType::NAME)
 		return move(nameType.name);
-	throw runtime_error("entity name must neither be an existing entity's name or a keyword");
+	throw runtime_error("expected name that is neither an entity nor a keyword");
 }
 
 void Parser::parseUsingNamespace(It& it, function<void(const Entity& ent)> funcForEach)

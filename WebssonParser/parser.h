@@ -198,10 +198,11 @@ namespace webss
 		//parserStrings.cpp
 		std::string parseLineString(It& it, ConType con);
 		std::string parseMultilineString(It& it);
-		bool parseMultilineStringLine(It& it, std::string& text, int& countStartEnd);
 		std::string parseCString(It& it);
 		void checkEscapedChar(It& it, std::string& line);
+		void checkEscapedChar(It& it, StringBuilder& line);
 		bool checkStringEntity(It& it, std::string& line);
+		bool checkStringEntity(It& it, StringBuilder& line);
 		const std::string& parseStringEntity(It& it);
 
 		//parserEntities.cpp
@@ -228,6 +229,7 @@ namespace webss
 		Webss parseFunction(It& it);
 		Webss parseFunctionText(It& it);
 		Webss parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
+		Webss parseFunctionBodyText(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
 		Webss parseFunctionContainer(It& it, const ParamStandard& defaultValue);
 		Dictionary parseFunctionDictionaryStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
 		Dictionary parseFunctionDictionaryText(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
@@ -235,8 +237,6 @@ namespace webss
 		List parseFunctionListText(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
 		Tuple parseFunctionTupleStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
 		Tuple parseFunctionTupleText(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
-
-		Dictionary parseFunctionDictionaryStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple);
 
 		//parserBinary.cpp
 		void parseBinaryHead(It& it, FunctionHeadBinary& fhead);

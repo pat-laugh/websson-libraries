@@ -150,20 +150,25 @@ TypeContainer webss::skipJunkToContainer(SmartIterator& it)
 	case OPEN_FUNCTION:
 		return TypeContainer::FUNCTION_HEAD;
 	case CHAR_COLON:
-		if (++it == CHAR_COLON)
-			switch (*skipJunkToValid(++it))
-			{
-			case OPEN_DICTIONARY:
-				return TypeContainer::TEXT_DICTIONARY;
-			case OPEN_LIST:
-				return TypeContainer::TEXT_LIST;
-			case OPEN_TUPLE:
-				return TypeContainer::TEXT_TUPLE;
-			case OPEN_FUNCTION:
-				return TypeContainer::TEXT_FUNCTION_HEAD;
-			default:
-				break;
-			}
+		if (it.peekEnd() || it.peek() != CHAR_COLON)
+			return TypeContainer::LINE_STRING;
+		switch (*skipJunkToValid(it.readTwo()))
+		{
+		case OPEN_DICTIONARY:
+			return TypeContainer::TEXT_DICTIONARY;
+		case OPEN_LIST:
+			return TypeContainer::TEXT_LIST;
+		case OPEN_TUPLE:
+			return TypeContainer::TEXT_TUPLE;
+		case OPEN_FUNCTION:
+			return TypeContainer::TEXT_FUNCTION_HEAD;
+		default:
+			throw runtime_error(ERROR_UNEXPECTED);
+		}
+	case CHAR_EQUAL:
+		return TypeContainer::EQUAL;
+	case CHAR_CSTRING:
+		return TypeContainer::CSTRING;
 	default:
 		throw runtime_error(ERROR_UNEXPECTED);
 	}

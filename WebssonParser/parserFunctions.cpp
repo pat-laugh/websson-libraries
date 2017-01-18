@@ -32,34 +32,45 @@ Webss Parser::parseFunction(It& it)
 Webss Parser::parseFunctionText(It& it)
 {
 	auto head = parseFunctionHeadText(it);
-	auto body = parseFunctionBodyStandard(it, head.getParameters());
+	auto body = parseFunctionBodyText(it, head.getParameters());
 	return{ move(head), move(body) };
 }
 
 Webss Parser::parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple)
 {
-#define FUNC_LIST(parseTuple) functionParseList(++it, defaultTuple, [&](It& it, const FunctionHeadStandard::Tuple& defaultTuple) { return parseTuple(it, defaultTuple); })
-	switch (*skipJunkToValid(it))
+	switch (skipJunkToContainer(it))
 	{
-	case OPEN_DICTIONARY:
-
-	case OPEN_LIST:
-		return defaultTuple.containerText ? FUNC_LIST(parseFunctionTupleText) : FUNC_LIST(parseFunctionTupleStandard);
-	case OPEN_TUPLE:
-		return defaultTuple.containerText ? parseFunctionTupleText(++it, defaultTuple) : parseFunctionTupleStandard(++it, defaultTuple);
-	case CHAR_COLON:
-		if (++it != CHAR_COLON || *skipJunkToValid(++it) != OPEN_TUPLE)
-			throw runtime_error(ERROR_UNEXPECTED);
+	case TypeContainer::DICTIONARY:
+		return parseFunctionDictionaryStandard(++it, defaultTuple);
+	case TypeContainer::LIST:
+		return parseFunctionListStandard(++it, defaultTuple);
+	case TypeContainer::TUPLE:
+		return parseFunctionTupleStandard(++it, defaultTuple);
+	case TypeContainer::TEXT_DICTIONARY:
+		return parseFunctionDictionaryText(++it, defaultTuple);
+	case TypeContainer::TEXT_LIST:
+		return parseFunctionListText(++it, defaultTuple);
+	case TypeContainer::TEXT_TUPLE:
 		return parseFunctionTupleText(++it, defaultTuple);
 	default:
 		throw runtime_error(ERROR_UNEXPECTED);
 	}
-#undef FUNC_LIST
 }
 
-
-
-
+Webss Parser::parseFunctionBodyText(It& it, const FunctionHeadStandard::Tuple& defaultTuple)
+{
+	switch (skipJunkToContainer(it))
+	{
+	case TypeContainer::DICTIONARY: case TypeContainer::TEXT_DICTIONARY:
+		return parseFunctionDictionaryText(++it, defaultTuple);
+	case TypeContainer::LIST: case TypeContainer::TEXT_LIST:
+		return parseFunctionListText(++it, defaultTuple);
+	case TypeContainer::TUPLE: case TypeContainer::TEXT_TUPLE:
+		return parseFunctionTupleText(++it, defaultTuple);
+	default:
+		throw runtime_error(ERROR_UNEXPECTED);
+	}
+}
 
 Dictionary Parser::parseFunctionDictionaryStandard(It& it, const FunctionHeadStandard::Tuple& defaultTuple)
 {
@@ -71,22 +82,20 @@ Dictionary Parser::parseFunctionDictionaryStandard(It& it, const FunctionHeadSta
 	{
 		if (!isNameStart(*it))
 			throw runtime_error(ERROR_UNEXPECTED);
-		auto name = parseNameType(it);
-		if (name.type != NameType::NAME)
-			throw runtime_error(ERROR_UNEXPECTED);
+		auto name = parseNameSafe(it);
 		switch (skipJunkToContainer(it))
 		{
-		case TypeContainer::TUPLE:
-			dict.addSafe(move(name.name), parseFunctionTupleStandard(++it, defaultTuple));
-			break;
 		case TypeContainer::LIST:
-			dict.addSafe(move(name.name), parseFunctionListStandard(++it, defaultTuple));
+			dict.addSafe(move(name), parseFunctionListStandard(++it, defaultTuple));
 			break;
-		case TypeContainer::TEXT_TUPLE:
-			dict.addSafe(move(name.name), parseFunctionTupleText(++it, defaultTuple));
+		case TypeContainer::TUPLE:
+			dict.addSafe(move(name), parseFunctionTupleStandard(++it, defaultTuple));
 			break;
 		case TypeContainer::TEXT_LIST:
-			dict.addSafe(move(name.name), parseFunctionListText(++it, defaultTuple));
+			dict.addSafe(move(name), parseFunctionListText(++it, defaultTuple));
+			break;
+		case TypeContainer::TEXT_TUPLE:
+			dict.addSafe(move(name), parseFunctionTupleText(++it, defaultTuple));
 			break;
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
@@ -105,24 +114,18 @@ Dictionary Parser::parseFunctionDictionaryText(It& it, const FunctionHeadStandar
 	{
 		if (!isNameStart(*it))
 			throw runtime_error(ERROR_UNEXPECTED);
-		auto name = parseNameType(it);
-		if (name.type != NameType::NAME)
-			throw runtime_error(ERROR_UNEXPECTED);
-		if (*skipJunkToValid(it) == OPEN_TUPLE)
-			dict.addSafe(move(name.name), parseFunctionTupleText(it, defaultTuple));
-		else if (*it == OPEN_LIST)
-			dict.addSafe(move(name.name), parseFunctionListText(it, defaultTuple));
-		else if (*it == CHAR_COLON && ++it == CHAR_COLON)
+		auto name = parseNameSafe(it);
+		switch (skipJunkToContainer(it))
 		{
-			if (*skipJunkToValid(it) == OPEN_TUPLE)
-				dict.addSafe(move(name.name), parseFunctionTupleText(it, defaultTuple));
-			else if (*it == OPEN_LIST)
-				dict.addSafe(move(name.name), parseFunctionListText(it, defaultTuple));
-			else
-				throw runtime_error(ERROR_UNEXPECTED);
-		}
-		else
+		case TypeContainer::LIST: case TypeContainer::TEXT_LIST:
+			dict.addSafe(move(name), parseFunctionListText(++it, defaultTuple));
+			break;
+		case TypeContainer::TUPLE: case TypeContainer::TEXT_TUPLE:
+			dict.addSafe(move(name), parseFunctionTupleText(++it, defaultTuple));
+			break;
+		default:
 			throw runtime_error(ERROR_UNEXPECTED);
+		}
 	} while (checkNextElementContainer(it, CON));
 	return dict;
 }
@@ -134,13 +137,18 @@ List Parser::parseFunctionListStandard(It& it, const FunctionHeadStandard::Tuple
 	if (checkEmptyContainer(it, CON))
 		return list;
 	do
-		if (*it == OPEN_TUPLE)
+		switch (skipJunkToContainer(it))
+		{
+		case TypeContainer::TUPLE:
 			list.add(parseFunctionTupleStandard(++it, defaultTuple));
-		else if (*it == CHAR_COLON && ++it == CHAR_COLON && *skipJunkToValid(++it) == OPEN_TUPLE)
+			break;
+		case TypeContainer::TEXT_TUPLE:
 			list.add(parseFunctionTupleText(++it, defaultTuple));
-		else
+			break;
+		default:
 			throw runtime_error(ERROR_UNEXPECTED);
-		while (checkNextElementContainer(it, CON)); //make it so separators are not required (no need to clean line)
+		}
+	while (checkNextElementContainer(it, CON)); //make it so separators are not required (no need to clean line)
 	return list;
 }
 
@@ -151,24 +159,17 @@ List Parser::parseFunctionListText(It& it, const FunctionHeadStandard::Tuple& de
 	if (checkEmptyContainer(it, CON))
 		return list;
 	do
-		if (*it == OPEN_TUPLE)
+		switch (skipJunkToContainer(it))
+		{
+		case TypeContainer::TUPLE: case TypeContainer::TEXT_TUPLE:
 			list.add(parseFunctionTupleText(++it, defaultTuple));
-		else if (*it == CHAR_COLON && ++it == CHAR_COLON && *skipJunkToValid(++it) == OPEN_TUPLE)
-			list.add(parseFunctionTupleText(++it, defaultTuple));
-		else
+			break;
+		default:
 			throw runtime_error(ERROR_UNEXPECTED);
-		while (checkNextElementContainer(it, CON)); //make it so separators are not required (no need to clean line)
+		}
+	while (checkNextElementContainer(it, CON)); //make it so separators are not required (no need to clean line)
 	return list;
 }
-
-
-
-
-
-
-
-
-
 
 Webss Parser::parseFunctionContainer(It& it, const ParamStandard& defaultValue)
 {
@@ -177,7 +178,10 @@ Webss Parser::parseFunctionContainer(It& it, const ParamStandard& defaultValue)
 	switch (defaultValue.getTypeFhead())
 	{
 	case Type::STANDARD:
-		return parseFunctionBodyStandard(it, defaultValue.getFunctionHeadStandard().getParameters());
+	{
+		const auto& params = defaultValue.getFunctionHeadStandard().getParameters();
+		return params.containerText ? parseFunctionBodyText(it, params) : parseFunctionBodyStandard(it, params);
+	}
 	case Type::BINARY:
 		return parseFunctionBodyBinary(it, defaultValue.getFunctionHeadBinary().getParameters());
 	default:
@@ -209,16 +213,14 @@ Tuple Parser::parseFunctionTupleStandard(It& it, const FunctionHeadStandard::Tup
 			{
 				if (!isNameStart(*skipJunkToValid(++it)))
 					throw runtime_error(ERROR_UNEXPECTED);
-				auto nameType = parseNameType(it);
-				if (nameType.type != NameType::NAME)
-					throw runtime_error("expected param name");
+				auto name = parseNameSafe(it);
 				switch (*skipJunkToValid(it))
 				{
 				case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case CHAR_COLON:
-					tuple.at(nameType.name) = parseFunctionContainer(it, defaultTuple.at(nameType.name));
+					tuple.at(name) = parseFunctionContainer(it, defaultTuple.at(name));
 					break;
 				default:
-					tuple.at(nameType.name) = parseCharValue(it, CON);
+					tuple.at(name) = parseCharValue(it, CON);
 					break;
 				}
 				break;
@@ -238,13 +240,11 @@ Tuple Parser::parseFunctionTupleStandard(It& it, const FunctionHeadStandard::Tup
 				}
 				else
 				{
-					auto nameType = parseNameType(it);
-					if (nameType.type != NameType::NAME)
-						throw runtime_error("expected param name");
+					auto name = parseNameSafe(it);
 					switch (*skipJunkToValid(it))
 					{
 					case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case CHAR_COLON:
-						tuple.at(nameType.name) = parseFunctionContainer(it, FunctionHeadStandard(defaultTuple));
+						tuple.at(name) = parseFunctionContainer(it, FunctionHeadStandard(defaultTuple));
 						break;
 					default:
 						throw runtime_error(ERROR_UNEXPECTED);

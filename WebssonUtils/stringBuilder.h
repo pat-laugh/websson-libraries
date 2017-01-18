@@ -13,11 +13,11 @@ namespace webss
 
 		This() {}
 
-		This& operator+=(char c) { ss.put(c); }
-		This& operator+=(std::string&& s) { ss << std::move(s); }
-		This& operator+=(const std::string& s) { ss << s; }
-		This& operator+=(const char* s) { ss << s; }
-		This& operator+=(const This& o) { ss << o.ss.rdbuf(); }
+		This& operator+=(char c) { ss.put(c); return *this; }
+		This& operator+=(std::string&& s) { ss << std::move(s); return *this; }
+		This& operator+=(const std::string& s) { ss << s; return *this; }
+		This& operator+=(const char* s) { ss << s; return *this; }
+		This& operator+=(const This& o) { ss << o.ss.rdbuf(); return *this; }
 
 		operator std::string() const { return ss.str(); }
 		std::string str() { return ss.str(); }
@@ -27,6 +27,7 @@ namespace webss
 	};
 #undef This
 
+	/*
 #define This SmartString
 	class This
 	{
@@ -62,5 +63,5 @@ namespace webss
 			return s;
 		}
 	};
-#undef This
+#undef This*/
 }

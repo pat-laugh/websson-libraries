@@ -8,9 +8,9 @@
 using namespace std;
 using namespace webss;
 
-//adds a unicode char to the string
+//adds a unicode char to the StringBuilder
 //REQUIREMENT: num must be a valid unicode character
-void putUnicode(string& str, unsigned int num)
+void putUnicode(StringBuilder& str, unsigned int num)
 {
 	if (num < power2<7>::value)
 	{
@@ -68,7 +68,7 @@ unsigned int readHex(SmartIterator& it, unsigned int numDigits)
 	return hex;
 }
 
-void putContainedEscapedHex(SmartIterator& it, string& str, char separator)
+void putContainedEscapedHex(SmartIterator& it, StringBuilder& str, char separator)
 {
 	if (skipJunk(it) != '{')
 		throw runtime_error(webss_ERROR_EXPECTED_CHAR('{'));
@@ -90,7 +90,7 @@ loopStart:
 	return;
 }
 
-void webss::putEscapedHex(SmartIterator& it, string& str, char separator)
+void webss::putEscapedHex(SmartIterator& it, StringBuilder& str, char separator)
 {
 	switch (*it)
 	{
