@@ -87,11 +87,8 @@ PATTERN_CONSTRUCT_MOVE(FunctionHeadBinary, fheadBinary, FUNCTION_HEAD_BINARY)
 PATTERN_CONSTRUCT_MOVE(FunctionStandard, funcStandard, FUNCTION_STANDARD)
 PATTERN_CONSTRUCT_MOVE(FunctionBinary, funcBinary, FUNCTION_BINARY)
 //PATTERN_CONSTRUCT_MOVE(FunctionScoped, funcScoped, FUNCTION_SCOPED)
-PATTERN_CONSTRUCT_MOVE(BlockId, blockId, BLOCK_ID)
-PATTERN_CONSTRUCT_MOVE(Block, block, BLOCK_VALUE)
 PATTERN_CONSTRUCT_MOVE(Namespace, nspace, NAMESPACE)
 Webss::Webss(Enum&& name, bool) : t(WebssType::ENUM), nspace(new Namespace(move(name))) {}
-Webss::Webss(BlockHead&& name, bool) : t(WebssType::BLOCK_HEAD), fheadStandard(new FunctionHeadStandard(move(name))) {}
 
 #define PATTERN_CONSTRUCT_CONST(type, name, con) \
 Webss::Webss(const type& name) : t(WebssType::con), name(new type(name)) {}
@@ -106,11 +103,8 @@ PATTERN_CONSTRUCT_CONST(FunctionHeadBinary, fheadBinary, FUNCTION_HEAD_BINARY)
 PATTERN_CONSTRUCT_CONST(FunctionStandard, funcStandard, FUNCTION_STANDARD)
 PATTERN_CONSTRUCT_CONST(FunctionBinary, funcBinary, FUNCTION_BINARY)
 //PATTERN_CONSTRUCT_CONST(FunctionScoped, funcScoped, FUNCTION_SCOPED)
-PATTERN_CONSTRUCT_CONST(BlockId, blockId, BLOCK_ID)
-PATTERN_CONSTRUCT_CONST(Block, block, BLOCK_VALUE)
 PATTERN_CONSTRUCT_CONST(Namespace, nspace, NAMESPACE)
 Webss::Webss(const Enum& name, bool) : t(WebssType::ENUM), nspace(new Namespace(name)) {}
-Webss::Webss(const BlockHead& name, bool) : t(WebssType::BLOCK_HEAD), fheadStandard(new FunctionHeadStandard(name)) {}
 
 Webss::Webss(FunctionHeadBinary&& head, Webss&& body) : t(WebssType::FUNCTION_BINARY)
 {
@@ -173,7 +167,7 @@ void Webss::destroyUnion()
 	case WebssType::TUPLE:
 		delete tuple;
 		break;
-	case WebssType::FUNCTION_HEAD_STANDARD: case WebssType::BLOCK_HEAD:
+	case WebssType::FUNCTION_HEAD_STANDARD:
 		delete fheadStandard;
 		break;
 	case WebssType::FUNCTION_HEAD_BINARY:
@@ -188,12 +182,6 @@ void Webss::destroyUnion()
 //	case WebssType::FUNCTION_SCOPED:
 //		delete funcScoped;
 //		break;
-	case WebssType::BLOCK_ID:
-		delete blockId;
-		break;
-	case WebssType::BLOCK_VALUE:
-		delete block;
-		break;
 	case WebssType::NAMESPACE: case WebssType::ENUM:
 		delete nspace;
 		break;
@@ -259,7 +247,7 @@ void Webss::copyUnion(Webss&& o)
 	case WebssType::TUPLE:
 		tuple = o.tuple;
 		break;
-	case WebssType::FUNCTION_HEAD_STANDARD: case WebssType::BLOCK_HEAD:
+	case WebssType::FUNCTION_HEAD_STANDARD:
 		fheadStandard = o.fheadStandard;
 		break;
 	case WebssType::FUNCTION_HEAD_BINARY:
@@ -274,12 +262,6 @@ void Webss::copyUnion(Webss&& o)
 //	case WebssType::FUNCTION_SCOPED:
 //		funcScoped = o.funcScoped;
 //		break;
-	case WebssType::BLOCK_ID:
-		blockId = o.blockId;
-		break;
-	case WebssType::BLOCK_VALUE:
-		block = o.block;
-		break;
 	case WebssType::NAMESPACE: case WebssType::ENUM:
 		nspace = o.nspace;
 		break;
@@ -324,7 +306,7 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::TUPLE:
 		tuple = new Tuple(*o.tuple);
 		break;
-	case WebssType::FUNCTION_HEAD_STANDARD: case WebssType::BLOCK_HEAD:
+	case WebssType::FUNCTION_HEAD_STANDARD:
 		fheadStandard = new FunctionHeadStandard(*o.fheadStandard);
 		break;
 	case WebssType::FUNCTION_HEAD_BINARY:
@@ -339,12 +321,6 @@ void Webss::copyUnion(const Webss& o)
 //	case WebssType::FUNCTION_SCOPED:
 //		funcScoped = new FunctionScoped(*o.funcScoped);
 //		break;
-	case WebssType::BLOCK_ID:
-		blockId = new BlockId(*o.blockId);
-		break;
-	case WebssType::BLOCK_VALUE:
-		block = new Block(*o.block);
-		break;
 	case WebssType::NAMESPACE: case WebssType::ENUM:
 		nspace = new Namespace(*o.nspace);
 		break;
@@ -585,11 +561,8 @@ const FunctionHeadBinary& Webss::getFunctionHeadBinary() const { PATTERN_GET_CON
 const FunctionStandard& Webss::getFunctionStandard() const { PATTERN_GET_CONST(*funcStandard, getFunctionStandard(), WebssType::FUNCTION_STANDARD); }
 const FunctionBinary& Webss::getFunctionBinary() const { PATTERN_GET_CONST(*funcBinary, getFunctionBinary(), WebssType::FUNCTION_BINARY); }
 //const FunctionScoped& Webss::getFunctionScoped() const { PATTERN_GET_CONST(*funcScoped, getFunctionScoped(), WebssType::FUNCTION_SCOPED); }
-const BlockId& Webss::getBlockId() const { PATTERN_GET_CONST(*blockId, getBlockId(), WebssType::BLOCK_ID); }
-const Block& Webss::getBlock() const { PATTERN_GET_CONST(*block, getBlock(), WebssType::BLOCK_VALUE); }
 const Namespace& Webss::getNamespace() const { PATTERN_GET_CONST(*nspace, getNamespace(), WebssType::NAMESPACE); }
 const Enum& Webss::getEnum() const { PATTERN_GET_CONST(*nspace, getEnum(), WebssType::ENUM); }
-const BlockHead& Webss::getBlockHead() const { PATTERN_GET_CONST(*fheadStandard, getBlockHead(), WebssType::BLOCK_HEAD); }
 
 WebssInt Webss::getInt() const
 {
@@ -686,11 +659,8 @@ bool Webss::isString() const { PATTERN_IS(WebssType::PRIMITIVE_STRING, isString(
 bool Webss::isDocument() const { PATTERN_IS(WebssType::DOCUMENT, isDocument()) }
 bool Webss::isFunctionHeadStandard() const { PATTERN_IS(WebssType::FUNCTION_HEAD_STANDARD, isFunctionHeadStandard()) }
 bool Webss::isFunctionHeadBinary() const { PATTERN_IS(WebssType::FUNCTION_HEAD_BINARY, isFunctionHeadBinary()) }
-bool Webss::isBlockId() const { PATTERN_IS(WebssType::BLOCK_ID, isBlockId()) }
-bool Webss::isBlock() const { PATTERN_IS(WebssType::BLOCK_VALUE, isBlock()) }
 bool Webss::isNamespace() const { PATTERN_IS(WebssType::NAMESPACE, isNamespace()) }
 bool Webss::isEnum() const { PATTERN_IS(WebssType::ENUM, isEnum()) }
-bool Webss::isBlockHead() const { PATTERN_IS(WebssType::BLOCK_HEAD, isBlockHead()) }
 
 bool Webss::isDictionary() const
 {
@@ -781,7 +751,6 @@ bool Webss::isConcrete() const
 	case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE: case WebssType::PRIMITIVE_STRING:
 	case WebssType::DICTIONARY: case WebssType::LIST: case WebssType::TUPLE:
 	case WebssType::FUNCTION_STANDARD: case WebssType::FUNCTION_BINARY: case WebssType::FUNCTION_SCOPED:
-	case WebssType::BLOCK_VALUE:
 		return true;
 	case WebssType::VARIABLE:
 		return ent.getContent().isConcrete();

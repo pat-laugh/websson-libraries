@@ -22,8 +22,6 @@ Entity Parser::parseAbstractEntity(It& it)
 	auto name = parseNameSafe(it);
 	switch (*skipJunkToValid(it))
 	{
-	case CHAR_BLOCK:
-		return Entity(move(name), Webss(parseBlockHead(++it), true));
 	case OPEN_DICTIONARY:
 		return Entity(move(name), parseNamespace(++it, name));
 	case OPEN_LIST:

@@ -22,11 +22,6 @@ void Parser::addEntity(string&& name, Webss&& value)
 {
 	ents.add(move(name), move(value));
 }
-void Parser::addBlock(string&& name, WebssInt value)
-{
-	auto nameCopy = name;
-	entsBlockId.add(move(nameCopy), BlockId(move(name), value));
-}
 
 void Parser::parseOption(It& it)
 {

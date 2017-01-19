@@ -102,6 +102,8 @@ namespace webss
 				return list[index];
 			case WebssType::TUPLE:
 				return tuple[index];
+			default:
+				throw logic_error("");
 			}
 		}
 		const Webss& operator[](int index) const
@@ -114,6 +116,8 @@ namespace webss
 				return list[index];
 			case WebssType::TUPLE:
 				return tuple[index];
+			default:
+				throw logic_error("");
 			}
 		}
 		Webss& at(int index)
@@ -126,6 +130,8 @@ namespace webss
 				return list.at(index);
 			case WebssType::TUPLE:
 				return tuple.at(index);
+			default:
+				throw logic_error("");
 			}
 		}
 		const Webss& at(int index) const
@@ -138,6 +144,8 @@ namespace webss
 				return list.at(index);
 			case WebssType::TUPLE:
 				return tuple.at(index);
+			default:
+				throw logic_error("");
 			}
 		}
 
@@ -151,6 +159,8 @@ namespace webss
 				throw std::logic_error(ERROR_LIST_ACCESS_KEY);
 			case WebssType::TUPLE:
 				return tuple[key];
+			default:
+				throw logic_error("");
 			}
 		}
 		const Webss& operator[](const std::string& key) const
@@ -163,6 +173,8 @@ namespace webss
 				throw std::logic_error(ERROR_LIST_ACCESS_KEY);
 			case WebssType::TUPLE:
 				return tuple[key];
+			default:
+				throw logic_error("");
 			}
 		}
 		Webss& at(const std::string& key)
@@ -175,6 +187,8 @@ namespace webss
 				throw std::logic_error(ERROR_LIST_ACCESS_KEY);
 			case WebssType::TUPLE:
 				return tuple.at(key);
+			default:
+				throw logic_error("");
 			}
 		}
 		const Webss& at(const std::string& key) const
@@ -187,6 +201,8 @@ namespace webss
 				throw std::logic_error(ERROR_LIST_ACCESS_KEY);
 			case WebssType::TUPLE:
 				return tuple.at(key);
+			default:
+				throw logic_error("");
 			}
 		}
 	private:
@@ -206,6 +222,8 @@ namespace webss
 			case WebssType::TUPLE:
 				tuple.~BasicTuple();
 				break;
+			default:
+				throw logic_error("");
 			}
 		}
 
@@ -222,6 +240,8 @@ namespace webss
 			case WebssType::TUPLE:
 				new (&tuple) Tuple(std::move(o.tuple));
 				break;
+			default:
+				throw logic_error("");
 			}
 		}
 		void copyUnion(const This& o)
@@ -237,6 +257,8 @@ namespace webss
 			case WebssType::TUPLE:
 				new (&tuple) Tuple(o.tuple);
 				break;
+			default:
+				throw logic_error("");
 			}
 		}
 	};

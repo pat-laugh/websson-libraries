@@ -36,6 +36,6 @@ namespace webss
 	const char ERROR_DEREFERENCED_VARIABLE[] = "dereferenced element must be a entity of type dictionary";
 	const char ERROR_FUNCTION_BODY[] = "expected function body";
 
-	const char ERROR_KEY_NAMESPACE[] = "namespace members must be entities or blocks";
+	const char ERROR_KEY_NAMESPACE[] = "namespace members must be entities";
 	const char ERROR_ADD_KEY_ENUM[] = "enums must have names without values";
 }

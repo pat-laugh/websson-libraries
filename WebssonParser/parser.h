@@ -12,101 +12,6 @@
 
 namespace webss
 {
-	class FunctionHeadSwitch
-	{
-	public:
-		enum class Type { NONE, STANDARD, BINARY, SCOPED };
-		Type t;
-		union
-		{
-			FunctionHeadStandard fheadStandard;
-			FunctionHeadBinary fheadBinary;
-		};
-
-//		FunctionHeadSwitch() : t(Type::NONE) {}
-
-		FunctionHeadSwitch(FunctionHeadSwitch&& o) { copyUnion(std::move(o)); }
-
-		FunctionHeadSwitch(FunctionHeadStandard&& fhead) : t(Type::STANDARD), fheadStandard(std::move(fhead)) {}
-		FunctionHeadSwitch(FunctionHeadBinary&& fhead) : t(Type::BINARY), fheadBinary(std::move(fhead)) {}
-/*		FunctionHeadSwitch(const FunctionHeadStandard& fhead) : t(Type::STANDARD), fheadStandard(fhead) {}
-		FunctionHeadSwitch(const FunctionHeadBinary& fhead) : t(Type::BINARY), fheadBinary(fhead) {}*/
-
-		FunctionHeadSwitch& operator=(FunctionHeadSwitch&& o)
-		{
-			if (this != &o)
-			{
-				destroyUnion();
-				copyUnion(std::move(o));
-			}
-			return *this;
-		}
-/*		FunctionHeadSwitch& operator=(const FunctionHeadSwitch& o)
-		{
-			if (this != &o)
-			{
-				destroyUnion();
-				copyUnion(o);
-			}
-			return *this;
-		}*/
-
-		~FunctionHeadSwitch()
-		{
-			destroyUnion();
-		}
-
-		bool isStandard() { return t == Type::STANDARD; }
-		bool isBinary() { return t == Type::BINARY; }
-	private:
-		void destroyUnion()
-		{
-			switch (t)
-			{
-			case Type::STANDARD:
-				fheadStandard.~BasicFunctionHead();
-				break;
-			case Type::BINARY:
-				fheadBinary.~BasicFunctionHead();
-				break;
-			default:
-				break;
-			}
-		}
-		void copyUnion(FunctionHeadSwitch&& o)
-		{
-			switch ((t = o.t))
-			{
-			case Type::NONE:
-				break;
-			case Type::STANDARD:
-				fheadStandard = std::move(o.fheadStandard);
-				break;
-			case Type::BINARY:
-				fheadBinary = std::move(o.fheadBinary);
-				break;
-			default:
-				throw std::logic_error("");
-			}
-		}
-/*		void copyUnion(const FunctionHeadSwitch& o)
-		{
-			switch ((t = o.t))
-			{
-			case Type::NONE:
-				break;
-			case Type::STANDARD:
-				fheadStandard = o.fheadStandard;
-				break;
-			case Type::BINARY:
-				fheadBinary = o.fheadBinary;
-				break;
-			default:
-				throw std::logic_error("");
-			}
-		}*/
-	};
-
 	class Parser
 	{
 	public:
@@ -122,12 +27,77 @@ namespace webss
 
 		void setLanguage(Language lang);
 		void addEntity(std::string&& name, Webss&& value);
-		void addBlock(std::string&& name, WebssInt value);
 	protected:
 		Language language;
 		char separator;
 		bool lineGreed = false;
 		bool isVoid;
+
+		class FunctionHeadSwitch
+		{
+		public:
+			enum class Type { NONE, STANDARD, BINARY, SCOPED };
+			Type t;
+			union
+			{
+				FunctionHeadStandard fheadStandard;
+				FunctionHeadBinary fheadBinary;
+			};
+
+			FunctionHeadSwitch(FunctionHeadSwitch&& o) { copyUnion(std::move(o)); }
+
+			FunctionHeadSwitch(FunctionHeadStandard&& fhead) : t(Type::STANDARD), fheadStandard(std::move(fhead)) {}
+			FunctionHeadSwitch(FunctionHeadBinary&& fhead) : t(Type::BINARY), fheadBinary(std::move(fhead)) {}
+
+			FunctionHeadSwitch& operator=(FunctionHeadSwitch&& o)
+			{
+				if (this != &o)
+				{
+					destroyUnion();
+					copyUnion(std::move(o));
+				}
+				return *this;
+			}
+
+			~FunctionHeadSwitch()
+			{
+				destroyUnion();
+			}
+
+			bool isStandard() { return t == Type::STANDARD; }
+			bool isBinary() { return t == Type::BINARY; }
+		private:
+			void destroyUnion()
+			{
+				switch (t)
+				{
+				case Type::STANDARD:
+					fheadStandard.~BasicFunctionHead();
+					break;
+				case Type::BINARY:
+					fheadBinary.~BasicFunctionHead();
+					break;
+				default:
+					break;
+				}
+			}
+			void copyUnion(FunctionHeadSwitch&& o)
+			{
+				switch ((t = o.t))
+				{
+				case Type::NONE:
+					break;
+				case Type::STANDARD:
+					fheadStandard = std::move(o.fheadStandard);
+					break;
+				case Type::BINARY:
+					fheadBinary = std::move(o.fheadBinary);
+					break;
+				default:
+					throw std::logic_error("");
+				}
+			}
+		};
 
 		class OtherValue
 		{
@@ -160,8 +130,6 @@ namespace webss
 			Entity entity;
 		};
 
-		BasicEntityManager<BlockId> entsBlockId;
-
 		BasicEntityManager<FunctionHeadStandard> entsFheadStandard;
 		BasicEntityManager<FunctionHeadBinary> entsFheadBinary;
 		BasicEntityManager<WebssBinarySize> entsTypeBinarySize;
@@ -181,6 +149,7 @@ namespace webss
 		Webss parseContainerText(It& it);
 
 		void parseImport(It& it);
+
 
 		//parserKeyValues.cpp
 		Parser::NameType parseNameType(It& it);
@@ -215,7 +184,6 @@ namespace webss
 		void checkFheadVoid(It& it);
 		FunctionHeadStandard parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead);
 		FunctionHeadBinary parseFunctionHeadBinary(It & it, FunctionHeadBinary&& fhead);
-		BlockHead parseBlockHead(It& it);
 		void parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead);
 		void parseStandardParameterFunctionHeadText(It& it, FunctionHeadStandard& fhead);
 		void parseOtherValuesFheadStandardParam(It& it, FunctionHeadStandard& fhead);

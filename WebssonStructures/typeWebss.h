@@ -14,14 +14,14 @@ namespace webss
 			DICTIONARY, LIST, TUPLE,
 			FUNCTION_HEAD, FUNCTION_HEAD_STANDARD, FUNCTION_HEAD_BINARY, FUNCTION_HEAD_SCOPED,
 			FUNCTION_STANDARD, FUNCTION_BINARY, FUNCTION_SCOPED,
-			DOCUMENT, BLOCK_VALUE, BLOCK_ID, NAMESPACE, ENUM, BLOCK_HEAD
+			DOCUMENT, NAMESPACE, ENUM
 		};
 		static const Enum NONE = Enum::NONE, VARIABLE = Enum::VARIABLE, DEFAULT = Enum::DEFAULT,
 			PRIMITIVE_NULL = Enum::PRIMITIVE_NULL, PRIMITIVE_BOOL = Enum::PRIMITIVE_BOOL, PRIMITIVE_INT = Enum::PRIMITIVE_INT, PRIMITIVE_DOUBLE = Enum::PRIMITIVE_DOUBLE, PRIMITIVE_STRING = Enum::PRIMITIVE_STRING,
 			DICTIONARY = Enum::DICTIONARY, LIST = Enum::LIST, TUPLE = Enum::TUPLE,
 			FUNCTION_HEAD = Enum::FUNCTION_HEAD, FUNCTION_HEAD_STANDARD = Enum::FUNCTION_HEAD_STANDARD, FUNCTION_HEAD_BINARY = Enum::FUNCTION_HEAD_BINARY, FUNCTION_HEAD_SCOPED = Enum::FUNCTION_HEAD_SCOPED,
 			FUNCTION_STANDARD = Enum::FUNCTION_STANDARD, FUNCTION_BINARY = Enum::FUNCTION_BINARY, FUNCTION_SCOPED = Enum::FUNCTION_SCOPED,
-			DOCUMENT = Enum::DOCUMENT, BLOCK_VALUE = Enum::BLOCK_VALUE, BLOCK_ID = Enum::BLOCK_ID, NAMESPACE = Enum::NAMESPACE, ENUM = Enum::ENUM, BLOCK_HEAD = Enum::BLOCK_HEAD;
+			DOCUMENT = Enum::DOCUMENT, NAMESPACE = Enum::NAMESPACE, ENUM = Enum::ENUM;
 
 		constexpr WebssType() : e(Enum::NONE) {}
 		constexpr WebssType(Enum e) : e(e) {}
@@ -77,16 +77,10 @@ namespace webss
 				return "function scoped";
 			case WebssType::DOCUMENT:
 				return "document";
-			case WebssType::BLOCK_ID:
-				return "block id";
-			case WebssType::BLOCK_VALUE:
-				return "block value";
 			case WebssType::NAMESPACE:
 				return "namespace";
 			case WebssType::ENUM:
 				return "enum";
-			case WebssType::BLOCK_HEAD:
-				return "block head";
 			default:
 				return "unknown";
 			}

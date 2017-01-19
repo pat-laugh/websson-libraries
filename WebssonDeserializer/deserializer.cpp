@@ -98,9 +98,6 @@ void webss::putWebss(StringBuilder& out, const Webss& webss)
 	case WebssType::FUNCTION_HEAD_BINARY:
 		putFheadBinary(out, *webss.fheadBinary);
 		break;
-	case WebssType::BLOCK_VALUE:
-		putBlock(out, *webss.block);
-		break;
 	case WebssType::VARIABLE:
 		out += webss.ent.getName();
 		break;
@@ -133,9 +130,6 @@ void webss::putKeyValue(StringBuilder& out, const string& key, const Webss& valu
 	case WebssType::PRIMITIVE_STRING:
 		out += key + CHAR_COLON;
 		putString(out, *value.tString, stringCon);
-		break;
-	case WebssType::BLOCK_ID:
-		out += key + OPEN_TUPLE + (value.getBlockId().hasEntity() ? value.getBlockId().getEntName() : to_string(value.getBlockId().getIndex()));
 		break;
 	default:
 		out += key;
@@ -289,12 +283,6 @@ void webss::putDocument(StringBuilder& out, const Document& doc)
 	auto keyValues = doc.getOrderedKeyValues();
 	auto it = keyValues.begin();
 	putSeparatedValues(out, [&]() { return ++it != keyValues.end(); }, [&]() { it->first == nullptr ? putValueOnly(out, *it->second, ConType::DOCUMENT) : putKeyValue(out, *it->first, *it->second, ConType::DOCUMENT); });
-}
-
-void webss::putBlock(StringBuilder& out, const Block& block)
-{
-	out += block.getName();
-	putWebss(out, block.getValue());
 }
 
 void webss::putNamespace(StringBuilder& out, const Namespace& nspace)

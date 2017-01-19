@@ -70,16 +70,14 @@ void Parser::addJsonKeyvalue(It& it, Dictionary& dict)
 {
 	try
 	{
-		auto nameType = parseNameType(skipJunkToValidCondition(it, [&]() { return isNameStart(*it); }));
-		if (nameType.type != NameType::NAME && it != CHAR_CSTRING)
-			throw runtime_error("invalid key name in supposed Json key-value");
-
+		auto name = parseNameSafe(skipJunkToValidCondition(it, [&]() { return isNameStart(*it); }));
+		skipJunkToValidCondition(it, [&]() { return *it == CHAR_CSTRING; });
 		skipJunkToValidCondition(++it, [&]() { return *it == CHAR_COLON; });
-		dict.addSafe(move(nameType.name), parseValueEqual(++it, ConType::DICTIONARY));
+		dict.addSafe(move(name), parseValueEqual(++it, ConType::DICTIONARY));
 	}
 	catch (exception e)
 	{
-		throw runtime_error(string("while parsing supposed Json key-value, ") + e.what());
+		throw runtime_error("could not parse supposed Json key-value");
 	}
 }
 
@@ -142,16 +140,14 @@ Parser::OtherValue Parser::checkOtherValueEntity(It& it, ConType con, const Enti
 	
 	switch (content.getType())
 	{
-	case WebssType::BLOCK_HEAD:
-		//...
 	case WebssType::FUNCTION_HEAD_BINARY:
-		PatternLineGreed(*it == OPEN_TUPLE, return{ parseFunctionBodyBinary(it, content.getFunctionHeadBinary().getParameters()) }, break)
+		PatternLineGreed(*it == OPEN_TUPLE, return{ Webss(FunctionHeadBinary(checkEntFheadBinary(ent)), parseFunctionBodyBinary(it, content.getFunctionHeadBinary().getParameters())) }, break)
 	case WebssType::FUNCTION_HEAD_SCOPED:
 		//...
 	case WebssType::FUNCTION_HEAD_STANDARD:
-		PatternLineGreed(*it == OPEN_TUPLE, return{ parseFunctionBodyStandard(it, content.getFunctionHeadStandard().getParameters()) }, break)
+		PatternLineGreed(*it == OPEN_TUPLE, return{ Webss(FunctionHeadStandard(checkEntFheadStandard(ent)), parseFunctionBodyStandard(it, content.getFunctionHeadStandard().getParameters())) }, break)
 	default:
-		break;
+		throw logic_error("");
 	}
 	return{ ent };
 }

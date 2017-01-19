@@ -3,7 +3,6 @@
 #pragma once
 
 #include "function.h"
-#include "block.h"
 #include "namespace.h"
 #include "paramStandard.h"
 #include "document.h"
@@ -23,8 +22,6 @@ namespace webss
 	using FunctionStandard = BasicFunction<FunctionHeadStandard, Webss>;
 	using FunctionBinary = BasicFunction<FunctionHeadBinary, Webss>;
 //	using FunctionScoped = BasicFunctionScoped<Webss>;
-	using BlockHead = FunctionHeadStandard;
-	using Block = BasicBlock<Webss>;
 	using Entity = BasicEntity<Webss>;
 	using Namespace = BasicNamespace<Webss>;
 	using Enum = Namespace;
@@ -61,11 +58,8 @@ namespace webss
 		Webss(FunctionStandard&& funcStandard);
 		Webss(FunctionBinary&& funcBinary);
 //		Webss(FunctionScoped&& funcScoped);
-		Webss(BlockId&& blockId);
-		Webss(Block&& block);
 		Webss(Namespace&& nspace);
 		Webss(Enum&& tEnum, bool dummy);
-		Webss(BlockHead&& blockHead, bool dummy);
 
 		Webss(const std::string& s);
 		Webss(const Document& document);
@@ -77,11 +71,8 @@ namespace webss
 		Webss(const FunctionStandard& funcStandard);
 		Webss(const FunctionBinary& funcBinary);
 //		Webss(const FunctionScoped& funcScoped);
-		Webss(const BlockId& blockId);
-		Webss(const Block& block);
 		Webss(const Namespace& nspace);
 		Webss(const Enum& tEnum, bool dummy);
-		Webss(const BlockHead& blockHead, bool dummy);
 
 		Webss(FunctionHeadBinary&& head, Webss&& body);
 		Webss(FunctionHeadStandard&& head, Webss&& body);
@@ -123,11 +114,8 @@ namespace webss
 		const FunctionStandard& getFunctionStandard() const;
 		const FunctionBinary& getFunctionBinary() const;
 //		const FunctionScoped& getFunctionScoped() const;
-		const BlockId& getBlockId() const;
-		const Block& getBlock() const;
 		const Namespace& getNamespace() const;
 		const Enum& getEnum() const;
-		const BlockHead& getBlockHead() const;
 
 		bool isNone() const;
 		bool isNull() const;
@@ -142,11 +130,8 @@ namespace webss
 		bool isFunctionHead() const;
 		bool isFunctionHeadStandard() const;
 		bool isFunctionHeadBinary() const;
-		bool isBlockId() const;
-		bool isBlock() const;
 		bool isNamespace() const;
 		bool isEnum() const;
-		bool isBlockHead() const;
 
 		bool isConcrete() const;
 
@@ -168,8 +153,6 @@ namespace webss
 			FunctionStandard* funcStandard;
 			FunctionBinary* funcBinary;
 //			FunctionScoped* funcScoped;
-			BlockId* blockId;
-			Block* block;
 			Namespace* nspace;
 			BasicEntity<Webss> ent;
 			Default tDefault;

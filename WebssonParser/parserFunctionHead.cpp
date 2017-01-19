@@ -16,7 +16,7 @@ const ConType CON = ConType::FUNCTION_HEAD;
 #define THROW_ERROR_TEXT_FUNCTION_HEAD throw runtime_error(ERROR_TEXT_FUNCTION_HEAD)
 #define THROW_ERROR_BINARY_FUNCTION throw runtime_error(ERROR_BINARY_FUNCTION)
 
-FunctionHeadSwitch Parser::parseFunctionHead(It& it)
+Parser::FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 {
 	if (checkEmptyContainer(it, CON))
 		throw runtime_error(ERROR_EMPTY_FUNCTION_HEAD);
@@ -103,46 +103,6 @@ FunctionHeadStandard Parser::parseFunctionHeadText(It& it)
 		parseOtherValuesFheadText(it, fhead);
 	while (checkNextElementContainer(it, CON));
 	return fhead;
-}
-
-//similar to both standard fheads, but allows empty head
-BlockHead Parser::parseBlockHead(It& it)
-{
-	switch (*skipJunkToValid(it))
-	{
-	case OPEN_FUNCTION: //regular
-	{
-		++it;
-		BlockHead fhead;
-		if (checkEmptyContainer(it, CON))
-			return fhead;
-		do
-			if (*it == OPEN_FUNCTION)
-				parseStandardParameterFunctionHead(it, fhead);
-			else if (*it == CHAR_COLON)
-				parseStandardParameterFunctionHeadText(it, fhead);
-			else
-				parseOtherValuesFheadStandard(it, fhead);
-		while (checkNextElementContainer(it, CON));
-		return fhead;
-	}
-	case CHAR_COLON: //text
-	{
-		if (++it != CHAR_COLON || skipJunk(++it) != OPEN_FUNCTION)
-			throw runtime_error("expected text function head");
-
-		++it;
-		BlockHead fhead;
-		if (checkEmptyContainer(it, CON))
-			return fhead;
-		do
-			parseOtherValuesFheadText(it, fhead);
-		while (checkNextElementContainer(it, CON));
-		return fhead;
-	}
-	default:
-		throw runtime_error(ERROR_UNEXPECTED);
-	}
 }
 
 FunctionHeadBinary Parser::parseFunctionHeadBinary(It& it, FunctionHeadBinary&& fhead)

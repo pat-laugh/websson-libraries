@@ -18,9 +18,7 @@ public:
 	static webss::Parser getParser()
 	{
 		webss::Parser parser;
-		parser.addBlock("optional", OPTIONAL);
-		parser.addBlock("loop", LOOP);
-		parser.addBlock("switch", SWITCH);
+		parser.parse("!optional+(),!loop+(),!switch+()");
 		return parser;
 	}
 private:
@@ -36,7 +34,6 @@ private:
 	std::string deserializeStuff(const webss::Webss& webss);
 	std::string deserializeString(const std::string& s);
 	std::string deserializeTuple(const webss::Tuple& tuple);
-	std::string deserializeBlock(const webss::Block& block);
 	std::string deserializeList(const webss::List& list);
 	std::string getSeparatedValues(std::function<bool()> condition, std::function<std::string()> output);
 

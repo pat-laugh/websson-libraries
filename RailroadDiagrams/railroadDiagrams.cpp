@@ -15,8 +15,8 @@ string Deserializer::deserializeStuff(const Webss& webss)
 		return deserializeString(webss.getString());
 	case WebssType::TUPLE:
 		return deserializeTuple(webss.getTuple());
-	case WebssType::BLOCK_VALUE:
-		return deserializeBlock(webss.getBlock());
+//	case WebssType::BLOCK:
+//		return deserializeBlock(webss.getBlock());
 	case WebssType::LIST:
 		return deserializeList(webss.getList());
 	default:
@@ -177,7 +177,7 @@ string Deserializer::deserializeSwitch(const Webss& value)
 	else
 		throw runtime_error(ERROR_SWITCH);
 }
-
+/*
 string Deserializer::deserializeBlock(const Block& block)
 {
 	switch (block.getIndex())
@@ -191,7 +191,7 @@ string Deserializer::deserializeBlock(const Block& block)
 	default:
 		throw runtime_error("invalid keyword:" + block.getName());
 	}
-}
+}*/
 
 string Deserializer::deserializeList(const List& list)
 {

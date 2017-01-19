@@ -30,7 +30,6 @@ namespace webss
 	void putList(StringBuilder& out, const List& list);
 	void putTuple(StringBuilder& out, const Tuple& tuple);
 	void putDocument(StringBuilder& out, const Document& doc);
-	void putBlock(StringBuilder& out, const Block& block);
 
 	void putNamespace(StringBuilder& out, const Namespace& nspace);
 
