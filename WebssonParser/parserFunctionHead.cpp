@@ -91,7 +91,7 @@ FunctionHeadStandard Parser::parseFunctionHeadText(It& it)
 {
 	FunctionHeadStandard fhead(true);
 	if (checkEmptyContainer(it, CON))
-		throw runtime_error(ERROR_EMPTY_FUNCTION_HEAD);
+		throw runtime_error("text function head can't be empty");
 	do
 		parseOtherValuesFheadText(it, fhead);
 	while (checkNextElementContainer(it, CON));

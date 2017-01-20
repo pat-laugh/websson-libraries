@@ -8,7 +8,6 @@ namespace webss
 {
 	const char ERROR_EXPECTED[] = "expected character";
 	const char ERROR_UNDEFINED[] = "undefined behavior";
-	const char ERROR_VALUE[] = "unexpected value";
 	const char ERROR_BINARY_SIZE_HEAD[] = "size of binary head must be a positive integer, binary function head or equivalent entity";
 	const char ERROR_BINARY_SIZE_LIST[] = "size of binary list must be a positive integer or equivalent entity";
 
@@ -28,12 +27,7 @@ namespace webss
 #define webss_ERROR_ENTITY_EXISTS(name) ERROR_ENTITY_EXISTSs1 + name
 
 	const char ERROR_EXPECTED_NUMBER[] = "expected number";
-	const char ERROR_KEYWORD_KEY[] = "can't have keyword as key";
-	const char ERROR_EMPTY_FUNCTION_HEAD[] = "function head can't be empty";
 	const char ERROR_ANONYMOUS_KEY[] = "can't have anonymous key in dictionary, function head or enum";
-	const char ERROR_CONTAINER_NOT_CLOSED[] = "container is not closed";
-	const char ERROR_NO_DEFAULT[] = "no default value, so value must be implemented";
-	const char ERROR_FUNCTION_BODY[] = "expected function body";
 
 	const char ERROR_KEY_NAMESPACE[] = "namespace members must be entities";
 	const char ERROR_ADD_KEY_ENUM[] = "enums must have names without values";

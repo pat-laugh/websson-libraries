@@ -94,7 +94,7 @@ Webss Parser::parseValueEqual(It& it, ConType con)
 		if (other.type == OtherValue::Type::VALUE_ONLY)
 			return move(other.value);
 	}
-	throw runtime_error(ERROR_VALUE);
+	throw runtime_error("expected value-only not starting with an equal sign");
 }
 
 bool isKeyChar(char c)
