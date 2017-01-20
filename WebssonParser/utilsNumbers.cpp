@@ -62,7 +62,7 @@ double webss::addNumberMagnitude(SmartIterator& it, double num, NumberMagnitude 
 bool webss::checkNumberStart(SmartIterator& it)
 {
 	bool negative = *it == '-';
-	if ((*it == '-' || *it == '+') && (!skipLineJunk(++it) || !isDigit(*it)))
+	if ((negative || *it == '+') && (!skipLineJunk(++it) || !isDigit(*it)))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
 	return negative;
 }
