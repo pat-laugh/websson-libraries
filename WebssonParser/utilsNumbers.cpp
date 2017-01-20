@@ -8,28 +8,28 @@
 using namespace std;
 using namespace webss;
 
-#define FUNCTIONS_BIN [&]() { return isDigitBin(*it); }, [&]() { return binToInt(*it); }
-#define FUNCTIONS_DEC [&]() { return isDigit(*it); }, [&]() { return charToInt(*it); }
-#define FUNCTIONS_HEX [&]() { return isDigitHex(*it); }, [&]() { return hexToInt(*it); }
+#define FUNCTIONS_BIN isDigitBin(c), binToInt(c)
+#define FUNCTIONS_DEC isDigit(c), charToInt(c)
+#define FUNCTIONS_HEX isDigitHex(c), hexToInt(c)
 
-WebssInt getNumber(SmartIterator& it, NumberMagnitude mag, function<bool()> func1, function<int()> func2)
+WebssInt getNumber(SmartIterator& it, NumberMagnitude mag, bool(*isDigit)(char c), int(*charToInt)(char c))
 {
-	WebssInt number = func2();
-	while (skipLineJunk(++it) && func1())
-		number = number * mag + func2();
+	WebssInt number = charToInt(*it);
+	while (skipLineJunk(++it) && isDigit(*it))
+		number = number * mag + charToInt(*it);
 	return number;
 }
 
-double checkDecimals(SmartIterator& it, NumberMagnitude mag, function<bool()> func1, function<int()> func2)
+double checkDecimals(SmartIterator& it, NumberMagnitude mag, bool(*isDigit)(char c), int(*charToInt)(char c))
 {
 	double numDouble = 0;
 	int decimalMultiplier = 1;
-	if (!func1())
+	if (!isDigit(*it))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
 
 	do
-		numDouble += (double)func2() / (decimalMultiplier *= mag);
-	while (skipLineJunk(++it) && func1());
+		numDouble += (double)charToInt(*it) / (decimalMultiplier *= mag);
+	while (skipLineJunk(++it) && isDigit(*it));
 	return numDouble;
 }
 
