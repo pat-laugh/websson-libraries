@@ -284,3 +284,125 @@ Tuple Parser::parseFunctionTupleText(It& it, const FunctionHeadStandard::Tuple& 
 	checkDefaultValues(tuple, params);
 	return tuple;
 }
+
+
+
+
+
+Webss Parser::parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tuple& params)
+{
+	return parseFunctionBody<FunctionHeadStandard::Tuple>(it, params, parseFunctionTupleStandard, parseFunctionTupleText);
+}
+
+Webss Parser::parseFunctionBodyText(It& it, const FunctionHeadStandard::Tuple& params)
+{
+	return parseFunctionBody<FunctionHeadStandard::Tuple>(it, params, parseFunctionTupleText, parseFunctionTupleText);
+}
+
+Webss Parser::parseFunctionBodyBinary(It& it, const FunctionHeadStandard::Tuple& params)
+{
+	return parseFunctionBody<FunctionHeadBinary::Tuple>(it, params, parseFunctionTupleBinary, [](It& it, const FunctionHeadStandard::Tuple& params) { throw runtime_error(ERROR_UNEXPECTED); });
+}
+
+template <class Parameters>
+Webss Parser::parseFunctionBody(It& it, const Parameters& params,
+	Tuple(*funcTupleRegular)(It& it, const Parameters& params),
+	Tuple(*funcTupleText)(It& it, const Parameters& params))
+{
+	switch (skipJunkToContainer(it))
+	{
+	case TypeContainer::DICTIONARY:
+		return parseFunctionBodyDictionaryRegular<Parameters>(++it, params, funcTupleRegular, funcTupleText);
+	case TypeContainer::LIST:
+		return parseFunctionListRegular<Parameters>(++it, params, funcTupleRegular, funcTupleText);
+	case TypeContainer::TUPLE:
+		return funcTupleRegular(++it, params);
+	case TypeContainer::TEXT_LIST:
+		return parseFunctionListText<Parameters>(++it, params, funcTupleText);
+	case TypeContainer::TEXT_TUPLE:
+		return funcTupleText(++it, params);
+	default:
+		throw runtime_error(ERROR_UNEXPECTED);
+	}
+}
+
+template <class Parameters>
+Dictionary Parser::parseFunctionBodyDictionaryRegular(It& it, const Parameters& params,
+	Tuple(*funcTupleRegular)(It& it, const Parameters& params),
+	Tuple(*funcTupleText)(It& it, const Parameters& params))
+{
+	static const ConType CON = ConType::DICTIONARY;
+	Dictionary dict;
+	if (checkEmptyContainer(it, CON))
+		return dict;
+	do
+	{
+		if (!isNameStart(*it))
+			throw runtime_error(ERROR_UNEXPECTED);
+		auto name = parseNameSafe(it);
+		switch (skipJunkToContainer(it))
+		{
+		case TypeContainer::LIST:
+			dict.addSafe(move(name), parseFunctionListRegular<Parameters>(++it, params, funcTupleRegular, funcTupleText));
+			break;
+		case TypeContainer::TUPLE:
+			dict.addSafe(move(name), funcTupleRegular(++it, params));
+			break;
+		case TypeContainer::TEXT_LIST:
+			dict.addSafe(move(name), parseFunctionListText<Parameters>(++it, params, funcTupleText));
+			break;
+		case TypeContainer::TEXT_TUPLE:
+			dict.addSafe(move(name), funcTupleText(++it, params));
+			break;
+		default:
+			throw runtime_error(ERROR_UNEXPECTED);
+		}
+	} while (checkNextElementContainer(it, CON));
+	return dict;
+}
+
+template <class Parameters>
+List Parser::parseFunctionListStandard(It& it, const Parameters& params,
+	Tuple(*funcTupleRegular)(It& it, const Parameters& params),
+	Tuple(*funcTupleText)(It& it, const Parameters& params))
+{
+	static const ConType CON = ConType::LIST;
+	List list;
+	if (checkEmptyContainer(it, CON))
+		return list;
+	do
+		switch (skipJunkToContainer(it))
+		{
+		case TypeContainer::TUPLE:
+			list.add(funcTupleRegular(++it, params));
+			break;
+		case TypeContainer::TEXT_TUPLE:
+			list.add(funcTupleText(++it, params));
+			break;
+		default:
+			throw runtime_error(ERROR_UNEXPECTED);
+		}
+	while (checkNextElementContainer(it, CON)); //make it so separators are not required (no need to clean line)
+	return list;
+}
+
+template <class Parameters>
+List Parser::parseFunctionListText(It& it, const Parameters& params,
+	Tuple(*funcTupleText)(It& it, const Parameters& params))
+{
+	static const ConType CON = ConType::LIST;
+	List list;
+	if (checkEmptyContainer(it, CON))
+		return list;
+	do
+		switch (skipJunkToContainer(it))
+		{
+		case TypeContainer::TUPLE: case TypeContainer::TEXT_TUPLE:
+			list.add(funcTupleText(++it, params));
+			break;
+		default:
+			throw runtime_error(ERROR_UNEXPECTED);
+		}
+	while (checkNextElementContainer(it, CON)); //make it so separators are not required (no need to clean line)
+	return list;
+}
