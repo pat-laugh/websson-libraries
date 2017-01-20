@@ -129,13 +129,15 @@ private:
 		using Type = ParamStandard::TypeFhead;
 		switch (defaultValue.getTypeFhead())
 		{
+		case Type::BINARY:
+			return parseFunctionBodyBinary(it, defaultValue.getFunctionHeadBinary().getParameters());
+		//case Type::SCOPED:
+			//...
 		case Type::STANDARD:
 		{
 			const auto& params = defaultValue.getFunctionHeadStandard().getParameters();
 			return params.containerText ? parseFunctionBodyText(it, params) : parseFunctionBodyStandard(it, params);
 		}
-		case Type::BINARY:
-			return parseFunctionBodyBinary(it, defaultValue.getFunctionHeadBinary().getParameters());
 		default:
 			return parseValueEqual(it, CON);
 		}
@@ -254,12 +256,14 @@ private:
 	}
 };
 
-Webss Parser::parseFunction(It& it)
+Webss Parser::parseFunction(It& it, ConType con)
 {
 	using Type = FunctionHeadSwitch::Type;
 	auto headSwitch = parseFunctionHead(it);
 	switch (headSwitch.t)
 	{
+	case Type::BLOCK:
+		return Block(move(headSwitch.blockHead), parseValueEqual(it, con));
 	case Type::BINARY:
 	{
 		auto head = move(headSwitch.fheadBinary);

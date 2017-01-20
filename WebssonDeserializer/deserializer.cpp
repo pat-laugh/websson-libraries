@@ -59,7 +59,7 @@ string webss::deserializeAll(const Document& doc, const EntityManager& ents)
 	return out;
 }
 
-void webss::putWebss(StringBuilder& out, const Webss& webss)
+void webss::putWebss(StringBuilder& out, const Webss& webss, ConType con)
 {
 	switch (webss.t)
 	{
@@ -76,6 +76,9 @@ void webss::putWebss(StringBuilder& out, const Webss& webss)
 		break;
 	case WebssType::PRIMITIVE_DOUBLE:
 		out += to_string(webss.tDouble);
+		break;
+	case WebssType::PRIMITIVE_STRING:
+		putLineString(out, *webss.tString, con);
 		break;
 	case WebssType::DICTIONARY:
 		putDictionary(out, *webss.dict);
@@ -98,7 +101,7 @@ void webss::putWebss(StringBuilder& out, const Webss& webss)
 	case WebssType::FUNCTION_HEAD_BINARY:
 		putFheadBinary(out, *webss.fheadBinary);
 		break;
-	case WebssType::VARIABLE:
+	case WebssType::ENTITY:
 		out += webss.ent.getName();
 		break;
 	case WebssType::NAMESPACE:
@@ -107,47 +110,43 @@ void webss::putWebss(StringBuilder& out, const Webss& webss)
 	case WebssType::ENUM:
 		putEnum(out, *webss.nspace);
 		break;
-	case WebssType::PRIMITIVE_STRING: //type of string should be checked before calling function
-		throw domain_error("can't deserialize string without its container's type");
+	case WebssType::BLOCK_HEAD:
+		putBlockHead(out, *webss.blockHead);
+		break;
+	case WebssType::BLOCK:
+		putBlock(out, *webss.block, con);
+		break;
+//	case WebssType::PRIMITIVE_STRING: //type of string should be checked before calling function
+//		throw domain_error("can't deserialize string without its container's type");
 	default:
 		throw domain_error("can't deserialize " + webss.t.toString());
 	}
 }
 
-void webss::putKeyValue(StringBuilder& out, const string& key, const Webss& value, ConType stringCon)
+void webss::putKeyValue(StringBuilder& out, const string& key, const Webss& value, ConType con)
 {
 	switch (value.t)
 	{
 	case WebssType::DEFAULT:
 		throw domain_error("can't deserialize " + value.t.toString() + " with key");
-	case WebssType::VARIABLE:
+	case WebssType::ENTITY:
 		out += key + CHAR_EQUAL + value.ent.getName();
 		break;
 	case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
 		out += key + CHAR_EQUAL;
-		putWebss(out, value);
-		break;
-	case WebssType::PRIMITIVE_STRING:
-		out += key + CHAR_COLON;
-		putString(out, *value.tString, stringCon);
+		putWebss(out, value, con);
 		break;
 	default:
 		out += key;
-		putWebss(out, value);
+		putWebss(out, value, con);
 		break;
 	}
 }
 
 
-void webss::putValueOnly(StringBuilder& out, const Webss& value, ConType stringCon)
+void webss::putValueOnly(StringBuilder& out, const Webss& value, ConType con)
 {
-	if (value.t != WebssType::PRIMITIVE_STRING)
-		putWebss(out, value);
-	else
-	{
-		out += ':';
-		putString(out, *value.tString, stringCon);
-	}
+	putWebss(out, value, con);
 }
 
 
@@ -159,6 +158,12 @@ void webss::putSeparatedValues(StringBuilder& out, function<bool()> condition, f
 		out += CHAR_SEPARATOR;
 		output();
 	}
+}
+
+void webss::putLineString(StringBuilder& out, const string& str, ConType con)
+{
+	out += CHAR_COLON;
+	putString(out, str, con);
 }
 
 void webss::putString(StringBuilder& out, const string& str, ConType con)
@@ -234,16 +239,7 @@ void webss::putList(StringBuilder& out, const List& list)
 	}
 	auto it = list.begin();
 	out += OPEN_LIST;
-	putSeparatedValues(out, [&]() { return ++it != list.end(); }, [&]()
-	{
-		if (it->t != WebssType::PRIMITIVE_STRING)
-			putWebss(out, *it);
-		else
-		{
-			out += ':';
-			putString(out, *it->tString, ConType::LIST);
-		}
-	});
+	putSeparatedValues(out, [&]() { return ++it != list.end(); }, [&]() { putWebss(out, *it, ConType::LIST); });
 	out += CLOSE_LIST;
 }
 
@@ -299,8 +295,7 @@ void webss::putNamespace(StringBuilder& out, const Namespace& nspace)
 	{
 		const auto& content = it->getContent();
 		out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
-		out += it->getName();
-		putWebss(out, content);
+		putKeyValue(out, it->getName(), content, ConType::DICTIONARY);
 	});
 	out += CLOSE_DICTIONARY;
 }
@@ -325,4 +320,23 @@ void webss::putEnum(StringBuilder& out, const Enum& tEnum)
 		out += **it;
 	});
 	out += CLOSE_LIST;
+}
+
+void webss::putBlockHead(StringBuilder& out, const BlockHead& blockHead)
+{
+	if (blockHead.hasEntity())
+		out += OPEN_FUNCTION + blockHead.getEntName() + CLOSE_FUNCTION;
+	else
+		out += EMPTY_FUNCTION;
+}
+
+void webss::putBlock(StringBuilder& out, const Block& block, ConType con)
+{
+	if (block.hasEntity())
+		putKeyValue(out, block.getEntName(), block.getValue(), con);
+	else
+	{
+		out += EMPTY_FUNCTION;
+		putWebss(out, block.getValue(), con);
+	}
 }

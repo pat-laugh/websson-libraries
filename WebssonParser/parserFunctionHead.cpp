@@ -19,7 +19,7 @@ const ConType CON = ConType::FUNCTION_HEAD;
 Parser::FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 {
 	if (checkEmptyContainer(it, CON))
-		throw runtime_error(ERROR_EMPTY_FUNCTION_HEAD);
+		return BlockHead();
 
 	switch (*it)
 	{
@@ -52,13 +52,17 @@ Parser::FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 	case OtherValue::Type::ABSTRACT_ENTITY:
 		switch (other.abstractEntity.getContent().getType())
 		{
+		case WebssType::BLOCK_HEAD:
+			if (!isEnd)
+				throw runtime_error(ERROR_UNEXPECTED);
+			return BlockHead(checkEntBlockHead(other.abstractEntity));
 		case WebssType::FUNCTION_HEAD_BINARY:
 		{
 			FunctionHeadBinary fheadBinary(FunctionHeadBinary(checkEntFheadBinary(other.abstractEntity)));
 			return isEnd ? move(fheadBinary) : parseFunctionHeadBinary(it, move(fheadBinary));
 		}
 		case WebssType::FUNCTION_HEAD_SCOPED:
-			break;
+			//...
 		case WebssType::FUNCTION_HEAD_STANDARD:
 			new (&fhead) FunctionHeadStandard(checkEntFheadStandard(other.abstractEntity));
 			return isEnd ? move(fhead) : parseFunctionHeadStandard(it, move(fhead));
@@ -70,19 +74,8 @@ Parser::FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 	}
 }
 
-void Parser::checkFheadVoid(It& it)
-{
-	//the first param of fheads is checked before calling the appropriate function, so the function
-	//receives as if the first param was empty
-	if (!it)
-		throw runtime_error(ERROR_EXPECTED);
-	if (*it == separator)
-		skipJunkToValid(it);
-}
-
 FunctionHeadStandard Parser::parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead)
 {
-//	checkFheadVoid(it);
 	do
 		if (*it == OPEN_FUNCTION)
 			parseStandardParameterFunctionHead(it, fhead);
@@ -107,7 +100,6 @@ FunctionHeadStandard Parser::parseFunctionHeadText(It& it)
 
 FunctionHeadBinary Parser::parseFunctionHeadBinary(It& it, FunctionHeadBinary&& fhead)
 {
-//	checkFheadVoid(it);
 	do
 		if (*it == OPEN_TUPLE)
 			parseBinaryHead(++it, fhead);
@@ -125,6 +117,8 @@ void Parser::parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fh
 	auto& lastParam = fhead.back();
 	switch (headSwitch.t)
 	{
+	case Type::BLOCK:
+		break; //do nothing
 	case Type::BINARY:
 		lastParam.setFunctionHead(move(headSwitch.fheadBinary));
 		break;

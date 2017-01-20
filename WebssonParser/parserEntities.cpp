@@ -17,13 +17,13 @@ Entity Parser::parseConcreteEntity(It& it)
 	return ent;
 }
 
-Entity Parser::parseAbstractEntity(It& it)
+Entity Parser::parseAbstractEntity(It& it, const string& currentNamespace)
 {
 	auto name = parseNameSafe(it);
 	switch (*skipJunkToValid(it))
 	{
 	case OPEN_DICTIONARY:
-		return Entity(move(name), parseNamespace(++it, name));
+		return Entity(move(name), parseNamespace(++it, name, currentNamespace));
 	case OPEN_LIST:
 		return Entity(move(name), Webss(parseEnum(++it, name), true));
 	case OPEN_FUNCTION:
@@ -32,6 +32,8 @@ Entity Parser::parseAbstractEntity(It& it)
 		auto headSwitch = parseFunctionHead(++it);
 		switch (headSwitch.t)
 		{
+		case Type::BLOCK:
+			return Entity(move(name), move(headSwitch.blockHead));
 		case Type::STANDARD:
 			return Entity(move(name), move(headSwitch.fheadStandard));
 		case Type::BINARY:

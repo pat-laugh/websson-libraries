@@ -13,7 +13,6 @@ const char ERROR_INPUT_NAMESPACE[] = "namespace can only have entity definitions
 const char ERROR_INPUT_ENUM[] = "enum can only have key-onlys";
 const char ERROR_INPUT_DOCUMENT[] = "document can only have concrete value-onlys or key-values";
 
-
 string getItPosition(It& it)
 {
 	return "[ln " + to_string(it.getLine()) + ", col " + to_string(it.getCol()) + "]";
@@ -41,8 +40,8 @@ string getItCurrentChar(It& it)
 	case '"': out += "(cstring)"; break;
 	case '?': out += "(entity declaration)"; break;
 	case '.': out += "(scope)"; break;
-	case '(': case ')':out += "(round bracket / parenthesis)"; break;
-	case '{': case '}': out += "(curly bracket / brace)"; break;
+	case '(': case ')':out += "(parenthesis / round bracket)"; break;
+	case '{': case '}': out += "(brace / curly bracket)"; break;
 	case '[': case ']': out += "(square bracket)"; break;
 	case '<': case '>': out += "(angle bracket / chevron)"; break;
 	default:
@@ -125,17 +124,18 @@ Tuple Parser::parseTupleText(It& it)
 	return tuple;
 }
 
-Namespace Parser::parseNamespace(It& it, const string& name)
+Namespace Parser::parseNamespace(It& it, const string& name, const string& previousNamespace)
 {
 	static const ConType CON = ConType::DICTIONARY;
+	string currentNamespace(previousNamespace + name + '.');
 	Namespace nspace(name);
 	if (checkEmptyContainer(it, CON))
 		return nspace;
 	do
 		if (*it == CHAR_CONCRETE_ENTITY)
-			checkMultiContainer(++it, [&]() { nspace.add(parseConcreteEntity(it)); });
+			checkMultiContainer(++it, [&]() { auto ent = parseConcreteEntity(it); nspace.add(ent.copyContent(currentNamespace + ent.getName())); });
 		else if (*it == CHAR_ABSTRACT_ENTITY)
-			checkMultiContainer(++it, [&]() { nspace.add(parseAbstractEntity(it)); });
+			checkMultiContainer(++it, [&]() { auto ent = parseAbstractEntity(it, currentNamespace); nspace.add(ent.copyContent(currentNamespace + ent.getName())); });
 		else
 			throw runtime_error(ERROR_INPUT_NAMESPACE);
 	while (checkNextElementContainer(it, CON));
@@ -160,6 +160,7 @@ Enum Parser::parseEnum(It& it, const string& name)
 Document Parser::parseDocument(It&& it)
 {
 	static const ConType CON = ConType::DOCUMENT;
+	static const string currentNamespace("");
 #ifdef GET_LINE
 	try
 	{
@@ -175,7 +176,7 @@ Document Parser::parseDocument(It&& it)
 				checkMultiContainer(++it, [&]() { ents.add(parseConcreteEntity(it)); });
 				break;
 			case CHAR_ABSTRACT_ENTITY:
-				checkMultiContainer(++it, [&]() { ents.add(parseAbstractEntity(it)); });
+				checkMultiContainer(++it, [&]() { ents.add(parseAbstractEntity(it, currentNamespace)); });
 				break;
 			case CHAR_OPTION:
 				checkMultiContainer(++it, [&]() { parseOption(it); });

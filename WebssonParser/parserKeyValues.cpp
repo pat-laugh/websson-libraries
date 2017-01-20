@@ -54,7 +54,7 @@ Webss Parser::parseCharValue(It& it, ConType con)
 	case OPEN_TUPLE:
 		return parseTuple(++it);
 	case OPEN_FUNCTION:
-		return parseFunction(++it);
+		return parseFunction(++it, con);
 	case CHAR_COLON:
 		return parseValueColon(++it, con);
 	case CHAR_EQUAL:
@@ -140,6 +140,8 @@ Parser::OtherValue Parser::checkOtherValueEntity(It& it, ConType con, const Enti
 	
 	switch (content.getType())
 	{
+	case WebssType::BLOCK_HEAD:
+		return{ Block(checkEntBlockHead(ent), parseValueEqual(it, con)) };
 	case WebssType::FUNCTION_HEAD_BINARY:
 		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadBinary(checkEntFheadBinary(ent)), parseFunctionBodyBinary(it, content.getFunctionHeadBinary().getParameters())) }, break)
 	case WebssType::FUNCTION_HEAD_SCOPED:

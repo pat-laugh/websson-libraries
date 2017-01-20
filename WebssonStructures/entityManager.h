@@ -14,8 +14,8 @@ namespace webss
 	class BasicEntityManager
 	{
 	private:
-		static constexpr char* ERROR_VARIABLE_EXISTSs1 = "entity already exists: ";
-#define ERROR_VARIABLE_EXISTS(name) ERROR_VARIABLE_EXISTSs1 + name
+		static constexpr char* ERROR_ENTITY_EXISTSs1 = "entity already exists: ";
+#define ERROR_ENTITY_EXISTS(name) ERROR_ENTITY_EXISTSs1 + name
 		using Entity = BasicEntity<T>;
 		using Globals = std::map<std::string*, Entity, less_ptr<std::string>>;
 #define name_cast const_cast<std::string*>
@@ -80,7 +80,7 @@ namespace webss
 		void addSafe(std::string&& name, T&& content)
 		{
 			if (hasEntity(name))
-				throw std::runtime_error(ERROR_VARIABLE_EXISTS(name));
+				throw std::runtime_error(ERROR_ENTITY_EXISTS(name));
 
 			add(std::move(name), std::move(content));
 		}
@@ -92,7 +92,7 @@ namespace webss
 		void addSafe(const std::string& name, const T& content)
 		{
 			if (hasEntity(name))
-				throw std::runtime_error(ERROR_VARIABLE_EXISTS(name));
+				throw std::runtime_error(ERROR_ENTITY_EXISTS(name));
 
 			add(name, content);
 		}
@@ -120,7 +120,7 @@ namespace webss
 		void addLocalsSafe(const std::string& name)
 		{
 			if (hasEntityLocals(name))
-				throw std::runtime_error(ERROR_VARIABLE_EXISTS(name));
+				throw std::runtime_error(ERROR_ENTITY_EXISTS(name));
 
 			addLocals(name);
 		}
@@ -216,7 +216,7 @@ namespace webss
 
 			indexEnts = minIndex;
 		}
-#undef ERROR_VARIABLE_EXISTS
+#undef ERROR_ENTITY_EXISTS
 #undef name_cast
 	};
 }

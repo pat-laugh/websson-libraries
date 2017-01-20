@@ -18,12 +18,14 @@ namespace webss
 	std::string deserializeAll(const Document& doc);
 	std::string deserializeAll(const Document& doc, const EntityManager& ents);
 
-	void putWebss(StringBuilder& out, const Webss& webss);
+	void putWebss(StringBuilder& out, const Webss& webss, ConType con);
 
-	void putKeyValue(StringBuilder& out, const std::string& key, const Webss& value, ConType stringCon);
-	void putValueOnly(StringBuilder& out, const Webss& value, ConType stringCon);
+	void putKeyValue(StringBuilder& out, const std::string& key, const Webss& value, ConType con);
+	void putValueOnly(StringBuilder& out, const Webss& value, ConType con);
 
 	void putSeparatedValues(StringBuilder& out, std::function<bool()> condition, std::function<void()> output);
+
+	void putLineString(StringBuilder& out, const std::string& str, ConType con);
 
 	void putString(StringBuilder& out, const std::string& str, ConType con);
 	void putDictionary(StringBuilder& out, const Dictionary& dict);
@@ -34,6 +36,9 @@ namespace webss
 	void putNamespace(StringBuilder& out, const Namespace& nspace);
 
 	void putEnum(StringBuilder& out, const Enum& tEnum);
+
+	void putBlockHead(StringBuilder& out, const BlockHead& blockHead);
+	void putBlock(StringBuilder& out, const Block& block, ConType con);
 
 	void putFuncStandard(StringBuilder& out, const FunctionStandard& func);
 	void putFuncBinary(StringBuilder& out, const FunctionBinary& func);

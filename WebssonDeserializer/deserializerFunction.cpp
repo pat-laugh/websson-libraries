@@ -175,20 +175,8 @@ void webss::putParamStandard(StringBuilder& out, FUNC_PARAMS_STANDARD)
 	case WebssType::NONE:
 		key;
 		break;
-	case WebssType::VARIABLE:
-		out += key + CHAR_EQUAL + webss.ent.getName();
-		break;
-	case WebssType::FUNCTION_STANDARD: case WebssType::FUNCTION_BINARY: case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
-		out += key + CHAR_EQUAL;
-		putWebss(out, webss);
-		break;
-	case WebssType::PRIMITIVE_STRING:
-		out += key + CHAR_COLON;
-		putString(out, *webss.tString, ConType::FUNCTION_HEAD);
-		break;
 	default:
-		out += key;
-		putWebss(out, webss);
+		putKeyValue(out, key, webss, ConType::FUNCTION_HEAD);
 		break;
 	}
 }

@@ -175,7 +175,7 @@ void webss::putBinarySizeHead(StringBuilder& out, const ParamBinary::SizeHead& b
 	case Type::FUNCTION_HEAD:
 		putFheadBinary(out, *bhead.fhead);
 		break;
-	case Type::EMPTY_VARIABLE_NUMBER: case Type::VARIABLE_NUMBER: case Type::VARIABLE_FUNCTION_HEAD:
+	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_FUNCTION_HEAD:
 		out += bhead.getEntName();
 		break;
 	default:
@@ -198,7 +198,7 @@ void webss::putBinarySizeList(StringBuilder& out, const ParamBinary::SizeList& b
 	case Type::NUMBER:
 		out += to_string(blist.number);
 		break;
-	case Type::EMPTY_VARIABLE_NUMBER: case Type::VARIABLE_NUMBER:
+	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
 		out += blist.getEntName();
 		break;
 	default:

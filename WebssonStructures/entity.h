@@ -12,45 +12,44 @@ namespace webss
 	{
 	public:
 		BasicEntity() {}
-		BasicEntity(std::string&& name, T&& content) : ptr(new EntityBody<T>(std::move(name), std::move(content))) {}
-		BasicEntity(const std::string& name, const T& content) : ptr(new EntityBody<T>(name, content)) {}
+		BasicEntity(std::string&& name, T&& content) : ptrName(new std::string(std::move(name))), ptrContent(new T(std::move(content))) {}
+		BasicEntity(const std::string& name, const T& content) : ptrName(new std::string(name)), ptrContent(new T(content)) {}
 
 		~BasicEntity() {}
 
-		BasicEntity(BasicEntity&& ent) : ptr(std::move(ent.ptr)) {}
-		BasicEntity(const BasicEntity& ent) : ptr(ent.ptr) {}
+		BasicEntity(BasicEntity&& ent) : ptrName(std::move(ent.ptrName)), ptrContent(std::move(ent.ptrContent)) {}
+		BasicEntity(const BasicEntity& ent) : ptrName(ent.ptrName), ptrContent(ent.ptrContent) {}
 
 		BasicEntity& operator=(BasicEntity&& o)
 		{
 			if (this != &o)
-				ptr = std::move(o.ptr);
+			{
+				ptrName = std::move(o.ptrName);
+				ptrContent = std::move(o.ptrContent);
+			}
 			return *this;
 		}
 		BasicEntity& operator=(const BasicEntity& o)
 		{
 			if (this != &o)
-				ptr = o.ptr;
+			{
+				ptrName = o.ptrName;
+				ptrContent = o.ptrContent;
+			}
 			return *this;
 		}
 
-		const std::string& getName() const { return ptr->name; }
-		const T& getContent() const { return ptr->content; }
+		const std::string& getName() const { return *ptrName; }
+		const T& getContent() const { return *ptrContent; }
 
-//		EntityBody<T>* operator->() { return ptr.get(); }
-//		const EntityBody<T>* operator->() const { return ptr.get(); }
-//		EntityBody<T>& operator*() { return *ptr; }
-//		const EntityBody<T>& operator*() const { return *ptr; }
-	private:
-		template <typename T>
-		struct EntityBody
+		BasicEntity copyContent(std::string&& newName) const
 		{
-			std::string name;
-			T content;
+			return BasicEntity(*this, std::move(newName));
+		}
+	private:
+		std::shared_ptr<std::string> ptrName;
+		std::shared_ptr<T> ptrContent;
 
-			EntityBody(std::string&& name, T&& content) : name(std::move(name)), content(std::move(content)) {}
-			EntityBody(const std::string& name, const T& content) : name(name), content(content) {}
-		};
-
-		std::shared_ptr<EntityBody<T>> ptr;
+		BasicEntity(const BasicEntity& ent, std::string&& newName) : ptrName(new std::string(std::move(newName))), ptrContent(ent.ptrContent) {}
 	};
 }

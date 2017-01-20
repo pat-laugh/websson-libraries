@@ -24,8 +24,8 @@ namespace webss
 	const std::string ERROR_UNDEFINED_KEYNAMEs1("undefined entity: ");
 #define webss_ERROR_UNDEFINED_KEYNAME(name) ERROR_UNDEFINED_KEYNAMEs1 + name
 
-	const std::string ERROR_VARIABLE_EXISTSs1("entity already exists: ");
-#define webss_ERROR_ENTITY_EXISTS(name) ERROR_VARIABLE_EXISTSs1 + name
+	const std::string ERROR_ENTITY_EXISTSs1("entity already exists: ");
+#define webss_ERROR_ENTITY_EXISTS(name) ERROR_ENTITY_EXISTSs1 + name
 
 	const char ERROR_EXPECTED_NUMBER[] = "expected number";
 	const char ERROR_KEYWORD_KEY[] = "can't have keyword as key";
@@ -33,7 +33,6 @@ namespace webss
 	const char ERROR_ANONYMOUS_KEY[] = "can't have anonymous key in dictionary, function head or enum";
 	const char ERROR_CONTAINER_NOT_CLOSED[] = "container is not closed";
 	const char ERROR_NO_DEFAULT[] = "no default value, so value must be implemented";
-	const char ERROR_DEREFERENCED_VARIABLE[] = "dereferenced element must be a entity of type dictionary";
 	const char ERROR_FUNCTION_BODY[] = "expected function body";
 
 	const char ERROR_KEY_NAMESPACE[] = "namespace members must be entities";

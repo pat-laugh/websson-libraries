@@ -2,6 +2,7 @@
 //Copyright(c) 2016 Patrick Laughrea
 #pragma once
 
+#include "block.h"
 #include "function.h"
 #include "namespace.h"
 #include "paramStandard.h"
@@ -25,6 +26,8 @@ namespace webss
 	using Entity = BasicEntity<Webss>;
 	using Namespace = BasicNamespace<Webss>;
 	using Enum = Namespace;
+	using BlockHead = BasicBlockHead<Webss>;
+	using Block = BasicBlock<Webss>;
 	using Default = std::shared_ptr<Webss>;
 
 	class Webss
@@ -60,6 +63,8 @@ namespace webss
 //		Webss(FunctionScoped&& funcScoped);
 		Webss(Namespace&& nspace);
 		Webss(Enum&& tEnum, bool dummy);
+		Webss(BlockHead&& blockHead);
+		Webss(Block&& block);
 
 		Webss(const std::string& s);
 		Webss(const Document& document);
@@ -73,11 +78,13 @@ namespace webss
 //		Webss(const FunctionScoped& funcScoped);
 		Webss(const Namespace& nspace);
 		Webss(const Enum& tEnum, bool dummy);
+		Webss(const BlockHead& blockHead);
+		Webss(const Block& block);
 
 		Webss(FunctionHeadBinary&& head, Webss&& body);
 		Webss(FunctionHeadStandard&& head, Webss&& body);
 
-		Webss(const BasicEntity<Webss>& ent) : t(WebssType::VARIABLE), ent(ent) {}
+		Webss(const BasicEntity<Webss>& ent) : t(WebssType::ENTITY), ent(ent) {}
 		Webss(const Default& tDefault) : t(WebssType::DEFAULT), tDefault(tDefault) {}
 
 		~Webss();
@@ -116,6 +123,8 @@ namespace webss
 //		const FunctionScoped& getFunctionScoped() const;
 		const Namespace& getNamespace() const;
 		const Enum& getEnum() const;
+		const BlockHead& getBlockHead() const;
+		const Block& getBlock() const;
 
 		bool isNone() const;
 		bool isNull() const;
@@ -132,6 +141,8 @@ namespace webss
 		bool isFunctionHeadBinary() const;
 		bool isNamespace() const;
 		bool isEnum() const;
+		bool isBlockHead() const;
+		bool isBlock() const;
 
 		bool isConcrete() const;
 
@@ -154,6 +165,8 @@ namespace webss
 			FunctionBinary* funcBinary;
 //			FunctionScoped* funcScoped;
 			Namespace* nspace;
+			BlockHead* blockHead;
+			Block* block;
 			BasicEntity<Webss> ent;
 			Default tDefault;
 		};
