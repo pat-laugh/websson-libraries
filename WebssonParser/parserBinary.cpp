@@ -105,64 +105,6 @@ void Parser::parseBinaryHead(It& it, FunctionHeadBinary& fhead)
 		ErrorAbstractEntity(ERROR_ANONYMOUS_KEY));
 }
 
-//called only from parseFunction (parserFunctions.cpp)
-//no dependency outside of parseBinary.cpp
-Webss Parser::parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Tuple& params)
-{
-	switch (skipJunkToContainer(it))
-	{
-	case TypeContainer::DICTIONARY:
-		return parseFunctionDictionaryBinary(it, params);
-	case TypeContainer::LIST:
-		return parseFunctionListBinary(it, params);
-	case TypeContainer::TUPLE:
-		return parseFunctionTupleBinary(it, params);
-	default:
-		throw runtime_error(ERROR_UNEXPECTED);
-	}
-}
-
-Dictionary Parser::parseFunctionDictionaryBinary(It& it, const FunctionHeadBinary::Tuple& params)
-{
-	static const ConType CON = ConType::DICTIONARY;
-	Dictionary dict;
-	if (checkEmptyContainer(it, CON))
-		return dict;
-	do
-	{
-		if (!isNameStart(*it))
-			throw runtime_error(ERROR_UNEXPECTED);
-		auto name = parseNameSafe(it);
-		switch (skipJunkToContainer(it))
-		{
-		case TypeContainer::LIST:
-			dict.addSafe(move(name), parseFunctionListBinary(++it, params));
-			break;
-		case TypeContainer::TUPLE:
-			dict.addSafe(move(name), parseFunctionTupleBinary(++it, params));
-			break;
-		default:
-			throw runtime_error(ERROR_UNEXPECTED);
-		}
-	} while (checkNextElementContainer(it, CON));
-	return dict;
-}
-
-List Parser::parseFunctionListBinary(It& it, const FunctionHeadBinary::Tuple& params)
-{
-	static const ConType CON = ConType::LIST;
-	List list;
-	if (checkEmptyContainer(it, CON))
-		return list;
-	do
-		if (skipJunkToContainer(it) == TypeContainer::TUPLE)
-			list.add(parseFunctionTupleBinary(++it, params));
-		else
-			throw runtime_error(ERROR_UNEXPECTED);
-	while (checkNextElementContainer(it, CON)); //make it so separators are not required (no need to clean line)
-	return list;
-}
-
 Tuple Parser::parseFunctionTupleBinary(It& it, const FunctionHeadBinary::Tuple& params)
 {
 	auto tuple = parseBinaryFunction(++it, params);

@@ -101,7 +101,7 @@ bool isKeyChar(char c)
 {
 	switch (c)
 	{
-	case webss_CHAR_ANY_CONTAINER_CHAR_VALUE:
+	case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case OPEN_FUNCTION: case CHAR_COLON: case CHAR_EQUAL: case CHAR_CSTRING:
 		return true;
 	default:
 		return false;
@@ -141,11 +141,11 @@ Parser::OtherValue Parser::checkOtherValueEntity(It& it, ConType con, const Enti
 	switch (content.getType())
 	{
 	case WebssType::FUNCTION_HEAD_BINARY:
-		PatternLineGreed(*it == OPEN_TUPLE, return{ Webss(FunctionHeadBinary(checkEntFheadBinary(ent)), parseFunctionBodyBinary(it, content.getFunctionHeadBinary().getParameters())) }, break)
+		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadBinary(checkEntFheadBinary(ent)), parseFunctionBodyBinary(it, content.getFunctionHeadBinary().getParameters())) }, break)
 	case WebssType::FUNCTION_HEAD_SCOPED:
 		//...
 	case WebssType::FUNCTION_HEAD_STANDARD:
-		PatternLineGreed(*it == OPEN_TUPLE, return{ Webss(FunctionHeadStandard(checkEntFheadStandard(ent)), parseFunctionBodyStandard(it, content.getFunctionHeadStandard().getParameters())) }, break)
+		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadStandard(checkEntFheadStandard(ent)), parseFunctionBodyStandard(it, content.getFunctionHeadStandard().getParameters())) }, break)
 	default:
 		throw logic_error("");
 	}

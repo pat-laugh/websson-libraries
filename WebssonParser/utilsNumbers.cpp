@@ -8,9 +8,9 @@
 using namespace std;
 using namespace webss;
 
-#define FUNCTIONS_BIN isDigitBin(c), binToInt(c)
-#define FUNCTIONS_DEC isDigit(c), charToInt(c)
-#define FUNCTIONS_HEX isDigitHex(c), hexToInt(c)
+#define FUNCTIONS_BIN isDigitBin, binToInt
+#define FUNCTIONS_DEC isDigit, charToInt
+#define FUNCTIONS_HEX isDigitHex, hexToInt
 
 WebssInt getNumber(SmartIterator& it, NumberMagnitude mag, bool(*isDigit)(char c), int(*charToInt)(char c))
 {

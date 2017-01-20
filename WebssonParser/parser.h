@@ -8,8 +8,6 @@
 #include "WebssonStructures/entityManager.h"
 #include "WebssonUtils/stringBuilder.h"
 
-#define webss_CHAR_ANY_CONTAINER_CHAR_VALUE OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case OPEN_FUNCTION: case CHAR_COLON: case CHAR_EQUAL: case CHAR_CSTRING
-
 namespace webss
 {
 	class Parser
@@ -196,19 +194,10 @@ namespace webss
 		Webss parseFunctionText(It& it);
 		Webss parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tuple& params);
 		Webss parseFunctionBodyText(It& it, const FunctionHeadStandard::Tuple& params);
-		Webss parseFunctionContainer(It& it, const ParamStandard& defaultValue);
-		Dictionary parseFunctionDictionaryStandard(It& it, const FunctionHeadStandard::Tuple& params);
-		Dictionary parseFunctionDictionaryText(It& it, const FunctionHeadStandard::Tuple& params);
-		List parseFunctionListStandard(It& it, const FunctionHeadStandard::Tuple& params);
-		List parseFunctionListText(It& it, const FunctionHeadStandard::Tuple& params);
-		Tuple parseFunctionTupleStandard(It& it, const FunctionHeadStandard::Tuple& params);
-		Tuple parseFunctionTupleText(It& it, const FunctionHeadStandard::Tuple& params);
 
 		//parserBinary.cpp
 		void parseBinaryHead(It& it, FunctionHeadBinary& fhead);
 		Webss parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Tuple& params);
-		Dictionary parseFunctionDictionaryBinary(It& it, const FunctionHeadBinary::Tuple& params);
-		List parseFunctionListBinary(It& it, const FunctionHeadBinary::Tuple& params);
 		Tuple parseFunctionTupleBinary(It& it, const FunctionHeadBinary::Tuple& params);
 		ParamBinary::SizeList parseBinarySizeList(It& it);
 		const BasicEntity<WebssBinarySize>& checkEntTypeBinarySize(const Entity& ent);
