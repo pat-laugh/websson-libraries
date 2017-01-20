@@ -3,8 +3,6 @@
 #include "parser.h"
 #include "utilsNumbers.h"
 
-//ALL DONE
-
 using namespace std;
 using namespace webss;
 
@@ -13,9 +11,7 @@ std::pair<WebssInt, NumberMagnitude> parseInt(It& it);
 Webss Parser::parseNumber(It& it)
 {
 	bool negative = checkNumberStart(it);
-
 	auto parsedPair = parseInt(it);
-
 	auto num = parsedPair.first;
 	if (negative)
 		num = -num;
