@@ -136,7 +136,7 @@ private:
 		case Type::STANDARD:
 		{
 			const auto& params = defaultValue.getFunctionHeadStandard().getParameters();
-			return params.containerText ? parseFunctionBodyText(it, params) : parseFunctionBodyStandard(it, params);
+			return params.isText() ? parseFunctionBodyText(it, params) : parseFunctionBodyStandard(it, params);
 		}
 		default:
 			return parseValueEqual(it, CON);
@@ -245,7 +245,7 @@ private:
 	Tuple parseFunctionTupleText(It& it, const FunctionHeadStandard::Tuple& params)
 	{
 		static const ConType CON = ConType::TUPLE;
-		Tuple tuple(params.getSharedKeys(), params.containerText);
+		Tuple tuple(params.getSharedKeys(), params.isText());
 		Tuple::size_type index = 0;
 		if (!checkEmptyContainerVoid(it, CON, [&]() { ++index; }))
 			do

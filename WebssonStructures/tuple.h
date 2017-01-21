@@ -17,43 +17,17 @@ namespace webss
 		using size_type = typename Data::size_type;
 		using Keymap = std::unordered_map<std::string, size_type>;
 
-		bool containerText;
-
-		explicit BasicTuple(bool containerText = false) : containerText(containerText), keys(new Keymap()) {}
-		BasicTuple(Data&& data, bool containerText = false) : containerText(containerText), keys(nullptr), data(std::move(data)) {}
-		~BasicTuple() {}
+		explicit BasicTuple(bool containerText = false) : keys(new Keymap()), containerText(containerText) {}
+		BasicTuple(Data&& data, bool containerText = false) : keys(nullptr), data(std::move(data)), containerText(containerText) {}
 
 		//instead of the keys being shared, this creates an indepedant copy of the keys and the data
 		BasicTuple makeCompleteCopy() const { return BasicTuple(*keys, data, containerText); }
 
-		BasicTuple(const std::shared_ptr<Keymap>& keys, bool containerText = false) : containerText(containerText), keys(keys), data(keys->size()) {}
-
-		BasicTuple(BasicTuple&& o) : containerText(o.containerText), keys(std::move(o.keys)), data(std::move(o.data)) {}
-		BasicTuple(const BasicTuple& o) : containerText(o.containerText), keys(o.keys), data(o.data) {}
-
-		BasicTuple& operator=(BasicTuple&& o)
-		{
-			if (this != &o)
-			{
-				containerText = o.containerText;
-				keys = std::move(o.keys);
-				data = std::move(o.data);
-			}
-			return *this;
-		}
-		BasicTuple& operator=(const BasicTuple& o)
-		{
-			if (this != &o)
-			{
-				containerText = o.containerText;
-				keys = o.keys;
-				data = o.data;
-			}
-			return *this;
-		}
+		BasicTuple(const std::shared_ptr<Keymap>& keys, bool containerText = false) : keys(keys), data(keys->size()), containerText(containerText) {}
 
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }
+		bool isText() const { return containerText; }
 
 		void add(T&& value) { data.push_back(std::move(value)); }
 		void add(const T& value) { data.push_back(value); }
@@ -154,9 +128,10 @@ namespace webss
 
 		std::shared_ptr<Keymap> keys;
 		Data data;
+		bool containerText;
 
 		//there's a subtle, but important difference with the default copy constructor: default shares the keymap (through the shared pointer),
 		//whereas here the keymap itself is moved or copied
-		BasicTuple(const Keymap& keymap, const Data& data, bool containerText) : containerText(containerText), keys(new Keymap(keymap)), data(data) {}
+		BasicTuple(const Keymap& keymap, const Data& data, bool containerText) : keys(new Keymap(keymap)), data(data), containerText(containerText) {}
 	};
 }

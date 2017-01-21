@@ -85,7 +85,7 @@ void webss::putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard:
 	static const char ERROR_TOO_MANY_ELEMENTS[] = "too many elements in function tuple";
 	Tuple::size_type i = 0;
 	out += OPEN_TUPLE;
-	if (params.containerText)
+	if (params.isText())
 	{
 		putSeparatedValues(out, [&]() { return ++i < tuple.size(); }, [&]()
 		{
@@ -209,7 +209,7 @@ void webss::putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhe
 		out += OPEN_FUNCTION + fhead.getEntName() + CLOSE_FUNCTION;
 	else if (fhead.empty())
 		out += EMPTY_FUNCTION;
-	else if (fhead.getParameters().containerText)
+	else if (fhead.getParameters().isText())
 	{
 		out += ASSIGN_CONTAINER_STRING;
 		putParamsStandard(out, fhead, [&](FUNC_PARAMS_STANDARD) { putParamText(out, key, value); });

@@ -6,10 +6,12 @@
 #include <set>
 
 #include "entity.h"
-#include "lessPtr.h"
 
 namespace webss
 {
+	template <class T>
+	struct less_ptr { bool operator()(T* t1, T* t2) const { return *t1 < *t2; } };
+
 	template <class T>
 	class BasicEntityManager
 	{

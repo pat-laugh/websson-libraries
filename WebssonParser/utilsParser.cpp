@@ -28,16 +28,11 @@ void webss::setDefaultValue(Tuple& tuple, const FunctionHeadStandard::Tuple& par
 
 Tuple webss::makeDefaultTuple(const FunctionHeadStandard::Tuple& params)
 {
-	Tuple tuple(params.getSharedKeys(), params.containerText);
+	Tuple tuple(params.getSharedKeys(), params.isText());
 	for (Tuple::size_type i = 0; i < params.size(); ++i)
 		setDefaultValue(tuple, params, i);
 	return tuple;
 }
-
-
-
-const char ERROR_IS_FUNCTION_HEAD[] = "unexpected value of type function head";
-const char ERROR_IS_NOT_FUNCTION_HEAD[] = "expected value of type function head";
 
 const Namespace& webss::checkIsNamespace(const BasicEntity<Webss>& ent)
 {

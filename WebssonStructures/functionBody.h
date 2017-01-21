@@ -34,7 +34,7 @@ namespace webss
 		This(const List& list) : type(WebssType::LIST), list(list) {}
 		This(const Tuple& tuple) : type(WebssType::TUPLE), tuple(tuple) {}
 
-		virtual ~This() {}
+		~This() { destroyUnion(); }
 
 		This(This&& o) { copyUnion(std::move(o)); }
 		This(const This& o) { copyUnion(o); }

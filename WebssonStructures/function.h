@@ -24,7 +24,6 @@ namespace webss
 #define BodyParameter typename body::Tuple
 #include "functionPattern.def"
 #undef BodyParameter
-		~ClassName() {}
 	};
 #undef ClassName
 }

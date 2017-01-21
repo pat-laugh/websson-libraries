@@ -13,36 +13,13 @@ namespace webss
 	public:
 		using Entity = BasicEntity<This>;
 
-		This() : hasEnt(false) {}
+		This() {}
 		This(const Entity& ent) : hasEnt(true), ent(ent) {}
-		~This() {}
-
-		This(This&& o) : hasEnt(o.hasEnt), ent(std::move(o.ent)) {}
-		This(const This& o) : hasEnt(o.hasEnt), ent(o.ent) {}
-
-		This& operator=(This&& o)
-		{
-			if (this != &o)
-			{
-				hasEnt = o.hasEnt;
-				ent = std::move(o.ent);
-			}
-			return *this;
-		}
-		This& operator=(const This& o)
-		{
-			if (this != &o)
-			{
-				hasEnt = o.hasEnt;
-				ent = o.ent;
-			}
-			return *this;
-		}
 
 		bool hasEntity() const { return hasEnt; }
 		const std::string& getEntName() const { return ent.getName(); }
 	private:
-		bool hasEnt;
+		bool hasEnt = false;
 		Entity ent;
 	};
 #undef This

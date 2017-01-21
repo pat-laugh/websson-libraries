@@ -218,7 +218,7 @@ void webss::putDictionary(StringBuilder& out, const Dictionary& dict)
 
 void webss::putList(StringBuilder& out, const List& list)
 {
-	if (list.containerText)
+	if (list.isText())
 	{
 		out += ASSIGN_CONTAINER_STRING;
 		if (list.empty())
@@ -245,7 +245,7 @@ void webss::putList(StringBuilder& out, const List& list)
 
 void webss::putTuple(StringBuilder& out, const Tuple& tuple)
 {
-	if (tuple.containerText)
+	if (tuple.isText())
 	{
 		out += ASSIGN_CONTAINER_STRING;
 		if (tuple.empty())
@@ -293,9 +293,9 @@ void webss::putNamespace(StringBuilder& out, const Namespace& nspace)
 	out += OPEN_DICTIONARY;
 	putSeparatedValues(out, [&]() { return ++it != nspace.end(); }, [&]()
 	{
-		const auto& content = it->getContent();
+		const auto& content = it->second.getContent();
 		out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
-		putKeyValue(out, it->getName(), content, ConType::DICTIONARY);
+		putKeyValue(out, it->second.getName(), content, ConType::DICTIONARY);
 	});
 	out += CLOSE_DICTIONARY;
 }
@@ -310,8 +310,8 @@ void webss::putEnum(StringBuilder& out, const Enum& tEnum)
 
 	//sort the enum...
 	vector<string*> elems(tEnum.size());
-	for (const auto& ent : tEnum)
-		elems[static_cast<Enum::size_type>(ent.getContent().getInt())] = const_cast<string*>(&ent.getName());
+	for (const auto& entPair : tEnum)
+		elems[static_cast<Enum::size_type>(entPair.second.getContent().getInt())] = const_cast<string*>(&entPair.second.getName());
 
 	auto it = elems.begin();
 	out += OPEN_LIST;

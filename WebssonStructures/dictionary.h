@@ -14,25 +14,6 @@ namespace webss
 		using Data = std::unordered_map<std::string, T>;
 		using size_type = typename Data::size_type;
 
-		BasicDictionary() {}
-		~BasicDictionary() {}
-
-		BasicDictionary(BasicDictionary&& o) : data(std::move(o.data)) {}
-		BasicDictionary(const BasicDictionary& o) : data(o.data) {}
-
-		BasicDictionary& operator=(BasicDictionary&& o)
-		{
-			if (this != &o)
-				data = std::move(o.data);
-			return *this;
-		}
-		BasicDictionary& operator=(const BasicDictionary& o)
-		{
-			if (this != &o)
-				data = o.data;
-			return *this;
-		}
-
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }
 

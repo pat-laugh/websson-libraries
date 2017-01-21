@@ -16,31 +16,6 @@ namespace webss
 		using size_type = typename Data::size_type;
 		using Keymap = std::unordered_map<std::string, size_type>;
 
-		BasicDocument() {}
-		~BasicDocument() {}
-
-		BasicDocument(BasicDocument&& o) : keys(std::move(o.keys)), data(std::move(o.data)) {}
-		BasicDocument(const BasicDocument& o) : keys(o.keys), data(o.data) {}
-
-		BasicDocument& operator=(BasicDocument&& o)
-		{
-			if (this != &o)
-			{
-				keys = std::move(o.keys);
-				data = std::move(o.data);
-			}
-			return *this;
-		}
-		BasicDocument& operator=(const BasicDocument& o)
-		{
-			if (this != &o)
-			{
-				keys = o.keys;
-				data = o.data;
-			}
-			return *this;
-		}
-
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }
 

@@ -13,36 +13,12 @@ namespace webss
 		using Data = std::vector<T>;
 		using size_type = typename Data::size_type;
 
-		bool containerText;
-
 		explicit BasicList(bool containerText = false) : containerText(containerText) {}
-		BasicList(Data&& data, bool containerText = false) : containerText(containerText), data(std::move(data)) {}
-		~BasicList() {}
-
-		BasicList(BasicList&& o) : containerText(o.containerText), data(std::move(o.data)) {}
-		BasicList(const BasicList& o) : containerText(o.containerText), data(o.data) {}
-
-		BasicList& operator=(BasicList&& o)
-		{
-			if (this != &o)
-			{
-				containerText = o.containerText;
-				data = std::move(o.data);
-			}
-			return *this;
-		}
-		BasicList& operator=(const BasicList& o)
-		{
-			if (this != &o)
-			{
-				containerText = o.containerText;
-				data = o.data;
-			}
-			return *this;
-		}
+		BasicList(Data&& data, bool containerText = false) : data(std::move(data)), containerText(containerText) {}
 
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }
+		bool isText() const { return containerText; }
 
 		void add(T&& value) { data.push_back(std::move(value)); }
 		void add(const T& value) { data.push_back(value); }
@@ -62,5 +38,6 @@ namespace webss
 		typename Data::const_reverse_iterator rend() const { return data.rend(); }
 	private:
 		Data data;
+		bool containerText;
 	};
 }

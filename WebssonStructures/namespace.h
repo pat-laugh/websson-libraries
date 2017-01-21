@@ -4,6 +4,7 @@
 
 #include <unordered_map>
 #include <string>
+#include <vector>
 #include "entity.h"
 
 namespace webss
@@ -18,29 +19,6 @@ namespace webss
 
 		BasicNamespace(std::string&& name) : name(std::move(name)) {}
 		BasicNamespace(const std::string& name) : name(name) {}
-		~BasicNamespace() {}
-
-		BasicNamespace(BasicNamespace&& o) : name(std::move(o.name)), data(std::move(o.data)) {}
-		BasicNamespace(const BasicNamespace& o) : name(o.name), data(o.data) {}
-
-		BasicNamespace& operator=(BasicNamespace&& o)
-		{
-			if (this != &o)
-			{
-				name = std::move(o.name);
-				data = std::move(o.data);
-			}
-			return *this;
-		}
-		BasicNamespace& operator=(const BasicNamespace& o)
-		{
-			if (this != &o)
-			{
-				name = o.name;
-				data = o.data;
-			}
-			return *this;
-		}
 
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }
@@ -93,8 +71,8 @@ namespace webss
 
 		bool has(const std::string& key) const { return data.find(key) != data.end(); }
 
-		Entity& operator[](const std::string& key) { return *data.find(key); } //find is better, no key created; wonder why they thought a side-effect to a bad access would be good...
-		const Entity& operator[](const std::string& key) const { return *data.find(key); } //[] doesn't have const and find is as fast
+		Entity& operator[](const std::string& key) { return data.find(key)->second; } //find is better, no key created; wonder why they thought a side-effect to a bad access would be good...
+		const Entity& operator[](const std::string& key) const { return data.find(key)->second; } //[] doesn't have const and find is as fast
 		Entity& at(const std::string& key)
 		{
 			auto it = data.find(key);
@@ -107,7 +85,7 @@ namespace webss
 			auto it = data.find(key);
 			if (it == data.end())
 				throw std::runtime_error("key is not in namespace");
-			return *it;
+			return it->second;
 		}
 
 		const std::string& getName() { return name; }
@@ -121,5 +99,6 @@ namespace webss
 
 		std::string name;
 		Data data;
+		std::vector<std::shared_ptr<BasicNamespace<Webss>>> nspaces;
 	};
 }
