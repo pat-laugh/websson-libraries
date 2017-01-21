@@ -9,16 +9,41 @@
 
 namespace webss
 {
+#define This BasicNamespace
 	template <class Webss>
-	class BasicNamespace
+	class This
 	{
 	public:
 		using Entity = BasicEntity<Webss>;
 		using Data = std::unordered_map<std::string, Entity>;
 		using size_type = typename Data::size_type;
+		using Namespaces = std::vector<std::shared_ptr<This<Webss>>>;
 
-		BasicNamespace(std::string&& name) : name(std::move(name)) {}
-		BasicNamespace(const std::string& name) : name(name) {}
+		static This& make(std::string&& name)
+		{
+			std::shared_ptr<This<Webss>> ptrThis(new This(std::move(name)));
+			ptrThis->nspaces.push_back(ptrThis);
+			return *ptrThis;
+		}
+		static This& make(const std::string& name)
+		{
+			std::shared_ptr<This<Webss>> ptrThis(new This(name));
+			ptrThis->nspaces.push_back(ptrThis);
+			return *ptrThis;
+		}
+
+		static This& make(std::string&& name, const This& previousNspace)
+		{
+			std::shared_ptr<This<Webss>> ptrThis(new This(std::move(name), previousNspace));
+			ptrThis->nspaces.push_back(ptrThis);
+			return *ptrThis;
+		}
+		static This& make(const std::string& name, const This& previousNspace)
+		{
+			std::shared_ptr<This<Webss>> ptrThis(new This(name, previousNspace));
+			ptrThis->nspaces.push_back(ptrThis);
+			return *ptrThis;
+		}
 
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }
@@ -99,6 +124,13 @@ namespace webss
 
 		std::string name;
 		Data data;
-		std::vector<std::shared_ptr<BasicNamespace<Webss>>> nspaces;
+		Namespaces nspaces;
+
+		This(std::string&& name) : name(std::move(name)) {}
+		This(const std::string& name) : name(name) {}
+
+		This(std::string&& name, const This& previousNspace) : name(std::move(name)), nspaces(previousNspace.nspaces) {}
+		This(const std::string& name, const This& previousNspace) : name(name), nspaces(previousNspace.nspaces) {}
 	};
+#undef This
 }
