@@ -2,7 +2,7 @@
 //Copyright(c) 2016 Patrick Laughrea
 #pragma once
 
-#include <set>
+#include <unordered_map>
 #include <string>
 #include "entity.h"
 
@@ -13,10 +13,7 @@ namespace webss
 	{
 	public:
 		using Entity = BasicEntity<Webss>;
-	private:
-		struct less_ptr { bool operator()(const Entity& t1, const Entity& t2) const { return t1.getName() < t2.getName(); } };
-	public:
-		using Data = std::set<Entity, less_ptr>;
+		using Data = std::unordered_map<std::string, Entity>;
 		using size_type = typename Data::size_type;
 
 		BasicNamespace(std::string&& name) : name(std::move(name)) {}
@@ -50,7 +47,7 @@ namespace webss
 
 		void add(std::string&& key, Webss&& value)
 		{
-			Entity ent(std::move(key), std::move(value));
+			Entity ent(std::string(key), std::move(value));
 			add(std::move(ent));
 		}
 		void add(const std::string& key, const Webss& value)
@@ -61,11 +58,22 @@ namespace webss
 
 		void add(Entity&& ent)
 		{
-			data.insert(std::move(ent));
+			data.insert({ std::string(ent.getName()), std::move(ent) });
 		}
 		void add(const Entity& ent)
 		{
-			data.insert(ent);
+			data.insert({ ent.getName(), ent });
+		}
+
+		void addSafe(std::string&& key, Webss&& value)
+		{
+			Entity ent(std::move(key), std::move(value));
+			addSafe(std::move(ent));
+		}
+		void addSafe(const std::string& key, const Webss& value)
+		{
+			Entity ent(key, value);
+			addSafe(std::move(ent));
 		}
 
 		void addSafe(Entity&& ent)
@@ -83,35 +91,26 @@ namespace webss
 			add(ent);
 		}
 
-		void addSafe(std::string&& key, Webss&& value)
-		{
-			Entity ent(std::move(key), std::move(value));
-			addSafe(std::move(ent));
-		}
-		void addSafe(const std::string& key, const Webss& value)
-		{
-			Entity ent(key, value);
-			addSafe(std::move(ent));
-		}
+		bool has(const std::string& key) const { return data.find(key) != data.end(); }
 
-		bool has(const std::string& key) const { return data.find(Entity(key, Webss())) != data.end(); }
-
-		Entity& operator[](const std::string& key) { return *data.find(Entity(key, Webss())); } //find is better, no key created; wonder why they thought a side-effect to a bad access would be good...
-		const Entity& operator[](const std::string& key) const { return *data.find(Entity(key, Webss())); } //[] doesn't have const and find is as fast
+		Entity& operator[](const std::string& key) { return *data.find(key); } //find is better, no key created; wonder why they thought a side-effect to a bad access would be good...
+		const Entity& operator[](const std::string& key) const { return *data.find(key); } //[] doesn't have const and find is as fast
 		Entity& at(const std::string& key)
 		{
-			auto it = data.find(Entity(key, Webss()));
+			auto it = data.find(key);
 			if (it == data.end())
 				throw std::runtime_error("key is not in namespace");
 			return *it;
 		}
 		const Entity& at(const std::string& key) const
 		{
-			auto it = data.find(Entity(key, Webss()));
+			auto it = data.find(key);
 			if (it == data.end())
 				throw std::runtime_error("key is not in namespace");
 			return *it;
 		}
+
+		const std::string& getName() { return name; }
 
 		typename Data::iterator begin() { return data.begin(); }
 		typename Data::iterator end() { return data.end(); }

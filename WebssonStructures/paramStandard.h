@@ -2,6 +2,7 @@
 
 #include "functionHead.h"
 #include "paramBinary.h"
+#include "paramScoped.h"
 #include <memory>
 
 namespace webss
@@ -10,16 +11,18 @@ namespace webss
 	class BasicParamStandard
 	{
 	public:
-		using FheadStandard = BasicFunctionHead<BasicParamStandard<Webss>>;
 		using FheadBinary = BasicFunctionHead<BasicParamBinary<Webss>>;
+		using FheadScoped = BasicFunctionHead<BasicParamScoped<Webss>>;
+		using FheadStandard = BasicFunctionHead<BasicParamStandard<Webss>>;
 		using Default = std::shared_ptr<Webss>;
-		enum class TypeFhead { NONE, STANDARD, BINARY };
+		enum class TypeFhead { NONE, BINARY, SCOPED, STANDARD };
 
 		TypeFhead typeFhead;
 		union
 		{
-			FheadStandard* fheadStd;
 			FheadBinary* fheadBin;
+			FheadScoped* fheadScoped;
+			FheadStandard* fheadStd;
 		};
 
 		Default defaultValue;
