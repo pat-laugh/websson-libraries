@@ -25,18 +25,7 @@ namespace webss
 		This() : type(Type::NONE) {}
 		This(Entity&& ent) : type(Type::ENTITY), ent(std::move(ent)) {}
 		This(const Entity& ent) : type(Type::ENTITY), ent(ent) {}
-		This(const Namespace& nspace) : type(Type::NAMESPACE)
-		{
-			//trim all the names of the original namespace
-			auto nameLength = nspace.getName().length();
-			Namespace newNspace(nspace.getName().substr(nameLength));
-			for (const std::pair<std::string, Entity>& entPair : nspace)
-			{
-				const Entity& nEnt = entPair.second;
-				newNspace.add(nEnt.copyContent(nEnt.getName().substr(nameLength)));
-			}
-			new (&nspace) Namespace(std::move(newNspace));
-		}
+		This(const Namespace& nspace) : type(Type::NAMESPACE), nspace(nspace) {}
 
 		~This() { destroyUnion(); }
 

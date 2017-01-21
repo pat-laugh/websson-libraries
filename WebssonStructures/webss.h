@@ -62,7 +62,7 @@ namespace webss
 		Webss(FunctionHeadBinary&& fheadBinary);
 		Webss(FunctionStandard&& funcStandard);
 		Webss(FunctionBinary&& funcBinary);
-//		Webss(FunctionScoped&& funcScoped);
+		Webss(FunctionScoped&& funcScoped);
 		Webss(Namespace&& nspace);
 		Webss(Enum&& tEnum, bool dummy);
 		Webss(BlockHead&& blockHead);
@@ -77,12 +77,13 @@ namespace webss
 		Webss(const FunctionHeadBinary& fheadBinary);
 		Webss(const FunctionStandard& funcStandard);
 		Webss(const FunctionBinary& funcBinary);
-//		Webss(const FunctionScoped& funcScoped);
+		Webss(const FunctionScoped& funcScoped);
 		Webss(const Namespace& nspace);
 		Webss(const Enum& tEnum, bool dummy);
 		Webss(const BlockHead& blockHead);
 		Webss(const Block& block);
 
+		Webss(FunctionHeadScoped&& head, Webss&& body);
 		Webss(FunctionHeadBinary&& head, Webss&& body);
 		Webss(FunctionHeadStandard&& head, Webss&& body);
 
@@ -95,13 +96,6 @@ namespace webss
 
 		Webss& operator=(Webss&& o);
 		Webss& operator=(const Webss& o);
-
-		void add(Webss&& value);
-		void add(const Webss& value);
-		void add(std::string&& key, Webss&& value);
-		void add(const std::string& key, const Webss& value);
-		void addSafe(std::string&& key, Webss&& value);
-		void addSafe(const std::string& key, const Webss& value);
 
 		const Webss& operator[](int index) const;
 		const Webss& operator[](const std::string& key) const;
@@ -118,11 +112,12 @@ namespace webss
 		const Dictionary& getDictionary() const;
 		const List& getList() const;
 		const Tuple& getTuple() const;
-		const FunctionHeadStandard& getFunctionHeadStandard() const;
 		const FunctionHeadBinary& getFunctionHeadBinary() const;
-		const FunctionStandard& getFunctionStandard() const;
+		const FunctionHeadScoped& getFunctionHeadScoped() const;
+		const FunctionHeadStandard& getFunctionHeadStandard() const;
 		const FunctionBinary& getFunctionBinary() const;
-//		const FunctionScoped& getFunctionScoped() const;
+		const FunctionScoped& getFunctionScoped() const;
+		const FunctionStandard& getFunctionStandard() const;
 		const Namespace& getNamespace() const;
 		const Enum& getEnum() const;
 		const BlockHead& getBlockHead() const;
@@ -139,8 +134,9 @@ namespace webss
 		bool isList() const;
 		bool isTuple() const;
 		bool isFunctionHead() const;
-		bool isFunctionHeadStandard() const;
 		bool isFunctionHeadBinary() const;
+		bool isFunctionHeadScoped() const;
+		bool isFunctionHeadStandard() const;
 		bool isNamespace() const;
 		bool isEnum() const;
 		bool isBlockHead() const;
@@ -161,11 +157,12 @@ namespace webss
 			Dictionary* dict;
 			List* list;
 			Tuple* tuple;
-			FunctionHeadStandard* fheadStandard;
 			FunctionHeadBinary* fheadBinary;
-			FunctionStandard* funcStandard;
+			FunctionHeadScoped* fheadScoped;
+			FunctionHeadStandard* fheadStandard;
 			FunctionBinary* funcBinary;
-//			FunctionScoped* funcScoped;
+			FunctionScoped* funcScoped;
+			FunctionStandard* funcStandard;
 			Namespace* nspace;
 			BlockHead* blockHead;
 			Block* block;

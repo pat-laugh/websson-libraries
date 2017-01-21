@@ -31,11 +31,6 @@ namespace webss
 		BasicParamStandard() : typeFhead(TypeFhead::NONE) {}
 
 		BasicParamStandard(Webss&& webss) : typeFhead(TypeFhead::NONE), defaultValue(new Webss(std::move(webss))) {}
-
-		BasicParamStandard(FheadStandard&& o) : typeFhead(TypeFhead::STANDARD), fheadStd(new FheadStandard(std::move(o))) {}
-		BasicParamStandard(const FheadStandard& o) : typeFhead(TypeFhead::STANDARD), fheadStd(new FheadStandard(o)) {}
-		BasicParamStandard(FheadBinary&& o) : typeFhead(TypeFhead::BINARY), entFheadBin(new FheadBinary(std::move(o))) {}
-		BasicParamStandard(const FheadBinary& o) : typeFhead(TypeFhead::BINARY), entFheadBin(new FheadBinary(o)) {}
 		~BasicParamStandard() { destroyUnion(); }
 
 		BasicParamStandard(BasicParamStandard&& o) { copyUnion(std::move(o)); }
@@ -68,36 +63,38 @@ namespace webss
 
 		TypeFhead getTypeFhead() const { return typeFhead; }
 
-		const FheadStandard& getFunctionHeadStandard() const
-		{
-			return *fheadStd;
-		}
+		const FheadBinary& getFunctionHeadBinary() const { return *fheadBin; }
+		const FheadScoped& getFunctionHeadScoped() const { return *fheadScoped; }
+		const FheadStandard& getFunctionHeadStandard() const { return *fheadStd; }
 
-		const FheadBinary& getFunctionHeadBinary() const
-		{
-			return *fheadBin;
-		}
-
-		void setFunctionHead(FheadStandard&& o)
-		{
-			typeFhead = TypeFhead::STANDARD;
-			fheadStd = new FheadStandard(std::move(o));
-		}
 		void setFunctionHead(FheadBinary&& o)
 		{
 			typeFhead = TypeFhead::BINARY;
 			fheadBin = new FheadBinary(std::move(o));
+		}
+		void setFunctionHead(FheadScoped&& o)
+		{
+			typeFhead = TypeFhead::SCOPED;
+			fheadScoped = new FheadScoped(std::move(o));
+		}
+		void setFunctionHead(FheadStandard&& o)
+		{
+			typeFhead = TypeFhead::STANDARD;
+			fheadStd = new FheadStandard(std::move(o));
 		}
 	private:
 		void destroyUnion()
 		{
 			switch (typeFhead)
 			{
-			case TypeFhead::STANDARD:
-				delete fheadStd;
-				break;
 			case TypeFhead::BINARY:
 				delete fheadBin;
+				break;
+			case TypeFhead::SCOPED:
+				delete fheadScoped;
+				break;
+			case TypeFhead::STANDARD:
+				delete fheadStd;
 				break;
 			default:
 				break;
@@ -108,29 +105,34 @@ namespace webss
 		{
 			switch (typeFhead = o.typeFhead)
 			{
-			case TypeFhead::STANDARD:
-				fheadStd = o.fheadStd;
-				o.typeFhead = TypeFhead::NONE;
-				break;
 			case TypeFhead::BINARY:
 				fheadBin = o.fheadBin;
-				o.typeFhead = TypeFhead::NONE;
+				break;
+			case TypeFhead::SCOPED:
+				fheadScoped = o.fheadScoped;
+				break;
+			case TypeFhead::STANDARD:
+				fheadStd = o.fheadStd;
 				break;
 			default:
 				break;
 			}
 
+			o.typeFhead = TypeFhead::NONE;
 			defaultValue = std::move(o.defaultValue);
 		}
 		void copyUnion(const BasicParamStandard& o)
 		{
 			switch (typeFhead = o.typeFhead)
 			{
-			case TypeFhead::STANDARD:
-				fheadStd = new FheadStandard(*o.fheadStd);
-				break;
 			case TypeFhead::BINARY:
 				fheadBin = new FheadBinary(*o.fheadBin);
+				break;
+			case TypeFhead::SCOPED:
+				fheadScoped = new FheadScoped(*o.fheadScoped);
+				break;
+			case TypeFhead::STANDARD:
+				fheadStd = new FheadStandard(*o.fheadStd);
 				break;
 			default:
 				break;

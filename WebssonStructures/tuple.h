@@ -4,7 +4,7 @@
 
 #include <memory>
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 namespace webss
@@ -15,7 +15,7 @@ namespace webss
 	public:
 		using Data = std::vector<T>;
 		using size_type = typename Data::size_type;
-		using Keymap = std::map<std::string, size_type>;
+		using Keymap = std::unordered_map<std::string, size_type>;
 
 		explicit BasicTuple(bool containerText = false) : keys(new Keymap()), containerText(containerText) {}
 		BasicTuple(Data&& data, bool containerText = false) : keys(nullptr), data(std::move(data)), containerText(containerText) {}

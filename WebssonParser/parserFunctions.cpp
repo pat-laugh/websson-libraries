@@ -163,7 +163,7 @@ private:
 						switch (*it)
 						{
 						case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case CHAR_COLON:
-							tuple.at(index) = parseFunctionContainer(it, FunctionHeadStandard(params));
+							tuple.at(index) = parseFunctionBodyStandard(it, params);
 							break;
 						default:
 							throw runtime_error(ERROR_UNEXPECTED);
@@ -175,7 +175,7 @@ private:
 						switch (*skipJunkToValid(it))
 						{
 						case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case CHAR_COLON:
-							tuple.at(name) = parseFunctionContainer(it, FunctionHeadStandard(params));
+							tuple.at(name) = parseFunctionBodyStandard(it, params);
 							break;
 						default:
 							throw runtime_error(ERROR_UNEXPECTED);
