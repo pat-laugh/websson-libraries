@@ -4,6 +4,7 @@
 
 #include <map>
 #include <set>
+#include <unordered_map>
 
 #include "entity.h"
 
@@ -19,7 +20,7 @@ namespace webss
 		static constexpr char* ERROR_ENTITY_EXISTSs1 = "entity already exists: ";
 #define ERROR_ENTITY_EXISTS(name) ERROR_ENTITY_EXISTSs1 + name
 		using Entity = BasicEntity<T>;
-		using Globals = std::map<std::string*, Entity, less_ptr<std::string>>;
+		using Globals = std::unordered_map<std::string, Entity>;
 #define name_cast const_cast<std::string*>
 		Globals globals;
 		std::set<std::string*, less_ptr<std::string>> locals;
@@ -104,20 +105,20 @@ namespace webss
 			auto entName = const_cast<std::string*>(&ent.getName());
 			ordered.insert({ entName, indexEnts++ });
 			locals.insert(entName);
-			globals.insert({ entName, std::move(ent) });
+			globals.insert({ *entName, std::move(ent) });
 		}
 		void add(const Entity& ent)
 		{
 			auto entName = const_cast<std::string*>(&ent.getName());
 			ordered.insert({ entName, indexEnts++ });
 			locals.insert(entName);
-			globals.insert({ entName, ent });
+			globals.insert({ *entName, ent });
 		}
 
 		//REQUIREMENT: name must be in the globals map
 		void addLocals(const std::string& name)
 		{
-			locals.insert(globals.find(name_cast(&name))->first); //add the correct pointer from map; not from the name provided!
+			locals.insert(name_cast(&globals.find(name)->second.getName())); //add the correct pointer from map; not from the name provided!
 		}
 		void addLocalsSafe(const std::string& name)
 		{
@@ -128,7 +129,7 @@ namespace webss
 		}
 
 		//returns true if s is a entity, else false
-		bool hasEntity(const std::string& s) const { return globals.find(name_cast(&s)) != globals.end(); }
+		bool hasEntity(const std::string& s) const { return globals.find(s) != globals.end(); }
 
 		//returns true if s is a local entity, else false
 		bool hasEntityLocals(const std::string& s) const { return locals.find(name_cast(&s)) != locals.end(); }
@@ -137,23 +138,23 @@ namespace webss
 		//REQUIREMENT: oldName must be the name of a entity and no entity with the name newName must exist
 		void changeName(const std::string& oldName, std::string&& newName)
 		{
-			auto oldName_p = name_cast(&oldName);
+			auto ptrOldName = name_cast(&oldName);
 
 			//all elements point to the entity's name, so their pointer's value is updated automatically
 			//but they still need to be removed and reinserted so that the trees balance themselves
 
-			auto it = globals.find(oldName_p);
+			auto it = globals.find(oldName);
 			auto ent = std::move(it->second);
-			auto entName_p = &ent->name;
+			auto ptrEntName = &ent->name;
 
 			//first erase the ent from all containers
 			globals.erase(it);
 
-			auto itOrdered = ordered.find(oldName_p);
+			auto itOrdered = ordered.find(ptrOldName);
 			auto index = itOrdered->second;
 			ordered.erase(itOrdered);
 
-			auto itLocals = locals.find(oldName_p);
+			auto itLocals = locals.find(ptrOldName);
 			bool localHasEnt;
 			if ((localHasEnt = itLocals != locals.end()))
 				locals.erase(itLocals);
@@ -161,17 +162,17 @@ namespace webss
 			//changed ent name then insert everything back
 			ent->name = std::move(newName);
 
-			globals.insert({ entName_p, std::move(ent) });
-			ordered.insert({ entName_p, index });
+			globals.insert({ *ptrEntName, std::move(ent) });
+			ordered.insert({ ptrEntName, index });
 			if (localHasEnt)
-				locals.insert(entName_p);
+				locals.insert(ptrEntName);
 		}
 
-		Entity& operator[](const std::string& name) { return globals.find(name_cast(&name))->second; }
-		const Entity& operator[](const std::string& name) const { return globals.find(name_cast(&name))->second; }
+		Entity& operator[](const std::string& name) { return globals.find(name)->second; }
+		const Entity& operator[](const std::string& name) const { return globals.find(name)->second; }
 
-		Entity& at(const std::string& name) { return globals.at(name_cast(&name)); }
-		const Entity& at(const std::string& name) const { return globals.at(name_cast(&name)); }
+		Entity& at(const std::string& name) { return globals.at(name); }
+		const Entity& at(const std::string& name) const { return globals.at(name); }
 
 		std::vector<std::string*> getOrderedLocals() const
 		{
@@ -194,7 +195,7 @@ namespace webss
 			removeOrdered(name_cast(&name));
 			if (hasEntityLocals(name))
 				removeLocals(name);
-			deleteEnt(globals.find(name_cast(&name)));
+			deleteEnt(globals.find(name));
 		}
 
 		//REQUIREMENT: entity must be in the locals set
@@ -209,7 +210,7 @@ namespace webss
 			//get the entities ordered by index
 			std::map<unsigned int, std::string*> tempOrdered;
 			for (const auto& globalsPair : globals)
-				tempOrdered.insert({ ordered.find(globalsPair.first)->second, globalsPair.first });
+				tempOrdered.insert({ ordered.find(&globalsPair.first)->second, name_cast(&globalsPair.second.getName()) });
 
 			//then reduce the indices as must as possible
 			unsigned int minIndex = 0;

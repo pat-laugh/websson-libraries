@@ -3,7 +3,7 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 namespace webss
@@ -14,7 +14,7 @@ namespace webss
 	public:
 		using Data = std::vector<T>;
 		using size_type = typename Data::size_type;
-		using Keymap = std::unordered_map<std::string, size_type>;
+		using Keymap = std::map<std::string, size_type>;
 
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }

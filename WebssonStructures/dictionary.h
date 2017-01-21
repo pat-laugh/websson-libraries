@@ -3,7 +3,7 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
+#include <map>
 
 namespace webss
 {
@@ -11,7 +11,7 @@ namespace webss
 	class BasicDictionary
 	{
 	public:
-		using Data = std::unordered_map<std::string, T>;
+		using Data = std::map<std::string, T>;
 		using size_type = typename Data::size_type;
 
 		bool empty() const { return data.empty(); }

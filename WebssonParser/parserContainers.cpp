@@ -128,7 +128,7 @@ Namespace Parser::parseNamespace(It& it, const string& name, const string& previ
 {
 	static const ConType CON = ConType::DICTIONARY;
 	string currentNamespace(previousNamespace + name + '.');
-	Namespace nspace(name);
+	auto&& nspace = Namespace::make(name);
 	if (checkEmptyContainer(it, CON))
 		return nspace;
 	do
@@ -144,7 +144,7 @@ Namespace Parser::parseNamespace(It& it, const string& name, const string& previ
 Enum Parser::parseEnum(It& it, const string& name)
 {
 	static const ConType CON = ConType::LIST;
-	Enum tEnum(name);
+	auto&& tEnum = Enum::make(name);
 	if (checkEmptyContainer(it, CON))
 		return tEnum;
 	do
