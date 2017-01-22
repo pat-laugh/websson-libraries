@@ -118,7 +118,7 @@ int main()
 
 	do
 	{
-		string filename("smallTest");
+		string filename("testWebsson");
 		Parser parser;
 		Document data;
 		string path("C:\\Users\\Pat-Laugh\\Desktop\\");

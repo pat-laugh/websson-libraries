@@ -174,7 +174,7 @@ Webss& Webss::operator=(const Webss& o)
 
 void Webss::copyUnion(Webss&& o)
 {
-	switch (t)
+	switch (o.t)
 	{
 	default:
 		break;
