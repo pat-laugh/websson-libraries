@@ -76,11 +76,7 @@ List Parser::parseList(It& it)
 	if (checkEmptyContainer(it, CON))
 		return list;
 	do
-		parseOtherValue(it, CON,
-			ErrorKeyValue(ERROR_INPUT_LIST),
-			ErrorKeyOnly(ERROR_INPUT_LIST),
-			CaseValueOnly{ list.add(move(value)); },
-			ErrorAbstractEntity(ERROR_INPUT_LIST));
+		list.add(parseValueOnly(it, CON));
 	while (checkNextElementContainer(it, CON));
 	return list;
 }

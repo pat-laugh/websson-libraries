@@ -89,11 +89,7 @@ Webss Parser::parseValueColon(It& it, ConType con)
 Webss Parser::parseValueEqual(It& it, ConType con)
 {
 	if (*skipJunkToValid(it) != CHAR_EQUAL)
-	{
-		auto other = parseOtherValue(it, con);
-		if (other.type == OtherValue::Type::VALUE_ONLY)
-			return move(other.value);
-	}
+		return parseValueOnly(it, con);
 	throw runtime_error("expected value-only not starting with an equal sign");
 }
 
@@ -141,14 +137,11 @@ Parser::OtherValue Parser::checkOtherValueEntity(It& it, ConType con, const Enti
 	switch (content.getType())
 	{
 	case WebssType::BLOCK_HEAD:
-		return{ Block(checkEntBlockHead(ent), parseValueEqual(it, con)) };
+		return{ Block(checkEntBlockHead(ent), parseValueOnly(it, con)) };
 	case WebssType::FUNCTION_HEAD_BINARY:
 		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadBinary(checkEntFheadBinary(ent)), parseFunctionBodyBinary(it, content.getFunctionHeadBinary().getParameters())) }, break)
 	case WebssType::FUNCTION_HEAD_SCOPED:
-	{
-		const auto& head = checkEntFheadScoped(ent);
-		return{ FunctionScoped(head, parseFunctionBodyScoped(it, head.getContent().getParameters(), con)) };
-	}
+		PatternLineGreed(isKeyChar(*it) || isNameStart(*it)|| isNumberStart(*it), const auto& head = checkEntFheadScoped(ent); return{ FunctionScoped(head, parseFunctionBodyScoped(it, head.getContent().getParameters(), con)) }, break)
 	case WebssType::FUNCTION_HEAD_STANDARD:
 		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadStandard(checkEntFheadStandard(ent)), parseFunctionBodyStandard(it, content.getFunctionHeadStandard().getParameters())) }, break)
 	default:
@@ -177,4 +170,12 @@ void Parser::parseOtherValue(It& it, ConType con, std::function<void(string&& ke
 	default:
 		throw domain_error("");
 	}
+}
+
+Webss Parser::parseValueOnly(It& it, ConType con)
+{
+	auto otherValue = parseOtherValue(skipJunkToValid(it), con);
+	if (otherValue.type != OtherValue::VALUE_ONLY)
+		throw runtime_error("expected value-only");
+	return move(otherValue.value);
 }

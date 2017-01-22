@@ -23,8 +23,6 @@ void setDefaultValueBinary(Tuple& tuple, const FunctionHeadBinary::Tuple& params
 
 #define BINARY_DEFAULT_VALUE 1
 
-//called only from parseFunctionHeadBinary (parserFunctions.cpp)
-//dependency: parseValueEqual
 void Parser::parseBinaryHead(It& it, FunctionHeadBinary& fhead)
 {
 	using Bhead = ParamBinary::SizeHead;
@@ -242,7 +240,6 @@ Tuple parseBinaryFunction(It& it, const FunctionHeadBinary::Tuple& params)
 	return tuple;
 }
 
-//dependency: entities
 ParamBinary::SizeList Parser::parseBinarySizeList(It& it)
 {
 	using Blist = ParamBinary::SizeList;

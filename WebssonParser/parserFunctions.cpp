@@ -27,7 +27,7 @@ public:
 					ents.addSafe(entPair.second);
 
 		//get value
-		auto webss = parseValueEqual(it, con);
+		auto webss = parseValueOnly(it, con);
 
 		//remove ents
 		for (const auto& param : params)
@@ -163,7 +163,7 @@ private:
 			return params.isText() ? parseFunctionBodyText(it, params) : parseFunctionBodyStandard(it, params);
 		}
 		default:
-			return parseValueEqual(it, CON);
+			return parseValueOnly(it, CON);
 		}
 	}
 
@@ -247,16 +247,9 @@ private:
 					}
 					else
 					{
-						parseOtherValue(it, CON,
-							ErrorKeyValue(ERROR_UNEXPECTED),
-							ErrorKeyOnly(webss_ERROR_UNDEFINED_KEYNAME(key)),
-							CaseValueOnly
-						{
-							if (params.at(index).hasFunctionHead())
+						if (params.at(index).hasFunctionHead())
 							throw runtime_error(ERROR_UNEXPECTED);
-						tuple.at(index) = move(value);
-						},
-							ErrorAbstractEntity(ERROR_UNEXPECTED));
+						tuple.at(index) = parseValueOnly(it, CON);
 					}
 					break;
 				}
@@ -287,7 +280,7 @@ Webss Parser::parseFunction(It& it, ConType con)
 	switch (headSwitch.t)
 	{
 	case Type::BLOCK:
-		return Block(move(headSwitch.blockHead), parseValueEqual(it, con));
+		return Block(move(headSwitch.blockHead), parseValueOnly(it, con));
 	case Type::BINARY:
 	{
 		auto head = move(headSwitch.fheadBinary);
