@@ -10,14 +10,14 @@ Entity Parser::parseConcreteEntity(It& it, ConType con)
 {
 	Entity ent;
 	parseOtherValue(it, con,
-		CaseKeyValue{ new (&ent) Entity(move(key), move(value)); },
+		CaseKeyValue{ ent = Entity(move(key), move(value)); },
 		CaseKeyOnly{ throw runtime_error(ERROR_EXPECTED); },
 		CaseValueOnly{ throw runtime_error(ERROR_UNEXPECTED); },
 		CaseAbstractEntity{ throw runtime_error(webss_ERROR_ENTITY_EXISTS(abstractEntity.getName())); });
 	return ent;
 }
 
-Entity Parser::parseAbstractEntity(It& it, const string& currentNamespace)
+Entity Parser::parseAbstractEntity(It& it, const Namespace& currentNamespace)
 {
 	auto name = parseNameSafe(it);
 	switch (*skipJunkToValid(it))
@@ -27,23 +27,7 @@ Entity Parser::parseAbstractEntity(It& it, const string& currentNamespace)
 	case OPEN_LIST:
 		return Entity(move(name), Webss(parseEnum(++it, name), true));
 	case OPEN_FUNCTION:
-	{
-		using Type = FunctionHeadSwitch::Type;
-		auto headSwitch = parseFunctionHead(++it);
-		switch (headSwitch.t)
-		{
-		case Type::BLOCK:
-			return Entity(move(name), move(headSwitch.blockHead));
-		case Type::BINARY:
-			return Entity(move(name), move(headSwitch.fheadBinary));
-		case Type::SCOPED:
-			return Entity(move(name), move(headSwitch.fheadScoped));
-		case Type::STANDARD:
-			return Entity(move(name), move(headSwitch.fheadStandard));
-		default:
-			throw logic_error("");
-		}
-	}
+		return Entity(move(name), parseFunctionHead(++it));
 	case CHAR_COLON:
 		if (++it != CHAR_COLON || skipJunk(++it) != OPEN_FUNCTION)
 			throw runtime_error("expected text function head");

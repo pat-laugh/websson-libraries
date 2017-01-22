@@ -18,7 +18,7 @@ WebssBinarySize checkBinarySize(WebssInt sizeInt);
 
 void setDefaultValueBinary(Tuple& tuple, const FunctionHeadBinary::Tuple& params, FunctionHeadBinary::Tuple::size_type index)
 {
-	tuple[index] = Webss(params[index].sizeHead.defaultValue);
+	tuple[index] = Webss(params[index].sizeHead.getDefaultPointer());
 }
 
 #define BINARY_DEFAULT_VALUE 1
@@ -42,13 +42,13 @@ void Parser::parseBinaryHead(It& it, FunctionHeadBinary& fhead)
 	Blist blist;
 	if (*it == CLOSE_TUPLE)
 	{
-		new (&bhead) Bhead(Bhead::Type::EMPTY);
-		new (&blist) Blist(Blist::Type::ONE);
+		bhead = Bhead(Bhead::Type::EMPTY);
+		blist = Blist(Blist::Type::ONE);
 	}
 	else if (*it == OPEN_LIST)
 	{
-		new (&bhead) Bhead(Bhead::Type::EMPTY);
-		new (&blist) Blist(parseBinarySizeList(++it));
+		bhead = Bhead(Bhead::Type::EMPTY);
+		blist = Blist(parseBinarySizeList(++it));
 	}
 	else
 	{
@@ -56,46 +56,46 @@ void Parser::parseBinaryHead(It& it, FunctionHeadBinary& fhead)
 		{
 			auto nameType = parseNameType(it);
 			if (nameType.type == NameType::KEYWORD)
-				new (&bhead) Bhead(nameType.keyword);
+				bhead = Bhead(nameType.keyword);
 			else if (nameType.type == NameType::ENTITY)
 			{
 				if (nameType.entity.getContent().getType() == WebssType::FUNCTION_HEAD_BINARY)
-					new (&bhead) Bhead(checkEntFheadBinary(nameType.entity));
+					bhead = Bhead(checkEntFheadBinary(nameType.entity));
 				else
-					new (&bhead) Bhead(checkEntTypeBinarySize(nameType.entity));
+					bhead = Bhead(checkEntTypeBinarySize(nameType.entity));
 			}
 			else
 				throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(nameType.name));
 		}
 		else if (isNumberStart(*it)) //line: 82, 77, 75
-			new (&bhead) Bhead(checkBinarySize(parseNumber(it).getInt()));
+			bhead = Bhead(checkBinarySize(parseNumber(it).getInt()));
 		else if (*it == OPEN_FUNCTION)
 		{
-			auto headSwitch = parseFunctionHead(++it);
-			if (!headSwitch.isBinary())
+			auto headWebss = parseFunctionHead(++it);
+			if (headWebss.t != WebssType::FUNCTION_HEAD_BINARY)
 				throw runtime_error(ERROR_BINARY_SIZE_HEAD);
-			new (&bhead) Bhead(move(headSwitch.fheadBinary));
+			bhead = Bhead(move(*headWebss.fheadBinary));
 		}
 
 		if (*skipJunkToValid(it) != OPEN_LIST)
-			new (&blist) Blist(Blist::Type::ONE);
+			blist = Blist(Blist::Type::ONE);
 		else
-			new (&blist) Blist(parseBinarySizeList(++it));
+			blist = Blist(parseBinarySizeList(++it));
 	}
 
-	bhead.flag = flag;
+	bhead.setFlag(flag);
 	skipJunkToValidCondition(it, [&]() { return *it == CLOSE_TUPLE; });
 	parseOtherValue(skipJunkToValid(++it), ConType::FUNCTION_HEAD,
 		CaseKeyValue
 		{
 			bhead.setDefaultValue(move(value));
-			if (bhead.flag != Flag::SELF)
-				bhead.flag = Flag::DEFAULT;
+			if (bhead.getFlag() != Flag::SELF)
+				bhead.setFlag(Flag::DEFAULT);
 			fhead.attach(move(key), ParamBinary(move(bhead), move(blist)));
 		},
 		CaseKeyOnly
 		{
-			if (bhead.flag == Flag::SELF)
+			if (bhead.getFlag() == Flag::SELF)
 				throw runtime_error("binary param declared with self must have a default value");
 			fhead.attach(move(key), ParamBinary(move(bhead), move(blist)));
 		},
@@ -200,15 +200,15 @@ Webss parseBinaryElement(It& it, const ParamBinary::SizeHead& bhead)
 	if (bhead.isKeyword())
 	{
 		WebssInt value = 0;
-		switch (bhead.keyword)
+		switch (bhead.getKeyword())
 		{
 		case Keyword::BOOL:
 			return Webss(readByte(it) != 0);
 		case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8:
-			readBytes(it, bhead.keyword.getSize(), reinterpret_cast<char*>(&value));
+			readBytes(it, bhead.getKeyword().getSize(), reinterpret_cast<char*>(&value));
 			return Webss(value);
 		case Keyword::DEC4: case Keyword::DEC8:
-			readBytes(it, bhead.keyword.getSize(), reinterpret_cast<char*>(&value));
+			readBytes(it, bhead.getKeyword().getSize(), reinterpret_cast<char*>(&value));
 			return Webss(static_cast<double>(value));
 		default:
 			throw domain_error("");
@@ -230,12 +230,12 @@ Tuple parseBinaryFunction(It& it, const FunctionHeadBinary::Tuple& params)
 	for (Tuple::size_type i = 0; i < tuple.size(); ++i)
 	{
 		const auto& bhead = params[i];
-		if (bhead.sizeHead.flag == Bhead::Flag::NONE)
+		if (bhead.sizeHead.getFlag() == Bhead::Flag::NONE)
 			tuple[i] = parseBinary(it, bhead);
 		else if (readByte(it) == BINARY_DEFAULT_VALUE)
 			setDefaultValueBinary(tuple, params, i);
 		else
-			tuple[i] = bhead.sizeHead.flag == Bhead::Flag::DEFAULT ? parseBinary(it, bhead) : parseBinaryFunction(it, params);
+			tuple[i] = bhead.sizeHead.getFlag() == Bhead::Flag::DEFAULT ? parseBinary(it, bhead) : parseBinaryFunction(it, params);
 	}
 	return tuple;
 }
@@ -243,9 +243,8 @@ Tuple parseBinaryFunction(It& it, const FunctionHeadBinary::Tuple& params)
 ParamBinary::SizeList Parser::parseBinarySizeList(It& it)
 {
 	using Blist = ParamBinary::SizeList;
-	using Type = Blist::Type;
 	if (checkEmptyContainer(it, ConType::LIST))
-		return Blist(Type::EMPTY);
+		return Blist(Blist::Type::EMPTY);
 
 	Blist blist;
 	try
@@ -255,10 +254,10 @@ ParamBinary::SizeList Parser::parseBinarySizeList(It& it)
 			auto nameType = parseNameType(it);
 			if (nameType.type != NameType::ENTITY)
 				throw;
-			new (&blist) Blist(checkEntTypeBinarySize(nameType.entity));
+			blist = Blist(checkEntTypeBinarySize(nameType.entity));
 		}
 		else if (isNumberStart(*it))
-			new (&blist) Blist(checkBinarySize(parseNumber(it).getInt()));
+			blist = Blist(checkBinarySize(parseNumber(it).getInt()));
 		else
 			throw;
 	}
@@ -266,7 +265,6 @@ ParamBinary::SizeList Parser::parseBinarySizeList(It& it)
 	{
 		throw runtime_error("value in binary list must be void or a positive integer");
 	}
-
 	skipJunkToValidCondition(it, [&]() { return *it == CLOSE_LIST; });
 	++it;
 	return blist;

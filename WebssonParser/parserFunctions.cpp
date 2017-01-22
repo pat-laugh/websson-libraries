@@ -150,14 +150,13 @@ private:
 	Webss parseFunctionContainer(It& it, const ParamStandard& defaultValue)
 	{
 		static const ConType CON = ConType::TUPLE;
-		using Type = ParamStandard::TypeFhead;
 		switch (defaultValue.getTypeFhead())
 		{
-		case Type::BINARY:
+		case WebssType::FUNCTION_HEAD_BINARY:
 			return parseFunctionBodyBinary(it, defaultValue.getFunctionHeadBinary().getParameters());
-		case Type::SCOPED:
+		case WebssType::FUNCTION_HEAD_SCOPED:
 			return parseFunctionBodyScoped(it, defaultValue.getFunctionHeadScoped().getParameters(), CON);
-		case Type::STANDARD:
+		case WebssType::FUNCTION_HEAD_STANDARD:
 		{
 			const auto& params = defaultValue.getFunctionHeadStandard().getParameters();
 			return params.isText() ? parseFunctionBodyText(it, params) : parseFunctionBodyStandard(it, params);
@@ -275,27 +274,26 @@ private:
 
 Webss Parser::parseFunction(It& it, ConType con)
 {
-	using Type = FunctionHeadSwitch::Type;
-	auto headSwitch = parseFunctionHead(it);
-	switch (headSwitch.t)
+	auto headWebss = parseFunctionHead(it);
+	switch (headWebss.t)
 	{
-	case Type::BLOCK:
-		return Block(move(headSwitch.blockHead), parseValueOnly(it, con));
-	case Type::BINARY:
+	case WebssType::BLOCK_HEAD:
+		return Block(move(*headWebss.blockHead), parseValueOnly(it, con));
+	case WebssType::FUNCTION_HEAD_BINARY:
 	{
-		auto head = move(headSwitch.fheadBinary);
+		auto head = move(*headWebss.fheadBinary);
 		auto body = parseFunctionBodyBinary(it, head.getParameters());
 		return{ move(head), move(body) };
 	}
-	case Type::SCOPED:
+	case WebssType::FUNCTION_HEAD_SCOPED:
 	{
-		auto head = move(headSwitch.fheadScoped);
+		auto head = move(*headWebss.fheadScoped);
 		auto body = parseFunctionBodyScoped(it, head.getParameters(), con);
 		return FunctionScoped(move(head), move(body));
 	}
-	case Type::STANDARD:
+	case WebssType::FUNCTION_HEAD_STANDARD:
 	{
-		auto head = move(headSwitch.fheadStandard);
+		auto head = move(*headWebss.fheadStandard);
 		auto body = parseFunctionBodyStandard(it, head.getParameters());
 		return{ move(head), move(body) };
 	}

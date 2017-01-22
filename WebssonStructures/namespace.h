@@ -19,6 +19,12 @@ namespace webss
 		using size_type = typename Data::size_type;
 		using Namespaces = std::vector<std::shared_ptr<This<Webss>>>;
 
+		static const This& getEmptyInstance()
+		{
+			static This nspace;
+			return nspace;
+		}
+
 		static This& make(std::string&& name)
 		{
 			std::shared_ptr<This<Webss>> ptrThis(new This(std::move(name)));
@@ -48,50 +54,22 @@ namespace webss
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }
 
-		void add(std::string&& key, Webss&& value)
-		{
-			Entity ent(std::string(key), std::move(value));
-			add(std::move(ent));
-		}
-		void add(const std::string& key, const Webss& value)
-		{
-			Entity ent(key, value);
-			add(std::move(ent));
-		}
+		void add(std::string&& key, Webss&& value) { add(Entity(std::string(key), std::move(value))); }
+		void add(const std::string& key, const Webss& value) { add(Entity(key, value)); }
+		void addSafe(std::string&& key, Webss&& value) { addSafe(Entity(std::move(key), std::move(value))); }
+		void addSafe(const std::string& key, const Webss& value) { addSafe(Entity(key, value)); }
 
 		void add(Entity&& ent)
 		{
+			ent.setNamespace(getPointer());
 			data.insert({ std::string(ent.getName()), std::move(ent) });
 		}
-		void add(const Entity& ent)
-		{
-			data.insert({ ent.getName(), ent });
-		}
-
-		void addSafe(std::string&& key, Webss&& value)
-		{
-			Entity ent(std::move(key), std::move(value));
-			addSafe(std::move(ent));
-		}
-		void addSafe(const std::string& key, const Webss& value)
-		{
-			Entity ent(key, value);
-			addSafe(std::move(ent));
-		}
-
 		void addSafe(Entity&& ent)
 		{
 			if (has(ent.getName()))
 				throw std::runtime_error(ERROR_DUPLICATE_KEY_NAMESPACE + ent.getName());
 
 			add(std::move(ent));
-		}
-		void addSafe(const Entity& ent)
-		{
-			if (has(ent.getName()))
-				throw std::runtime_error(ERROR_DUPLICATE_KEY_NAMESPACE + ent.getName());
-
-			add(ent);
 		}
 
 		bool has(const std::string& key) const { return data.find(key) != data.end(); }
@@ -114,6 +92,7 @@ namespace webss
 		}
 
 		const std::string& getName() const { return name; }
+		const std::shared_ptr<This<Webss>>& getPointer() const { return nspaces.back(); }
 
 		typename Data::iterator begin() { return data.begin(); }
 		typename Data::iterator end() { return data.end(); }
@@ -125,6 +104,8 @@ namespace webss
 		std::string name;
 		Data data;
 		Namespaces nspaces;
+
+		This() {}
 
 		This(std::string&& name) : name(std::move(name)) {}
 		This(const std::string& name) : name(name) {}

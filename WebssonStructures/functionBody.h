@@ -19,14 +19,6 @@ namespace webss
 		using List = BasicList<Webss>;
 		using Tuple = BasicTuple<Webss>;
 
-		WebssType type;
-		union
-		{
-			Dictionary dict;
-			List list;
-			Tuple tuple;
-		};
-
 		This(Dictionary&& dict) : type(WebssType::DICTIONARY), dict(std::move(dict)) {}
 		This(List&& list) : type(WebssType::LIST), list(std::move(list)) {}
 		This(Tuple&& tuple) : type(WebssType::TUPLE), tuple(std::move(tuple)) {}
@@ -41,11 +33,8 @@ namespace webss
 
 		This& operator=(This&& o)
 		{
-			if (this != &o)
-			{
-				destroyUnion();
-				copyUnion(std::move(o));
-			}
+			destroyUnion();
+			copyUnion(std::move(o));
 			return *this;
 		}
 		This& operator=(const This& o)
@@ -209,6 +198,14 @@ namespace webss
 		static constexpr char* ERROR_DICTIONARY_ACCESS_INDEX = "can't access dictionary with an index";
 		static constexpr char* ERROR_LIST_ACCESS_KEY = "can't access list with a key";
 
+		WebssType type = WebssType::NONE;
+		union
+		{
+			Dictionary dict;
+			List list;
+			Tuple tuple;
+		};
+
 		void destroyUnion()
 		{
 			switch (type)
@@ -223,30 +220,36 @@ namespace webss
 				tuple.~BasicTuple();
 				break;
 			default:
-				throw logic_error("");
+				throw std::logic_error("");
 			}
+			type = WebssType::NONE;
 		}
 
 		void copyUnion(This&& o)
 		{
-			switch ((type = o.type))
+			switch (o.type)
 			{
 			case WebssType::DICTIONARY:
 				new (&dict) Dictionary(std::move(o.dict));
+				o.dict.~BasicDictionary();
 				break;
 			case WebssType::LIST:
 				new (&list) List(std::move(o.list));
+				o.list.~BasicList();
 				break;
 			case WebssType::TUPLE:
 				new (&tuple) Tuple(std::move(o.tuple));
+				o.tuple.~BasicTuple();
 				break;
 			default:
-				throw logic_error("");
+				throw std::logic_error("");
 			}
+			type = o.type;
+			o.type = WebssType::NONE;
 		}
 		void copyUnion(const This& o)
 		{
-			switch ((type = o.type))
+			switch (o.type)
 			{
 			case WebssType::DICTIONARY:
 				new (&dict) Dictionary(o.dict);
@@ -258,8 +261,9 @@ namespace webss
 				new (&tuple) Tuple(o.tuple);
 				break;
 			default:
-				throw logic_error("");
+				throw std::logic_error("");
 			}
+			type = o.type;
 		}
 	};
 #undef This

@@ -12,9 +12,15 @@ Webss::Webss(Keyword keyword) : t(WebssType::PRIMITIVE_BOOL)
 {
 	switch (keyword)
 	{
-	case Keyword::KEY_NULL: t = WebssType::PRIMITIVE_NULL; break;
-	case Keyword::KEY_FALSE: tBool = false; break;
-	case Keyword::KEY_TRUE: tBool = true; break;
+	case Keyword::KEY_NULL:
+		t = WebssType::PRIMITIVE_NULL;
+		break;
+	case Keyword::KEY_FALSE:
+		tBool = false;
+		break;
+	case Keyword::KEY_TRUE:
+		tBool = true;
+		break;
 	default:
 		throw runtime_error("can't get keyword value: " + keyword.toString());
 	}
@@ -65,7 +71,7 @@ PATTERN_CONSTRUCT_CONST(BlockHead, blockHead, BLOCK_HEAD)
 PATTERN_CONSTRUCT_CONST(Block, block, BLOCK)
 
 #define PatternConstructFunction(Type, TypeCaps) \
-Webss::Webss(FunctionHead##Type&& head, Webss&& body) : t(WebssType::FUNCTION_##TypeCaps) \
+Webss::Webss(FunctionHead##Type&& head, Webss&& body) \
 { \
 	switch (body.t) \
 	{ \
@@ -81,6 +87,7 @@ Webss::Webss(FunctionHead##Type&& head, Webss&& body) : t(WebssType::FUNCTION_##
 	default: \
 		throw domain_error(""); \
 	} \
+	t = WebssType::FUNCTION_##TypeCaps; \
 }
 
 PatternConstructFunction(Binary, BINARY)
@@ -143,17 +150,15 @@ void Webss::destroyUnion()
 		tDefault.~shared_ptr();
 		break;
 	default:
-		break;
+		return;
 	}
+	t = WebssType::NONE;
 }
 
 Webss& Webss::operator=(Webss&& o)
 {
-	if (this != &o)
-	{
-		destroyUnion();
-		copyUnion(move(o));
-	}
+	destroyUnion();
+	copyUnion(move(o));
 	return *this;
 }
 
@@ -169,19 +174,19 @@ Webss& Webss::operator=(const Webss& o)
 
 void Webss::copyUnion(Webss&& o)
 {
-	switch (t = o.t)
+	switch (t)
 	{
 	default:
-		return;
+		break;
 	case WebssType::PRIMITIVE_BOOL:
 		tBool = o.tBool;
-		return;
+		break;
 	case WebssType::PRIMITIVE_INT:
 		tInt = o.tInt;
-		return;
+		break;
 	case WebssType::PRIMITIVE_DOUBLE:
 		tDouble = o.tDouble;
-		return;
+		break;
 
 	case WebssType::PRIMITIVE_STRING:
 		tString = o.tString;
@@ -227,11 +232,14 @@ void Webss::copyUnion(Webss&& o)
 		break;
 	case WebssType::ENTITY:
 		new (&ent) Entity(move(o.ent));
+		o.ent.~BasicEntity();
 		break;
 	case WebssType::DEFAULT:
 		new (&tDefault) Default(move(o.tDefault));
+		o.tDefault.~shared_ptr();
 		break;
 	}
+	t = o.t;
 	o.t = WebssType::NONE;
 }
 
@@ -240,16 +248,16 @@ void Webss::copyUnion(const Webss& o)
 	switch (o.t)
 	{
 	default:
-		return;
+		break;
 	case WebssType::PRIMITIVE_BOOL:
 		tBool = o.tBool;
-		return;
+		break;
 	case WebssType::PRIMITIVE_INT:
 		tInt = o.tInt;
-		return;
+		break;
 	case WebssType::PRIMITIVE_DOUBLE:
 		tDouble = o.tDouble;
-		return;
+		break;
 
 	case WebssType::PRIMITIVE_STRING:
 		tString = new string(*o.tString);
@@ -472,7 +480,6 @@ WebssInt Webss::getInt() const
 		return tInt;
 	default:
 		throw runtime_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::PRIMITIVE_INT).toString() + ERROR_COULD_NOT_GETs2 + t.toString());
-
 	}
 }
 
@@ -581,7 +588,7 @@ bool Webss::isDictionary() const
 		return ent.getContent().isDictionary();
 	case WebssType::DEFAULT:
 		return tDefault->isDictionary();
-	case WebssType::LIST:
+	case WebssType::DICTIONARY:
 		return true;
 	case WebssType::FUNCTION_BINARY:
 		return funcBinary->isDictionary();

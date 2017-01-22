@@ -14,15 +14,8 @@ namespace webss
 		using Namespace = BasicNamespace<Webss>;
 
 		enum class Type { NONE, ENTITY, NAMESPACE };
-
-		Type type;
-		union
-		{
-			Entity ent;
-			Namespace nspace;
-		};
 		
-		This() : type(Type::NONE) {}
+		This() {}
 		This(Entity&& ent) : type(Type::ENTITY), ent(std::move(ent)) {}
 		This(const Entity& ent) : type(Type::ENTITY), ent(ent) {}
 		This(const Namespace& nspace) : type(Type::NAMESPACE), nspace(nspace) {}
@@ -34,11 +27,8 @@ namespace webss
 
 		This& operator=(This&& o)
 		{
-			if (this != &o)
-			{
-				destroyUnion();
-				copyUnion(std::move(o));
-			}
+			destroyUnion();
+			copyUnion(std::move(o));
 			return *this;
 		}
 		This& operator=(const This& o)
@@ -57,6 +47,13 @@ namespace webss
 		const Entity& getEntity() const { return ent; }
 		const Namespace& getNamespace() const { return nspace; }
 	private:
+		Type type = Type::NONE;
+		union
+		{
+			Entity ent;
+			Namespace nspace;
+		};
+
 		void destroyUnion()
 		{
 			switch (type)
@@ -70,27 +67,30 @@ namespace webss
 			default:
 				break;
 			}
+			type = Type::NONE;
 		}
 
 		void copyUnion(This&& o)
 		{
-			switch (type = o.type)
+			switch (o.type)
 			{
 			case Type::ENTITY:
 				new (&ent) Entity(std::move(o.ent));
-				o.type = Type::NONE;
+				o.ent.~BasicEntity();
 				break;
 			case Type::NAMESPACE:
 				new (&nspace) Namespace(std::move(o.nspace));
-				o.type = Type::NONE;
+				o.nspace.~BasicNamespace();
 				break;
 			default:
 				break;
 			}
+			type = o.type;
+			o.type = Type::NONE;
 		}
 		void copyUnion(const This& o)
 		{
-			switch (type = o.type)
+			switch (o.type)
 			{
 			case Type::ENTITY:
 				new (&ent) Entity(o.ent);
@@ -101,6 +101,7 @@ namespace webss
 			default:
 				break;
 			}
+			type = o.type;
 		}
 	};
 #undef This

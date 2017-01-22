@@ -89,28 +89,35 @@ namespace webss
 				default:
 					break;
 				}
+				t = Type::NONE;
 			}
 			void copyUnion(FunctionHeadSwitch&& o)
 			{
-				switch ((t = o.t))
+				switch (o.t)
 				{
 				case Type::NONE:
 					break;
 				case Type::BLOCK:
-					blockHead = std::move(o.blockHead);
+					new (&blockHead) BlockHead(std::move(o.blockHead));
+					o.blockHead.~BasicBlockHead();
 					break;
 				case Type::BINARY:
-					fheadBinary = std::move(o.fheadBinary);
+					new (&fheadBinary) FunctionHeadBinary(std::move(o.fheadBinary));
+					o.fheadBinary.~BasicFunctionHead();
 					break;
 				case Type::SCOPED:
-					fheadScoped = std::move(o.fheadScoped);
+					new (&fheadScoped) FunctionHeadScoped(std::move(o.fheadScoped));
+					o.fheadScoped.~BasicFunctionHead();
 					break;
 				case Type::STANDARD:
-					fheadStandard = std::move(o.fheadStandard);
+					new (&fheadStandard) FunctionHeadStandard(std::move(o.fheadStandard));
+					o.fheadStandard.~BasicFunctionHead();
 					break;
 				default:
 					throw std::logic_error("");
 				}
+				t = o.t;
+				o.t = Type::NONE;
 			}
 		};
 
@@ -161,7 +168,7 @@ namespace webss
 		Tuple parseTupleText(It& it);
 		List parseListText(It& it);
 		Dictionary parseDictionary(It& it);
-		Namespace parseNamespace(It& it, const std::string& name, const std::string& previousNamespace);
+		Namespace parseNamespace(It& it, const std::string& name, const Namespace& previousNamespace);
 		Enum parseEnum(It& it, const std::string& name);
 		Webss parseContainerText(It& it);
 
@@ -192,13 +199,13 @@ namespace webss
 
 		//parserEntities.cpp
 		Entity parseConcreteEntity(It& it, ConType con);
-		Entity parseAbstractEntity(It& it, const std::string& currentNamespace);
+		Entity parseAbstractEntity(It& it, const Namespace& currentNamespace);
 		std::string parseName(It& it);
 		std::string parseNameSafe(It& it);
 		void parseUsingNamespace(It& it, std::function<void(const Entity& ent)> funcForEach);
 
 		//parserFunctions.cpp
-		FunctionHeadSwitch parseFunctionHead(It& it);
+		Webss parseFunctionHead(It& it);
 		FunctionHeadStandard parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead);
 		FunctionHeadBinary parseFunctionHeadBinary(It& it, FunctionHeadBinary&& fhead);
 		FunctionHeadScoped parseFunctionHeadScoped(It& it, FunctionHeadScoped&& fhead);

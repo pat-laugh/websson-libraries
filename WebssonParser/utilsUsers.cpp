@@ -56,7 +56,7 @@ ParamBinary webss::makeBinaryDefault(Keyword keyword, Webss&& defaultValue, Webs
 		throw std::domain_error("invalid binary type: " + keyword.toString());
 
 	ParamBinary::SizeHead bhead(keyword);
-	bhead.flag = ParamBinary::SizeHead::Flag::DEFAULT;
+	bhead.setFlag(ParamBinary::SizeHead::Flag::DEFAULT);
 	bhead.setDefaultValue(Webss(std::move(defaultValue)));
 	if (sizeList == 0)
 		return ParamBinary(std::move(bhead), ParamBinary::SizeList(ParamBinary::SizeList::Type::EMPTY));
@@ -74,7 +74,7 @@ ParamBinary webss::makeBinarySelf(Keyword keyword, Webss&& defaultValue, WebssBi
 		throw std::domain_error("invalid binary type: " + keyword.toString());
 
 	ParamBinary::SizeHead bhead(keyword);
-	bhead.flag = ParamBinary::SizeHead::Flag::SELF;
+	bhead.setFlag(ParamBinary::SizeHead::Flag::SELF);
 	bhead.setDefaultValue(Webss(std::move(defaultValue)));
 	if (sizeList == 0)
 		return ParamBinary(std::move(bhead), ParamBinary::SizeList(ParamBinary::SizeList::Type::EMPTY));

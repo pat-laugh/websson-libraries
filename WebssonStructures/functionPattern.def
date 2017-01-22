@@ -1,20 +1,20 @@
 //MIT License
 //Copyright(c) 2016 Patrick Laughrea
-//sets constructors of function body
+//sets constructors of function Body
 //takes two params: ClassName and BodyParameter
 
-#define HeadTuple typename head::Tuple
-#define HeadPointer typename head::Pointer
-#define HeadEntity typename head::Entity
+#define HeadTuple typename Head::Tuple
+#define HeadPointer typename Head::Pointer
+#define HeadEntity typename Head::Entity
 
-ClassName(FunctionHead&& head, BodyParameter&& body) : head(std::move(head)), body(std::move(body)) {}
-ClassName(const FunctionHead& head, const BodyParameter& body) : head(head), body(body) {}
-ClassName(HeadTuple&& head, BodyParameter&& body) : head(std::move(head)), body(std::move(body)) {}
-ClassName(const HeadTuple& head, const BodyParameter& body) : head(head), body(body) {}
-ClassName(const HeadPointer& head, BodyParameter&& body) : head(head), body(std::move(body)) {}
-ClassName(const HeadPointer& head, const BodyParameter& body) : head(head), body(body) {}
-ClassName(const HeadEntity& head, BodyParameter&& body) : head(head), body(std::move(body)) {}
-ClassName(const HeadEntity& head, const BodyParameter& body) : head(head), body(body) {}
+ClassName(FunctionHead&& Head, BodyParameter&& Body) : Head(std::move(Head)), Body(std::move(Body)) {}
+ClassName(const FunctionHead& Head, const BodyParameter& Body) : Head(Head), Body(Body) {}
+ClassName(HeadTuple&& Head, BodyParameter&& Body) : Head(std::move(Head)), Body(std::move(Body)) {}
+ClassName(const HeadTuple& Head, const BodyParameter& Body) : Head(Head), Body(Body) {}
+ClassName(const HeadPointer& Head, BodyParameter&& Body) : Head(Head), Body(std::move(Body)) {}
+ClassName(const HeadPointer& Head, const BodyParameter& Body) : Head(Head), Body(Body) {}
+ClassName(const HeadEntity& Head, BodyParameter&& Body) : Head(Head), Body(std::move(Body)) {}
+ClassName(const HeadEntity& Head, const BodyParameter& Body) : Head(Head), Body(Body) {}
 
 #undef HeadEntity
 #undef HeadPointer

@@ -290,10 +290,10 @@ void webss::putParamBinary(StringBuilder& out, FUNC_PARAMS_BINARY)
 	putBinarySizeHead(out, value.sizeHead);
 	out += key;
 	putBinarySizeList(out, value.sizeList);
-	if (value.sizeHead.flag != ParamBinary::SizeHead::Flag::NONE)
+	if (value.sizeHead.getFlag() != ParamBinary::SizeHead::Flag::NONE)
 	{
 		out += CHAR_EQUAL;
-		putValueOnly(out, *value.sizeHead.defaultValue, ConType::FUNCTION_HEAD);
+		putValueOnly(out, value.sizeHead.getDefaultValue(), ConType::FUNCTION_HEAD);
 	}
 }
 

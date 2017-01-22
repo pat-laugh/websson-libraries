@@ -120,20 +120,28 @@ Tuple Parser::parseTupleText(It& it)
 	return tuple;
 }
 
-Namespace Parser::parseNamespace(It& it, const string& name, const string& previousNamespace)
+Namespace Parser::parseNamespace(It& it, const string& name, const Namespace& previousNamespace)
 {
 	static const ConType CON = ConType::DICTIONARY;
-	string currentNamespace(previousNamespace + name + '.');
-	auto&& nspace = Namespace::make(name);
+	auto& nspace = Namespace::make(name, previousNamespace);
 	if (checkEmptyContainer(it, CON))
 		return nspace;
 	do
-		if (*it == CHAR_CONCRETE_ENTITY)
-			checkMultiContainer(++it, [&]() { auto ent = parseConcreteEntity(it, CON); nspace.add(ent.copyContent(currentNamespace + ent.getName())); });
-		else if (*it == CHAR_ABSTRACT_ENTITY)
-			checkMultiContainer(++it, [&]() { auto ent = parseAbstractEntity(it, currentNamespace); nspace.add(ent.copyContent(currentNamespace + ent.getName())); });
-		else
+		switch (*it)
+		{
+		case CHAR_CONCRETE_ENTITY:
+			checkMultiContainer(++it, [&]() { nspace.addSafe(parseConcreteEntity(it, CON)); });
+			break;
+		case CHAR_ABSTRACT_ENTITY:
+			checkMultiContainer(++it, [&]() { nspace.addSafe(parseAbstractEntity(it, nspace)); });
+			break;
+		case CHAR_SELF:
+			skipJunkToValidCondition(++it, [&]() { return *it == OPEN_FUNCTION; });
+			nspace.addSafe(Entity(string(name), parseFunctionHead(++it)));
+			break;
+		default:
 			throw runtime_error(ERROR_INPUT_NAMESPACE);
+		}
 	while (checkNextElementContainer(it, CON));
 	return nspace;
 }
@@ -156,7 +164,7 @@ Enum Parser::parseEnum(It& it, const string& name)
 Document Parser::parseDocument(It&& it)
 {
 	static const ConType CON = ConType::DOCUMENT;
-	static const string currentNamespace("");
+	static const auto& currentNamespace = Namespace::getEmptyInstance();
 #ifdef GET_LINE
 	try
 	{

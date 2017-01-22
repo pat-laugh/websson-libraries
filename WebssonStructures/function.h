@@ -12,16 +12,16 @@ namespace webss
 	class ClassName : public FunctionHead, public BasicFunctionBody<Webss>
 	{
 	private:
-		using head = FunctionHead;
-		using body = BasicFunctionBody<Webss>;
+		using Head = FunctionHead;
+		using Body = BasicFunctionBody<Webss>;
 	public:
-#define BodyParameter typename body::Dictionary
+#define BodyParameter typename Body::Dictionary
 #include "functionPattern.def"
 #undef BodyParameter
-#define BodyParameter typename body::List
+#define BodyParameter typename Body::List
 #include "functionPattern.def"
 #undef BodyParameter
-#define BodyParameter typename body::Tuple
+#define BodyParameter typename Body::Tuple
 #include "functionPattern.def"
 #undef BodyParameter
 	};

@@ -22,31 +22,15 @@ namespace webss
 			using FunctionHead = BasicFunctionHead<BasicParamBinary>;
 			using EntityFunctionHead = BasicEntity<FunctionHead>;
 			using EntityNumber = BasicEntity<WebssBinarySize>;
-			using Default = std::shared_ptr<Webss>;
 			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, KEYWORD, NUMBER, FUNCTION_HEAD, FUNCTION_HEAD_POINTER, ENTITY_NUMBER, ENTITY_FUNCTION_HEAD };
 			enum class Flag { NONE, DEFAULT, SELF };
 
-			Type t;
-			union
-			{
-				Keyword keyword;
-				WebssBinarySize number;
-				EntityFunctionHead entFunctionHead;
-				EntityNumber entNumber;
-				FunctionHead* fhead;
-			};
-
-			Flag flag = Flag::NONE;
-			Default defaultValue;
-
-
-			BasicSizeHead() : t(Type::NONE) {}
-			BasicSizeHead(Keyword keyword)
+			BasicSizeHead() {}
+			BasicSizeHead(Keyword keyword) : t(Type::KEYWORD)
 			{
 				switch (keyword)
 				{
 				case Keyword::BOOL: case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8: case Keyword::DEC4: case Keyword::DEC8:
-					t = Type::KEYWORD;
 					this->keyword = keyword;
 					break;
 				case Keyword::STRING:
@@ -57,28 +41,33 @@ namespace webss
 				}
 			}
 			BasicSizeHead(const EntityFunctionHead& newEnt) : t(Type::ENTITY_FUNCTION_HEAD), entFunctionHead(newEnt) {}
-			BasicSizeHead(const EntityNumber& newEnt) : entNumber(newEnt)
+			BasicSizeHead(const EntityNumber& newEnt) : t(Type::ENTITY_NUMBER), entNumber(newEnt)
 			{
 				auto num = newEnt.getContent();
-				if (num > 0)
-					t = Type::ENTITY_NUMBER;
-				else if (num == 0)
-					t = Type::EMPTY_ENTITY_NUMBER;
-				else
-					throw std::runtime_error(ERROR_BINARY_SIZE_HEAD);
+				if (num <= 0)
+				{
+					if (num == 0)
+						t = Type::EMPTY_ENTITY_NUMBER;
+					else
+					{
+						entNumber.~BasicEntity();
+						throw std::runtime_error(ERROR_BINARY_SIZE_HEAD);
+					}
+				}
 			}
-			BasicSizeHead(WebssBinarySize number) : number(number)
+			BasicSizeHead(WebssBinarySize number) : t(Type::NUMBER), number(number)
 			{
-				if (number > 0)
-					t = Type::NUMBER;
-				else if (number == 0)
-					t = Type::EMPTY;
-				else
-					throw std::runtime_error(ERROR_BINARY_SIZE_HEAD);
+				if (number <= 0)
+				{
+					if (number == 0)
+						t = Type::EMPTY;
+					else
+						throw std::runtime_error(ERROR_BINARY_SIZE_HEAD);
+				}
 			}
-			BasicSizeHead(FunctionHead&& o) : t(Type::FUNCTION_HEAD) { fhead = new FunctionHead(std::move(o)); }
-			BasicSizeHead(const FunctionHead& o) : t(Type::FUNCTION_HEAD) { fhead = new FunctionHead(o); }
-			BasicSizeHead(FunctionHead* o) : t(Type::FUNCTION_HEAD_POINTER) { fhead = o; }
+			BasicSizeHead(FunctionHead&& o) : t(Type::FUNCTION_HEAD), fhead(new FunctionHead(std::move(o))) {}
+			BasicSizeHead(const FunctionHead& o) : t(Type::FUNCTION_HEAD), fhead(new FunctionHead(o)) {}
+			BasicSizeHead(FunctionHead* o) : t(Type::FUNCTION_HEAD_POINTER), fhead(o) {}
 
 			BasicSizeHead(Type t) : t(t)
 			{
@@ -93,18 +82,13 @@ namespace webss
 
 			~BasicSizeHead() { destroyUnion(); }
 
-			
-
 			BasicSizeHead(BasicSizeHead&& o) { copyUnion(std::move(o)); }
 			BasicSizeHead(const BasicSizeHead& o) { copyUnion(o); }
 
 			BasicSizeHead& operator=(BasicSizeHead&& o)
 			{
-				if (this != &o)
-				{
-					destroyUnion();
-					copyUnion(std::move(o));
-				}
+				destroyUnion();
+				copyUnion(std::move(o));
 				return *this;
 			}
 			BasicSizeHead& operator=(const BasicSizeHead& o)
@@ -117,15 +101,20 @@ namespace webss
 				return *this;
 			}
 
-			Flag getFlag() { return flag; }
+			Flag getFlag() const { return flag; }
 			void setFlag(Flag f) { flag = f; }
-
 			bool isEmpty() const { return t == Type::EMPTY || t == Type::EMPTY_ENTITY_NUMBER; }
 			bool isKeyword() const { return t == Type::KEYWORD; }
 			bool isBool() const { return isKeyword() && keyword == Keyword::BOOL; }
 			bool isFunctionHead() const { return t == Type::ENTITY_FUNCTION_HEAD || t == Type::FUNCTION_HEAD || t == Type::FUNCTION_HEAD_POINTER; }
+			bool hasEntity() const { return t == Type::ENTITY_FUNCTION_HEAD || t == Type::ENTITY_NUMBER || t == Type::EMPTY_ENTITY_NUMBER; }
 
-			void setDefaultValue(Webss&& value) { new (&defaultValue) Default(new Webss(std::move(value))); }
+			Type getType() const { return t; }
+			Keyword getKeyword() const { return keyword; }
+			WebssBinarySize getNumber() const { return number; }
+			const Webss& getDefaultValue() const { return *defaultValue; }
+			const std::shared_ptr<Webss>& getDefaultPointer() const { return defaultValue; }
+			void setDefaultValue(Webss&& value) { defaultValue = std::shared_ptr<Webss>(new Webss(std::move(value))); }
 
 			const std::string& getEntName() const
 			{
@@ -167,10 +156,21 @@ namespace webss
 					throw std::domain_error("");
 				}
 			}
-
-			bool hasEntity() const { return t == Type::ENTITY_FUNCTION_HEAD || t == Type::ENTITY_NUMBER || t == Type::EMPTY_ENTITY_NUMBER; }
 		private:
 			static constexpr char* ERROR_BINARY_SIZE_HEAD = "size of binary head must be a positive integer, binary function head or equivalent entity";
+
+			Type t = Type::NONE;
+			union
+			{
+				Keyword keyword;
+				WebssBinarySize number;
+				EntityFunctionHead entFunctionHead;
+				EntityNumber entNumber;
+				FunctionHead* fhead;
+			};
+
+			Flag flag = Flag::NONE;
+			std::shared_ptr<Webss> defaultValue;
 
 			void destroyUnion()
 			{
@@ -188,11 +188,12 @@ namespace webss
 				default:
 					break;
 				}
+				t = Type::NONE;
 			}
 
 			void copyUnion(BasicSizeHead&& o)
 			{
-				switch (t = o.t)
+				switch (o.t)
 				{
 				case Type::NONE: case Type::EMPTY:
 					break;
@@ -207,24 +208,28 @@ namespace webss
 					break;
 				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
 					new (&entNumber) EntityNumber(std::move(o.entNumber));
+					o.entNumber.~BasicEntity();
 					break;
 				case Type::ENTITY_FUNCTION_HEAD:
 					new (&entFunctionHead) EntityFunctionHead(std::move(o.entFunctionHead));
+					o.entFunctionHead.~BasicEntity();
 					break;
 				default:
 					throw std::domain_error("");
 				}
+				t = o.t;
 				o.t = Type::NONE;
 
-				if ((flag = o.flag) != Flag::NONE)
+				if (o.flag != Flag::NONE)
 				{
 					defaultValue = std::move(o.defaultValue);
+					flag = o.flag;
 					o.flag = Flag::NONE;
 				}
 			}
 			void copyUnion(const BasicSizeHead& o)
 			{
-				switch (t = o.t)
+				switch (o.t)
 				{
 				case Type::NONE: case Type::EMPTY:
 					break;
@@ -249,9 +254,13 @@ namespace webss
 				default:
 					throw std::domain_error("");
 				}
+				t = o.t;
 
-				if ((flag = o.flag) != Flag::NONE)
+				if (o.flag != Flag::NONE)
+				{
 					defaultValue = o.defaultValue;
+					flag = o.flag;
+				}
 			}
 		};
 
@@ -261,36 +270,7 @@ namespace webss
 			using Entity = BasicEntity<WebssBinarySize>;
 			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, ONE, NUMBER, ENTITY_NUMBER };
 
-			Type t;
-			union
-			{
-				WebssBinarySize number;
-				Entity ent;
-			};
-
-			BasicSizeList() : t(Type::NONE) {}
-			BasicSizeList(const Entity& newEnt) : ent(newEnt)
-			{
-				auto num = newEnt.getContent();
-				if (num > 0)
-					t = Type::ENTITY_NUMBER;
-				else if (num == 0)
-					t = Type::EMPTY_ENTITY_NUMBER;
-				else
-					throw std::runtime_error(ERROR_BINARY_SIZE_LIST);
-			}
-			BasicSizeList(WebssBinarySize number) : number(number)
-			{
-				if (number > 0)
-					t = Type::NUMBER;
-				else if (number == 0)
-					t = Type::EMPTY;
-				else
-					throw std::runtime_error(ERROR_BINARY_SIZE_LIST);
-			}
-
-			~BasicSizeList() { destroyUnion(); }
-
+			BasicSizeList() {}
 			BasicSizeList(Type t) : t(t)
 			{
 				switch (t)
@@ -301,17 +281,40 @@ namespace webss
 					throw std::domain_error("");
 				}
 			}
+			BasicSizeList(const Entity& newEnt) : t(Type::ENTITY_NUMBER), ent(newEnt)
+			{
+				auto num = newEnt.getContent();
+				if (num <= 0)
+				{
+					if (num == 0)
+						t = Type::EMPTY_ENTITY_NUMBER;
+					else
+					{
+						ent.~BasicEntity();
+						throw std::runtime_error(ERROR_BINARY_SIZE_LIST);
+					}
+				}
+			}
+			BasicSizeList(WebssBinarySize number) : t(Type::NUMBER), number(number)
+			{
+				if (number <= 0)
+				{
+					if (number == 0)
+						t = Type::EMPTY;
+					else
+						throw std::runtime_error(ERROR_BINARY_SIZE_LIST);
+				}
+			}
+
+			~BasicSizeList() { destroyUnion(); }
 
 			BasicSizeList(BasicSizeList&& o) { copyUnion(std::move(o)); }
 			BasicSizeList(const BasicSizeList& o) { copyUnion(o); }
 
 			BasicSizeList& operator=(BasicSizeList&& o)
 			{
-				if (this != &o)
-				{
-					destroyUnion();
-					copyUnion(std::move(o));
-				}
+				destroyUnion();
+				copyUnion(std::move(o));
 				return *this;
 			}
 			BasicSizeList& operator=(const BasicSizeList& o)
@@ -326,6 +329,9 @@ namespace webss
 
 			bool isEmpty() const { return t == Type::EMPTY || t == Type::EMPTY_ENTITY_NUMBER; }
 			bool isOne() const { return t == Type::ONE; }
+			bool hasEntity() const { return t == Type::ENTITY_NUMBER || t == Type::EMPTY_ENTITY_NUMBER; }
+
+			Type getType() const { return t; }
 
 			WebssBinarySize size() const
 			{
@@ -340,8 +346,6 @@ namespace webss
 				}
 			}
 
-			bool hasEntity() const { return t == Type::ENTITY_NUMBER || t == Type::EMPTY_ENTITY_NUMBER; }
-
 			const std::string& getEntName() const
 			{
 				assert(hasEntity());
@@ -350,15 +354,23 @@ namespace webss
 		private:
 			static constexpr char* ERROR_BINARY_SIZE_LIST = "size of binary list must be a positive integer or equivalent entity";
 
+			Type t = Type::NONE;
+			union
+			{
+				WebssBinarySize number;
+				Entity ent;
+			};
+
 			void destroyUnion()
 			{
 				if (hasEntity())
 					ent.~BasicEntity();
+				t = Type::NONE;
 			}
 
 			void copyUnion(BasicSizeList&& o)
 			{
-				switch (t = o.t)
+				switch (o.t)
 				{
 				case Type::NONE: case Type::EMPTY: case Type::ONE:
 					break;
@@ -367,15 +379,17 @@ namespace webss
 					break;
 				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
 					new (&ent) Entity(std::move(o.ent));
+					o.ent.~BasicEntity();
 					break;
 				default:
 					throw std::domain_error("");
 				}
+				t = o.t;
 				o.t = Type::NONE;
 			}
 			void copyUnion(const BasicSizeList& o)
 			{
-				switch (t = o.t)
+				switch (o.t)
 				{
 				case Type::NONE: case Type::EMPTY: case Type::ONE:
 					break;
@@ -388,6 +402,7 @@ namespace webss
 				default:
 					throw std::domain_error("");
 				}
+				t = o.t;
 			}
 		};
 
@@ -413,11 +428,8 @@ namespace webss
 		}
 		BasicParamBinary& operator=(BasicParamBinary&& o)
 		{
-			if (this != &o)
-			{
-				sizeHead = std::move(o.sizeHead);
-				sizeList = std::move(o.sizeList);
-			}
+			sizeHead = std::move(o.sizeHead);
+			sizeList = std::move(o.sizeList);
 			return *this;
 		}
 

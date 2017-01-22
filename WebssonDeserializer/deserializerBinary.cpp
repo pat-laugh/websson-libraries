@@ -62,14 +62,14 @@ void webss::putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinary::Tupl
 	for (const auto& webss : data)
 	{
 		const auto& binary = params.at(i++);
-		if (binary.sizeHead.flag == ParamBinary::SizeHead::Flag::NONE)
+		if (binary.sizeHead.getFlag() == ParamBinary::SizeHead::Flag::NONE)
 			putBinary(out, binary, webss);
 		else if (webss.t == WebssType::DEFAULT)
 			out += '\x01';
 		else
 		{
 			out += '\x00';
-			if (binary.sizeHead.flag == ParamBinary::SizeHead::Flag::SELF)
+			if (binary.sizeHead.getFlag() == ParamBinary::SizeHead::Flag::SELF)
 				putFuncBodyBinary(out, params, webss.getTuple());
 			else
 				putBinary(out, binary, webss);
@@ -133,16 +133,16 @@ void webss::putBinary(StringBuilder& out, const ParamBinary& bhead, const Webss&
 void webss::putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss)
 {
 	if (bhead.isKeyword())
-		switch (bhead.keyword)
+		switch (bhead.getKeyword())
 		{
 		case Keyword::BOOL:
 			writeBytes(out, 1, reinterpret_cast<char*>(const_cast<bool*>(&webss.tBool)));
 			return;
 		case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8:
-			writeBytes(out, bhead.keyword.getSize(), reinterpret_cast<char*>(const_cast<WebssInt*>(&webss.tInt)));
+			writeBytes(out, bhead.getKeyword().getSize(), reinterpret_cast<char*>(const_cast<WebssInt*>(&webss.tInt)));
 			return;
 		case Keyword::DEC4: case Keyword::DEC8:
-			writeBytes(out, bhead.keyword.getSize(), reinterpret_cast<char*>(const_cast<double*>(&webss.tDouble)));
+			writeBytes(out, bhead.getKeyword().getSize(), reinterpret_cast<char*>(const_cast<double*>(&webss.tDouble)));
 			return;
 		default:
 			throw domain_error("");
@@ -159,21 +159,21 @@ void webss::putBinarySizeHead(StringBuilder& out, const ParamBinary::SizeHead& b
 {
 	using Type = ParamBinary::SizeHead::Type;
 	out += OPEN_TUPLE;
-	if (bhead.flag == ParamBinary::SizeHead::Flag::SELF)
+	if (bhead.getFlag() == ParamBinary::SizeHead::Flag::SELF)
 		out += CHAR_SELF;
 
-	switch (bhead.t)
+	switch (bhead.getType())
 	{
 	case Type::EMPTY:
 		break;
 	case Type::KEYWORD:
-		out += bhead.keyword.toString();
+		out += bhead.getKeyword().toString();
 		break;
 	case Type::NUMBER:
-		out += to_string(bhead.number);
+		out += to_string(bhead.size());
 		break;
 	case Type::FUNCTION_HEAD:
-		putFheadBinary(out, *bhead.fhead);
+		putFheadBinary(out, bhead.getFunctionHead());
 		break;
 	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_FUNCTION_HEAD:
 		out += bhead.getEntName();
@@ -191,12 +191,12 @@ void webss::putBinarySizeList(StringBuilder& out, const ParamBinary::SizeList& b
 		return;
 
 	out += OPEN_LIST;
-	switch (blist.t)
+	switch (blist.getType())
 	{
 	case Type::EMPTY:
 		break;
 	case Type::NUMBER:
-		out += to_string(blist.number);
+		out += to_string(blist.size());
 		break;
 	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
 		out += blist.getEntName();

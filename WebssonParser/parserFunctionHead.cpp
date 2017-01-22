@@ -16,7 +16,7 @@ const ConType CON = ConType::FUNCTION_HEAD;
 #define THROW_ERROR_TEXT_FUNCTION_HEAD throw runtime_error(ERROR_TEXT_FUNCTION_HEAD)
 #define THROW_ERROR_BINARY_FUNCTION throw runtime_error(ERROR_BINARY_FUNCTION)
 
-Parser::FunctionHeadSwitch Parser::parseFunctionHead(It& it)
+Webss Parser::parseFunctionHead(It& it)
 {
 	if (checkEmptyContainer(it, CON))
 		return BlockHead();
@@ -67,7 +67,7 @@ Parser::FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 			return isEnd ? move(fheadScoped) : parseFunctionHeadScoped(it, move(fheadScoped));
 		}
 		case WebssType::FUNCTION_HEAD_STANDARD:
-			new (&fhead) FunctionHeadStandard(checkEntFheadStandard(other.abstractEntity));
+			fhead = FunctionHeadStandard(checkEntFheadStandard(other.abstractEntity));
 			return isEnd ? move(fhead) : parseFunctionHeadStandard(it, move(fhead));
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
@@ -90,7 +90,7 @@ FunctionHeadBinary Parser::parseFunctionHeadBinary(It& it, FunctionHeadBinary&& 
 
 FunctionHeadScoped Parser::parseFunctionHeadScoped(It& it, FunctionHeadScoped&& fhead)
 {
-	string currentNamespace(""); //namespace of entities declared within
+	const auto& currentNamespace = Namespace::getEmptyInstance(); //namespace of entities declared within
 	do
 	{
 		switch (*it)
@@ -137,22 +137,21 @@ FunctionHeadStandard Parser::parseFunctionHeadText(It& it)
 
 void Parser::parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead)
 {
-	using Type = FunctionHeadSwitch::Type;
-	auto headSwitch = parseFunctionHead(++it);
+	auto headWebss = parseFunctionHead(++it);
 	parseOtherValuesFheadStandardParam(it, fhead);
 	auto& lastParam = fhead.back();
-	switch (headSwitch.t)
+	switch (headWebss.t)
 	{
-	case Type::BLOCK:
+	case WebssType::BLOCK_HEAD:
 		break; //do nothing
-	case Type::BINARY:
-		lastParam.setFunctionHead(move(headSwitch.fheadBinary));
+	case WebssType::FUNCTION_HEAD_BINARY:
+		lastParam.setFunctionHead(move(*headWebss.fheadBinary));
 		break;
-	case Type::SCOPED:
-		lastParam.setFunctionHead(move(headSwitch.fheadScoped));
+	case WebssType::FUNCTION_HEAD_SCOPED:
+		lastParam.setFunctionHead(move(*headWebss.fheadScoped));
 		break;
-	case Type::STANDARD:
-		lastParam.setFunctionHead(move(headSwitch.fheadStandard));
+	case WebssType::FUNCTION_HEAD_STANDARD:
+		lastParam.setFunctionHead(move(*headWebss.fheadStandard));
 		break;
 	default:
 		throw logic_error("");

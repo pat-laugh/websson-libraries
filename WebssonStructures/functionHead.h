@@ -30,11 +30,8 @@ namespace webss
 
 		BasicFunctionHead& operator=(BasicFunctionHead&& o)
 		{
-			if (this != &o)
-			{
-				destroyUnion();
-				copyUnion(std::move(o));
-			}
+			destroyUnion();
+			copyUnion(std::move(o));
 			return *this;
 		}
 		BasicFunctionHead& operator=(const BasicFunctionHead& o)
@@ -117,6 +114,7 @@ namespace webss
 				if (!tuple->empty())
 					break;
 				delete tuple;
+				t = Type::NONE;
 			case Type::NONE:
 				new (&ent) Entity(ent2);
 				t = Type::VAR;
@@ -158,7 +156,7 @@ namespace webss
 	private:
 		enum class Type { NONE, TUPLE, POINTER, VAR };
 
-		Type t;
+		Type t = Type::NONE;
 		union
 		{
 			Tuple* tuple;
@@ -168,21 +166,23 @@ namespace webss
 
 		void removeEntity()
 		{
-			const auto& newTuple = ent.getContent().getParameters().makeCompleteCopy();
+			auto newTuple = ent.getContent().getParameters().makeCompleteCopy();
 			ent.~BasicEntity();
-			setTuple(newTuple);
+			t = Type::NONE;
+			setTuple(std::move(newTuple));
 		}
 
 		void removePointer()
 		{
-			const auto& newTuple = pointer->makeCompleteCopy();
+			auto newTuple = pointer->makeCompleteCopy();
 			pointer.~shared_ptr();
-			setTuple(newTuple);
+			t = Type::NONE;
+			setTuple(std::move(newTuple));
 		}
 
-		void setTuple(const Tuple& newTuple)
+		void setTuple(Tuple&& newTuple)
 		{
-			tuple = new Tuple(newTuple);
+			tuple = new Tuple(std::move(newTuple));
 			t = Type::TUPLE;
 		}
 
@@ -202,29 +202,33 @@ namespace webss
 			default:
 				break;
 			}
+			t = Type::NONE;
 		}
 
 		void copyUnion(BasicFunctionHead&& o)
 		{
-			switch (t = o.t)
+			switch (o.t)
 			{
 			case Type::TUPLE:
 				tuple = o.tuple;
 				break;
 			case Type::POINTER:
 				new (&pointer) Pointer(std::move(o.pointer));
+				o.pointer.~shared_ptr();
 				break;
 			case Type::VAR:
 				new (&ent) Entity(std::move(o.ent));
+				o.ent.~BasicEntity();
 				break;
 			default:
 				break;
 			}
+			t = o.t;
 			o.t = Type::NONE;
 		}
 		void copyUnion(const BasicFunctionHead& o)
 		{
-			switch (t = o.t)
+			switch (o.t)
 			{
 			case Type::TUPLE:
 				tuple = new Tuple(*o.tuple);
@@ -238,6 +242,7 @@ namespace webss
 			default:
 				break;
 			}
+			t = o.t;
 		}
 	};
 }
