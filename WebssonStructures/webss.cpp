@@ -5,64 +5,16 @@
 using namespace std;
 using namespace webss;
 
-const char ERROR_UNDEFINED[] = "undefined behavior";
-const char ERROR_ADD_KEY[] = "can't add key-value to ";
-const char ERROR_ADD_VALUE[] = "can't add value-only to ";
-
 Webss::Webss() : t(WebssType::NONE) {}
-Webss::Webss(WebssType t) : t(t)
-{
-	switch (t)
-	{
-	case WebssType::NONE: case WebssType::DEFAULT: case WebssType::PRIMITIVE_NULL:
-		break;
-	case WebssType::DICTIONARY:
-		dict = new Dictionary();
-		break;
-	case WebssType::LIST:
-		list = new List();
-		break;
-	case WebssType::TUPLE:
-		tuple = new Tuple();
-		break;
-	default:
-		throw domain_error("can't make empty Webss object of type: " + t.toString());
-	}
-}
-Webss::Webss(WebssType t, bool containerText) : t(t)
-{
-	switch (t)
-	{
-	case WebssType::LIST:
-		list = new List(containerText);
-		break;
-	case WebssType::TUPLE:
-		tuple = new Tuple(containerText);
-		break;
-	default:
-		throw domain_error("can't make text container of type: " + t.toString());
-	}
-}
-
-Webss::Webss(WebssType::Enum t) : Webss(WebssType(t)) {}
-Webss::Webss(WebssType::Enum t, bool containerText) : Webss(WebssType(t), containerText) {}
 
 Webss::Webss(bool tBool) : t(WebssType::PRIMITIVE_BOOL), tBool(tBool) {}
-Webss::Webss(Keyword keyword)
+Webss::Webss(Keyword keyword) : t(WebssType::PRIMITIVE_BOOL)
 {
 	switch (keyword)
 	{
-	case Keyword::KEY_NULL:
-		t = WebssType::PRIMITIVE_NULL;
-		break;
-	case Keyword::KEY_FALSE:
-		t = WebssType::PRIMITIVE_BOOL;
-		tBool = false;
-		break;
-	case Keyword::KEY_TRUE:
-		t = WebssType::PRIMITIVE_BOOL;
-		tBool = true;
-		break;
+	case Keyword::KEY_NULL: t = WebssType::PRIMITIVE_NULL; break;
+	case Keyword::KEY_FALSE: tBool = false; break;
+	case Keyword::KEY_TRUE: tBool = true; break;
 	default:
 		throw runtime_error("can't get keyword value: " + keyword.toString());
 	}
@@ -127,7 +79,7 @@ Webss::Webss(FunctionHead##Type&& head, Webss&& body) : t(WebssType::FUNCTION_##
 		func##Type = new Function##Type(move(head), move(*body.tuple)); \
 		break; \
 	default: \
-		throw domain_error(ERROR_UNDEFINED); \
+		throw domain_error(""); \
 	} \
 }
 
@@ -285,7 +237,7 @@ void Webss::copyUnion(Webss&& o)
 
 void Webss::copyUnion(const Webss& o)
 {
-	switch (t = o.t)
+	switch (o.t)
 	{
 	default:
 		return;
@@ -348,6 +300,7 @@ void Webss::copyUnion(const Webss& o)
 		new (&tDefault) Default(o.tDefault);
 		break;
 	}
+	t = o.t;
 }
 
 const char ERROR_ACCESS[] = "can't access ";

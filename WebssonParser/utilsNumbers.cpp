@@ -48,7 +48,7 @@ double webss::getDecimals(SmartIterator& it, NumberMagnitude mag)
 	case MAGNITUDE_HEX:
 		return checkDecimals(it, mag, FUNCTIONS_HEX);
 	default:
-		throw domain_error(ERROR_UNDEFINED);
+		throw domain_error("");
 	}
 }
 

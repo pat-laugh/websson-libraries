@@ -21,7 +21,7 @@ bool webss::isDecimalSeparator(char c, Language lang)
 	case INTL:
 		return c == '.' || c == ',';
 	default:
-		throw domain_error(ERROR_UNDEFINED);
+		throw domain_error("");
 	}
 }
 
@@ -35,6 +35,6 @@ char webss::getLanguageSeparator(Language lang)
 	case FR:
 		return ';';
 	default:
-		throw domain_error(ERROR_UNDEFINED);
+		throw domain_error("");
 	}
 }

@@ -145,7 +145,7 @@ void webss::putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bh
 			writeBytes(out, bhead.keyword.getSize(), reinterpret_cast<char*>(const_cast<double*>(&webss.tDouble)));
 			return;
 		default:
-			throw domain_error(ERROR_UNDEFINED);
+			throw domain_error("");
 		}
 	else
 	{
@@ -179,7 +179,7 @@ void webss::putBinarySizeHead(StringBuilder& out, const ParamBinary::SizeHead& b
 		out += bhead.getEntName();
 		break;
 	default:
-		throw domain_error(ERROR_UNDEFINED);
+		throw domain_error("");
 	}
 	out += CLOSE_TUPLE;
 }
@@ -202,7 +202,7 @@ void webss::putBinarySizeList(StringBuilder& out, const ParamBinary::SizeList& b
 		out += blist.getEntName();
 		break;
 	default:
-		throw domain_error(ERROR_UNDEFINED);
+		throw domain_error("");
 	}
 	out += CLOSE_LIST;
 }

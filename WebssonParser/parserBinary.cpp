@@ -211,7 +211,7 @@ Webss parseBinaryElement(It& it, const ParamBinary::SizeHead& bhead)
 			readBytes(it, bhead.keyword.getSize(), reinterpret_cast<char*>(&value));
 			return Webss(static_cast<double>(value));
 		default:
-			throw domain_error(ERROR_UNDEFINED);
+			throw domain_error("");
 		}
 	}
 

@@ -36,10 +36,6 @@ namespace webss
 	{
 	public:
 		Webss();
-		Webss(WebssType t);
-		Webss(WebssType t, bool containerText);
-		Webss(WebssType::Enum t);
-		Webss(WebssType::Enum t, bool containerText);
 
 		Webss(Webss&& o);
 		Webss(const Webss& o);
@@ -147,7 +143,7 @@ namespace webss
 
 		bool isPrimitive() const;
 
-		WebssType t;
+		WebssType t = WebssType::NONE;
 		union
 		{
 			bool tBool;

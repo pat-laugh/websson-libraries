@@ -107,6 +107,6 @@ void webss::putEscapedHex(SmartIterator& it, StringBuilder& str, char separator)
 		putContainedEscapedHex(++it, str, separator);
 		return;
 	default:
-		throw domain_error(ERROR_UNDEFINED);
+		throw domain_error("");
 	}
 }
