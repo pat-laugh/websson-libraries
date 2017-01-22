@@ -130,7 +130,6 @@ namespace webss
 		bool isDictionary() const;
 		bool isList() const;
 		bool isTuple() const;
-		bool isFunctionHead() const;
 		bool isFunctionHeadBinary() const;
 		bool isFunctionHeadScoped() const;
 		bool isFunctionHeadStandard() const;
@@ -140,8 +139,6 @@ namespace webss
 		bool isBlock() const;
 
 		bool isConcrete() const;
-
-		bool isPrimitive() const;
 
 		WebssType t = WebssType::NONE;
 		union

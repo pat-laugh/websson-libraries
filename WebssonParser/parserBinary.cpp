@@ -263,7 +263,6 @@ ParamBinary::SizeList Parser::parseBinarySizeList(It& it)
 	}
 	catch (exception)
 	{
-		blist.~BasicSizeList();
 		throw runtime_error("value in binary list must be void or a positive integer");
 	}
 	skipJunkToValidCondition(it, [&]() { return *it == CLOSE_LIST; });

@@ -219,7 +219,11 @@ void Parser::checkMultiContainer(It& it, function<void()> func)
 		func();
 	else if (!checkEmptyContainer(++it, CON))
 		do
+		{
+			if (!isNameStart(*it))
+				throw runtime_error(ERROR_UNEXPECTED);
 			func();
+		}
 		while (checkNextElementContainer(it, CON));
 }
 

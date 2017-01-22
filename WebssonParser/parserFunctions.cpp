@@ -18,13 +18,29 @@ class ParserFunctions : public Parser
 public:
 	Webss parseFunctionBodyScoped(It& it, const FunctionHeadScoped::Tuple& params, ConType con)
 	{
+		vector<Entity> entitiesToReAdd;
+
 		//get ents
 		for (const auto& param : params)
 			if (param.hasEntity())
 				ents.addSafe(param.getEntity());
 			else
-				for (const auto& entPair : param.getNamespace())
+			{
+				const auto& nspace = param.getNamespace();
+				const auto& name = nspace.getName();
+				if (ents.hasEntity(name))
+				{
+					const auto& ent = ents[name];
+					const auto& content = ent.getContent();
+					if (content.isNamespace() && content.getNamespace().getPointer() == nspace.getPointer())
+					{
+						entitiesToReAdd.push_back(ent);
+						ents.remove(name);
+					}
+				}
+				for (const auto& entPair : nspace)
 					ents.addSafe(entPair.second);
+			}
 
 		//get value
 		auto webss = parseValueOnly(it, con);
@@ -36,6 +52,9 @@ public:
 			else
 				for (const auto& entPair : param.getNamespace())
 					ents.remove(entPair.second);
+
+		for (const auto& ent : entitiesToReAdd)
+			ents.add(ent);
 
 		return webss;
 	}

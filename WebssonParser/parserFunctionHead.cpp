@@ -102,7 +102,14 @@ FunctionHeadScoped Parser::parseFunctionHeadScoped(It& it, FunctionHeadScoped&& 
 			checkMultiContainer(++it, [&]() { auto ent = parseAbstractEntity(it, currentNamespace); fhead.attach(string(ent.getName()), ParamScoped(ent)); });
 			break;
 		case CHAR_USING_NAMESPACE:
-			//...
+			checkMultiContainer(++it, [&]()
+			{
+				auto nameType = parseNameType(it);
+				if (nameType.type != NameType::ENTITY || !nameType.entity.getContent().isNamespace())
+					throw runtime_error("expected namespace");
+				fhead.attach(string(nameType.entity.getName()), ParamScoped(nameType.entity.getContent().getNamespace()));
+			});
+			break;
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}

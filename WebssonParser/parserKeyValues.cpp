@@ -144,8 +144,15 @@ Parser::OtherValue Parser::checkOtherValueEntity(It& it, ConType con, const Enti
 		PatternLineGreed(isKeyChar(*it) || isNameStart(*it)|| isNumberStart(*it), const auto& head = checkEntFheadScoped(ent); return{ FunctionScoped(head, parseFunctionBodyScoped(it, head.getContent().getParameters(), con)) }, break)
 	case WebssType::FUNCTION_HEAD_STANDARD:
 		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadStandard(checkEntFheadStandard(ent)), parseFunctionBodyStandard(it, content.getFunctionHeadStandard().getParameters())) }, break)
+	case WebssType::NAMESPACE:
+	{
+		const auto& nspace = content.getNamespace();
+		const auto& name = nspace.getName();
+		if (nspace.has(name))
+			return checkOtherValueEntity(it, con, nspace[name]);
+	}
 	default:
-		throw logic_error("");
+		break;
 	}
 	return{ ent };
 }

@@ -201,7 +201,7 @@ bool Parser::checkStringEntity(It& it, StringBuilder& line)
 	if (it.peekEnd() || !isNameStart(it.peek()))
 		return false;
 
-	line += CHAR_CONCRETE_ENTITY + parseStringEntity(++it);
+	line += parseStringEntity(++it);
 	return true;
 }
 

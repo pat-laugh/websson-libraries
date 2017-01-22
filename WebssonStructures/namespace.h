@@ -81,7 +81,7 @@ namespace webss
 			auto it = data.find(key);
 			if (it == data.end())
 				throw std::runtime_error("key is not in namespace");
-			return *it;
+			return it->second;
 		}
 		const Entity& at(const std::string& key) const
 		{
