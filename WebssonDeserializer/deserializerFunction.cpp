@@ -5,23 +5,6 @@
 using namespace std;
 using namespace webss;
 
-void webss::putFuncStandard(StringBuilder& out, const FunctionStandard& func)
-{
-	putFheadStandard(out, func);
-	switch (func.getType())
-	{
-	case WebssType::DICTIONARY:
-		putFuncStandardDictionary(out, func.getParameters(), func.getDictionary());
-		break;
-	case WebssType::LIST:
-		putFuncStandardList(out, func.getParameters(), func.getList());
-		break;
-	case WebssType::TUPLE:
-		putFuncStandardTuple(out, func.getParameters(), func.getTuple());
-		break;
-	}
-}
-
 void webss::putFuncBinary(StringBuilder& out, const FunctionBinary& func)
 {
 	putFheadBinary(out, func);
@@ -35,6 +18,34 @@ void webss::putFuncBinary(StringBuilder& out, const FunctionBinary& func)
 		break;
 	case WebssType::TUPLE:
 		putFuncBinaryTuple(out, func.getParameters(), func.getTuple());
+		break;
+	}
+}
+
+void webss::putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con)
+{
+	if (func.hasEntity())
+		putKeyValue(out, func.getEntName(), func.getValue(), con);
+	else
+	{
+		putFheadScoped(out, func);
+		putWebss(out, func.getValue(), con);
+	}
+}
+
+void webss::putFuncStandard(StringBuilder& out, const FunctionStandard& func)
+{
+	putFheadStandard(out, func);
+	switch (func.getType())
+	{
+	case WebssType::DICTIONARY:
+		putFuncStandardDictionary(out, func.getParameters(), func.getDictionary());
+		break;
+	case WebssType::LIST:
+		putFuncStandardList(out, func.getParameters(), func.getList());
+		break;
+	case WebssType::TUPLE:
+		putFuncStandardTuple(out, func.getParameters(), func.getTuple());
 		break;
 	}
 }
@@ -144,6 +155,35 @@ void webss::putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard:
 		});
 	}
 	out += CLOSE_TUPLE;
+}
+
+void webss::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& fhead)
+{
+	if (fhead.hasEntity())
+		out += OPEN_FUNCTION + fhead.getEntName() + CLOSE_FUNCTION;
+	else if (fhead.empty())
+		out += EMPTY_FUNCTION;
+	else
+	{
+		out += OPEN_FUNCTION;
+		auto it = fhead.getParameters().begin();
+		putSeparatedValues(out, [&]() { return ++it != fhead.getParameters().end(); }, [&]()
+		{
+			if (it->hasEntity())
+			{
+				const auto& ent = it->getEntity();
+				const auto& content = ent.getContent();
+				out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
+				putKeyValue(out, ent.getName(), content, ConType::FUNCTION_HEAD);
+			}
+			else
+			{
+				out += CHAR_USING_NAMESPACE;
+				out += it->getNamespace().getName();
+			}
+		});
+		out += CLOSE_FUNCTION;
+	}
 }
 
 #define FUNC_PARAMS_STANDARD const string& key, const ParamStandard& value

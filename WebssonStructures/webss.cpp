@@ -82,11 +82,12 @@ PATTERN_CONSTRUCT_MOVE(Document, document, DOCUMENT)
 PATTERN_CONSTRUCT_MOVE(Dictionary, dict, DICTIONARY)
 PATTERN_CONSTRUCT_MOVE(List, list, LIST)
 PATTERN_CONSTRUCT_MOVE(Tuple, tuple, TUPLE)
-PATTERN_CONSTRUCT_MOVE(FunctionHeadStandard, fheadStandard, FUNCTION_HEAD_STANDARD)
 PATTERN_CONSTRUCT_MOVE(FunctionHeadBinary, fheadBinary, FUNCTION_HEAD_BINARY)
-PATTERN_CONSTRUCT_MOVE(FunctionStandard, funcStandard, FUNCTION_STANDARD)
+PATTERN_CONSTRUCT_MOVE(FunctionHeadScoped, fheadScoped, FUNCTION_HEAD_SCOPED)
+PATTERN_CONSTRUCT_MOVE(FunctionHeadStandard, fheadStandard, FUNCTION_HEAD_STANDARD)
 PATTERN_CONSTRUCT_MOVE(FunctionBinary, funcBinary, FUNCTION_BINARY)
 PATTERN_CONSTRUCT_MOVE(FunctionScoped, funcScoped, FUNCTION_SCOPED)
+PATTERN_CONSTRUCT_MOVE(FunctionStandard, funcStandard, FUNCTION_STANDARD)
 PATTERN_CONSTRUCT_MOVE(Namespace, nspace, NAMESPACE)
 Webss::Webss(Enum&& name, bool) : t(WebssType::ENUM), nspace(new Namespace(move(name))) {}
 PATTERN_CONSTRUCT_MOVE(BlockHead, blockHead, BLOCK_HEAD)
@@ -100,11 +101,12 @@ PATTERN_CONSTRUCT_CONST(Document, document, DOCUMENT)
 PATTERN_CONSTRUCT_CONST(Dictionary, dict, DICTIONARY)
 PATTERN_CONSTRUCT_CONST(List, list, LIST)
 PATTERN_CONSTRUCT_CONST(Tuple, tuple, TUPLE)
-PATTERN_CONSTRUCT_CONST(FunctionHeadStandard, fheadStandard, FUNCTION_HEAD_STANDARD)
 PATTERN_CONSTRUCT_CONST(FunctionHeadBinary, fheadBinary, FUNCTION_HEAD_BINARY)
-PATTERN_CONSTRUCT_CONST(FunctionStandard, funcStandard, FUNCTION_STANDARD)
+PATTERN_CONSTRUCT_CONST(FunctionHeadScoped, fheadScoped, FUNCTION_HEAD_SCOPED)
+PATTERN_CONSTRUCT_CONST(FunctionHeadStandard, fheadStandard, FUNCTION_HEAD_STANDARD)
 PATTERN_CONSTRUCT_CONST(FunctionBinary, funcBinary, FUNCTION_BINARY)
 PATTERN_CONSTRUCT_CONST(FunctionScoped, funcScoped, FUNCTION_SCOPED)
+PATTERN_CONSTRUCT_CONST(FunctionStandard, funcStandard, FUNCTION_STANDARD)
 PATTERN_CONSTRUCT_CONST(Namespace, nspace, NAMESPACE)
 Webss::Webss(const Enum& name, bool) : t(WebssType::ENUM), nspace(new Namespace(name)) {}
 PATTERN_CONSTRUCT_CONST(BlockHead, blockHead, BLOCK_HEAD)
@@ -129,7 +131,6 @@ Webss::Webss(FunctionHead##Type&& head, Webss&& body) : t(WebssType::FUNCTION_##
 	} \
 }
 
-PatternConstructFunction(Scoped, SCOPED)
 PatternConstructFunction(Binary, BINARY)
 PatternConstructFunction(Standard, STANDARD)
 
@@ -364,7 +365,7 @@ const Webss& Webss::operator[](int index) const
 	case WebssType::FUNCTION_BINARY:
 		return (*funcBinary)[index];
 	case WebssType::FUNCTION_SCOPED:
-		return (*funcScoped)[index];
+		return funcScoped->getValue()[index];
 	case WebssType::FUNCTION_STANDARD:
 		return (*funcStandard)[index];
 	case WebssType::BLOCK:
@@ -389,7 +390,7 @@ const Webss& Webss::operator[](const std::string& key) const
 	case WebssType::FUNCTION_BINARY:
 		return (*funcBinary)[key];
 	case WebssType::FUNCTION_SCOPED:
-		return (*funcScoped)[key];
+		return funcScoped->getValue()[key];
 	case WebssType::FUNCTION_STANDARD:
 		return (*funcStandard)[key];
 	case WebssType::BLOCK:
@@ -414,7 +415,7 @@ const Webss& Webss::at(int index) const
 	case WebssType::FUNCTION_BINARY:
 		return funcBinary->at(index);
 	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->at(index);
+		return funcScoped->getValue().at(index);
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->at(index);
 	case WebssType::BLOCK:
@@ -439,7 +440,7 @@ const Webss& Webss::at(const std::string& key) const
 	case WebssType::FUNCTION_BINARY:
 		return funcBinary->at(key);
 	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->at(key);
+		return funcScoped->getValue().at(key);
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->at(key);
 	case WebssType::BLOCK:
@@ -481,9 +482,11 @@ WebssType Webss::getType() const
 	case WebssType::FUNCTION_BINARY:
 		return funcBinary->getType();
 	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->getType();
+		return funcScoped->getValue().getType();
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->getType();
+	case WebssType::BLOCK:
+		return block->getValue().getType();
 	default:
 		return t;
 	}
@@ -533,9 +536,11 @@ const Dictionary& Webss::getDictionary() const
 	case WebssType::FUNCTION_BINARY:
 		return funcBinary->getDictionary();
 	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->getDictionary();
+		return funcScoped->getValue().getDictionary();
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->getDictionary();
+	case WebssType::BLOCK:
+		return block->getValue().getDictionary();
 	default:
 		throw logic_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::LIST).toString() + ERROR_COULD_NOT_GETs2 + t.toString());
 
@@ -554,9 +559,11 @@ const List& Webss::getList() const
 	case WebssType::FUNCTION_BINARY:
 		return funcBinary->getList();
 	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->getList();
+		return funcScoped->getValue().getList();
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->getList();
+	case WebssType::BLOCK:
+		return block->getValue().getList();
 	default:
 		throw logic_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::LIST).toString() + ERROR_COULD_NOT_GETs2 + t.toString());
 
@@ -575,9 +582,11 @@ const Tuple& Webss::getTuple() const
 	case WebssType::FUNCTION_BINARY:
 		return funcBinary->getTuple();
 	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->getTuple();
+		return funcScoped->getValue().getTuple();
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->getTuple();
+	case WebssType::BLOCK:
+		return block->getValue().getTuple();
 	default:
 		throw logic_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::TUPLE).toString() + ERROR_COULD_NOT_GETs2 + t.toString());
 	}
@@ -624,9 +633,11 @@ bool Webss::isDictionary() const
 	case WebssType::FUNCTION_BINARY:
 		return funcBinary->isDictionary();
 	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->isDictionary();
+		return funcScoped->getValue().isDictionary();
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->isDictionary();
+	case WebssType::BLOCK:
+		return block->getValue().isDictionary();
 	default:
 		return false;
 	}
@@ -644,9 +655,11 @@ bool Webss::isList() const
 	case WebssType::FUNCTION_BINARY:
 		return funcBinary->isList();
 	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->isList();
+		return funcScoped->getValue().isList();
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->isList();
+	case WebssType::BLOCK:
+		return block->getValue().isList();
 	default:
 		return false;
 	}
@@ -664,9 +677,11 @@ bool Webss::isTuple() const
 	case WebssType::FUNCTION_BINARY:
 		return funcBinary->isTuple();
 	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->isTuple();
+		return funcScoped->getValue().isTuple();
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->isTuple();
+	case WebssType::BLOCK:
+		return block->getValue().isTuple();
 	default:
 		return false;
 	}
@@ -705,7 +720,7 @@ bool Webss::isConcrete() const
 	{
 	case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE: case WebssType::PRIMITIVE_STRING:
 	case WebssType::DICTIONARY: case WebssType::LIST: case WebssType::TUPLE:
-	case WebssType::FUNCTION_STANDARD: case WebssType::FUNCTION_BINARY: case WebssType::FUNCTION_SCOPED: case WebssType::BLOCK:
+	case WebssType::FUNCTION_BINARY: case WebssType::FUNCTION_SCOPED: case WebssType::FUNCTION_STANDARD: case WebssType::BLOCK:
 		return true;
 	case WebssType::ENTITY:
 		return ent.getContent().isConcrete();

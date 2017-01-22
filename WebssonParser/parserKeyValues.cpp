@@ -145,7 +145,10 @@ Parser::OtherValue Parser::checkOtherValueEntity(It& it, ConType con, const Enti
 	case WebssType::FUNCTION_HEAD_BINARY:
 		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadBinary(checkEntFheadBinary(ent)), parseFunctionBodyBinary(it, content.getFunctionHeadBinary().getParameters())) }, break)
 	case WebssType::FUNCTION_HEAD_SCOPED:
-		//...
+	{
+		const auto& head = checkEntFheadScoped(ent);
+		return{ FunctionScoped(head, parseFunctionBodyScoped(it, head.getContent().getParameters(), con)) };
+	}
 	case WebssType::FUNCTION_HEAD_STANDARD:
 		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadStandard(checkEntFheadStandard(ent)), parseFunctionBodyStandard(it, content.getFunctionHeadStandard().getParameters())) }, break)
 	default:

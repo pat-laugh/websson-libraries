@@ -112,6 +112,15 @@ const BasicEntity<FunctionHeadBinary>& Parser::checkEntFheadBinary(const Entity&
 	return entsFheadBinary[name];
 }
 
+const BasicEntity<FunctionHeadScoped>& Parser::checkEntFheadScoped(const Entity& ent)
+{
+	const auto& name = ent.getName();
+	if (!entsFheadScoped.hasEntity(name))
+		try { entsFheadScoped.add(name, ent.getContent().getFunctionHeadScoped()); }
+	catch (exception e) { throw runtime_error(e.what()); }
+	return entsFheadScoped[name];
+}
+
 const BasicEntity<FunctionHeadStandard>& Parser::checkEntFheadStandard(const Entity& ent)
 {
 	const auto& name = ent.getName();

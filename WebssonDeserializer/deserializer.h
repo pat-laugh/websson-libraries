@@ -40,18 +40,22 @@ namespace webss
 	void putBlockHead(StringBuilder& out, const BlockHead& blockHead);
 	void putBlock(StringBuilder& out, const Block& block, ConType con);
 
-	void putFuncStandard(StringBuilder& out, const FunctionStandard& func);
 	void putFuncBinary(StringBuilder& out, const FunctionBinary& func);
+	void putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con);
+	void putFuncStandard(StringBuilder& out, const FunctionStandard& func);
 
 	void putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Tuple & params, const Dictionary & dict);
 	void putFuncStandardList(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const List& list);
 	void putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Tuple& tuple);
-#define FUNC_PARAMS_STANDARD const std::string& key, const ParamStandard& value
+
+	void putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead);
+	void putFheadScoped(StringBuilder & out, const FunctionHeadScoped & fhead);
 	void putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhead);
+
+#define FUNC_PARAMS_STANDARD const std::string& key, const ParamStandard& value
 	void putParamsStandard(StringBuilder& out, const FunctionHeadStandard& fhead, std::function<void(FUNC_PARAMS_STANDARD)> func);
 	void putParamStandard(StringBuilder& out, FUNC_PARAMS_STANDARD);
 	void putParamText(StringBuilder& out, FUNC_PARAMS_STANDARD);
-	void putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead);
 #undef FUNC_PARAMS_STANDARD
 
 	void putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Dictionary& dict);

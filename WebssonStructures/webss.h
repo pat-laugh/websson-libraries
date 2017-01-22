@@ -23,7 +23,7 @@ namespace webss
 	using FunctionHeadScoped = BasicFunctionHead<ParamScoped>;
 	using FunctionHeadStandard = BasicFunctionHead<ParamStandard>;
 	using FunctionBinary = BasicFunction<FunctionHeadBinary, Webss>;
-	using FunctionScoped = BasicFunction<FunctionHeadScoped, Webss>;
+	using FunctionScoped = BasicFunctionScoped<Webss>;
 	using FunctionStandard = BasicFunction<FunctionHeadStandard, Webss>;
 	using Entity = BasicEntity<Webss>;
 	using Namespace = BasicNamespace<Webss>;
@@ -58,11 +58,12 @@ namespace webss
 		Webss(Dictionary&& dict);
 		Webss(List&& list);
 		Webss(Tuple&& tuple);
-		Webss(FunctionHeadStandard&& fheadStandard);
 		Webss(FunctionHeadBinary&& fheadBinary);
-		Webss(FunctionStandard&& funcStandard);
+		Webss(FunctionHeadScoped&& fheadScoped);
+		Webss(FunctionHeadStandard&& fheadStandard);
 		Webss(FunctionBinary&& funcBinary);
 		Webss(FunctionScoped&& funcScoped);
+		Webss(FunctionStandard&& funcStandard);
 		Webss(Namespace&& nspace);
 		Webss(Enum&& tEnum, bool dummy);
 		Webss(BlockHead&& blockHead);
@@ -73,17 +74,17 @@ namespace webss
 		Webss(const Dictionary& dict);
 		Webss(const List& list);
 		Webss(const Tuple& tuple);
-		Webss(const FunctionHeadStandard& fheadStandard);
 		Webss(const FunctionHeadBinary& fheadBinary);
-		Webss(const FunctionStandard& funcStandard);
+		Webss(const FunctionHeadScoped& fheadScoped);
+		Webss(const FunctionHeadStandard& fheadStandard);
 		Webss(const FunctionBinary& funcBinary);
 		Webss(const FunctionScoped& funcScoped);
+		Webss(const FunctionStandard& funcStandard);
 		Webss(const Namespace& nspace);
 		Webss(const Enum& tEnum, bool dummy);
 		Webss(const BlockHead& blockHead);
 		Webss(const Block& block);
 
-		Webss(FunctionHeadScoped&& head, Webss&& body);
 		Webss(FunctionHeadBinary&& head, Webss&& body);
 		Webss(FunctionHeadStandard&& head, Webss&& body);
 

@@ -27,8 +27,8 @@ Parser::FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 		return parseFunctionHeadStandard(it, FunctionHeadStandard());
 	case OPEN_TUPLE:
 		return parseFunctionHeadBinary(it, FunctionHeadBinary());
-	case CHAR_CONCRETE_ENTITY: case CHAR_ABSTRACT_ENTITY: case CHAR_USING_NAMESPACE: //scoped function
-		//...
+	case CHAR_CONCRETE_ENTITY: case CHAR_ABSTRACT_ENTITY: case CHAR_USING_NAMESPACE:
+		return parseFunctionHeadScoped(it, FunctionHeadScoped());
 	case OPEN_DICTIONARY:
 		throw runtime_error("this parser cannot parse mandatory functions");
 	default:
@@ -58,11 +58,14 @@ Parser::FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 			return BlockHead(checkEntBlockHead(other.abstractEntity));
 		case WebssType::FUNCTION_HEAD_BINARY:
 		{
-			FunctionHeadBinary fheadBinary(FunctionHeadBinary(checkEntFheadBinary(other.abstractEntity)));
+			FunctionHeadBinary fheadBinary(checkEntFheadBinary(other.abstractEntity));
 			return isEnd ? move(fheadBinary) : parseFunctionHeadBinary(it, move(fheadBinary));
 		}
 		case WebssType::FUNCTION_HEAD_SCOPED:
-			//...
+		{
+			FunctionHeadScoped fheadScoped(checkEntFheadScoped(other.abstractEntity));
+			return isEnd ? move(fheadScoped) : parseFunctionHeadScoped(it, move(fheadScoped));
+		}
 		case WebssType::FUNCTION_HEAD_STANDARD:
 			new (&fhead) FunctionHeadStandard(checkEntFheadStandard(other.abstractEntity));
 			return isEnd ? move(fhead) : parseFunctionHeadStandard(it, move(fhead));
@@ -72,6 +75,40 @@ Parser::FunctionHeadSwitch Parser::parseFunctionHead(It& it)
 	default:
 		THROW_ERROR;
 	}
+}
+
+FunctionHeadBinary Parser::parseFunctionHeadBinary(It& it, FunctionHeadBinary&& fhead)
+{
+	do
+		if (*it == OPEN_TUPLE)
+			parseBinaryHead(++it, fhead);
+		else
+			parseOtherValuesFheadBinary(it, fhead);
+	while (checkNextElementContainer(it, CON));
+	return move(fhead);
+}
+
+FunctionHeadScoped Parser::parseFunctionHeadScoped(It& it, FunctionHeadScoped&& fhead)
+{
+	string currentNamespace(""); //namespace of entities declared within
+	do
+	{
+		switch (*it)
+		{
+		case CHAR_CONCRETE_ENTITY:
+			checkMultiContainer(++it, [&]() { auto ent = parseConcreteEntity(it, CON); fhead.attach(string(ent.getName()), ParamScoped(ent)); });
+			break;
+		case CHAR_ABSTRACT_ENTITY:
+			checkMultiContainer(++it, [&]() { auto ent = parseAbstractEntity(it, currentNamespace); fhead.attach(string(ent.getName()), ParamScoped(ent)); });
+			break;
+		case CHAR_USING_NAMESPACE:
+			//...
+		default:
+			throw runtime_error(ERROR_UNEXPECTED);
+		}
+	}
+	while (checkNextElementContainer(it, CON));
+	return move(fhead);
 }
 
 FunctionHeadStandard Parser::parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead)
@@ -98,17 +135,6 @@ FunctionHeadStandard Parser::parseFunctionHeadText(It& it)
 	return fhead;
 }
 
-FunctionHeadBinary Parser::parseFunctionHeadBinary(It& it, FunctionHeadBinary&& fhead)
-{
-	do
-		if (*it == OPEN_TUPLE)
-			parseBinaryHead(++it, fhead);
-		else
-			parseOtherValuesFheadBinary(it, fhead);
-	while (checkNextElementContainer(it, CON));
-	return move(fhead);
-}
-
 void Parser::parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead)
 {
 	using Type = FunctionHeadSwitch::Type;
@@ -123,7 +149,8 @@ void Parser::parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fh
 		lastParam.setFunctionHead(move(headSwitch.fheadBinary));
 		break;
 	case Type::SCOPED:
-		//...
+		lastParam.setFunctionHead(move(headSwitch.fheadScoped));
+		break;
 	case Type::STANDARD:
 		lastParam.setFunctionHead(move(headSwitch.fheadStandard));
 		break;

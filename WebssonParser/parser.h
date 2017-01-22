@@ -39,6 +39,7 @@ namespace webss
 			{
 				BlockHead blockHead;
 				FunctionHeadBinary fheadBinary;
+				FunctionHeadScoped fheadScoped;
 				FunctionHeadStandard fheadStandard;
 			};
 
@@ -46,6 +47,7 @@ namespace webss
 
 			FunctionHeadSwitch(BlockHead&& bhead) : t(Type::BLOCK), blockHead(std::move(bhead)) {}
 			FunctionHeadSwitch(FunctionHeadBinary&& fhead) : t(Type::BINARY), fheadBinary(std::move(fhead)) {}
+			FunctionHeadSwitch(FunctionHeadScoped&& fhead) : t(Type::SCOPED), fheadScoped(std::move(fhead)) {}
 			FunctionHeadSwitch(FunctionHeadStandard&& fhead) : t(Type::STANDARD), fheadStandard(std::move(fhead)) {}
 
 			FunctionHeadSwitch& operator=(FunctionHeadSwitch&& o)
@@ -79,7 +81,8 @@ namespace webss
 					fheadBinary.~BasicFunctionHead();
 					break;
 				case Type::SCOPED:
-					//...
+					fheadScoped.~BasicFunctionHead();
+					break;
 				case Type::STANDARD:
 					fheadStandard.~BasicFunctionHead();
 					break;
@@ -100,7 +103,8 @@ namespace webss
 					fheadBinary = std::move(o.fheadBinary);
 					break;
 				case Type::SCOPED:
-					//...
+					fheadScoped = std::move(o.fheadScoped);
+					break;
 				case Type::STANDARD:
 					fheadStandard = std::move(o.fheadStandard);
 					break;
@@ -142,6 +146,7 @@ namespace webss
 		};
 
 		BasicEntityManager<BlockHead> entsBlockHead;
+		BasicEntityManager<FunctionHeadScoped> entsFheadScoped;
 		BasicEntityManager<FunctionHeadBinary> entsFheadBinary;
 		BasicEntityManager<FunctionHeadStandard> entsFheadStandard;
 		BasicEntityManager<WebssBinarySize> entsTypeBinarySize;
@@ -185,7 +190,7 @@ namespace webss
 		const std::string& parseStringEntity(It& it);
 
 		//parserEntities.cpp
-		Entity parseConcreteEntity(It& it);
+		Entity parseConcreteEntity(It& it, ConType con);
 		Entity parseAbstractEntity(It& it, const std::string& currentNamespace);
 		std::string parseName(It& it);
 		std::string parseNameSafe(It& it);
@@ -194,7 +199,8 @@ namespace webss
 		//parserFunctions.cpp
 		FunctionHeadSwitch parseFunctionHead(It& it);
 		FunctionHeadStandard parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead);
-		FunctionHeadBinary parseFunctionHeadBinary(It & it, FunctionHeadBinary&& fhead);
+		FunctionHeadBinary parseFunctionHeadBinary(It& it, FunctionHeadBinary&& fhead);
+		FunctionHeadScoped parseFunctionHeadScoped(It& it, FunctionHeadScoped&& fhead);
 		void parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead);
 		void parseStandardParameterFunctionHeadText(It& it, FunctionHeadStandard& fhead);
 		void parseOtherValuesFheadStandardParam(It& it, FunctionHeadStandard& fhead);
@@ -205,12 +211,13 @@ namespace webss
 
 		Webss parseFunction(It& it, ConType con);
 		Webss parseFunctionText(It& it);
+		Webss parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Tuple& params);
+		Webss parseFunctionBodyScoped(It& it, const FunctionHeadScoped::Tuple& params, ConType con);
 		Webss parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tuple& params);
 		Webss parseFunctionBodyText(It& it, const FunctionHeadStandard::Tuple& params);
 
 		//parserBinary.cpp
 		void parseBinaryHead(It& it, FunctionHeadBinary& fhead);
-		Webss parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Tuple& params);
 		Tuple parseFunctionTupleBinary(It& it, const FunctionHeadBinary::Tuple& params);
 		ParamBinary::SizeList parseBinarySizeList(It& it);
 		const BasicEntity<WebssBinarySize>& checkEntTypeBinarySize(const Entity& ent);
@@ -226,6 +233,7 @@ namespace webss
 		
 
 		const BasicEntity<BlockHead>& checkEntBlockHead(const Entity& ent);
+		const BasicEntity<FunctionHeadScoped>& checkEntFheadScoped(const Entity& ent);
 		const BasicEntity<FunctionHeadBinary>& checkEntFheadBinary(const Entity& ent);
 		const BasicEntity<FunctionHeadStandard>& checkEntFheadStandard(const Entity& ent);
 };

@@ -3,6 +3,8 @@
 #pragma once
 
 #include "entity.h"
+#include "functionHead.h"
+#include "paramScoped.h"
 
 namespace webss
 {
@@ -52,7 +54,6 @@ namespace webss
 		}
 
 		const Webss& getValue() const { return value; }
-
 	private:
 		Webss value;
 	};
@@ -74,6 +75,28 @@ namespace webss
 		This(const Entity& ent, const Webss& value) : head(ent), body(value) {}
 		This(head&& h, Webss&& value) : head(std::move(h)), body(std::move(value)) {}
 		This(const head& h, const Webss& value) : head(h), body(value) {}
+	};
+#undef This
+
+#define This BasicFunctionScoped
+	template <class Webss>
+	class This : public BasicFunctionHead<BasicParamScoped<Webss>>, public BasicBlockBody<Webss>
+	{
+	public:
+		using Head = BasicFunctionHead<BasicParamScoped<Webss>>;
+		using Body = BasicBlockBody<Webss>;
+		using HeadTuple = typename Head::Tuple;
+		using HeadPointer = typename Head::Pointer;
+		using HeadEntity = typename Head::Entity;
+
+		This(Head&& head, Webss&& body) : Head(std::move(head)), Body(std::move(body)) {}
+		This(const Head& head, const Webss& body) : Head(head), Body(body) {}
+		This(HeadTuple&& head, Webss&& body) : Head(std::move(head)), Body(std::move(body)) {}
+		This(const HeadTuple& head, const Webss& body) : Head(head), Body(body) {}
+		This(const HeadPointer& head, Webss&& body) : Head(head), Body(std::move(body)) {}
+		This(const HeadPointer& head, const Webss& body) : Head(head), Body(body) {}
+		This(const HeadEntity& head, Webss&& body) : Head(head), Body(std::move(body)) {}
+		This(const HeadEntity& head, const Webss& body) : Head(head), Body(body) {}
 	};
 #undef This
 }

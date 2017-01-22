@@ -115,6 +115,21 @@ namespace webss
 			globals.insert({ *entName, ent });
 		}
 
+		void addSafe(Entity&& ent)
+		{
+			if (hasEntity(ent.getName()))
+				throw std::runtime_error(ERROR_ENTITY_EXISTS(name));
+
+			add(std::move(ent));
+		}
+		void addSafe(const Entity& ent)
+		{
+			if (hasEntity(ent.getName()))
+				throw std::runtime_error(ERROR_ENTITY_EXISTS(ent.getName()));
+
+			add(ent);
+		}
+
 		//REQUIREMENT: name must be in the globals map
 		void addLocals(const std::string& name)
 		{
@@ -196,6 +211,11 @@ namespace webss
 			if (hasEntityLocals(name))
 				removeLocals(name);
 			deleteEnt(globals.find(name));
+		}
+
+		void remove(const Entity& ent)
+		{
+			remove(ent.getName());
 		}
 
 		//REQUIREMENT: entity must be in the locals set

@@ -89,17 +89,23 @@ void webss::putWebss(StringBuilder& out, const Webss& webss, ConType con)
 	case WebssType::TUPLE:
 		putTuple(out, *webss.tuple);
 		break;
-	case WebssType::FUNCTION_STANDARD:
-		putFuncStandard(out, *webss.funcStandard);
+	case WebssType::FUNCTION_HEAD_BINARY:
+		putFheadBinary(out, *webss.fheadBinary);
 		break;
-	case WebssType::FUNCTION_BINARY:
-		putFuncBinary(out, *webss.funcBinary);
+	case WebssType::FUNCTION_HEAD_SCOPED:
+		putFheadScoped(out, *webss.fheadScoped);
 		break;
 	case WebssType::FUNCTION_HEAD_STANDARD:
 		putFheadStandard(out, *webss.fheadStandard);
 		break;
-	case WebssType::FUNCTION_HEAD_BINARY:
-		putFheadBinary(out, *webss.fheadBinary);
+	case WebssType::FUNCTION_BINARY:
+		putFuncBinary(out, *webss.funcBinary);
+		break;
+	case WebssType::FUNCTION_SCOPED:
+		putFuncScoped(out, *webss.funcScoped, con);
+		break;
+	case WebssType::FUNCTION_STANDARD:
+		putFuncStandard(out, *webss.funcStandard);
 		break;
 	case WebssType::ENTITY:
 		out += webss.ent.getName();

@@ -16,6 +16,30 @@ void checkDefaultValues(Tuple& tuple, const FunctionHeadStandard::Tuple& params)
 class ParserFunctions : public Parser
 {
 public:
+	Webss parseFunctionBodyScoped(It& it, const FunctionHeadScoped::Tuple& params, ConType con)
+	{
+		//get ents
+		for (const auto& param : params)
+			if (param.hasEntity())
+				ents.addSafe(param.getEntity());
+			else
+				for (const auto& entPair : param.getNamespace())
+					ents.addSafe(entPair.second);
+
+		//get value
+		auto webss = parseValueEqual(it, con);
+
+		//remove ents
+		for (const auto& param : params)
+			if (param.hasEntity())
+				ents.remove(param.getEntity());
+			else
+				for (const auto& entPair : param.getNamespace())
+					ents.remove(entPair.second);
+
+		return webss;
+	}
+
 	Webss parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tuple& params)
 	{
 		return parseFunctionBody<FunctionHeadStandard::Tuple>(it, params, [&](It& it, const FunctionHeadStandard::Tuple& params) { return parseFunctionTupleStandard(it, params); }, [&](It& it, const FunctionHeadStandard::Tuple& params) { return parseFunctionTupleText(it, params); });
@@ -131,8 +155,8 @@ private:
 		{
 		case Type::BINARY:
 			return parseFunctionBodyBinary(it, defaultValue.getFunctionHeadBinary().getParameters());
-		//case Type::SCOPED:
-			//...
+		case Type::SCOPED:
+			return parseFunctionBodyScoped(it, defaultValue.getFunctionHeadScoped().getParameters(), CON);
 		case Type::STANDARD:
 		{
 			const auto& params = defaultValue.getFunctionHeadStandard().getParameters();
@@ -271,7 +295,11 @@ Webss Parser::parseFunction(It& it, ConType con)
 		return{ move(head), move(body) };
 	}
 	case Type::SCOPED:
-		//...
+	{
+		auto head = move(headSwitch.fheadScoped);
+		auto body = parseFunctionBodyScoped(it, head.getParameters(), con);
+		return FunctionScoped(move(head), move(body));
+	}
 	case Type::STANDARD:
 	{
 		auto head = move(headSwitch.fheadStandard);
@@ -290,6 +318,16 @@ Webss Parser::parseFunctionText(It& it)
 	return{ move(head), move(body) };
 }
 
+Webss Parser::parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Tuple& params)
+{
+	return static_cast<ParserFunctions*>(this)->parseFunctionBody<FunctionHeadBinary::Tuple>(it, params, [&](It& it, const FunctionHeadBinary::Tuple& params) { return parseFunctionTupleBinary(it, params); }, [&](It& it, const FunctionHeadBinary::Tuple& params) -> Tuple { throw runtime_error(ERROR_UNEXPECTED); });
+}
+
+Webss Parser::parseFunctionBodyScoped(It& it, const FunctionHeadScoped::Tuple& params, ConType con)
+{
+	return static_cast<ParserFunctions*>(this)->parseFunctionBodyScoped(it, params, con);
+}
+
 Webss Parser::parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tuple& params)
 {
 	return static_cast<ParserFunctions*>(this)->parseFunctionBodyStandard(it, params);
@@ -298,9 +336,4 @@ Webss Parser::parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tupl
 Webss Parser::parseFunctionBodyText(It& it, const FunctionHeadStandard::Tuple& params)
 {
 	return static_cast<ParserFunctions*>(this)->parseFunctionBodyText(it, params);
-}
-
-Webss Parser::parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Tuple& params)
-{
-	return static_cast<ParserFunctions*>(this)->parseFunctionBody<FunctionHeadBinary::Tuple>(it, params, [&](It& it, const FunctionHeadBinary::Tuple& params) { return parseFunctionTupleBinary(it, params); }, [&](It& it, const FunctionHeadBinary::Tuple& params) -> Tuple { throw runtime_error(ERROR_UNEXPECTED); });
 }

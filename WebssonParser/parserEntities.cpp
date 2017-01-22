@@ -6,10 +6,10 @@
 using namespace std;
 using namespace webss;
 
-Entity Parser::parseConcreteEntity(It& it)
+Entity Parser::parseConcreteEntity(It& it, ConType con)
 {
 	Entity ent;
-	parseOtherValue(it, ConType::DOCUMENT,
+	parseOtherValue(it, con,
 		CaseKeyValue{ new (&ent) Entity(move(key), move(value)); },
 		CaseKeyOnly{ throw runtime_error(ERROR_EXPECTED); },
 		CaseValueOnly{ throw runtime_error(ERROR_UNEXPECTED); },
@@ -34,10 +34,12 @@ Entity Parser::parseAbstractEntity(It& it, const string& currentNamespace)
 		{
 		case Type::BLOCK:
 			return Entity(move(name), move(headSwitch.blockHead));
-		case Type::STANDARD:
-			return Entity(move(name), move(headSwitch.fheadStandard));
 		case Type::BINARY:
 			return Entity(move(name), move(headSwitch.fheadBinary));
+		case Type::SCOPED:
+			return Entity(move(name), move(headSwitch.fheadScoped));
+		case Type::STANDARD:
+			return Entity(move(name), move(headSwitch.fheadStandard));
 		default:
 			throw logic_error("");
 		}

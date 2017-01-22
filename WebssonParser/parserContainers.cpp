@@ -133,7 +133,7 @@ Namespace Parser::parseNamespace(It& it, const string& name, const string& previ
 		return nspace;
 	do
 		if (*it == CHAR_CONCRETE_ENTITY)
-			checkMultiContainer(++it, [&]() { auto ent = parseConcreteEntity(it); nspace.add(ent.copyContent(currentNamespace + ent.getName())); });
+			checkMultiContainer(++it, [&]() { auto ent = parseConcreteEntity(it, CON); nspace.add(ent.copyContent(currentNamespace + ent.getName())); });
 		else if (*it == CHAR_ABSTRACT_ENTITY)
 			checkMultiContainer(++it, [&]() { auto ent = parseAbstractEntity(it, currentNamespace); nspace.add(ent.copyContent(currentNamespace + ent.getName())); });
 		else
@@ -173,7 +173,7 @@ Document Parser::parseDocument(It&& it)
 			switch (*it)
 			{
 			case CHAR_CONCRETE_ENTITY:
-				checkMultiContainer(++it, [&]() { ents.add(parseConcreteEntity(it)); });
+				checkMultiContainer(++it, [&]() { ents.add(parseConcreteEntity(it, CON)); });
 				break;
 			case CHAR_ABSTRACT_ENTITY:
 				checkMultiContainer(++it, [&]() { ents.add(parseAbstractEntity(it, currentNamespace)); });

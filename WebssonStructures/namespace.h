@@ -113,7 +113,7 @@ namespace webss
 			return it->second;
 		}
 
-		const std::string& getName() { return name; }
+		const std::string& getName() const { return name; }
 
 		typename Data::iterator begin() { return data.begin(); }
 		typename Data::iterator end() { return data.end(); }
