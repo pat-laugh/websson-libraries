@@ -5,7 +5,7 @@
 using namespace std;
 using namespace webss;
 
-void webss::putFuncBinary(StringBuilder& out, const FunctionBinary& func)
+void Deserializer::putFuncBinary(StringBuilder& out, const FunctionBinary& func)
 {
 	putFheadBinary(out, func);
 	switch (func.getType())
@@ -22,18 +22,31 @@ void webss::putFuncBinary(StringBuilder& out, const FunctionBinary& func)
 	}
 }
 
-void webss::putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con)
+void Deserializer::putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con)
 {
+	//include the namespaces
+	for (const auto& param : func.getParameters())
+		if (param.hasNamespace())
+			currentNamespaces.insert(param.getNamespace().getPointer().get());
+
 	if (func.hasEntity())
-		putKeyValue(out, func.getEntName(), func.getValue(), con);
+	{
+		putEntityName(out, func.getEntity());
+		putKeyValue(out, "", func.getValue(), con);
+	}
 	else
 	{
 		putFheadScoped(out, func);
 		putWebss(out, func.getValue(), con);
 	}
+
+	//remove the namespaces
+	for (const auto& param : func.getParameters())
+		if (param.hasNamespace())
+			currentNamespaces.erase(param.getNamespace().getPointer().get());
 }
 
-void webss::putFuncStandard(StringBuilder& out, const FunctionStandard& func)
+void Deserializer::putFuncStandard(StringBuilder& out, const FunctionStandard& func)
 {
 	putFheadStandard(out, func);
 	switch (func.getType())
@@ -50,7 +63,7 @@ void webss::putFuncStandard(StringBuilder& out, const FunctionStandard& func)
 	}
 }
 
-void webss::putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Dictionary& dict)
+void Deserializer::putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Dictionary& dict)
 {
 	if (dict.empty())
 	{
@@ -71,7 +84,7 @@ void webss::putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStan
 	out += CLOSE_DICTIONARY;
 }
 
-void webss::putFuncStandardList(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const List& list)
+void Deserializer::putFuncStandardList(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const List& list)
 {
 	if (list.empty())
 	{
@@ -85,7 +98,7 @@ void webss::putFuncStandardList(StringBuilder& out, const FunctionHeadStandard::
 	out += CLOSE_LIST;
 }
 
-void webss::putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Tuple& tuple)
+void Deserializer::putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Tuple& tuple)
 {
 	if (tuple.empty())
 	{
@@ -157,10 +170,14 @@ void webss::putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard:
 	out += CLOSE_TUPLE;
 }
 
-void webss::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& fhead)
+void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& fhead)
 {
 	if (fhead.hasEntity())
-		out += OPEN_FUNCTION + fhead.getEntName() + CLOSE_FUNCTION;
+	{
+		out += OPEN_FUNCTION;
+		putEntityName(out, fhead.getEntity());
+		out += CLOSE_FUNCTION;
+	}
 	else if (fhead.empty())
 		out += EMPTY_FUNCTION;
 	else
@@ -174,7 +191,8 @@ void webss::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& fhead)
 				const auto& ent = it->getEntity();
 				const auto& content = ent.getContent();
 				out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
-				putKeyValue(out, ent.getName(), content, ConType::FUNCTION_HEAD);
+				putEntityName(out, ent);
+				putKeyValue(out, "", content, ConType::FUNCTION_HEAD);
 			}
 			else
 			{
@@ -187,7 +205,7 @@ void webss::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& fhead)
 }
 
 #define FUNC_PARAMS_STANDARD const string& key, const ParamStandard& value
-void webss::putParamsStandard(StringBuilder& out, const FunctionHeadStandard& fhead, function<void(FUNC_PARAMS_STANDARD)> func)
+void Deserializer::putParamsStandard(StringBuilder& out, const FunctionHeadStandard& fhead, function<void(FUNC_PARAMS_STANDARD)> func)
 {
 	auto keyValues = fhead.getParameters().getOrderedKeyValues();
 	auto it = keyValues.begin();
@@ -201,7 +219,7 @@ void webss::putParamsStandard(StringBuilder& out, const FunctionHeadStandard& fh
 	out += CLOSE_FUNCTION;
 }
 
-void webss::putParamStandard(StringBuilder& out, FUNC_PARAMS_STANDARD)
+void Deserializer::putParamStandard(StringBuilder& out, FUNC_PARAMS_STANDARD)
 {
 	if (!value.hasDefaultValue())
 	{
@@ -221,7 +239,7 @@ void webss::putParamStandard(StringBuilder& out, FUNC_PARAMS_STANDARD)
 	}
 }
 
-void webss::putParamText(StringBuilder& out, FUNC_PARAMS_STANDARD)
+void Deserializer::putParamText(StringBuilder& out, FUNC_PARAMS_STANDARD)
 {
 	if (!value.hasDefaultValue())
 	{
@@ -243,10 +261,14 @@ void webss::putParamText(StringBuilder& out, FUNC_PARAMS_STANDARD)
 	}
 }
 
-void webss::putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhead)
+void Deserializer::putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhead)
 {
 	if (fhead.hasEntity())
-		out += OPEN_FUNCTION + fhead.getEntName() + CLOSE_FUNCTION;
+	{
+		out += OPEN_FUNCTION;
+		putEntityName(out, fhead.getEntity());
+		out += CLOSE_FUNCTION;
+	}
 	else if (fhead.empty())
 		out += EMPTY_FUNCTION;
 	else if (fhead.getParameters().isText())
@@ -261,17 +283,21 @@ void webss::putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhe
 #undef FUNC_PARAMS_STANDARD
 
 #define FUNC_PARAMS_BINARY const string& key, const ParamBinary& value
-void webss::putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead)
+void Deserializer::putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead)
 {
 	if (fhead.hasEntity())
-		out += OPEN_FUNCTION + fhead.getEntName() + CLOSE_FUNCTION;
+	{
+		out += OPEN_FUNCTION;
+		putEntityName(out, fhead.getEntity());
+		out += CLOSE_FUNCTION;
+	}
 	else if (fhead.empty())
 		throw runtime_error("binary function head can't be empty");
 	else
 		putParamsBinary(out, fhead, [&](FUNC_PARAMS_BINARY) { putParamBinary(out, key, value); });
 }
 
-void webss::putParamsBinary(StringBuilder& out, const FunctionHeadBinary& fhead, function<void(FUNC_PARAMS_BINARY)> func)
+void Deserializer::putParamsBinary(StringBuilder& out, const FunctionHeadBinary& fhead, function<void(FUNC_PARAMS_BINARY)> func)
 {
 	auto keyValues = fhead.getParameters().getOrderedKeyValues();
 	auto it = keyValues.begin();
@@ -285,7 +311,7 @@ void webss::putParamsBinary(StringBuilder& out, const FunctionHeadBinary& fhead,
 	out += CLOSE_FUNCTION;
 }
 
-void webss::putParamBinary(StringBuilder& out, FUNC_PARAMS_BINARY)
+void Deserializer::putParamBinary(StringBuilder& out, FUNC_PARAMS_BINARY)
 {
 	putBinarySizeHead(out, value.sizeHead);
 	out += key;
@@ -299,7 +325,7 @@ void webss::putParamBinary(StringBuilder& out, FUNC_PARAMS_BINARY)
 
 #undef FUNC_PARAMS_BINARY
 
-void webss::putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Dictionary& dict)
+void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Dictionary& dict)
 {
 	if (dict.empty())
 	{
@@ -320,7 +346,7 @@ void webss::putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary
 	out += CLOSE_DICTIONARY;
 }
 
-void webss::putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const List& list)
+void Deserializer::putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const List& list)
 {
 	if (list.empty())
 	{
@@ -334,7 +360,7 @@ void webss::putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Tupl
 	out += CLOSE_LIST;
 }
 
-void webss::putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Tuple& tuple)
+void Deserializer::putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Tuple& tuple)
 {
 	out += OPEN_TUPLE;
 	putFuncBodyBinary(out, params, tuple);

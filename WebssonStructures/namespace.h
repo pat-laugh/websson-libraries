@@ -93,6 +93,7 @@ namespace webss
 
 		const std::string& getName() const { return name; }
 		const std::shared_ptr<This<Webss>>& getPointer() const { return nspaces.back(); }
+		const Namespaces& getNamespaces() const { return nspaces; }
 
 		typename Data::iterator begin() { return data.begin(); }
 		typename Data::iterator end() { return data.end(); }

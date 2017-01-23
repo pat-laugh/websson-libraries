@@ -34,14 +34,14 @@ void addCharEscape(StringBuilder& out, char c)
 	}
 }
 
-string webss::deserializeAll(const Document& doc)
+string Deserializer::deserialize(const Document& doc)
 {
 	StringBuilder out;
 	putDocument(out, doc);
 	return out;
 }
 
-string webss::deserializeAll(const Document& doc, const EntityManager& ents)
+string Deserializer::deserialize(const Document& doc, const EntityManager& ents)
 {
 	StringBuilder out;
 
@@ -59,7 +59,7 @@ string webss::deserializeAll(const Document& doc, const EntityManager& ents)
 	return out;
 }
 
-void webss::putWebss(StringBuilder& out, const Webss& webss, ConType con)
+void Deserializer::putWebss(StringBuilder& out, const Webss& webss, ConType con)
 {
 	switch (webss.t)
 	{
@@ -108,7 +108,7 @@ void webss::putWebss(StringBuilder& out, const Webss& webss, ConType con)
 		putFuncStandard(out, *webss.funcStandard);
 		break;
 	case WebssType::ENTITY:
-		out += webss.ent.getName();
+		putEntityName(out, webss.ent);
 		break;
 	case WebssType::NAMESPACE:
 		putNamespace(out, *webss.nspace);
@@ -129,14 +129,15 @@ void webss::putWebss(StringBuilder& out, const Webss& webss, ConType con)
 	}
 }
 
-void webss::putKeyValue(StringBuilder& out, const string& key, const Webss& value, ConType con)
+void Deserializer::putKeyValue(StringBuilder& out, const string& key, const Webss& value, ConType con)
 {
 	switch (value.t)
 	{
 	case WebssType::DEFAULT:
 		throw domain_error("can't deserialize " + value.t.toString() + " with key");
 	case WebssType::ENTITY:
-		out += key + CHAR_EQUAL + value.ent.getName();
+		out += key + CHAR_EQUAL;
+		putEntityName(out, value.ent);
 		break;
 	case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
 		out += key + CHAR_EQUAL;
@@ -150,13 +151,13 @@ void webss::putKeyValue(StringBuilder& out, const string& key, const Webss& valu
 }
 
 
-void webss::putValueOnly(StringBuilder& out, const Webss& value, ConType con)
+void Deserializer::putValueOnly(StringBuilder& out, const Webss& value, ConType con)
 {
 	putWebss(out, value, con);
 }
 
 
-void webss::putSeparatedValues(StringBuilder& out, function<bool()> condition, function<void()> output)
+void Deserializer::putSeparatedValues(StringBuilder& out, function<bool()> condition, function<void()> output)
 {
 	output();
 	while (condition())
@@ -166,13 +167,13 @@ void webss::putSeparatedValues(StringBuilder& out, function<bool()> condition, f
 	}
 }
 
-void webss::putLineString(StringBuilder& out, const string& str, ConType con)
+void Deserializer::putLineString(StringBuilder& out, const string& str, ConType con)
 {
 	out += CHAR_COLON;
 	putString(out, str, con);
 }
 
-void webss::putString(StringBuilder& out, const string& str, ConType con)
+void Deserializer::putString(StringBuilder& out, const string& str, ConType con)
 {
 	if (str.empty())
 		return;
@@ -208,7 +209,7 @@ void webss::putString(StringBuilder& out, const string& str, ConType con)
 	} while (++it != str.end());
 }
 
-void webss::putDictionary(StringBuilder& out, const Dictionary& dict)
+void Deserializer::putDictionary(StringBuilder& out, const Dictionary& dict)
 {
 	if (dict.empty())
 	{
@@ -222,7 +223,7 @@ void webss::putDictionary(StringBuilder& out, const Dictionary& dict)
 	out += CLOSE_DICTIONARY;
 }
 
-void webss::putList(StringBuilder& out, const List& list)
+void Deserializer::putList(StringBuilder& out, const List& list)
 {
 	if (list.isText())
 	{
@@ -249,7 +250,7 @@ void webss::putList(StringBuilder& out, const List& list)
 	out += CLOSE_LIST;
 }
 
-void webss::putTuple(StringBuilder& out, const Tuple& tuple)
+void Deserializer::putTuple(StringBuilder& out, const Tuple& tuple)
 {
 	if (tuple.isText())
 	{
@@ -277,7 +278,7 @@ void webss::putTuple(StringBuilder& out, const Tuple& tuple)
 	out += CLOSE_TUPLE;
 }
 
-void webss::putDocument(StringBuilder& out, const Document& doc)
+void Deserializer::putDocument(StringBuilder& out, const Document& doc)
 {
 	if (doc.empty())
 		return;
@@ -287,7 +288,7 @@ void webss::putDocument(StringBuilder& out, const Document& doc)
 	putSeparatedValues(out, [&]() { return ++it != keyValues.end(); }, [&]() { it->first == nullptr ? putValueOnly(out, *it->second, ConType::DOCUMENT) : putKeyValue(out, *it->first, *it->second, ConType::DOCUMENT); });
 }
 
-void webss::putNamespace(StringBuilder& out, const Namespace& nspace)
+void Deserializer::putNamespace(StringBuilder& out, const Namespace& nspace)
 {
 	if (nspace.empty())
 	{
@@ -295,18 +296,23 @@ void webss::putNamespace(StringBuilder& out, const Namespace& nspace)
 		return;
 	}
 
+	currentNamespaces.insert(nspace.getPointer().get());
+
 	auto it = nspace.begin();
 	out += OPEN_DICTIONARY;
 	putSeparatedValues(out, [&]() { return ++it != nspace.end(); }, [&]()
 	{
 		const auto& content = it->second.getContent();
 		out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
-		putKeyValue(out, it->second.getName(), content, ConType::DICTIONARY);
+		putEntityName(out, it->second);
+		putKeyValue(out, "", content, ConType::DICTIONARY);
 	});
 	out += CLOSE_DICTIONARY;
+
+	currentNamespaces.erase(nspace.getPointer().get());
 }
 
-void webss::putEnum(StringBuilder& out, const Enum& tEnum)
+void Deserializer::putEnum(StringBuilder& out, const Enum& tEnum)
 {
 	if (tEnum.empty())
 	{
@@ -328,21 +334,177 @@ void webss::putEnum(StringBuilder& out, const Enum& tEnum)
 	out += CLOSE_LIST;
 }
 
-void webss::putBlockHead(StringBuilder& out, const BlockHead& blockHead)
+void Deserializer::putBlockHead(StringBuilder& out, const BlockHead& blockHead)
 {
 	if (blockHead.hasEntity())
-		out += OPEN_FUNCTION + blockHead.getEntName() + CLOSE_FUNCTION;
+	{
+		out += OPEN_FUNCTION;
+		putEntityName(out, blockHead.getEntity());
+		out += CLOSE_FUNCTION;
+	}
 	else
 		out += EMPTY_FUNCTION;
 }
 
-void webss::putBlock(StringBuilder& out, const Block& block, ConType con)
+void Deserializer::putBlock(StringBuilder& out, const Block& block, ConType con)
 {
 	if (block.hasEntity())
-		putKeyValue(out, block.getEntName(), block.getValue(), con);
+	{
+		putEntityName(out, block.getEntity());
+		putKeyValue(out, "", block.getValue(), con);
+	}
 	else
 	{
 		out += EMPTY_FUNCTION;
 		putWebss(out, block.getValue(), con);
 	}
+}
+
+void Deserializer::putEntityName(StringBuilder&out, const string& entName, const BasicNamespace<Webss>& entNspace)
+{
+	const auto& nspaces = entNspace.getNamespaces();
+	int i = 0;
+	for (; i < nspaces.size(); ++i)
+		if (currentNamespaces.find(reinterpret_cast<Namespace*>(nspaces[i].get())) == currentNamespaces.end())
+			break;
+
+	for (; i < nspaces.size(); ++i)
+		out += nspaces[i]->getName() + CHAR_SCOPE;
+
+	out += entName;
+}
+
+void Deserializer::putEntityName(StringBuilder&out, const string& entName, const BasicNamespace<BlockHead>& entNspace)
+{
+	const auto& nspaces = entNspace.getNamespaces();
+	int i = 0;
+	for (; i < nspaces.size(); ++i)
+		if (currentNamespaces.find(reinterpret_cast<Namespace*>(nspaces[i].get())) == currentNamespaces.end())
+			break;
+
+	for (; i < nspaces.size(); ++i)
+		out += nspaces[i]->getName() + CHAR_SCOPE;
+
+	out += entName;
+}
+
+void Deserializer::putEntityName(StringBuilder&out, const string& entName, const BasicNamespace<FunctionHeadBinary>& entNspace)
+{
+	const auto& nspaces = entNspace.getNamespaces();
+	int i = 0;
+	for (; i < nspaces.size(); ++i)
+		if (currentNamespaces.find(reinterpret_cast<Namespace*>(nspaces[i].get())) == currentNamespaces.end())
+			break;
+
+	for (; i < nspaces.size(); ++i)
+		out += nspaces[i]->getName() + CHAR_SCOPE;
+
+	out += entName;
+}
+
+void Deserializer::putEntityName(StringBuilder&out, const string& entName, const BasicNamespace<FunctionHeadScoped>& entNspace)
+{
+	const auto& nspaces = entNspace.getNamespaces();
+	int i = 0;
+	for (; i < nspaces.size(); ++i)
+		if (currentNamespaces.find(reinterpret_cast<Namespace*>(nspaces[i].get())) == currentNamespaces.end())
+			break;
+
+	for (; i < nspaces.size(); ++i)
+		out += nspaces[i]->getName() + CHAR_SCOPE;
+
+	out += entName;
+}
+
+void Deserializer::putEntityName(StringBuilder&out, const string& entName, const BasicNamespace<FunctionHeadStandard>& entNspace)
+{
+	const auto& nspaces = entNspace.getNamespaces();
+	int i = 0;
+	for (; i < nspaces.size(); ++i)
+		if (currentNamespaces.find(reinterpret_cast<Namespace*>(nspaces[i].get())) == currentNamespaces.end())
+			break;
+
+	for (; i < nspaces.size(); ++i)
+		out += nspaces[i]->getName() + CHAR_SCOPE;
+
+	out += entName;
+}
+
+void Deserializer::putEntityName(StringBuilder&out, const string& entName, const BasicNamespace<WebssBinarySize>& entNspace)
+{
+	const auto& nspaces = entNspace.getNamespaces();
+	int i = 0;
+	for (; i < nspaces.size(); ++i)
+		if (currentNamespaces.find(reinterpret_cast<Namespace*>(nspaces[i].get())) == currentNamespaces.end())
+			break;
+
+	for (; i < nspaces.size(); ++i)
+		out += nspaces[i]->getName() + CHAR_SCOPE;
+
+	out += entName;
+}
+
+void Deserializer::putEntityName(StringBuilder&out, const string& entName, const BasicNamespace<WebssInt>& entNspace)
+{
+	const auto& nspaces = entNspace.getNamespaces();
+	int i = 0;
+	for (; i < nspaces.size(); ++i)
+		if (currentNamespaces.find(reinterpret_cast<Namespace*>(nspaces[i].get())) == currentNamespaces.end())
+			break;
+
+	for (; i < nspaces.size(); ++i)
+		out += nspaces[i]->getName() + CHAR_SCOPE;
+
+	out += entName;
+}
+
+void Deserializer::putEntityName(StringBuilder& out, const BasicEntity<Webss>& ent)
+{
+	if (ent.hasNamespace())
+		putEntityName(out, ent.getName(), ent.getNamespace());
+	else
+		out += ent.getName();
+}
+
+void Deserializer::putEntityName(StringBuilder& out, const BasicEntity<BlockHead>& ent)
+{
+	if (ent.hasNamespace())
+		putEntityName(out, ent.getName(), ent.getNamespace());
+	else
+		out += ent.getName();
+}
+void Deserializer::putEntityName(StringBuilder& out, const BasicEntity<FunctionHeadBinary>& ent)
+{
+	if (ent.hasNamespace())
+		putEntityName(out, ent.getName(), ent.getNamespace());
+	else
+		out += ent.getName();
+}
+void Deserializer::putEntityName(StringBuilder& out, const BasicEntity<FunctionHeadScoped>& ent)
+{
+	if (ent.hasNamespace())
+		putEntityName(out, ent.getName(), ent.getNamespace());
+	else
+		out += ent.getName();
+}
+void Deserializer::putEntityName(StringBuilder& out, const BasicEntity<FunctionHeadStandard>& ent)
+{
+	if (ent.hasNamespace())
+		putEntityName(out, ent.getName(), ent.getNamespace());
+	else
+		out += ent.getName();
+}
+void Deserializer::putEntityName(StringBuilder& out, const BasicEntity<WebssBinarySize>& ent)
+{
+	if (ent.hasNamespace())
+		putEntityName(out, ent.getName(), ent.getNamespace());
+	else
+		out += ent.getName();
+}
+void Deserializer::putEntityName(StringBuilder& out, const BasicEntity<WebssInt>& ent)
+{
+	if (ent.hasNamespace())
+		putEntityName(out, ent.getName(), ent.getNamespace());
+	else
+		out += ent.getName();
 }

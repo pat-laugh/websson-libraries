@@ -140,7 +140,7 @@ int main()
 			if (fileOut.fail()) { cerr << "Error: failed to open file \"" << fileOutName << "\"" << endl; cin >> inChar; exit(EXIT_FAILURE); }
 			try
 			{
-				fileOut << deserializeAll(data, parser.ents);
+				fileOut << Deserializer::deserializeAll(data, parser.ents);
 				fileOut.flush();
 				cout << "No errors while deserializing" << endl;
 			}

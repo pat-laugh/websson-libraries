@@ -56,7 +56,7 @@ void writeBytes(StringBuilder& out, WebssBinarySize num, char* value)
 #endif
 }
 
-void webss::putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Tuple& data)
+void Deserializer::putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Tuple& data)
 {
 	Tuple::size_type i = 0;
 	for (const auto& webss : data)
@@ -77,7 +77,7 @@ void webss::putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinary::Tupl
 	}
 }
 
-void webss::putBinary(StringBuilder& out, const ParamBinary& bhead, const Webss& data)
+void Deserializer::putBinary(StringBuilder& out, const ParamBinary& bhead, const Webss& data)
 {
 	const auto& sizeHead = bhead.sizeHead;
 	if (!sizeHead.isFunctionHead())
@@ -108,7 +108,7 @@ void deserializeBitList(StringBuilder& out, const List& list)
 	out += c;
 }
 
-void webss::putBinary(StringBuilder& out, const ParamBinary& bhead, const Webss& data, function<void(const Webss& webss)> func)
+void Deserializer::putBinary(StringBuilder& out, const ParamBinary& bhead, const Webss& data, function<void(const Webss& webss)> func)
 {
 	if (bhead.sizeList.isOne())
 	{
@@ -130,7 +130,7 @@ void webss::putBinary(StringBuilder& out, const ParamBinary& bhead, const Webss&
 		func(webss);
 }
 
-void webss::putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss)
+void Deserializer::putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss)
 {
 	if (bhead.isKeyword())
 		switch (bhead.getKeyword())
@@ -155,7 +155,7 @@ void webss::putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bh
 	}
 }
 
-void webss::putBinarySizeHead(StringBuilder& out, const ParamBinary::SizeHead& bhead)
+void Deserializer::putBinarySizeHead(StringBuilder& out, const ParamBinary::SizeHead& bhead)
 {
 	using Type = ParamBinary::SizeHead::Type;
 	out += OPEN_TUPLE;
@@ -175,8 +175,11 @@ void webss::putBinarySizeHead(StringBuilder& out, const ParamBinary::SizeHead& b
 	case Type::FUNCTION_HEAD:
 		putFheadBinary(out, bhead.getFunctionHead());
 		break;
-	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_FUNCTION_HEAD:
-		out += bhead.getEntName();
+	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
+		putEntityName(out, bhead.getEntityNumber());
+		break;
+	case Type::ENTITY_FUNCTION_HEAD:
+		putEntityName(out, bhead.getEntityFunctionHead());
 		break;
 	default:
 		throw domain_error("");
@@ -184,7 +187,7 @@ void webss::putBinarySizeHead(StringBuilder& out, const ParamBinary::SizeHead& b
 	out += CLOSE_TUPLE;
 }
 
-void webss::putBinarySizeList(StringBuilder& out, const ParamBinary::SizeList& blist)
+void Deserializer::putBinarySizeList(StringBuilder& out, const ParamBinary::SizeList& blist)
 {
 	using Type = ParamBinary::SizeList::Type;
 	if (blist.isOne())
@@ -199,7 +202,7 @@ void webss::putBinarySizeList(StringBuilder& out, const ParamBinary::SizeList& b
 		out += to_string(blist.size());
 		break;
 	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
-		out += blist.getEntName();
+		putEntityName(out, blist.getEntity());
 		break;
 	default:
 		throw domain_error("");

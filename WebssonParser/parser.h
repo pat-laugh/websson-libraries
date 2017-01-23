@@ -62,8 +62,8 @@ namespace webss
 		};
 
 		BasicEntityManager<BlockHead> entsBlockHead;
-		BasicEntityManager<FunctionHeadScoped> entsFheadScoped;
 		BasicEntityManager<FunctionHeadBinary> entsFheadBinary;
+		BasicEntityManager<FunctionHeadScoped> entsFheadScoped;
 		BasicEntityManager<FunctionHeadStandard> entsFheadStandard;
 		BasicEntityManager<WebssBinarySize> entsTypeBinarySize;
 		BasicEntityManager<WebssInt> entsTypeInt;

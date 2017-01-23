@@ -116,18 +116,8 @@ namespace webss
 			const std::shared_ptr<Webss>& getDefaultPointer() const { return defaultValue; }
 			void setDefaultValue(Webss&& value) { defaultValue = std::shared_ptr<Webss>(new Webss(std::move(value))); }
 
-			const std::string& getEntName() const
-			{
-				switch (t)
-				{
-				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
-					return entNumber.getName();
-				case Type::ENTITY_FUNCTION_HEAD:
-					return entFunctionHead.getName();
-				default:
-					throw std::logic_error("");
-				}
-			}
+			const EntityNumber& getEntityNumber() const { return entNumber; }
+			const EntityFunctionHead& getEntityFunctionHead() const { return entFunctionHead; }
 
 			const FunctionHead& getFunctionHead() const
 			{
@@ -346,10 +336,10 @@ namespace webss
 				}
 			}
 
-			const std::string& getEntName() const
+			const Entity& getEntity() const
 			{
 				assert(hasEntity());
-				return ent.getName();
+				return ent;
 			}
 		private:
 			static constexpr char* ERROR_BINARY_SIZE_LIST = "size of binary list must be a positive integer or equivalent entity";
@@ -410,13 +400,19 @@ namespace webss
 		using SizeList = BasicSizeList;
 
 		BasicParamBinary() {}
-		BasicParamBinary(const SizeHead& sizeHead, const SizeList& sizeList) : sizeHead(sizeHead), sizeList(sizeList) {}
 		BasicParamBinary(SizeHead&& sizeHead, SizeList&& sizeList) : sizeHead(std::move(sizeHead)), sizeList(std::move(sizeList)) {}
+		BasicParamBinary(const SizeHead& sizeHead, const SizeList& sizeList) : sizeHead(sizeHead), sizeList(sizeList) {}
 		~BasicParamBinary() {}
 
-		BasicParamBinary(const BasicParamBinary& o) : sizeHead(o.sizeHead), sizeList(o.sizeList) {}
 		BasicParamBinary(BasicParamBinary&& o) : sizeHead(std::move(o.sizeHead)), sizeList(std::move(o.sizeList)) {}
+		BasicParamBinary(const BasicParamBinary& o) : sizeHead(o.sizeHead), sizeList(o.sizeList) {}
 
+		BasicParamBinary& operator=(BasicParamBinary&& o)
+		{
+			sizeHead = std::move(o.sizeHead);
+			sizeList = std::move(o.sizeList);
+			return *this;
+		}
 		BasicParamBinary& operator=(const BasicParamBinary& o)
 		{
 			if (this != &o)
@@ -424,12 +420,6 @@ namespace webss
 				sizeHead = o.sizeHead;
 				sizeList = o.sizeList;
 			}
-			return *this;
-		}
-		BasicParamBinary& operator=(BasicParamBinary&& o)
-		{
-			sizeHead = std::move(o.sizeHead);
-			sizeList = std::move(o.sizeList);
 			return *this;
 		}
 

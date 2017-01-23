@@ -67,9 +67,9 @@ namespace webss
 			}
 		}
 
-		const std::string& getEntName() const
+		const Entity& getEntity() const
 		{
-			return ent.getName();
+			return ent;
 		}
 
 		void attachEmpty(std::string&& key)

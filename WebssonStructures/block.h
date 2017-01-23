@@ -19,7 +19,7 @@ namespace webss
 		This(const Entity& ent) : hasEnt(true), ent(ent) {}
 
 		bool hasEntity() const { return hasEnt; }
-		const std::string& getEntName() const { return ent.getName(); }
+		const Entity& getEntity() const { return ent; }
 	private:
 		bool hasEnt = false;
 		Entity ent;
