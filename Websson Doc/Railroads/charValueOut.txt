@@ -1,0 +1,1 @@
+Diagram(Choice(0,NonTerminal('Dictionary','#dictionary'),NonTerminal('List','#list'),NonTerminal('Tuple','#tuple'),NonTerminal('Function','#function'),NonTerminal('Text Container','#textContainer'),NonTerminal('Equal-Value','#equalValue'),NonTerminal('String','#string')))

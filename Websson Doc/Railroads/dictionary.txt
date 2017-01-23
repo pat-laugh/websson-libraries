@@ -1,0 +1,9 @@
+charOpenDictionary
+optional loop
+[
+	itemSeparator
+	optional itemJunk
+	optional itemKeyValue
+	optional itemWhitespace
+]
+charCloseDictionary

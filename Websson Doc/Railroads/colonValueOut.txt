@@ -1,0 +1,1 @@
+Diagram(Terminal('Ascii colon (\':\')'),Choice(0,NonTerminal('Line String','#lineString'),Sequence(Terminal('Ascii colon (\':\')'),NonTerminal('Container Text','#containerText'))))

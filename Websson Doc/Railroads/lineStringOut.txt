@@ -1,0 +1,1 @@
+Diagram(Terminal('Ascii colon (\':\')'),Optional(OneOrMore(NonTerminal('String Body','#stringBody'))),Terminal('string container end'))

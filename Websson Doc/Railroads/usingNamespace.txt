@@ -1,0 +1,16 @@
+charUsingNamespace
+switch
+[
+	itemVariableName
+	[
+		charOpenDictionary
+		optional loop
+		[
+			itemSeparator
+			optional itemJunk
+			optional itemVariableName
+			optional itemWhitespace
+		]
+		charCloseDictionary
+	]
+]

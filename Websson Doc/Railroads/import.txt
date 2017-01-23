@@ -1,0 +1,16 @@
+charImport
+switch
+[
+	itemString
+	[
+		charOpenDictionary
+		optional loop
+		[
+			itemSeparator
+			optional itemJunk
+			optional itemString
+			optional itemWhitespace
+		]
+		charCloseDictionary
+	]
+]

@@ -1,0 +1,11 @@
+[optional itemJunk, charOpenList]
+optional
+[
+	optional itemJunk
+	switch
+	[
+		itemNumberInt
+		itemVariableName
+	]
+]
+[optional itemJunk, charCloseList]

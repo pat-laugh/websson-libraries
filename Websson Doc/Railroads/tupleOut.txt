@@ -1,0 +1,1 @@
+Diagram(Terminal('<'),Optional(OneOrMore(Sequence(Optional(Choice(0,NonTerminal('Value','#value'),NonTerminal('Key-Value pair','#keyValue')))),NonTerminal('Separator','#separator'))),Terminal('>'))

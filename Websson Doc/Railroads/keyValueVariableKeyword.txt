@@ -1,0 +1,5 @@
+itemName
+optional itemJunk
+charEqual
+optional itemJunk
+itemNumberInt

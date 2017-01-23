@@ -1,0 +1,6 @@
+switch
+[
+	itemLineString
+	itemTextDictionary
+	itemCstring
+]

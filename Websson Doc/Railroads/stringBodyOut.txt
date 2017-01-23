@@ -1,0 +1,1 @@
+Diagram(Choice(0,Terminal('Any non-Ascii control character, except string container end and Ascii backslash (\'\\\\\')'),NonTerminal('Variable-String','#variableString'),NonTerminal('Escape Sequence','#escapeSequence')))

@@ -1,0 +1,20 @@
+/* skip junk must have its own language where
+the chars '/' and '\' are recognized as operators
+-- There are multiple languages within one language
+1) There is the main language
+2) Language of strings
+3) Language of junk
+
+There are actually 3 kinds of operators, both consisting of two chars:
+Line escape: '\' immediately followed by '\n' or whitespace or eof
+Line comment: '/' immediately followed by '/'
+Multiline comment: '/' immediately followed by '*'
+
+If '\' or '/' is met, but not an operator, then it is left
+where it was.
+
+What line escape does:
+	1) Skip current line. All chars after '\' must be junk or eof
+		If not, there is an error.
+	2) Skip whitespace on line after it.
+*/

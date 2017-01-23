@@ -1,0 +1,6 @@
+switch
+[
+	itemFunctionHeadStandard
+	itemFunctionHeadBinary
+	itemFunctionHeadMandatory
+]

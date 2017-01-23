@@ -1,0 +1,1 @@
+Diagram(Choice(0,NonTerminal('Function Head standard','#functionHeadStandard'),NonTerminal('Function Head binary','#functionHeadBinary'),NonTerminal('Function Head mandatory','#functionHeadMandatory')))

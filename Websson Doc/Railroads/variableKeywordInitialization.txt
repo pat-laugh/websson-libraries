@@ -1,0 +1,16 @@
+charVariableKeyword
+switch
+[
+	itemKeyValueVariableKeyword
+	[
+		charOpenDictionary
+		optional loop
+		[
+			itemSeparator
+			optional itemJunk
+			optional itemKeyValueVariableKeyword
+			optional itemWhitespace
+		]
+		charCloseDictionary
+	]
+]

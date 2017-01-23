@@ -1,0 +1,10 @@
+charColon
+charColon
+optional itemJunk
+charOpenDictionary
+optional loop
+[
+	null
+	itemStringBody
+]
+charCloseDictionary

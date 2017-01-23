@@ -1,0 +1,1 @@
+Diagram(Terminal('('),OneOrMore(Sequence(Optional(NonTerminal('Binary Head','#binaryHead'))),NonTerminal('Separator','#separator')),Terminal(')'))

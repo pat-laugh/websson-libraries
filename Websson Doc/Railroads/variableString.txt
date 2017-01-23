@@ -1,0 +1,6 @@
+charVariable
+loop
+[
+	charScope
+	itemName
+]

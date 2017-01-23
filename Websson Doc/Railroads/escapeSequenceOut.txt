@@ -1,0 +1,1 @@
+Diagram(Terminal('Ascii backslash (\'\\\\\')'),Choice(0,Choice(0,Terminal('0'),Terminal('a'),Terminal('b'),Terminal('e'),Terminal('f'),Terminal('n'),Terminal('s'),Terminal('r'),Terminal('t'),Terminal('v')),NonTerminal('Unicode escape sequence','#escapedUnicode'),Terminal('Any non-Ascii control character, except Ascii space, letters and digits')))

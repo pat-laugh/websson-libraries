@@ -1,0 +1,20 @@
+optional loop
+[
+	charNewline
+	optional itemJunk
+	switch
+	[
+		itemVariableInitialization
+		itemVariableKeywordInitialization
+		itemUsingNamespace
+		itemImport
+	]
+	optional itemWhitespace
+]
+optional loop
+[
+	itemSeparator
+	optional itemJunk
+	optional switch [itemValue, itemKeyValue]
+	optional itemWhitespace
+]

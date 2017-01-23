@@ -1,0 +1,1 @@
+Diagram(Terminal('Ascii percentage sign (\'%\')'),Choice(0,NonTerminal('Variable name','#name'),Sequence(Terminal('{'),Optional(OneOrMore(Sequence(Optional(NonTerminal('Variable name','#name'))),NonTerminal('Separator','#separator'))),Terminal('}'))))

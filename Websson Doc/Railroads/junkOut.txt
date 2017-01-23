@@ -1,0 +1,1 @@
+Diagram(Choice(0,Terminal('Any Ascii control character'),Terminal('Ascii space character (\' \')')))

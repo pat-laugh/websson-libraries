@@ -1,0 +1,1 @@
+Diagram(Sequence(Terminal('[')),Optional(Sequence(Choice(0,NonTerminal('Integer','#numberInt'),NonTerminal('Variable name','#name')))),Sequence(Terminal(']')))

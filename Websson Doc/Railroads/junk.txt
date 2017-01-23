@@ -1,0 +1,5 @@
+switch
+[
+	:Any ?charControl
+	charSpace
+]

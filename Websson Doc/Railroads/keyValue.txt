@@ -1,0 +1,3 @@
+itemName
+optional itemJunk
+itemCharValue

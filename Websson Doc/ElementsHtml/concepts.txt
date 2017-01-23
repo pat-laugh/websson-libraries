@@ -1,0 +1,24 @@
+h1:Concepts
+h2:Containers
+p::~
+	There are 5 basic types of containers in WebSSON: Document, Dictionary,
+	List, Tuple and Function Head.
+	
+	The Document consists of the file containing the whole WebSSON text.
+	Therefore, it starts at the start of the file and ends at the end of
+	the file. Elements within it are separated by newlines only.
+	
+	The Dictionary starts with an opening brace ('{') and ends with a
+	closing brace ('}'). Only key-value pairs are allowed inside of it.
+	Elements are separated by either a comma or a newline.
+	
+	The List starts with an opening square bracket ('[') and ends with a
+	closing square bracket (']'). Only values are allowed inside of it.
+	Elements are separated by either a comma or a newline.
+	
+	The Tuple starts with an opening angled bracket ('<') and ends with a
+	closing angled bracket ('>'). Values and key-values are allowed inside
+	of it. Elements are separated by either a comma or a newline.
+	
+	The Function Head starts with an opening parenthesis ('(') and ends with
+	a closing parenthesis (')').

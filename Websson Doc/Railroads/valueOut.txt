@@ -1,0 +1,1 @@
+Diagram(Choice(0,NonTerminal('Char-Value','#charValue'),Sequence(Terminal('N'),Terminal('null'),Terminal('nil'),Terminal('F'),Terminal('false'),Terminal('T'),Terminal('true')),NonTerminal('Variable name','#name'),NonTerminal('Keyword-Value','#keywordValue'),NonTerminal('Number','#number')))

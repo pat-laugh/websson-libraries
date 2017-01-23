@@ -1,0 +1,3 @@
+charEqual
+optional itemJunk
+itemValue

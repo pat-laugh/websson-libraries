@@ -1,0 +1,12 @@
+switch
+[
+	itemTextList
+	itemTextTuple
+	[
+		itemTextFunctionHead
+		optional itemJunk
+		optional charEqual
+		optional itemJunk
+		itemFunctionBody
+	]	
+]

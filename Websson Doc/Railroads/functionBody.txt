@@ -1,0 +1,6 @@
+switch
+[
+	itemFunctionBodyStandard
+	itemFunctionBodyBinary
+	itemFunctionBodyMandatory
+]

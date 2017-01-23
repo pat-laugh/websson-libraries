@@ -1,0 +1,255 @@
+//OUTDATED
+
+Intro
+
+WebSSON is a language for deserialization and serialization. It's resembles JSON a bit,
+so let's take that as a starting point.
+
+
+First structure: dictionary
+
+A dictionary is a structure that can only have key-value pairs. It is declared with { and }.
+A key, unlike in JSON, doesn't take quotes. As such, the characters it can take are slightly
+limited and it cannot have the same name as keywords and others variables, which we'll cover
+later.
+
+A valid key name is very much like in C and other related languages. It can only start with
+letters, the underscore or any non-Ascii character. Subsequent characters can additionally
+be numbers.
+
+
+Values
+
+A key-value has an association between the key and value. A key is associated to a value using
+the equal sign. There are other ways, but for now that's all we'll see.
+
+- A value can be a value keyword.
+	There are 3 kinds of values covered by multiple keywords:
+	value | keywords
+	null  | null, nil, N
+	false | false, F
+	true  | true, T
+	As you can see, each has a single capital letter as a shortcut. There are only a few keywords
+	(we'll see more later) in WebSSON so most can be expressed with a capital letter corresponding
+	to their first letter.
+- A value can be a number.
+	Numbers can be integers or decimals. Spaces are allowed in numbers, so you can write 1 000 000,
+	which is a valid way to write one million. We'll see more about numbers and the role of whitespace
+	in the language. For the moment, you can assume that whitespace is ignored everywhere, like in C
+	and other similar languages.
+- A value can be a variable. Variables are mostly used like keywords. We'll see variables later.
+- A value can be a structure. There are way more than just the dictionary in WebSSON! Like in JSON,
+	there are also lists (similarly, declared with [ and ]), and others, which we'll soon see.
+- A value can be a string. I put this last, so we can immediately start an elaborate discussion of
+	strings!
+
+
+Strings
+
+Like in JSON, and many other languages, you can declare a string using quotes. In other languages,
+you can also use single quotes, but this is not allowed in WebSSON. In WebSSON, we'll call strings
+declared with quotes to be "cstrings". They're not very useful in WebSSON, because there are other
+ways to declare strings.
+
+The colon allows you to declare a "line string". All text after the colon until the end of the
+line is considered part of the string. Whitespace before and after the first and last characters is
+ignored. To put a space, first or last, you must escape it, writing "\s" in the string. Escape sequences
+in WebSSON are mostly like in C; we'll see more later.
+
+The line string operator is useful for many reasons. Among them, no need to escape quotes or single quotes...
+It's a powerful operator, which's functionality changes slightly depeding on where it is. As we'll see later,
+you can use it in structures, where it'll also stop at separators (comma) and the end of a structure (so you
+might need to escaped characters more than in a cstring in some cases).
+
+Instead of having to put an equal sign followed by a colon, you can just put a colon to associate a key with
+a string value. In fact, you can do that with anything that isn't a keyword, number or variable.
+
+
+Separators
+
+I've talk about separators stopping the line string. In WebSSON, there are two kinds of separators in all
+structures. You can separate statements with a comma. This is considered an "explicit" separator. You can
+also separate statements with a newline. This is considered an "implicit" separator. The difference is
+useful to understand. You can put any number of newlines between two statements, and it'd be equivalent as
+having only one comma. In fact, a comma overrides any newlines you put between two statements. Putting
+multiple commas between two statements, however, will make it so empty statements will be considered to have
+been put. Empty statements are disallowed everywhere.
+
+
+Comments
+
+There are two types of comments in WebSSON. The line comment starts with "//" and lasts until the end of the
+line. The multiline comment starts with "/*" and ends with a matching "*/". Unlike in C-related languages,
+multiline comments can be put within one another.
+
+
+Other basic structures
+
+Now we'll see some other structures: the list and the tuple.
+
+The list is like in JSON. It starts with [ and ends with ]. There can only be values in a list.
+
+The tuple is like a mix between a list and a dictionary. It starts with < and ends with >. In it, there can
+be both key-values and values only. This means you could not use lists and dictionaries at all, and only
+use tuples for all your structures. That'd work, but tuples aren't meant to be used that way. It's best to
+use a list if you need a list and to use a dictionary if you need a dictionary. The tuple, being a mix of a list
+and a dictionary, has an enticing property: it can be both accessed by key and by index. Furthermore, it maintains
+the order of its keys (unlike the dictionary). This makes them a cornerstone of the structure we'll see next.
+
+
+Functions
+
+A function consists of a function head and a function body. The head starts with ( and ends with ),
+whereas the body can be a tuple or a list of tuples. The purpose of a function is to have a pattern
+in the head that is followed in the body so that, for instance, keys of values can be put in the
+head and then values can be associated to multiple tuples (within a list) in the body.
+
+
+The document
+
+The "document" is the whole file. At the top of the document, there can be declarations, like declaring
+variables, and then there is the content. The document behaves like a tuple, so you can put both key-value
+pairs and values only.
+
+
+Text containers
+
+Most containers have a "text version", which makes it easier to deal with strings. To use a text container,
+you precede it with "::".
+
+You can have text tuples and lists. In their cases, all values are strings,
+so no need to use a cstring or a line string char; all values are considered to be line strings. The
+behavior of those line strings is exactly like a line string. The first non-whitespace char starts the
+line string, so it's possible to have multiple empty lines in a text tuple or list.
+
+Text dictionaries are completely different than a dictionary. They're actually multiline strings.
+Within it, a closing brace doesn't need to be escaped if there is a matching opening brace. A
+multiline string has somewhat more functionality than a line string. Each line is parsed like a
+line string, which means whitespace at the start and end of each line is ignored, and a space is
+added after each line, except if the line is ended with any of the escape sequences for space ('\s'),
+empty ('\e'), newline ('\n') or tab ('\t'). One or more empty lines between text automatically adds
+a line break.
+
+
+Strings: further information
+
+Perhaps it's a good time to see further how all kinds of strings behave. Line strings are aware of
+the container in which they are declared. They can be ended by that container's end char. Most containers
+have start and end chars. Dictionary: { and }. List: [ and ]. Tuple: < and >. Function head: ( and ). The
+Document does not have start or end chars. Along with the end char of the container in which they are,
+line strings can be ended, as said before, by a newline or a separator. A newline is always the character
+'\n', and the separator, while it may not always be a comma, is, by default, a comma.
+//////
+OPTIONS: I have to wonder; if they're not standard, then perhaps I shouldn't include them.
+(WebSSON allows parsers to have different behaviors, which can be set with "Options". Options are not
+standard, so parsers are not required to implement them. The default separator is a comma, so a
+WebSSON document without any options specifying the separator will use commas as separators.)
+//////
+A cstring is like a string in C, except control chars, except the newline, are ignored, so to put a
+tab, for instance, it must be escaped. A cstring, unlike a line string, is considered a container,
+where the start and end chars are both quotes. That means the end char of the container the string
+might be in or a separator does not end the string. Whitespace at the start and end enclosed are
+included. The cstring must fit on a single line.
+The text dictionary is considered a container where the end char is the closing brace. However, it
+is possible to put a closing brace without closing the container if there was an opening brace before.
+
+Escape sequences
+Escape sequences start with a backslash and are immediately followed by an appropriate character. Those
+characters are: 0, a, b, f, n, r, t, v, s, e, x, X, u and U; furthermore, all Ascii characters other
+than control chars, the space character, numbers and letters can be escaped (like ", ?, \). An invalid
+escape causes an error. Escapes are case-sensitive.
+0: null char
+a, b, f, n, r, t, v, x, u and U: like in C++
+s: space character -- can be useful to put space at the start and end of a line string
+e: (empty) no character -- can be useful to prevent a space being added after a word in a multiline string
+X: This is a special escape that allow an arbitrary number of Unicode chars to be escaped by putting
+	hexadecimal numbers within braces. The 'X' must be followed, although not immediately, by opening
+	and closing braces within which hexadecimal numbers can be put.
+
+Line escape
+The X escape kinds of breaks the restriction of line strings being on one line only. This brings to
+mind another escape that can be used anywhere, including strings: the line escape. This is simply
+a backslash followed by nothing other than whitespace. It makes the parser skip the newline at the
+end of the line. You could effectively have a line string on multiple lines using this. On the line
+after a line escape, all whitespace before a character is ignored (unlike whitespace before the escape).
+
+Comments
+Comments can have their place within a line string or a multiline string. Comments within a cstring
+are ignored and put in the string as is. In a line string, multiline comments can be put anywhere.
+Multiline comments can even make the parser skip line breaks, so a behavior similar to using line
+escapes can be attained. Like for a line escape, whitespace after the multiline comment is ignored.
+It is perhaps noteworthy to add here that while whitespace before the comment or a line escape is not
+ignored, if that whitespace is among the whitespace at the end of a line string, it will be ignored,
+since all whitespace is ignored at the end of a line string. The line comment can be put within a
+line string, and it effectively ends the line string, as if the start of the comment was a line break.
+Unlike in C and C++, line escapes cannot be put within a comment, so you can't have a single line
+comment on multiple lines. As said before, a multiline string is like a list of line strings, so
+the behavior of comments is exactly like in line strings.
+
+
+Variables
+
+Variables are declared using a question mark and a variable name. The variable name must be unique
+and not already used for a variable or a keyword. Following the name is the value of the variable.
+There is one difference between a dictionary's key-value and variables (also function head parameters)
+in how value are attributed. While, let's say, a dictionary can be associated to a variable simply
+by putting braces, without the need to put an equal sign before, this is different for functions.
+A function has a function head and a function body. It is possible to assign to a variable only
+a function head or a whole function (both head and body). A sole function head is assigned by
+putting only the function head, with no equal sign before. To assign a function, an equal sign must
+be put before the head. This difference in behavior without and with an equal sign only happens
+for variables and parameters of a function head.
+
+A variable is used like the keywords null, false, true, etc. A variable avoids repetition. Among
+other things, a variable with a function head value can be used in a function head. Instead of
+putting the same parameters in different function heads, the name of the variable can simply be put.
+
+Keywords
+WebSSON keywords are case-sensitive and are: N, null, nil, F, false, T, true, B, bool, byte, short,
+I, int, L, long, float, D, double, S and string. The type keywords are used for binary and mandatory
+functions, which we'll see later.
+
+
+Binary functions
+
+Binary functions are functions with a binary function head and binary data, which usually won't be
+easily human readable. A binary function can be included within a standard function, but only
+binary functions can be included in a binary function. Its body is always a tuple, which delimits
+precisely the data: it starts immediately after the starting tuple char and ends immediately before
+the closing tuple char. All binary information is read in little-endian.
+
+Parameters size
+The size of the binary data must be known. The parameters' names are preceded with the size of the
+data put within angled brackets, like tuples. This, in fact, distinguished a binary function from a
+non-binary function. If the first parameter has angled brackets before its name, then it's binary and
+the function is binary. The size is a number greater or equal to 0. A size of 0 implies that the size
+of the data will be written in binary before the data itself. Also, there can be nothing within the
+brackets: this is equivalent to a size of 0. The type keywords can be useful here since they represent
+the equivalent of a variable for size.
+Keyword	Size
+bool	1
+byte	1
+short	2
+int		4
+long	8
+float	4
+double	8
+string	0
+Instead of a number size, a binary function head can be put within the brackets. Then it's as if
+the size of the entire function head was put. The pattern behavior is like putting a function head
+parameter in a standard function head.
+
+Binary list
+Optionally, data can be put within a list. This is done by following the parameter's name by square
+brackets, like for lists. Like for a binary size, a number greater or equal to 0, or nothing, can
+be put. 0 or nothing means, like for binary size, that the size of the list will be found within the
+binary data. Type keywords cannot be used here, neither can a function head. If the square brackets
+are omitted, then there is no list.
+
+Default values
+Parameters can have a default value. This is done by putting an equal sign after its name, after
+the square brackets if it is a list. There must be an equal sign, even when in regular key-values
+it wouldn't be necessary. The default value can be any kind of value. The data of each parameter
+that has a default value is preceded by a flag indicating whether the parser should get the default
+value or continue reading the data to get a new value. If the parameter has a list, the flag is
+applied before each member of the list, not to the list itself.

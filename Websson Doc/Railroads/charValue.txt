@@ -1,0 +1,10 @@
+switch
+[
+	itemDictionary
+	itemList
+	itemTuple
+	itemFunction
+	itemTextContainer
+	itemEqualValue
+	itemString
+]

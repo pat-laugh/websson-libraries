@@ -1,0 +1,6 @@
+switch
+[
+	:Any non-?charControl\, except string container end and ?charBackslash
+	itemVariableString
+	itemEscapeSequence
+]

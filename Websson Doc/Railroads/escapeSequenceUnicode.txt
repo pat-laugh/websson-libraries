@@ -1,0 +1,18 @@
+switch
+[
+	["x", :2 × ?charDigitHex]
+	["u", :4 × ?charDigitHex]
+	["U", :8 × ?charDigitHex]
+	[
+		"X"
+		charOpenDictionary
+		optional loop
+		[
+			itemSeparator
+			optional itemJunk
+			optional itemNumberHex
+			optional itemWhitespace
+		]
+		charCloseDictionary
+	]
+]

@@ -1,0 +1,1 @@
+Diagram(Choice(0,NonTerminal('Function Body standard','#functionBodyStandard'),NonTerminal('Function Body binary','#functionBodyBinary'),NonTerminal('Function Body mandatory','#functionBodyMandatory')))

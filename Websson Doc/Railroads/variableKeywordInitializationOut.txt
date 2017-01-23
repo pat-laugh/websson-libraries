@@ -1,0 +1,1 @@
+Diagram(Terminal('Ascii exclamation mark (\'!\')'),Choice(0,NonTerminal('Key-Value Variable-Keyword','#keyValueVariableKeyword'),Sequence(Terminal('{'),Optional(OneOrMore(Sequence(Optional(NonTerminal('Key-Value Variable-Keyword','#keyValueVariableKeyword'))),NonTerminal('Separator','#separator'))),Terminal('}'))))

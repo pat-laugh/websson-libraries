@@ -1,0 +1,12 @@
+itemName
+optional itemJunk
+switch
+[
+	itemDictionary
+	itemList
+	itemTuple
+	itemFunctionHead
+	itemColonValueFunctionHead
+	itemEqualValue
+	itemCstring
+]

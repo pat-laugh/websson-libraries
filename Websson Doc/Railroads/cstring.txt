@@ -1,0 +1,7 @@
+charOpenCstring
+optional loop
+[
+	null
+	itemStringBody
+]
+charCloseCstring

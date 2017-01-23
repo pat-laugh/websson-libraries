@@ -1,0 +1,1 @@
+Diagram(Terminal('Ascii at sign (\'@\')'),Choice(0,NonTerminal('String','#string'),Sequence(Terminal('{'),Optional(OneOrMore(Sequence(Optional(NonTerminal('String','#string'))),NonTerminal('Separator','#separator'))),Terminal('}'))))

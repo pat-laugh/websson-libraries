@@ -1,0 +1,1 @@
+Diagram(Terminal('Ascii question mark (\'?\')'),OneOrMore(NonTerminal('Name','#name'),Terminal('Ascii period (\'.\')')))

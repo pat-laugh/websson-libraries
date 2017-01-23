@@ -1,0 +1,161 @@
+?charCloseFunction:)
+?charOpenDictionary:{
+?charOpenList:[
+?charOpenTuple:<
+?charOpenFunction:(
+?charOpenCstring:"
+?charCloseDictionary:}
+?charCloseList:]
+?charCloseTuple:>
+
+?charCloseCstring:"
+
+?charBackslash:Ascii backslash ('\\\\')
+?charControl:Ascii control character
+?charSeparator:Ascii comma ('\,')
+?charNewline:Ascii newline (LF)
+?charSpace:Ascii space character (' ')
+?charDigitBin:Any binary digit (0 or 1)
+?charDigitDec:Any decimal digit (0 to 9)
+?charDigitHex:Any hexadecimal digit (0 to 9; A to F; a to f)
+?charColon:Ascii colon (':')
+?charComment:Ascii slash ('/')
+?charCstring:Ascii quotes ('"')
+?charEscape = charBackslash
+?charEqual:Ascii equal sign ('=')
+?charImport:Ascii at sign ('@')
+?charOption:Ascii number sign ('#')
+?charUsingNamespace:Ascii percentage sign ('%')
+?charScope:Ascii period ('.')
+?charSelf:Ascii ampersand ('&')
+?charVariable:Ascii question mark ('?')
+?charVariableKeyword:Ascii exclamation mark ('!')
+?charPlus:Ascii plus sign ('+')
+?charMinus:Ascii minus sign ('-')
+
+?nameCharValue:Char-Value
+?nameColonValue:Colon-Value
+?nameCstring:Cstring
+?nameDictionary:Dictionary
+?nameEqualValue:Equal-Value
+?nameEscapeSequence:Escape Sequence
+?nameEscapeSequenceUnicode:Unicode escape sequence
+?nameFunction:Function
+?nameFunctionHead:Function Head
+?nameFunctionHeadStandard:Function Head standard
+?nameFunctionHeadBinary:Function Head binary
+?nameFunctionHeadMandatory:Function Head mandatory
+?nameJunk:Junk
+?nameKeyValue:Key-Value pair
+?nameKeywordValue:Keyword-Value
+?nameList:List
+?nameName:Name
+?nameNameBody:Name Body
+?nameNameStart:Name Start
+?nameNumber:Number
+?nameSeparator:Separator
+?nameTuple:Tuple
+?nameTypeKeyword:Any type keyword
+?nameValue:Value
+?nameVariableKeyword:Variable-Keyword name
+?nameVariableName:Variable name
+?nameVariableString:Variable-String
+?nameWhitespace:Whitespace
+
+?linkCharValue:#charValue
+?linkColonValue:#colonValue
+?linkCstring:#cstring
+?linkDictionary:#dictionary
+?linkEqualValue:#equalValue
+?linkEscapeSequence:#escapeSequence
+?linkEscapeSequenceUnicode:#escapedUnicode
+?linkFunction:#function
+?linkFunctionHead:#functionHead
+?linkFunctionHeadStandard:#functionHeadStandard
+?linkFunctionHeadBinary:#functionHeadBinary
+?linkFunctionHeadMandatory:#functionHeadMandatory
+?linkKeyValue:#keyValue
+?linkKeywordValue:#keywordValue
+?linkJunk:#junk
+?linkList:#list
+?linkName:#name
+?linkNameBody:#nameBody
+?linkNameStart:#nameStart
+?linkNumber:#number
+?linkSeparator:#separator
+?linkTuple:#tuple
+?linkTypeKeyword:#typeKeyword
+?linkValue:#value
+?linkVariableKeyword:#name
+?linkVariableName:#name
+?linkVariableString:#variableString
+?linkWhitespace:#whitespace
+
+
+
+?itemBinaryHead::<Binary Head, #binaryHead>
+?itemBinaryList::<Binary List, #binaryList>
+?itemCharValue<nameCharValue, linkCharValue>
+?itemColonValue<nameColonValue, linkColonValue>
+?itemColonValueFunctionHead::<Colon-Value function head, #colonValueFunctionHead>
+?itemContainerText::<Container Text, #containerText>
+?itemContainerTextFunctionHead::<Container Text function head, #containerTextFunctionHead>
+?itemCstring<nameCstring, linkCstring>
+?itemDictionary<nameDictionary, linkDictionary>
+?itemDocument::<Document, #document>
+?itemEqualValue<nameEqualValue, linkEqualValue>
+?itemEscapeSequence<nameEscapeSequence, linkEscapeSequence>
+?itemEscapeSequenceUnicode<nameEscapeSequenceUnicode, linkEscapeSequenceUnicode>
+?itemFunction<nameFunction, linkFunction>
+?itemFunctionBody::<Function Body, #functionBody>
+?itemFunctionBodyBinary::<Function Body binary, #functionBodyBinary>
+?itemFunctionBodyMandatory::<Function Body mandatory, #functionBodyMandatory>
+?itemFunctionBodyStandard::<Function Body standard, #functionBodyStandard>
+?itemFunctionHead<nameFunctionHead, linkFunctionHead>
+?itemFunctionHeadBinary<nameFunctionHeadBinary, linkFunctionHeadBinary>
+?itemFunctionHeadMandatory<nameFunctionHeadMandatory, linkFunctionHeadMandatory>
+?itemFunctionHeadStandard<nameFunctionHeadStandard, linkFunctionHeadStandard>
+?itemImport::<Import, #import>
+//?itemJunk<nameJunk, linkJunk>
+?itemJunk = null
+?itemKeyValue<nameKeyValue, linkKeyValue>
+?itemKeyValueFunctionHead::<Key-Value function head, #keyValueFunctionHead>
+?itemKeyValueVariableKeyword::<Key-Value Variable-Keyword, #keyValueVariableKeyword>
+?itemKeywordValue<nameKeywordValue, linkKeywordValue>
+?itemLineString::<Line String, #lineString>
+?itemList<nameList, linkList>
+?itemName<nameName, linkName>
+?itemNameBody<nameNameBody, linkNameBody>
+?itemNameStart<nameNameStart, linkNameStart>
+?itemNumber<nameNumber, linkNumber>
+?itemNumberInt::<Integer, #numberInt>
+?itemNumberHex::<Hexadecimal number, #numberHex>
+?itemNumberStart::<Number Start, #numberStart>
+?itemSeparator<nameSeparator, linkSeparator>
+?itemString::<String, #string>
+?itemStringBody::<String Body, #stringBody>
+?itemTextContainer::<Text Container, #textContainer>
+?itemTextContainerFunctionHead::<Text Container function head, #textContainerFunctionHead>
+?itemTextDictionary::<Text Dictionary, #textDictionary>
+?itemTextList::<Text List, #textList>
+?itemTextTuple::<Text Tuple, #textTuple>
+?itemTextFunctionHead::<Text Function Head, #textFunctionHead>
+?itemTuple<nameTuple, linkTuple>
+?itemTypeKeyword<nameTypeKeyword, linkTypeKeyword>
+?itemUsingNamespace::<Using Namespace, #usingNamespace>
+?itemValue<nameValue, linkValue>
+?itemVariableInitialization::<Variable Initialization, #variableInitialization>
+?itemVariableKeywordInitialization::<Variable-Keyword Initialization, #variableKeywordInitialization>
+?itemVariableKeyword<nameVariableKeyword, linkVariableKeyword>
+?itemVariableName<nameVariableName, linkVariableName>
+?itemVariableString<nameVariableString, linkVariableString>
+//?itemWhitespace<nameWhitespace, linkWhitespace>
+?itemWhitespace = null
+
+?switchMagnitudeSeparator::[e, E, m, M]
+
+?switchEscapedLetter::[0, a, b, e, f, n, s, r, t, v]
+?switchEscapedSpecialAscii::{Any non-?charControl, except Ascii space, letters and digits}
+?switchValueKeywords::[N, null, nil, F, false, T, true]
+?switchTypeKeywords::[B, bool, byte, short, I, int, L, long, float, D, double, S, string]
+//?keywords = $(valueKeywords, typeKeywords)
