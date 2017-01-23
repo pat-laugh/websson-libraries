@@ -34,31 +34,6 @@ void addCharEscape(StringBuilder& out, char c)
 	}
 }
 
-string Deserializer::deserialize(const Document& doc)
-{
-	StringBuilder out;
-	putDocument(out, doc);
-	return out;
-}
-
-string Deserializer::deserialize(const Document& doc, const EntityManager& ents)
-{
-	StringBuilder out;
-
-	//first put local entities
-	auto locals = ents.getOrderedLocals();
-	for (auto entName : locals)
-	{
-		const auto& content = ents[*entName].getContent();
-		out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
-		putKeyValue(out, *entName, content, ConType::DOCUMENT);
-		out += '\n';
-	}
-
-	putDocument(out, doc);
-	return out;
-}
-
 void Deserializer::putWebss(StringBuilder& out, const Webss& webss, ConType con)
 {
 	switch (webss.t)

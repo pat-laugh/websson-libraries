@@ -6,7 +6,6 @@
 #include "WebssonUtils/endOfLine.h"
 #include "WebssonUtils/utilsWebss.h"
 #include "WebssonStructures/webss.h"
-#include "WebssonStructures/entityManager.h"
 #include "WebssonUtils/stringBuilder.h"
 #include <functional>
 #include <set>
@@ -19,17 +18,18 @@ namespace webss
 	class Deserializer
 	{
 	public:
-		using EntityManager = BasicEntityManager<Webss>;
-		static std::string deserializeAll(const Document& doc) { return Deserializer().deserialize(doc); }
-		static std::string deserializeAll(const Document& doc, const EntityManager& ents) { return Deserializer().deserialize(doc, ents); }
+		static std::string deserializeDocument(const Document& doc)
+		{
+			StringBuilder out;
+			Deserializer().putDocument(out, doc);
+			return out;
+		}
 
 	private:
 		Deserializer() {}
 
 		std::set<Namespace*> currentNamespaces;
 
-		std::string deserialize(const Document& doc);
-		std::string deserialize(const Document& doc, const EntityManager& ents);
 		void putWebss(StringBuilder& out, const Webss& webss, ConType con);
 
 		void putKeyValue(StringBuilder& out, const std::string& key, const Webss& value, ConType con);
