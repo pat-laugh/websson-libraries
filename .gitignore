@@ -4,5 +4,4 @@ ipch/
 !.editorconfig
 !.gitignore
 !LICENSE
-!README.md
-![*.{h,c,cpp,js,html,css,txt}]
+![*.{h,c,cpp,js,html,css,txt,md}]
