@@ -63,155 +63,7 @@ void Deserializer::putFuncStandard(StringBuilder& out, const FunctionStandard& f
 	}
 }
 
-void Deserializer::putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Dictionary& dict)
-{
-	if (dict.empty())
-	{
-		 out += EMPTY_DICTIONARY;
-		 return;
-	}
-
-	auto it = dict.begin();
-	out += OPEN_DICTIONARY;
-	putSeparatedValues(out, [&]() { return ++it != dict.end(); }, [&]()
-	{
-		out += it->first;
-		if (it->second.isList())
-			putFuncStandardList(out, params, it->second.getList());
-		else
-			putFuncStandardTuple(out, params, it->second.getTuple());
-	});
-	out += CLOSE_DICTIONARY;
-}
-
-void Deserializer::putFuncStandardList(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const List& list)
-{
-	if (list.empty())
-	{
-		out += EMPTY_LIST;
-		return;
-	}
-
-	auto it = list.begin();
-	out += OPEN_LIST;
-	putSeparatedValues(out, [&]() { return ++it != list.end(); }, [&]() { putFuncStandardTuple(out, params, it->getTuple()); });
-	out += CLOSE_LIST;
-}
-
-void Deserializer::putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Tuple& tuple)
-{
-	assert(tuple.size() <= params.size() && "too many elements in function tuple");
-	
-	if (tuple.empty())
-	{
-		out += EMPTY_TUPLE;
-		return;
-	}
-
-	out += OPEN_TUPLE;
-	if (params.isText())
-	{
-		auto it = tuple.begin();
-		putSeparatedValues(out, [&]() { return it != tuple.end(); }, [&]()
-		{
-			putString(out, it->getString(), ConType::TUPLE);
-		});
-	}
-	else
-	{
-		Tuple::size_type i = 0;
-		putSeparatedValues(out, [&]() { ++i; return it != tuple.end(); }, [&]()
-		{
-			if (params[i].hasFunctionHead())
-			{
-				const auto& parameters2 = params[i].getFunctionHeadStandard().getParameters();
-				if (it->isList())
-					putFuncStandardList(out, parameters2, it->getList());
-				else if (it->isTuple())
-					putFuncStandardTuple(out, parameters2, it->getTuple());
-				else
-					throw logic_error("implementation of function must be a list or tuple");
-				return;
-			}
-
-			const Webss& webss = *it;
-			switch (webss.t)
-			{
-			case WebssType::LIST:
-			{
-				const auto& list = webss.getList();
-				if (!list.empty())
-				{
-					const auto& webss2 = list[0];
-					if (webss2.isTuple() && (&webss2.getTuple().getSharedKeys() == &params.getSharedKeys()))
-					{
-						out += CHAR_SELF;
-						putFuncStandardList(out, params, list);
-					}
-				}
-				else
-					putValueOnly(out, webss, ConType::TUPLE);
-				return;
-			}
-			case WebssType::TUPLE:
-				if (&webss.getTuple().getSharedKeys() == &params.getSharedKeys())
-				{
-					out += CHAR_SELF;
-					putFuncStandardTuple(out, params, webss.getTuple());
-				}
-				return;
-			default:
-				putValueOnly(out, webss, ConType::TUPLE);
-			}
-		});
-	}
-	out += CLOSE_TUPLE;
-}
-
-void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& fhead)
-{
-	if (fhead.hasEntity())
-	{
-		out += OPEN_FUNCTION;
-		putEntityName(out, fhead.getEntity());
-		out += CLOSE_FUNCTION;
-	}
-	else if (fhead.empty())
-		out += EMPTY_FUNCTION;
-	else
-	{
-		out += OPEN_FUNCTION;
-		const auto& params = fhead.getParameters();
-		auto it = params.begin();
-		putSeparatedValues(out, [&]() { return ++it != params.end(); }, [&]()
-		{
-			if (it->hasEntity())
-				putEntityDeclaration(out, it->getEntity(), ConType::FUNCTION_HEAD);
-			else
-			{
-				out += CHAR_USING_NAMESPACE;
-				out += it->getNamespace().getName();
-			}
-		});
-		out += CLOSE_FUNCTION;
-	}
-}
-
 #define FUNC_PARAMS_STANDARD const string& key, const ParamStandard& value
-void Deserializer::putParamsStandard(StringBuilder& out, const FunctionHeadStandard& fhead, function<void(FUNC_PARAMS_STANDARD)> func)
-{
-	auto keyValues = fhead.getParameters().getOrderedKeyValues();
-	auto it = keyValues.begin();
-	out += OPEN_FUNCTION;
-	putSeparatedValues(out, [&]() { return ++it != keyValues.end(); }, [&]()
-	{
-		if (it->first == nullptr)
-			throw runtime_error(ERROR_ANONYMOUS_KEY);
-		func(*it->first, *it->second);
-	});
-	out += CLOSE_FUNCTION;
-}
-
 void Deserializer::putParamStandard(StringBuilder& out, FUNC_PARAMS_STANDARD)
 {
 	if (!value.hasDefaultValue())
@@ -290,20 +142,6 @@ void Deserializer::putFheadBinary(StringBuilder& out, const FunctionHeadBinary& 
 		putParamsBinary(out, fhead, [&](FUNC_PARAMS_BINARY) { putParamBinary(out, key, value); });
 }
 
-void Deserializer::putParamsBinary(StringBuilder& out, const FunctionHeadBinary& fhead, function<void(FUNC_PARAMS_BINARY)> func)
-{
-	auto keyValues = fhead.getParameters().getOrderedKeyValues();
-	auto it = keyValues.begin();
-	out += OPEN_FUNCTION;
-	putSeparatedValues(out, [&]() { return ++it != keyValues.end(); }, [&]()
-	{
-		if (it->first == nullptr)
-			throw runtime_error(ERROR_ANONYMOUS_KEY);
-		func(*it->first, *it->second);
-	});
-	out += CLOSE_FUNCTION;
-}
-
 void Deserializer::putParamBinary(StringBuilder& out, FUNC_PARAMS_BINARY)
 {
 	putBinarySizeHead(out, value.sizeHead);
@@ -317,41 +155,6 @@ void Deserializer::putParamBinary(StringBuilder& out, FUNC_PARAMS_BINARY)
 }
 
 #undef FUNC_PARAMS_BINARY
-
-void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Dictionary& dict)
-{
-	if (dict.empty())
-	{
-		out += EMPTY_DICTIONARY;
-		return;
-	}
-
-	auto it = dict.begin();
-	out += OPEN_DICTIONARY;
-	putSeparatedValues(out, [&]() { return ++it != dict.end(); }, [&]()
-	{
-		out += it->first;
-		if (it->second.isList())
-			putFuncBinaryList(out, params, it->second.getList());
-		else
-			putFuncBinaryTuple(out, params, it->second.getTuple());
-	});
-	out += CLOSE_DICTIONARY;
-}
-
-void Deserializer::putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const List& list)
-{
-	if (list.empty())
-	{
-		out += EMPTY_LIST;
-		return;
-	}
-
-	auto it = list.begin();
-	out += OPEN_LIST;
-	putSeparatedValues(out, [&]() { return ++it != list.end(); }, [&]() { putFuncBinaryTuple(out, params, it->getTuple()); });
-	out += CLOSE_LIST;
-}
 
 void Deserializer::putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Tuple& tuple)
 {
