@@ -100,43 +100,41 @@ void Deserializer::putFuncStandardList(StringBuilder& out, const FunctionHeadSta
 
 void Deserializer::putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Tuple& tuple)
 {
+	assert(tuple.size() <= params.size() && "too many elements in function tuple");
+	
 	if (tuple.empty())
 	{
 		out += EMPTY_TUPLE;
 		return;
 	}
 
-	static const char ERROR_TOO_MANY_ELEMENTS[] = "too many elements in function tuple";
-	Tuple::size_type i = 0;
 	out += OPEN_TUPLE;
 	if (params.isText())
 	{
-		putSeparatedValues(out, [&]() { return ++i < tuple.size(); }, [&]()
+		auto it = tuple.begin();
+		putSeparatedValues(out, [&]() { return it != tuple.end(); }, [&]()
 		{
-			if (i == params.size())
-				throw runtime_error(ERROR_TOO_MANY_ELEMENTS);
-			putString(out, tuple[i].getString(), ConType::TUPLE);
+			putString(out, it->getString(), ConType::TUPLE);
 		});
 	}
 	else
 	{
-		putSeparatedValues(out, [&]() { return ++i < tuple.size(); }, [&]()
+		Tuple::size_type i = 0;
+		putSeparatedValues(out, [&]() { ++i; return it != tuple.end(); }, [&]()
 		{
-			if (i == params.size())
-				throw runtime_error(ERROR_TOO_MANY_ELEMENTS);
 			if (params[i].hasFunctionHead())
 			{
 				const auto& parameters2 = params[i].getFunctionHeadStandard().getParameters();
-				if (tuple[i].isList())
-					putFuncStandardList(out, parameters2, tuple[i].getList());
-				else if (tuple[i].isTuple())
-					putFuncStandardTuple(out, parameters2, tuple[i].getTuple());
+				if (it->isList())
+					putFuncStandardList(out, parameters2, it->getList());
+				else if (it->isTuple())
+					putFuncStandardTuple(out, parameters2, it->getTuple());
 				else
-					throw runtime_error("implementation of function must be a list or tuple");
+					throw logic_error("implementation of function must be a list or tuple");
 				return;
 			}
 
-			const Webss& webss = tuple[i];
+			const Webss& webss = *it;
 			switch (webss.t)
 			{
 			case WebssType::LIST:
@@ -183,17 +181,12 @@ void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& 
 	else
 	{
 		out += OPEN_FUNCTION;
-		auto it = fhead.getParameters().begin();
-		putSeparatedValues(out, [&]() { return ++it != fhead.getParameters().end(); }, [&]()
+		const auto& params = fhead.getParameters();
+		auto it = params.begin();
+		putSeparatedValues(out, [&]() { return ++it != params.end(); }, [&]()
 		{
 			if (it->hasEntity())
-			{
-				const auto& ent = it->getEntity();
-				const auto& content = ent.getContent();
-				out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
-				putEntityName(out, ent);
-				putKeyValue(out, "", content, ConType::FUNCTION_HEAD);
-			}
+				putEntityDeclaration(out, it->getEntity(), ConType::FUNCTION_HEAD);
 			else
 			{
 				out += CHAR_USING_NAMESPACE;

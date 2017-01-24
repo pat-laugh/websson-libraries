@@ -5,6 +5,23 @@
 using namespace std;
 using namespace webss;
 
+template <class T, const ConType CON>
+void putSeparatedValues(StringBuilder& out, const T& t, function<void(typename T::iterator it)> output)
+{
+	putContainerStart(out, CON);
+	if (!t.empty())
+	{
+		auto it = t.begin();
+		output();
+		while (++it != t.end())
+		{
+			out += CHAR_SEPARATOR;
+			output();
+		}
+	}
+	putContainerEnd(out, CON);
+}
+
 void addCharEscape(StringBuilder& out, char c)
 {
 	out += '\\';
@@ -31,6 +48,51 @@ void addCharEscape(StringBuilder& out, char c)
 			out += hexToChar(c >> 4);
 			out += hexToChar(c & 0x0F);
 		}
+	}
+}
+
+putContainerStart(StringBuilder& out, ConType con)
+{
+	switch (con)
+	{
+	case ConType::DOCUMENT:
+		break;
+	case ConType::DICTIONARY:
+		out += OPEN_DICTIONARY;
+		break;
+	case ConType::LIST:
+		out += OPEN_LIST;
+		break;
+	case ConType::TUPLE:
+		out += OPEN_TUPLE;
+		break;
+	case ConType::FUNCTION_HEAD:
+		out += OPEN_FUNCTION;
+		break;
+	default:
+		throw domain_error("");
+	}
+}
+putContainerEnd(StringBuilder& out, ConType con)
+{
+	switch (con)
+	{
+	case ConType::DOCUMENT:
+		break;
+	case ConType::DICTIONARY:
+		out += CLOSE_DICTIONARY;
+		break;
+	case ConType::LIST:
+		out += CLOSE_LIST;
+		break;
+	case ConType::TUPLE:
+		out += CLOSE_TUPLE;
+		break;
+	case ConType::FUNCTION_HEAD:
+		out += CLOSE_FUNCTION;
+		break;
+	default:
+		throw domain_error("");
 	}
 }
 
@@ -97,8 +159,6 @@ void Deserializer::putWebss(StringBuilder& out, const Webss& webss, ConType con)
 	case WebssType::BLOCK:
 		putBlock(out, *webss.block, con);
 		break;
-//	case WebssType::PRIMITIVE_STRING: //type of string should be checked before calling function
-//		throw domain_error("can't deserialize string without its container's type");
 	default:
 		throw domain_error("can't deserialize " + webss.t.toString());
 	}
@@ -125,12 +185,10 @@ void Deserializer::putKeyValue(StringBuilder& out, const string& key, const Webs
 	}
 }
 
-
 void Deserializer::putValueOnly(StringBuilder& out, const Webss& value, ConType con)
 {
 	putWebss(out, value, con);
 }
-
 
 void Deserializer::putSeparatedValues(StringBuilder& out, function<bool()> condition, function<void()> output)
 {
@@ -186,75 +244,51 @@ void Deserializer::putString(StringBuilder& out, const string& str, ConType con)
 
 void Deserializer::putDictionary(StringBuilder& out, const Dictionary& dict)
 {
-	if (dict.empty())
-	{
-		out += EMPTY_DICTIONARY;
-		return;
-	}
-
-	auto it = dict.begin();
-	out += OPEN_DICTIONARY;
-	putSeparatedValues(out, [&]() { return ++it != dict.end(); }, [&]() { putKeyValue(out, it->first, it->second, ConType::DICTIONARY); });
-	out += CLOSE_DICTIONARY;
+	static constexpr ConType CON = ConType::DICTIONARY;
+	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::iterator it) { putKeyValue(out, it->first, it->second, CON); });
 }
 
 void Deserializer::putList(StringBuilder& out, const List& list)
 {
+	static constexpr ConType CON = ConType::LIST;
 	if (list.isText())
 	{
 		out += ASSIGN_CONTAINER_STRING;
-		if (list.empty())
-		{
-			out += EMPTY_LIST;
-			return;
-		}
-		auto it = list.begin();
-		out += OPEN_LIST;
-		putSeparatedValues(out, [&]() { return ++it != list.end(); }, [&]() { putString(out, it->getString(), ConType::LIST); });
-		out += CLOSE_LIST;
+		putSeparatedValues<List, CON>(out, list, [&](List::iterator it) { putString(out, it->getString(), CON); });
 	}
-
-	if (list.empty())
-	{
-		out += EMPTY_LIST;
-		return;
-	}
-	auto it = list.begin();
-	out += OPEN_LIST;
-	putSeparatedValues(out, [&]() { return ++it != list.end(); }, [&]() { putWebss(out, *it, ConType::LIST); });
-	out += CLOSE_LIST;
+	else
+		putSeparatedValues<List, CON>(out, list, [&](List::iterator it) { putWebss(out, *it, CON); });
 }
 
 void Deserializer::putTuple(StringBuilder& out, const Tuple& tuple)
 {
+	static constexpr ConType CON = ConType::TUPLE;
 	if (tuple.isText())
 	{
 		out += ASSIGN_CONTAINER_STRING;
-		if (tuple.empty())
+		putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::iterator it) { putString(out, it->getString(), CON); });
+	}
+	else
+		putSeparatedValues<vector, CON>(out, tuple.getOrderedKeyValues(), [&](Tuple::iterator it)
 		{
-			out += EMPTY_TUPLE;
-			return;
-		}
-		auto it = tuple.begin();
-		out += OPEN_TUPLE;
-		putSeparatedValues(out, [&]() { return ++it != tuple.end(); }, [&]() { putString(out, it->getString(), ConType::TUPLE); });
-		out += CLOSE_TUPLE;
-	}
-	if (tuple.empty())
-	{
-		out += EMPTY_TUPLE;
-		return;
-	}
-
-	auto keyValues = tuple.getOrderedKeyValues();
-	auto it = keyValues.begin();
-	out += OPEN_TUPLE;
-	putSeparatedValues(out, [&]() { return ++it != keyValues.end(); }, [&]() { it->first == nullptr ? putValueOnly(out, *it->second, ConType::TUPLE) : putKeyValue(out, *it->first, *it->second, ConType::TUPLE); });
-	out += CLOSE_TUPLE;
+			if (it->first == nullptr)
+				putValueOnly(out, *it->second, CON)
+			else
+				putKeyValue(out, *it->first, *it->second, CON);
+		});
 }
 
 void Deserializer::putDocument(StringBuilder& out, const Document& doc)
 {
+	/* put doc head...
+	for (auto entName : locals)
+	{
+		const auto& content = ents[*entName].getContent();
+		out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
+		putKeyValue(out, *entName, content, ConType::DOCUMENT);
+		out += '\n';
+	}*/
+	
 	if (doc.empty())
 		return;
 
@@ -275,13 +309,7 @@ void Deserializer::putNamespace(StringBuilder& out, const Namespace& nspace)
 
 	auto it = nspace.begin();
 	out += OPEN_DICTIONARY;
-	putSeparatedValues(out, [&]() { return ++it != nspace.end(); }, [&]()
-	{
-		const auto& content = it->second.getContent();
-		out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
-		putEntityName(out, it->second);
-		putKeyValue(out, "", content, ConType::DICTIONARY);
-	});
+	putSeparatedValues(out, [&]() { return ++it != nspace.end(); }, [&]() { putEntityDeclaration(out, it->second, ConType::DICTIONARY); });
 	out += CLOSE_DICTIONARY;
 
 	currentNamespaces.erase(nspace.getPointer().get());
@@ -333,6 +361,14 @@ void Deserializer::putBlock(StringBuilder& out, const Block& block, ConType con)
 		out += EMPTY_FUNCTION;
 		putWebss(out, block.getValue(), con);
 	}
+}
+
+void Deserializer::putEntityDeclaration(StringBuilder& out, const Entity& ent, ConType con)
+{
+	const auto& content = ent.getContent();
+	out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
+	putEntityName(out, ent);
+	putKeyValue(out, "", content, con);
 }
 
 void Deserializer::putEntityName(StringBuilder&out, const string& entName, const BasicNamespace<Webss>& entNspace)

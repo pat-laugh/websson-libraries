@@ -18,15 +18,35 @@ namespace webss
 	class Deserializer
 	{
 	public:
-		static std::string deserializeDocument(const Document& doc)
+		static void deserialize(StringBuilder& out, const Document& doc)
+		{
+			Deserializer().putDocument(out, doc);
+		}
+		
+		static std::string deserialize(const Document& doc)
 		{
 			StringBuilder out;
-			Deserializer().putDocument(out, doc);
+			deserialize(out, doc);
+			return out;
+		}
+		
+		static void deserialize(StringBuilder& out, const BasicEntity<Webss>& ent)
+		{
+			Deserializer().putEntityDeclaration(out, ent, ConType::DOCUMENT);
+		}
+		
+		static std::string deserializeEntity(const BasicEntity<Webss>& ent)
+		{
+			StringBuilder out;
+			deserialize(out, ent);
 			return out;
 		}
 
 	private:
 		Deserializer() {}
+		
+		putContainerStart(StringBuilder& out, ConType con);
+		putContainerEnd(StringBuilder& out, ConType con);
 
 		std::set<Namespace*> currentNamespaces;
 
@@ -51,6 +71,8 @@ namespace webss
 
 		void putBlockHead(StringBuilder& out, const BlockHead& blockHead);
 		void putBlock(StringBuilder& out, const Block& block, ConType con);
+		
+		void putEntityDeclaration(StringBuilder& out, const BasicEntity<Webss>&, ConType con);
 
 		void putEntityName(StringBuilder&out, const std::string& entName, const BasicNamespace<Webss>& entNspace);
 		void putEntityName(StringBuilder&out, const std::string& entName, const BasicNamespace<BlockHead>& entNspace);
