@@ -5,7 +5,7 @@
 #include "utilsSweepers.h"
 #include "utilsParser.h"
 #include "language.h"
-#include "entityManager.h"
+#include "multiEntityManager.h"
 #include "WebssonUtils/stringBuilder.h"
 
 namespace webss
@@ -13,8 +13,7 @@ namespace webss
 	class Parser
 	{
 	public:
-		using EntityManager = BasicEntityManager<Webss>;
-		EntityManager ents;
+		MultiEntityManager ents;
 
 		Parser();
 		Parser(Language lang);
@@ -61,12 +60,7 @@ namespace webss
 			Entity entity;
 		};
 
-		BasicEntityManager<BlockHead> entsBlockHead;
-		BasicEntityManager<FunctionHeadBinary> entsFheadBinary;
-		BasicEntityManager<FunctionHeadScoped> entsFheadScoped;
-		BasicEntityManager<FunctionHeadStandard> entsFheadStandard;
 		BasicEntityManager<WebssBinarySize> entsTypeBinarySize;
-		BasicEntityManager<WebssInt> entsTypeInt;
 
 		Document parseDocument(It&& it);
 		void parseOption(It& it);

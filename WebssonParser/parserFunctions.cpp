@@ -30,7 +30,7 @@ public:
 				const auto& name = nspace.getName();
 				if (ents.hasEntity(name))
 				{
-					const auto& ent = ents[name];
+					const auto& ent = ents.getWebss(name);
 					const auto& content = ent.getContent();
 					if (content.isNamespace() && content.getNamespace().getPointer() == nspace.getPointer())
 					{

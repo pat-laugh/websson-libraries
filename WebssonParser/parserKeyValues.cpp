@@ -31,7 +31,7 @@ Parser::NameType Parser::parseNameType(It& it)
 	else if (!ents.hasEntity(name))
 		return{ move(name) };
 
-	const Entity* ent = &ents[name];
+	const Entity* ent = &ents.getWebss(name);
 scopeLoop:
 	PatternLineGreed(*it == CHAR_SCOPE, /* continue below */, return{ *ent })
 	try

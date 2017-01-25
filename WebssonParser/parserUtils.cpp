@@ -96,36 +96,22 @@ bool Parser::checkNextElementContainerVoid(It& it, ConType con, function<void()>
 
 const BasicEntity<BlockHead>& Parser::checkEntBlockHead(const Entity& ent)
 {
+	return ents.getBlockHead(ent.getName());
+
 	const auto& name = ent.getName();
-	if (!entsBlockHead.hasEntity(name))
-		try { entsBlockHead.addLocal(name, ent.getContent().getBlockHead()); }
-	catch (exception e) { throw runtime_error(e.what()); }
-	return entsBlockHead[name];
 }
 
 const BasicEntity<FunctionHeadBinary>& Parser::checkEntFheadBinary(const Entity& ent)
 {
-	const auto& name = ent.getName();
-	if (!entsFheadBinary.hasEntity(name))
-		try { entsFheadBinary.addLocal(name, ent.getContent().getFunctionHeadBinary()); }
-	catch (exception e) { throw runtime_error(e.what()); }
-	return entsFheadBinary[name];
+	return ents.getFheadBinary(ent.getName());
 }
 
 const BasicEntity<FunctionHeadScoped>& Parser::checkEntFheadScoped(const Entity& ent)
 {
-	const auto& name = ent.getName();
-	if (!entsFheadScoped.hasEntity(name))
-		try { entsFheadScoped.addLocal(name, ent.getContent().getFunctionHeadScoped()); }
-	catch (exception e) { throw runtime_error(e.what()); }
-	return entsFheadScoped[name];
+	return ents.getFheadScoped(ent.getName());
 }
 
 const BasicEntity<FunctionHeadStandard>& Parser::checkEntFheadStandard(const Entity& ent)
 {
-	const auto& name = ent.getName();
-	if (!entsFheadStandard.hasEntity(name))
-		try { entsFheadStandard.addLocal(name, ent.getContent().getFunctionHeadStandard()); }
-		catch (exception e) { throw runtime_error(e.what()); }
-	return entsFheadStandard[name];
+	return ents.getFheadStandard(ent.getName());
 }
