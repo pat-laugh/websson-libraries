@@ -62,7 +62,7 @@ Webss Parser::parseCharValue(It& it, ConType con)
 	case CHAR_CSTRING:
 		return parseCString(++it);
 	default:
-		throw domain_error(ERROR_UNEXPECTED);
+		throw runtime_error(ERROR_UNEXPECTED);
 	}
 }
 
@@ -120,7 +120,7 @@ Parser::OtherValue Parser::parseOtherValue(It& it, ConType con)
 		case NameType::ENTITY:
 			return checkOtherValueEntity(it, con, nameType.entity);
 		default:
-			throw domain_error("");
+			assert(false);
 		}
 	}
 	else if (isNumberStart(*it))
@@ -175,7 +175,7 @@ void Parser::parseOtherValue(It& it, ConType con, std::function<void(string&& ke
 		funcAbstractEntity(other.abstractEntity);
 		break;
 	default:
-		throw domain_error("");
+		assert(false);
 	}
 }
 

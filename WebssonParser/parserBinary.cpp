@@ -211,7 +211,7 @@ Webss parseBinaryElement(It& it, const ParamBinary::SizeHead& bhead)
 			readBytes(it, bhead.getKeyword().getSize(), reinterpret_cast<char*>(&value));
 			return Webss(static_cast<double>(value));
 		default:
-			throw domain_error("");
+			assert(false && "other keywords should've been parsed before");
 		}
 	}
 

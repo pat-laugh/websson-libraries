@@ -5,6 +5,8 @@
 #include "utilsSweepers.h"
 #include "WebssonUtils/errors.h"
 
+#include <cassert>
+
 using namespace std;
 using namespace webss;
 
@@ -107,6 +109,6 @@ void webss::putEscapedHex(SmartIterator& it, StringBuilder& str, char separator)
 		putContainedEscapedHex(++it, str, separator);
 		return;
 	default:
-		throw domain_error("");
+		assert(false);
 	}
 }

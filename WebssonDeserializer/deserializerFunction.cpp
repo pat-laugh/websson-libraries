@@ -78,7 +78,7 @@ void Deserializer::putParamText(StringBuilder& out, FUNC_PARAMS_STANDARD)
 		out += webss.tString->empty() ? key : key + CHAR_COLON + *webss.tString;
 		break;
 	default:
-		throw domain_error("invalid text function parameter type: " + webss.t.toString());
+		assert(false && "param text should only be none or string");
 	}
 }
 #undef FUNC_PARAMS_STANDARD

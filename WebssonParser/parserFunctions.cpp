@@ -200,28 +200,13 @@ private:
 					break;
 				case CHAR_SELF:
 				{
+					auto head = FunctionHeadStandard(params);
 					if (!isNameStart(*skipJunkToValid(it)))
-					{
-						switch (*it)
-						{
-						case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case CHAR_COLON:
-							tuple.at(index) = parseFunctionBodyStandard(it, params);
-							break;
-						default:
-							throw runtime_error(ERROR_UNEXPECTED);
-						}
-					}
+						tuple.at(index) = { move(head), parseFunctionBodyStandard(it, params) };
 					else
 					{
 						auto name = parseNameSafe(it);
-						switch (*skipJunkToValid(it))
-						{
-						case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case CHAR_COLON:
-							tuple.at(name) = parseFunctionBodyStandard(it, params);
-							break;
-						default:
-							throw runtime_error(ERROR_UNEXPECTED);
-						}
+						tuple.at(name) = { move(head), parseFunctionBodyStandard(it, params) };
 					}
 					break;
 				}
@@ -232,17 +217,7 @@ private:
 						switch (nameType.type)
 						{
 						case NameType::NAME:
-							switch (*skipJunkToValid(it))
-							{
-							case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case CHAR_COLON:
-								tuple.at(nameType.name) = parseFunctionContainer(it, params.at(nameType.name));
-								break;
-							default:
-								if (params.at(index).hasFunctionHead())
-									throw runtime_error(ERROR_UNEXPECTED);
-								tuple.at(nameType.name) = parseCharValue(it, CON);
-								break;
-							}
+							tuple.at(nameType.name) = parseFunctionContainer(it, params.at(nameType.name));
 							break;
 						case NameType::KEYWORD:
 							if (params.at(index).hasFunctionHead())
@@ -251,16 +226,14 @@ private:
 							break;
 						case NameType::ENTITY:
 						{
-							if (params.at(index).hasFunctionHead())
-								throw runtime_error(ERROR_UNEXPECTED);
 							auto otherValue = checkOtherValueEntity(it, CON, nameType.entity);
-							if (otherValue.type != OtherValue::VALUE_ONLY)
+							if (params.at(index).hasFunctionHead() || otherValue.type != OtherValue::VALUE_ONLY)
 								throw runtime_error(ERROR_UNEXPECTED);
 							tuple.at(index) = move(otherValue.value);
 							break;
 						}
 						default:
-							throw domain_error("");
+							assert(false);
 						}
 					}
 					else

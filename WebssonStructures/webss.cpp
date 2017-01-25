@@ -85,7 +85,7 @@ Webss::Webss(FunctionHead##Type&& head, Webss&& body) \
 		func##Type = new Function##Type(move(head), move(*body.tuple)); \
 		break; \
 	default: \
-		throw domain_error(""); \
+		assert(false); \
 	} \
 	t = WebssType::FUNCTION_##TypeCaps; \
 }

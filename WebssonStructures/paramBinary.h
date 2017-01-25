@@ -76,7 +76,7 @@ namespace webss
 				case Type::NONE: case Type::EMPTY:
 					break;
 				default:
-					throw std::domain_error("");
+					assert(false);
 				}
 			}
 
@@ -128,7 +128,8 @@ namespace webss
 				case Type::ENTITY_FUNCTION_HEAD:
 					return entFunctionHead.getContent();
 				default:
-					throw std::domain_error("binary size head does not contain a function head");
+					assert(false && "binary size head does not contain a function head");
+					throw domain_error("");
 				}
 			}
 
@@ -143,7 +144,8 @@ namespace webss
 				case Type::ENTITY_NUMBER:
 					return entNumber.getContent();
 				default:
-					throw std::domain_error("");
+					assert(false);
+					throw domain_error("");
 				}
 			}
 		private:
@@ -205,7 +207,7 @@ namespace webss
 					o.entFunctionHead.~BasicEntity();
 					break;
 				default:
-					throw std::domain_error("");
+					assert(false);
 				}
 				t = o.t;
 				o.t = Type::NONE;
@@ -242,7 +244,7 @@ namespace webss
 					new (&entFunctionHead) EntityFunctionHead(o.entFunctionHead);
 					break;
 				default:
-					throw std::domain_error("");
+					assert(false);
 				}
 				t = o.t;
 
@@ -268,7 +270,7 @@ namespace webss
 				case Type::NONE: case Type::EMPTY: case Type::ONE:
 					break;
 				default:
-					throw std::domain_error("");
+					assert(false);
 				}
 			}
 			BasicSizeList(const Entity& newEnt) : t(Type::ENTITY_NUMBER), ent(newEnt)
@@ -332,7 +334,8 @@ namespace webss
 				case Type::ENTITY_NUMBER:
 					return ent.getContent();
 				default:
-					throw std::domain_error("");
+					assert(false);
+					throw domain_error("");
 				}
 			}
 
@@ -372,7 +375,7 @@ namespace webss
 					o.ent.~BasicEntity();
 					break;
 				default:
-					throw std::domain_error("");
+					assert(false);
 				}
 				t = o.t;
 				o.t = Type::NONE;
@@ -390,7 +393,7 @@ namespace webss
 					new (&ent) Entity(o.ent);
 					break;
 				default:
-					throw std::domain_error("");
+					assert(false);
 				}
 				t = o.t;
 			}

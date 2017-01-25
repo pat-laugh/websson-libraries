@@ -110,7 +110,7 @@ void putContainerStart(StringBuilder& out, ConType con)
 		out += OPEN_FUNCTION;
 		break;
 	default:
-		throw domain_error("");
+		assert(false);
 	}
 }
 
@@ -133,7 +133,7 @@ void putContainerEnd(StringBuilder& out, ConType con)
 		out += CLOSE_FUNCTION;
 		break;
 	default:
-		throw domain_error("");
+		assert(false);
 	}
 }
 
@@ -201,7 +201,7 @@ void Deserializer::putWebss(StringBuilder& out, const Webss& webss, ConType con)
 		putBlock(out, *webss.block, con);
 		break;
 	default:
-		throw domain_error("can't deserialize " + webss.t.toString());
+		assert(false && ("can't deserialize " + webss.t.toString()).c_str());
 	}
 }
 
@@ -622,7 +622,7 @@ void Deserializer::putBinarySizeHead(StringBuilder& out, const ParamBinary::Size
 		putEntityName(out, bhead.getEntityFunctionHead());
 		break;
 	default:
-		throw domain_error("");
+		assert(false);
 	}
 	out += CLOSE_TUPLE;
 }
@@ -645,7 +645,7 @@ void Deserializer::putBinarySizeList(StringBuilder& out, const ParamBinary::Size
 		putEntityName(out, blist.getEntity());
 		break;
 	default:
-		throw domain_error("");
+		assert(false);
 	}
 	out += CLOSE_LIST;
 }

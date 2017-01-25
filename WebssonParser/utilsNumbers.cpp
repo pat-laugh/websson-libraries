@@ -3,6 +3,7 @@
 #include "utilsNumbers.h"
 #include "utilsSweepers.h"
 
+#include <cassert>
 #include <cmath>
 
 using namespace std;
@@ -48,7 +49,7 @@ double webss::getDecimals(SmartIterator& it, NumberMagnitude mag)
 	case MAGNITUDE_HEX:
 		return checkDecimals(it, mag, FUNCTIONS_HEX);
 	default:
-		throw domain_error("");
+		assert(false);
 	}
 }
 

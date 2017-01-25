@@ -2,6 +2,7 @@
 //Copyright(c) 2016 Patrick Laughrea
 #include "keywords.h"
 
+#include <cassert>
 #include <map>
 
 using namespace std;
@@ -93,7 +94,8 @@ int Keyword::getSize() const
 	case Keyword::STRING:
 		return 0;
 	default:
-		throw domain_error("can't get size of keyword " + toString());
+		assert(false && ("can't get size of keyword " + toString()).c_str());
+		throw domain_error("");
 	}
 }
 

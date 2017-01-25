@@ -36,24 +36,22 @@ void webss::addHexEscape(string& str, unsigned int num)
 
 ParamBinary webss::makeBinary(Keyword keyword, WebssBinarySize sizeList)
 {
-	if (!keyword.isType())
-		throw std::domain_error("invalid binary type: " + keyword.toString());
+	assert(keyword.isType() && ("invalid binary type: " + keyword.toString()).c_str());
+	assert(sizeList >= 0 && ERROR_BINARY_SIZE_LIST);
 
 	ParamBinary::SizeHead bhead(keyword);
 	if (sizeList == 0)
 		return ParamBinary(std::move(bhead), ParamBinary::SizeList(ParamBinary::SizeList::Type::EMPTY));
 	else if (sizeList == 1)
 		return ParamBinary(std::move(bhead), ParamBinary::SizeList(ParamBinary::SizeList::Type::ONE));
-	else if (sizeList > 1)
-		return ParamBinary(std::move(bhead), ParamBinary::SizeList(sizeList));
 	else
-		throw std::domain_error(ERROR_BINARY_SIZE_LIST);
+		return ParamBinary(std::move(bhead), ParamBinary::SizeList(sizeList));
 }
 
 ParamBinary webss::makeBinaryDefault(Keyword keyword, Webss&& defaultValue, WebssBinarySize sizeList)
 {
-	if (!keyword.isType())
-		throw std::domain_error("invalid binary type: " + keyword.toString());
+	assert(keyword.isType() && ("invalid binary type: " + keyword.toString()).c_str());
+	assert(sizeList >= 0 && ERROR_BINARY_SIZE_LIST);
 
 	ParamBinary::SizeHead bhead(keyword);
 	bhead.setFlag(ParamBinary::SizeHead::Flag::DEFAULT);
@@ -62,16 +60,14 @@ ParamBinary webss::makeBinaryDefault(Keyword keyword, Webss&& defaultValue, Webs
 		return ParamBinary(std::move(bhead), ParamBinary::SizeList(ParamBinary::SizeList::Type::EMPTY));
 	else if (sizeList == 1)
 		return ParamBinary(std::move(bhead), ParamBinary::SizeList(ParamBinary::SizeList::Type::ONE));
-	else if (sizeList > 1)
-		return ParamBinary(std::move(bhead), ParamBinary::SizeList(sizeList));
 	else
-		throw std::domain_error(ERROR_BINARY_SIZE_LIST);
+		return ParamBinary(std::move(bhead), ParamBinary::SizeList(sizeList));
 }
 
 ParamBinary webss::makeBinarySelf(Keyword keyword, Webss&& defaultValue, WebssBinarySize sizeList)
 {
-	if (!keyword.isType())
-		throw std::domain_error("invalid binary type: " + keyword.toString());
+	assert(keyword.isType() && ("invalid binary type: " + keyword.toString()).c_str());
+	assert(sizeList >= 0 && ERROR_BINARY_SIZE_LIST);
 
 	ParamBinary::SizeHead bhead(keyword);
 	bhead.setFlag(ParamBinary::SizeHead::Flag::SELF);
@@ -80,8 +76,6 @@ ParamBinary webss::makeBinarySelf(Keyword keyword, Webss&& defaultValue, WebssBi
 		return ParamBinary(std::move(bhead), ParamBinary::SizeList(ParamBinary::SizeList::Type::EMPTY));
 	else if (sizeList == 1)
 		return ParamBinary(std::move(bhead), ParamBinary::SizeList(ParamBinary::SizeList::Type::ONE));
-	else if (sizeList > 1)
-		return ParamBinary(std::move(bhead), ParamBinary::SizeList(sizeList));
 	else
-		throw std::domain_error(ERROR_BINARY_SIZE_LIST);
+		return ParamBinary(std::move(bhead), ParamBinary::SizeList(sizeList));
 }

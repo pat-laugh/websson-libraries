@@ -2,6 +2,8 @@
 //Copyright(c) 2016 Patrick Laughrea
 #include "language.h"
 
+#include <cassert>
+
 using namespace std;
 using namespace webss;
 
@@ -21,7 +23,7 @@ bool webss::isDecimalSeparator(char c, Language lang)
 	case INTL:
 		return c == '.' || c == ',';
 	default:
-		throw domain_error("");
+		assert(false);
 	}
 }
 
@@ -35,6 +37,6 @@ char webss::getLanguageSeparator(Language lang)
 	case FR:
 		return ';';
 	default:
-		throw domain_error("");
+		assert(false);
 	}
 }
