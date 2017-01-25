@@ -105,13 +105,13 @@ namespace webss
 		Entity parseAbstractEntity(It& it, const Namespace& currentNamespace);
 		std::string parseName(It& it);
 		std::string parseNameSafe(It& it);
-		void parseUsingNamespace(It& it, std::function<void(const Entity& ent)> funcForEach);
+		ScopedDocument parseScopedDocument(It& it);
 
 		//parserFunctions.cpp
 		Webss parseFunctionHead(It& it);
-		FunctionHeadStandard parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead);
-		FunctionHeadBinary parseFunctionHeadBinary(It& it, FunctionHeadBinary&& fhead);
-		FunctionHeadScoped parseFunctionHeadScoped(It& it, FunctionHeadScoped&& fhead);
+		FunctionHeadStandard parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead = FunctionHeadStandard());
+		FunctionHeadBinary parseFunctionHeadBinary(It& it, FunctionHeadBinary&& fhead = FunctionHeadBinary());
+		FunctionHeadScoped parseFunctionHeadScoped(It& it, FunctionHeadScoped&& fhead = FunctionHeadScoped());
 		void parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead);
 		void parseStandardParameterFunctionHeadText(It& it, FunctionHeadStandard& fhead);
 		void parseOtherValuesFheadStandardParam(It& it, FunctionHeadStandard& fhead);

@@ -24,11 +24,11 @@ Webss Parser::parseFunctionHead(It& it)
 	switch (*it)
 	{
 	case OPEN_FUNCTION: case CHAR_COLON:
-		return parseFunctionHeadStandard(it, FunctionHeadStandard());
+		return parseFunctionHeadStandard(it);
 	case OPEN_TUPLE:
-		return parseFunctionHeadBinary(it, FunctionHeadBinary());
+		return parseFunctionHeadBinary(it);
 	case CHAR_CONCRETE_ENTITY: case CHAR_ABSTRACT_ENTITY: case CHAR_USING_NAMESPACE:
-		return parseFunctionHeadScoped(it, FunctionHeadScoped());
+		return parseFunctionHeadScoped(it);
 	case OPEN_DICTIONARY:
 		throw runtime_error("this parser cannot parse mandatory functions");
 	default:

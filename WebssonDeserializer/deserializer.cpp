@@ -9,6 +9,23 @@ using namespace webss;
 void putContainerStart(StringBuilder& out, ConType con);
 void putContainerEnd(StringBuilder& out, ConType con);
 
+template <class T, ConType::Enum CON>
+void putSeparatedValues(StringBuilder& out, const T& t, function<void(typename T::const_iterator it)> output)
+{
+	putContainerStart(out, CON);
+	if (!t.empty())
+	{
+		typename T::const_iterator it = t.begin();
+		output(it);
+		while (++it != t.end())
+		{
+			out += CHAR_SEPARATOR;
+			output(it);
+		}
+	}
+	putContainerEnd(out, CON);
+}
+
 class DeserializerTemplate : public Deserializer
 {
 public:
@@ -40,27 +57,37 @@ public:
 		putEntityName<T>(out, ent);
 		putContainerEnd(out, CON);
 	}
+
+	template <ConType::Enum CON>
+	void putDocumentHead(StringBuilder& out, const DocumentHead& docHead)
+	{
+		putSeparatedValues<DocumentHead, CON>(out, docHead, [&](DocumentHead::const_iterator it)
+		{
+			using Type = decltype(it->getType());
+			switch (it->getType())
+			{
+			case Type::ENTITY_ABSTRACT:
+				putEntityDeclaration(out, it->getAbstractEntity(), CON);
+				break;
+			case Type::ENTITY_CONCRETE:
+				putEntityDeclaration(out, it->getConcreteEntity(), CON);
+				break;
+			case Type::IMPORT:
+				putImport(out, it->getImportName(), CON);
+				break;
+			case Type::SCOPED_DOCUMENT:
+				putScopedDocument(out, it->getScopedDoc());
+				break;
+			default:
+				break;
+			}
+		});
+	}
 };
 
 #define putEntityName static_cast<DeserializerTemplate*>(this)->putEntityName
 #define putFheadEntity static_cast<DeserializerTemplate*>(this)->putFheadEntity
-
-template <class T, ConType::Enum CON>
-void putSeparatedValues(StringBuilder& out, const T& t, function<void(typename T::const_iterator it)> output)
-{
-	putContainerStart(out, CON);
-	if (!t.empty())
-	{
-		typename T::const_iterator it = t.begin();
-		output(it);
-		while (++it != t.end())
-		{
-			out += CHAR_SEPARATOR;
-			output(it);
-		}
-	}
-	putContainerEnd(out, CON);
-}
+#define putDocumentHead static_cast<DeserializerTemplate*>(this)->putDocumentHead
 
 void addCharEscape(StringBuilder& out, char c)
 {
@@ -319,14 +346,9 @@ void Deserializer::putTuple(StringBuilder& out, const Tuple& tuple)
 void Deserializer::putDocument(StringBuilder& out, const Document& doc)
 {
 	static const ConType::Enum CON = ConType::DOCUMENT;
-	/* put doc head...
-	for (auto entName : locals)
-	{
-		const auto& content = ents[*entName].getContent();
-		out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
-		putKeyValue(out, *entName, content, ConType::DOCUMENT);
-		out += '\n';
-	}*/
+
+	putDocumentHead<CON>(out, doc.getHead());
+	out += '\n';
 	
 	using Type = decltype(doc.getOrderedKeyValues());
 	putSeparatedValues<Type, CON>(out, doc.getOrderedKeyValues(), [&](Type::const_iterator it)
@@ -336,6 +358,31 @@ void Deserializer::putDocument(StringBuilder& out, const Document& doc)
 		else
 			putKeyValue(out, *it->first, *it->second, CON);
 	});
+}
+
+void Deserializer::putImport(StringBuilder& out, const string& name, ConType con)
+{
+	out += CHAR_IMPORT;
+	putLineString(out, name, con);
+}
+
+void Deserializer::putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc)
+{
+	out += CHAR_USING_NAMESPACE;
+	putFheadScoped(out, scopedDoc.head);
+
+	//include the namespaces
+	const auto& params = scopedDoc.head.getParameters();
+	for (const auto& param : params)
+		if (param.hasNamespace())
+			currentNamespaces.insert(param.getNamespace().getPointer().get());
+
+	putDocumentHead<ConType::DICTIONARY>(out, scopedDoc.body);
+
+	//remove the namespaces
+	for (const auto& param : params)
+		if (param.hasNamespace())
+			currentNamespaces.erase(param.getNamespace().getPointer().get());
 }
 
 void Deserializer::putNamespace(StringBuilder& out, const Namespace& nspace)
