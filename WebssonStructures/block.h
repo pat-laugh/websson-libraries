@@ -3,8 +3,6 @@
 #pragma once
 
 #include "entity.h"
-#include "functionHead.h"
-#include "paramScoped.h"
 
 namespace webss
 {
@@ -42,31 +40,6 @@ namespace webss
 		This(const Entity& ent, const Webss& value) : Head(ent), value(value) {}
 		This(Head&& head, Webss&& value) : Head(std::move(head)), value(std::move(value)) {}
 		This(const Head& head, const Webss& value) : Head(head), value(value) {}
-
-		const Webss& getValue() const { return value; }
-	};
-#undef This
-
-#define This BasicFunctionScoped
-	template <class Webss>
-	class This : public BasicFunctionHead<BasicParamScoped<Webss>>
-	{
-	private:
-		Webss value;
-	public:
-		using Head = BasicFunctionHead<BasicParamScoped<Webss>>;
-		using HeadTuple = typename Head::Tuple;
-		using HeadPointer = typename Head::Pointer;
-		using HeadEntity = typename Head::Entity;
-
-		This(Head&& head, Webss&& value) : Head(std::move(head)), value(std::move(value)) {}
-		This(const Head& head, const Webss& value) : Head(head), value(value) {}
-		This(HeadTuple&& head, Webss&& value) : Head(std::move(head)), value(std::move(value)) {}
-		This(const HeadTuple& head, const Webss& value) : Head(head), value(value) {}
-		This(const HeadPointer& head, Webss&& value) : Head(head), value(std::move(value)) {}
-		This(const HeadPointer& head, const Webss& value) : Head(head), value(value) {}
-		This(const HeadEntity& head, Webss&& value) : Head(head), value(std::move(value)) {}
-		This(const HeadEntity& head, const Webss& value) : Head(head), value(value) {}
 
 		const Webss& getValue() const { return value; }
 	};

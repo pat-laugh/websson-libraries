@@ -6,13 +6,16 @@
 #include <map>
 #include <vector>
 
+#include "documentHead.h"
+
 namespace webss
 {
-	template <class T>
+	template <class Webss>
 	class BasicDocument
 	{
 	public:
-		using Data = std::vector<T>;
+		using Head = BasicDocumentHead<Webss>;
+		using Data = std::vector<Webss>;
 		using size_type = typename Data::size_type;
 		using Keymap = std::map<std::string, size_type>;
 		using iterator = typename Data::iterator;
@@ -23,21 +26,24 @@ namespace webss
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }
 
-		void add(T&& value) { data.push_back(std::move(value)); }
-		void add(const T& value) { data.push_back(value); }
+		Head& getHead() { return head; }
+		const Head& getHead() const { return head; }
 
-		void add(std::string&& key, T&& value)
+		void add(Webss&& value) { data.push_back(std::move(value)); }
+		void add(const Webss& value) { data.push_back(value); }
+
+		void add(std::string&& key, Webss&& value)
 		{
 			keys.insert({ std::move(key), data.size() });
 			data.push_back(std::move(value));
 		}
-		void add(const std::string& key, const T& value)
+		void add(const std::string& key, const Webss& value)
 		{
 			keys.insert({ key, data.size() });
 			data.push_back(value);
 		}
 
-		void addSafe(std::string&& key, T&& value)
+		void addSafe(std::string&& key, Webss&& value)
 		{
 			if (has(key))
 				throw std::runtime_error(ERROR_DUPLICATE_KEY_DOCUMENT + key);
@@ -45,7 +51,7 @@ namespace webss
 			keys.insert({ std::move(key), data.size() });
 			data.push_back(std::move(value));
 		}
-		void addSafe(const std::string& key, const T& value)
+		void addSafe(const std::string& key, const Webss& value)
 		{
 			if (has(key))
 				throw std::runtime_error(ERROR_DUPLICATE_KEY_DOCUMENT + key);
@@ -57,15 +63,15 @@ namespace webss
 		bool has(size_type index) const { index < data.size(); }
 		bool has(const std::string& key) const { return keys.find(key) != keys.end(); }
 
-		T& operator[](size_type index) { return data[index]; }
-		const T& operator[](size_type index) const { return data[index]; }
-		T& at(size_type index) { return data.at(index); }
-		const T& at(size_type index) const { return data.at(index); }
+		Webss& operator[](size_type index) { return data[index]; }
+		const Webss& operator[](size_type index) const { return data[index]; }
+		Webss& at(size_type index) { return data.at(index); }
+		const Webss& at(size_type index) const { return data.at(index); }
 
-		T& operator[](const std::string& key) { return data[keys.find(key)->second]; } //find is better than [] since it does only what it's supposed to do and is as fast
-		const T& operator[](const std::string& key) const { return data[keys.find(key)->second]; }
-		T& at(const std::string& key) { return data.at(keys.at(key)); }
-		const T& at(const std::string& key) const { return data.at(keys.at(key)); }
+		Webss& operator[](const std::string& key) { return data[keys.find(key)->second]; } //find is better than [] since it does only what it's supposed to do and is as fast
+		const Webss& operator[](const std::string& key) const { return data[keys.find(key)->second]; }
+		Webss& at(const std::string& key) { return data.at(keys.at(key)); }
+		const Webss& at(const std::string& key) const { return data.at(keys.at(key)); }
 
 		//returns keys in order of the index they point to
 		//they key of indices without an associated key are nullptr
@@ -78,15 +84,15 @@ namespace webss
 		}
 
 		//they key of indices without an associated key are nullptr
-		const std::vector<std::pair<std::string*, T*>> getOrderedKeyValues() const
+		const std::vector<std::pair<std::string*, Webss*>> getOrderedKeyValues() const
 		{
-			std::vector<std::pair<std::string*, T*>> keyValues(size());
+			std::vector<std::pair<std::string*, Webss*>> keyValues(size());
 
 			auto orderedKeys = getOrderedKeys();
 			for (size_type i = 0; i < size(); ++i)
 			{
 				keyValues[i].first = orderedKeys[i];
-				keyValues[i].second = const_cast<T*>(&operator[](i));
+				keyValues[i].second = const_cast<Webss*>(&operator[](i));
 			}
 
 			return keyValues;
@@ -104,5 +110,7 @@ namespace webss
 		static constexpr char* ERROR_DUPLICATE_KEY_DOCUMENT = "key already in document: ";
 		Keymap keys;
 		Data data;
+
+		Head head;
 	};
 }

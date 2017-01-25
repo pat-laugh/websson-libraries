@@ -20,7 +20,7 @@ namespace webss
 	using ParamScoped = BasicParamScoped<Webss>;
 	using ParamStandard = BasicParamStandard<Webss>;
 	using FunctionHeadBinary = BasicFunctionHead<ParamBinary>;
-	using FunctionHeadScoped = BasicFunctionHead<ParamScoped>;
+	using FunctionHeadScoped = BasicFunctionHeadScoped<Webss>;
 	using FunctionHeadStandard = BasicFunctionHead<ParamStandard>;
 	using FunctionBinary = BasicFunction<FunctionHeadBinary, Webss>;
 	using FunctionScoped = BasicFunctionScoped<Webss>;
@@ -31,6 +31,10 @@ namespace webss
 	using BlockHead = BasicBlockHead<Webss>;
 	using Block = BasicBlock<Webss>;
 	using Default = std::shared_ptr<Webss>;
+
+	using ParamDocument = BasicParamDocument<Webss>;
+	using DocumentHead = BasicDocumentHead<Webss>;
+	using ScopedDocument = BasicScopedDocument<Webss>;
 
 	class Webss
 	{

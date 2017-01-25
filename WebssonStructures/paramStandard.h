@@ -2,7 +2,7 @@
 
 #include "functionHead.h"
 #include "paramBinary.h"
-#include "paramScoped.h"
+#include "functionScoped.h"
 #include "typeWebss.h"
 #include <memory>
 
@@ -14,7 +14,7 @@ namespace webss
 	{
 	public:
 		using FheadBinary = BasicFunctionHead<BasicParamBinary<Webss>>;
-		using FheadScoped = BasicFunctionHead<BasicParamScoped<Webss>>;
+		using FheadScoped = BasicFunctionHeadScoped<Webss>;
 		using FheadStandard = BasicFunctionHead<This<Webss>>;
 
 		This() {}
