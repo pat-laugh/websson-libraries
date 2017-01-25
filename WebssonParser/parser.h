@@ -5,7 +5,7 @@
 #include "utilsSweepers.h"
 #include "utilsParser.h"
 #include "language.h"
-#include "WebssonStructures/entityManager.h"
+#include "entityManager.h"
 #include "WebssonUtils/stringBuilder.h"
 
 namespace webss
@@ -24,7 +24,7 @@ namespace webss
 		Document parse(const std::string& in);
 
 		void setLanguage(Language lang);
-		void addEntity(std::string&& name, Webss&& value);
+		void addGlobalEntity(std::string&& name, Webss&& value);
 	protected:
 		Language language;
 		char separator;

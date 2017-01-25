@@ -177,16 +177,16 @@ Document Parser::parseDocument(It&& it)
 			switch (*it)
 			{
 			case CHAR_CONCRETE_ENTITY:
-				checkMultiContainer(++it, [&]() { ents.add(parseConcreteEntity(it, CON)); });
+				checkMultiContainer(++it, [&]() { ents.addLocal(parseConcreteEntity(it, CON)); });
 				break;
 			case CHAR_ABSTRACT_ENTITY:
-				checkMultiContainer(++it, [&]() { ents.add(parseAbstractEntity(it, currentNamespace)); });
+				checkMultiContainer(++it, [&]() { ents.addLocal(parseAbstractEntity(it, currentNamespace)); });
 				break;
 			case CHAR_OPTION:
 				checkMultiContainer(++it, [&]() { parseOption(it); });
 				break;
 			case CHAR_USING_NAMESPACE:
-				checkMultiContainer(++it, [&]() { parseUsingNamespace(it, [&](const Entity& entity) {ents.add(entity); }); });
+				checkMultiContainer(++it, [&]() { parseUsingNamespace(it, [&](const Entity& entity) {ents.addLocal(entity); }); });
 				break;
 			case CHAR_IMPORT:
 				checkMultiContainer(++it, [&]() { parseImport(it); });

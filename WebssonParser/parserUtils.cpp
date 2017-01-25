@@ -98,7 +98,7 @@ const BasicEntity<BlockHead>& Parser::checkEntBlockHead(const Entity& ent)
 {
 	const auto& name = ent.getName();
 	if (!entsBlockHead.hasEntity(name))
-		try { entsBlockHead.add(name, ent.getContent().getBlockHead()); }
+		try { entsBlockHead.addLocal(name, ent.getContent().getBlockHead()); }
 	catch (exception e) { throw runtime_error(e.what()); }
 	return entsBlockHead[name];
 }
@@ -107,7 +107,7 @@ const BasicEntity<FunctionHeadBinary>& Parser::checkEntFheadBinary(const Entity&
 {
 	const auto& name = ent.getName();
 	if (!entsFheadBinary.hasEntity(name))
-		try { entsFheadBinary.add(name, ent.getContent().getFunctionHeadBinary()); }
+		try { entsFheadBinary.addLocal(name, ent.getContent().getFunctionHeadBinary()); }
 	catch (exception e) { throw runtime_error(e.what()); }
 	return entsFheadBinary[name];
 }
@@ -116,7 +116,7 @@ const BasicEntity<FunctionHeadScoped>& Parser::checkEntFheadScoped(const Entity&
 {
 	const auto& name = ent.getName();
 	if (!entsFheadScoped.hasEntity(name))
-		try { entsFheadScoped.add(name, ent.getContent().getFunctionHeadScoped()); }
+		try { entsFheadScoped.addLocal(name, ent.getContent().getFunctionHeadScoped()); }
 	catch (exception e) { throw runtime_error(e.what()); }
 	return entsFheadScoped[name];
 }
@@ -125,7 +125,7 @@ const BasicEntity<FunctionHeadStandard>& Parser::checkEntFheadStandard(const Ent
 {
 	const auto& name = ent.getName();
 	if (!entsFheadStandard.hasEntity(name))
-		try { entsFheadStandard.add(name, ent.getContent().getFunctionHeadStandard()); }
+		try { entsFheadStandard.addLocal(name, ent.getContent().getFunctionHeadStandard()); }
 		catch (exception e) { throw runtime_error(e.what()); }
 	return entsFheadStandard[name];
 }

@@ -18,9 +18,9 @@ void Parser::setLanguage(Language lang)
 	separator = getLanguageSeparator(lang);
 }
 
-void Parser::addEntity(string&& name, Webss&& value)
+void Parser::addGlobalEntity(string&& name, Webss&& value)
 {
-	ents.add(move(name), move(value));
+	ents.addGlobal(move(name), move(value));
 }
 
 void Parser::parseOption(It& it)

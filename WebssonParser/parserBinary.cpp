@@ -283,7 +283,7 @@ const BasicEntity<WebssBinarySize>& Parser::checkEntTypeBinarySize(const Entity&
 {
 	const auto& name = ent.getName();
 	if (!entsTypeBinarySize.hasEntity(name))
-		try { entsTypeBinarySize.add(name, checkBinarySize(ent.getContent().getInt())); }
+		try { entsTypeBinarySize.addLocal(name, checkBinarySize(ent.getContent().getInt())); }
 		catch (exception e) { throw runtime_error(e.what()); }
 	return entsTypeBinarySize[name];
 }

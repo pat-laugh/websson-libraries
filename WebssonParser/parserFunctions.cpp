@@ -23,7 +23,7 @@ public:
 		//get ents
 		for (const auto& param : params)
 			if (param.hasEntity())
-				ents.addSafe(param.getEntity());
+				ents.addLocalSafe(param.getEntity());
 			else
 			{
 				const auto& nspace = param.getNamespace();
@@ -35,11 +35,11 @@ public:
 					if (content.isNamespace() && content.getNamespace().getPointer() == nspace.getPointer())
 					{
 						entitiesToReAdd.push_back(ent);
-						ents.remove(name);
+						ents.removeLocal(name);
 					}
 				}
-				for (const auto& entPair : nspace)
-					ents.addSafe(entPair.second);
+				for (const auto& ent : nspace)
+					ents.addLocalSafe(ent);
 			}
 
 		//get value
@@ -48,13 +48,13 @@ public:
 		//remove ents
 		for (const auto& param : params)
 			if (param.hasEntity())
-				ents.remove(param.getEntity());
+				ents.removeLocal(param.getEntity());
 			else
-				for (const auto& entPair : param.getNamespace())
-					ents.remove(entPair.second);
+				for (const auto& ent : param.getNamespace())
+					ents.removeLocal(ent);
 
 		for (const auto& ent : entitiesToReAdd)
-			ents.add(ent);
+			ents.addLocal(ent);
 
 		return webss;
 	}

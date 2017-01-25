@@ -67,7 +67,7 @@ void Parser::parseUsingNamespace(It& it, function<void(const Entity& ent)> funcF
 		CaseValueOnly{ throw runtime_error(ERROR_UNEXPECTED); },
 		CaseAbstractEntity
 		{
-			for (const auto& entPair : checkIsNamespace(abstractEntity))
-				funcForEach(entPair.second);
+			for (const auto& ent : checkIsNamespace(abstractEntity))
+				funcForEach(ent);
 		});
 }
