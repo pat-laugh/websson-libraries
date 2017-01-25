@@ -42,20 +42,17 @@ namespace webss
 			return out;
 		}
 
-	private:
-		Deserializer() {}
-		
-		putContainerStart(StringBuilder& out, ConType con);
-		putContainerEnd(StringBuilder& out, ConType con);
-
+	protected:
 		std::set<Namespace*> currentNamespaces;
+
+		Deserializer() {}
+
 
 		void putWebss(StringBuilder& out, const Webss& webss, ConType con);
 
-		void putKeyValue(StringBuilder& out, const std::string& key, const Webss& value, ConType con);
-		void putValueOnly(StringBuilder& out, const Webss& value, ConType con);
+		void putCharValue(StringBuilder& out, const Webss& value, ConType con);
 
-		void putSeparatedValues(StringBuilder& out, std::function<bool()> condition, std::function<void()> output);
+		void putKeyValue(StringBuilder& out, const std::string& key, const Webss& value, ConType con);
 
 		void putLineString(StringBuilder& out, const std::string& str, ConType con);
 
@@ -72,22 +69,7 @@ namespace webss
 		void putBlockHead(StringBuilder& out, const BlockHead& blockHead);
 		void putBlock(StringBuilder& out, const Block& block, ConType con);
 		
-		void putEntityDeclaration(StringBuilder& out, const BasicEntity<Webss>&, ConType con);
-
-		void putEntityName(StringBuilder&out, const std::string& entName, const BasicNamespace<Webss>& entNspace);
-		void putEntityName(StringBuilder&out, const std::string& entName, const BasicNamespace<BlockHead>& entNspace);
-		void putEntityName(StringBuilder&out, const std::string& entName, const BasicNamespace<FunctionHeadBinary>& entNspace);
-		void putEntityName(StringBuilder&out, const std::string& entName, const BasicNamespace<FunctionHeadScoped>& entNspace);
-		void putEntityName(StringBuilder&out, const std::string& entName, const BasicNamespace<FunctionHeadStandard>& entNspace);
-		void putEntityName(StringBuilder&out, const std::string& entName, const BasicNamespace<WebssBinarySize>& entNspace);
-		void putEntityName(StringBuilder&out, const std::string& entName, const BasicNamespace<WebssInt>& entNspace);
-		void putEntityName(StringBuilder& out, const BasicEntity<Webss>& ent);
-		void putEntityName(StringBuilder& out, const BasicEntity<BlockHead>& ent);
-		void putEntityName(StringBuilder& out, const BasicEntity<FunctionHeadBinary>& ent);
-		void putEntityName(StringBuilder& out, const BasicEntity<FunctionHeadScoped>& ent);
-		void putEntityName(StringBuilder& out, const BasicEntity<FunctionHeadStandard>& ent);
-		void putEntityName(StringBuilder& out, const BasicEntity<WebssBinarySize>& ent);
-		void putEntityName(StringBuilder& out, const BasicEntity<WebssInt>& ent);
+		void putEntityDeclaration(StringBuilder& out, const Entity&, ConType con);
 
 		void putFuncBinary(StringBuilder& out, const FunctionBinary& func);
 		void putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con);

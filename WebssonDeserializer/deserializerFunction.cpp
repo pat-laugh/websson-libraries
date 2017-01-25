@@ -22,30 +22,6 @@ void Deserializer::putFuncBinary(StringBuilder& out, const FunctionBinary& func)
 	}
 }
 
-void Deserializer::putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con)
-{
-	//include the namespaces
-	for (const auto& param : func.getParameters())
-		if (param.hasNamespace())
-			currentNamespaces.insert(param.getNamespace().getPointer().get());
-
-	if (func.hasEntity())
-	{
-		putEntityName(out, func.getEntity());
-		putKeyValue(out, "", func.getValue(), con);
-	}
-	else
-	{
-		putFheadScoped(out, func);
-		putWebss(out, func.getValue(), con);
-	}
-
-	//remove the namespaces
-	for (const auto& param : func.getParameters())
-		if (param.hasNamespace())
-			currentNamespaces.erase(param.getNamespace().getPointer().get());
-}
-
 void Deserializer::putFuncStandard(StringBuilder& out, const FunctionStandard& func)
 {
 	putFheadStandard(out, func);
@@ -105,42 +81,10 @@ void Deserializer::putParamText(StringBuilder& out, FUNC_PARAMS_STANDARD)
 		throw domain_error("invalid text function parameter type: " + webss.t.toString());
 	}
 }
-
-void Deserializer::putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhead)
-{
-	if (fhead.hasEntity())
-	{
-		out += OPEN_FUNCTION;
-		putEntityName(out, fhead.getEntity());
-		out += CLOSE_FUNCTION;
-	}
-	else if (fhead.empty())
-		out += EMPTY_FUNCTION;
-	else if (fhead.getParameters().isText())
-	{
-		out += ASSIGN_CONTAINER_STRING;
-		putParamsStandard(out, fhead, [&](FUNC_PARAMS_STANDARD) { putParamText(out, key, value); });
-	}
-	else
-		putParamsStandard(out, fhead, [&](FUNC_PARAMS_STANDARD) { putParamStandard(out, key, value); });
-}
-
 #undef FUNC_PARAMS_STANDARD
 
+
 #define FUNC_PARAMS_BINARY const string& key, const ParamBinary& value
-void Deserializer::putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead)
-{
-	if (fhead.hasEntity())
-	{
-		out += OPEN_FUNCTION;
-		putEntityName(out, fhead.getEntity());
-		out += CLOSE_FUNCTION;
-	}
-	else if (fhead.empty())
-		throw runtime_error("binary function head can't be empty");
-	else
-		putParamsBinary(out, fhead, [&](FUNC_PARAMS_BINARY) { putParamBinary(out, key, value); });
-}
 
 void Deserializer::putParamBinary(StringBuilder& out, FUNC_PARAMS_BINARY)
 {
@@ -150,15 +94,8 @@ void Deserializer::putParamBinary(StringBuilder& out, FUNC_PARAMS_BINARY)
 	if (value.sizeHead.getFlag() != ParamBinary::SizeHead::Flag::NONE)
 	{
 		out += CHAR_EQUAL;
-		putValueOnly(out, value.sizeHead.getDefaultValue(), ConType::FUNCTION_HEAD);
+		putWebss(out, value.sizeHead.getDefaultValue(), ConType::FUNCTION_HEAD);
 	}
 }
 
 #undef FUNC_PARAMS_BINARY
-
-void Deserializer::putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Tuple& tuple)
-{
-	out += OPEN_TUPLE;
-	putFuncBodyBinary(out, params, tuple);
-	out += CLOSE_TUPLE;
-}
