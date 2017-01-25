@@ -12,6 +12,10 @@ namespace webss
 	public:
 		using Data = std::vector<T>;
 		using size_type = typename Data::size_type;
+		using iterator = typename Data::iterator;
+		using const_iterator = typename Data::const_iterator;
+		using reverse_iterator = typename Data::reverse_iterator;
+		using const_reverse_iterator = typename Data::const_reverse_iterator;
 
 		explicit BasicList(bool containerText = false) : containerText(containerText) {}
 		BasicList(Data&& data, bool containerText = false) : data(std::move(data)), containerText(containerText) {}
@@ -28,14 +32,14 @@ namespace webss
 		T& at(size_type index) { return data.at(index); }
 		const T& at(size_type index) const { return data.at(index); }
 
-		typename Data::iterator begin() { return data.begin(); }
-		typename Data::iterator end() { return data.end(); }
-		typename Data::const_iterator begin() const { return data.begin(); }
-		typename Data::const_iterator end() const { return data.end(); }
-		typename Data::reverse_iterator rbegin() { return data.rbegin(); }
-		typename Data::reverse_iterator rend() { return data.rend(); }
-		typename Data::const_reverse_iterator rbegin() const { return data.rbegin(); }
-		typename Data::const_reverse_iterator rend() const { return data.rend(); }
+		iterator begin() { return data.begin(); }
+		iterator end() { return data.end(); }
+		const_iterator begin() const { return data.begin(); }
+		const_iterator end() const { return data.end(); }
+		reverse_iterator rbegin() { return data.rbegin(); }
+		reverse_iterator rend() { return data.rend(); }
+		const_reverse_iterator rbegin() const { return data.rbegin(); }
+		const_reverse_iterator rend() const { return data.rend(); }
 	private:
 		Data data;
 		bool containerText;

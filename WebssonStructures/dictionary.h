@@ -13,6 +13,8 @@ namespace webss
 	public:
 		using Data = std::map<std::string, T>;
 		using size_type = typename Data::size_type;
+		using iterator = typename Data::iterator;
+		using const_iterator = typename Data::const_iterator;
 
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }
@@ -42,10 +44,10 @@ namespace webss
 		T& at(const std::string& key) { return data.at(key); }
 		const T& at(const std::string& key) const { return data.at(key); }
 
-		typename Data::iterator begin() { return data.begin(); }
-		typename Data::iterator end() { return data.end(); }
-		typename Data::const_iterator begin() const { return data.begin(); }
-		typename Data::const_iterator end() const { return data.end(); }
+		iterator begin() { return data.begin(); }
+		iterator end() { return data.end(); }
+		const_iterator begin() const { return data.begin(); }
+		const_iterator end() const { return data.end(); }
 	private:
 		static constexpr char* ERROR_DUPLICATE_KEY_DICTIONARY = "key already in dictionary: ";
 

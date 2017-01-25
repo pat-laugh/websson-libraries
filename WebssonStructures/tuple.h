@@ -16,6 +16,10 @@ namespace webss
 		using Data = std::vector<T>;
 		using size_type = typename Data::size_type;
 		using Keymap = std::unordered_map<std::string, size_type>;
+		using iterator = typename Data::iterator;
+		using const_iterator = typename Data::const_iterator;
+		using reverse_iterator = typename Data::reverse_iterator;
+		using const_reverse_iterator = typename Data::const_iterator;
 
 		explicit BasicTuple(bool containerText = false) : keys(new Keymap()), containerText(containerText) {}
 		BasicTuple(Data&& data, bool containerText = false) : keys(nullptr), data(std::move(data)), containerText(containerText) {}
@@ -115,14 +119,14 @@ namespace webss
 		const Keymap& getCopiedKeys() const { return *keys; }
 		const std::shared_ptr<Keymap>& getSharedKeys() const { return keys; }
 
-		typename Data::iterator begin() { return data.begin(); }
-		typename Data::iterator end() { return data.end(); }
-		typename Data::const_iterator begin() const { return data.begin(); }
-		typename Data::const_iterator end() const { return data.end(); }
-		typename Data::reverse_iterator rbegin() { return data.rbegin(); }
-		typename Data::reverse_iterator rend() { return data.rend(); }
-		typename Data::const_reverse_iterator rbegin() const { return data.rbegin(); }
-		typename Data::const_reverse_iterator rend() const { return data.rend(); }
+		iterator begin() { return data.begin(); }
+		iterator end() { return data.end(); }
+		const_iterator begin() const { return data.begin(); }
+		const_iterator end() const { return data.end(); }
+		reverse_iterator rbegin() { return data.rbegin(); }
+		reverse_iterator rend() { return data.rend(); }
+		const_reverse_iterator rbegin() const { return data.rbegin(); }
+		const_reverse_iterator rend() const { return data.rend(); }
 	private:
 		static constexpr char* ERROR_DUPLICATE_KEY_TUPLE = "key already in tuple: ";
 

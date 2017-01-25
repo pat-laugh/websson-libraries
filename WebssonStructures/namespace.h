@@ -15,9 +15,12 @@ namespace webss
 	{
 	public:
 		using Entity = BasicEntity<Webss>;
-		using Data = std::unordered_map<std::string, Entity>;
+		using Data = std::vector<Entity>;
 		using size_type = typename Data::size_type;
+		using Keymap = std::unordered_map<std::string, size_type>;
 		using Namespaces = std::vector<std::shared_ptr<This<Webss>>>;
+		using iterator = typename Data::iterator;
+		using const_iterator = typename Data::const_iterator;
 
 		static const This& getEmptyInstance()
 		{
@@ -54,7 +57,7 @@ namespace webss
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }
 
-		void add(std::string&& key, Webss&& value) { add(Entity(std::string(key), std::move(value))); }
+		void add(std::string&& key, Webss&& value) { add(Entity(std::move(key), std::move(value))); }
 		void add(const std::string& key, const Webss& value) { add(Entity(key, value)); }
 		void addSafe(std::string&& key, Webss&& value) { addSafe(Entity(std::move(key), std::move(value))); }
 		void addSafe(const std::string& key, const Webss& value) { addSafe(Entity(key, value)); }
@@ -62,7 +65,8 @@ namespace webss
 		void add(Entity&& ent)
 		{
 			ent.setNamespace(getPointer());
-			data.insert({ std::string(ent.getName()), std::move(ent) });
+			keys.insert({ ent.getName(), data.size() });
+			data.push_back(std::move(ent));
 		}
 		void addSafe(Entity&& ent)
 		{
@@ -72,38 +76,27 @@ namespace webss
 			add(std::move(ent));
 		}
 
-		bool has(const std::string& key) const { return data.find(key) != data.end(); }
+		bool has(const std::string& key) const { return keys.find(key) != keys.end(); }
 
-		Entity& operator[](const std::string& key) { return data.find(key)->second; } //find is better, no key created; wonder why they thought a side-effect to a bad access would be good...
-		const Entity& operator[](const std::string& key) const { return data.find(key)->second; } //[] doesn't have const and find is as fast
-		Entity& at(const std::string& key)
-		{
-			auto it = data.find(key);
-			if (it == data.end())
-				throw std::runtime_error("key is not in namespace");
-			return it->second;
-		}
-		const Entity& at(const std::string& key) const
-		{
-			auto it = data.find(key);
-			if (it == data.end())
-				throw std::runtime_error("key is not in namespace");
-			return it->second;
-		}
+		Entity& operator[](const std::string& key) { return data[keys.find(key)->second]; } //find is better, no key created; wonder why they thought a side-effect to a bad access would be good...
+		const Entity& operator[](const std::string& key) const { return data[keys.find(key)->second]; } //[] doesn't have const and find is as fast
+		Entity& at(const std::string& key) { return data[keys.at(key)]; }
+		const Entity& at(const std::string& key) const { return data[keys.at(key)]; }
 
 		const std::string& getName() const { return name; }
 		const std::shared_ptr<This<Webss>>& getPointer() const { return nspaces.back(); }
 		const Namespaces& getNamespaces() const { return nspaces; }
 
-		typename Data::iterator begin() { return data.begin(); }
-		typename Data::iterator end() { return data.end(); }
-		typename Data::const_iterator begin() const { return data.begin(); }
-		typename Data::const_iterator end() const { return data.end(); }
+		iterator begin() { return data.begin(); }
+		iterator end() { return data.end(); }
+		const_iterator begin() const { return data.begin(); }
+		const_iterator end() const { return data.end(); }
 	private:
 		static constexpr char* ERROR_DUPLICATE_KEY_NAMESPACE = "key already in namespace: ";
 
 		std::string name;
 		Data data;
+		Keymap keys;
 		Namespaces nspaces;
 
 		This() {}

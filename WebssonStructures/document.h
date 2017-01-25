@@ -15,6 +15,10 @@ namespace webss
 		using Data = std::vector<T>;
 		using size_type = typename Data::size_type;
 		using Keymap = std::map<std::string, size_type>;
+		using iterator = typename Data::iterator;
+		using const_iterator = typename Data::const_iterator;
+		using reverse_iterator = typename Data::reverse_iterator;
+		using const_reverse_iterator = typename Data::const_iterator;
 
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }
@@ -88,14 +92,14 @@ namespace webss
 			return keyValues;
 		}
 
-		typename Data::iterator begin() { return data.begin(); }
-		typename Data::iterator end() { return data.end(); }
-		typename Data::const_iterator begin() const { return data.begin(); }
-		typename Data::const_iterator end() const { return data.end(); }
-		typename Data::reverse_iterator rbegin() { return data.rbegin(); }
-		typename Data::reverse_iterator rend() { return data.rend(); }
-		typename Data::const_reverse_iterator rbegin() const { return data.rbegin(); }
-		typename Data::const_reverse_iterator rend() const { return data.rend(); }
+		iterator begin() { return data.begin(); }
+		iterator end() { return data.end(); }
+		const_iterator begin() const { return data.begin(); }
+		const_iterator end() const { return data.end(); }
+		reverse_iterator rbegin() { return data.rbegin(); }
+		reverse_iterator rend() { return data.rend(); }
+		const_reverse_iterator rbegin() const { return data.rbegin(); }
+		const_reverse_iterator rend() const { return data.rend(); }
 	private:
 		static constexpr char* ERROR_DUPLICATE_KEY_DOCUMENT = "key already in document: ";
 		Keymap keys;
