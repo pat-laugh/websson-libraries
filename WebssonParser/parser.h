@@ -63,7 +63,7 @@ namespace webss
 		};
 
 		BasicEntityManager<WebssBinarySize> entsTypeBinarySize;
-		BasicEntityManager<DocumentHead> importedDocuments;
+		BasicEntityManager<std::string> importedDocuments;
 
 		Document parseDocument(It&& it);
 
@@ -80,8 +80,8 @@ namespace webss
 		Enum parseEnum(It& it, const std::string& name);
 		Webss parseContainerText(It& it);
 		ScopedDocument parseScopedDocument(It& it);
-		ImportedDocument parseImport(It& it, ConType con);
-
+		ImportedDocument parseImportStatic(It& it, ConType con);
+		void parseImportDynamic(It& it, const ImportedDocument& import);
 
 		//parserKeyValues.cpp
 		Parser::NameType parseNameType(It& it);
@@ -219,8 +219,8 @@ namespace webss
 				break;
 			}
 			case Type::IMPORT:
-				for (const auto& otherParam : paramDoc.getImportedDoc().getContent())
-					includeEntities(otherParam);
+	//			for (const auto& otherParam : paramDoc.getImportedDoc().getContent())
+	//				includeEntities(otherParam);
 				break;
 			case Type::SCOPED_DOCUMENT:
 			{
@@ -256,8 +256,8 @@ namespace webss
 					break;
 				}
 				case Type::IMPORT:
-					removeAll(param.getImportedDoc().getContent());
-					break;
+//					removeAll(param.getImportedDoc().getContent());
+//					break;
 				case Type::SCOPED_DOCUMENT:
 				{
 					//		putScopedDocument(out, it->getScopedDoc());

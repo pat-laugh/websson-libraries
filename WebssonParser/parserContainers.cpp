@@ -218,7 +218,7 @@ bool Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType c
 			checkMultiContainer(++it, [&]() { docHead.push_back(parseScopedDocument(it)); });
 			break;
 		case CHAR_IMPORT:
-			checkMultiContainer(++it, [&]() { docHead.push_back(parseImport(it, con)); });
+			checkMultiContainer(++it, [&]() { auto import = parseImportStatic(it, con); parseImportDynamic(it, import); docHead.push_back(move(import)); });
 			break;
 		default:
 			return false;
@@ -275,29 +275,31 @@ ScopedDocument Parser::parseScopedDocument(It& it)
 	return{ move(head), move(body) };
 }
 
-ImportedDocument Parser::parseImport(It& it, ConType con)
+ImportedDocument Parser::parseImportStatic(It& it, ConType con)
 {
 #ifndef webss_ALLOW_IMPORT
 	throw runtime_error("this parser cannot import documents");
 #else
-	static const ConType CON = ConType::DOCUMENT;
+	ImportedDocument import(parseValueOnly(it, con));
+	const auto& link = import.getLink();
+	if (!importedDocuments.hasEntity(link))
+		importedDocuments.addLocalSafe(link, Curl().readWebDocument(link).str());
+	return import;
+#endif
+}
+
+void Parser::parseImportDynamic(It& it, const ImportedDocument& import)
+{
+#ifndef webss_ALLOW_IMPORT
+	throw runtime_error("this parser cannot import documents");
+#else
 	try
 	{
-		ImportedDocument import{ parseValueOnly(it, con) };
-		const auto& link = import.getLink();
-		if (importedDocuments.hasEntity(link))
-			import.content = importedDocuments[link];
-		else
-		{
-			It itImported(Curl().readWebDocument(link));
-			DocumentHead docHead;
-			if (!checkEmptyContainer(itImported, CON) && !parseDocumentHead(itImported, docHead, CON, Namespace::getEmptyInstance()))
-				throw runtime_error(ERROR_UNEXPECTED);
-			auto ent = BasicEntity<DocumentHead>(link, move(docHead));
-			import.content = ent;
-			importedDocuments.addLocal(move(ent));
-		}
-		return import;
+		static const ConType CON = ConType::DOCUMENT;
+		It itImported(importedDocuments[import.getLink()].getContent());
+		DocumentHead docHead;
+		if (!checkEmptyContainer(itImported, CON) && !parseDocumentHead(itImported, docHead, CON, Namespace::getEmptyInstance()))
+			throw runtime_error(ERROR_UNEXPECTED);
 	}
 	catch (exception e)
 	{

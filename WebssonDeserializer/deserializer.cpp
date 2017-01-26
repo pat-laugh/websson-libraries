@@ -363,7 +363,7 @@ void Deserializer::putDocument(StringBuilder& out, const Document& doc)
 void Deserializer::putImportedDocument(StringBuilder& out, const ImportedDocument& importDoc, ConType con)
 {
 	out += CHAR_IMPORT;
-	putWebss(out, importDoc.name, con);
+	putWebss(out, importDoc.getName(), con);
 }
 
 void Deserializer::putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc)
