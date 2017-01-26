@@ -73,7 +73,7 @@ public:
 				putEntityDeclaration(out, it->getConcreteEntity(), CON);
 				break;
 			case Type::IMPORT:
-				putImport(out, it->getImportName(), CON);
+				putImportedDocument(out, it->getImportedDoc(), CON);
 				break;
 			case Type::SCOPED_DOCUMENT:
 				putScopedDocument(out, it->getScopedDoc());
@@ -360,10 +360,10 @@ void Deserializer::putDocument(StringBuilder& out, const Document& doc)
 	});
 }
 
-void Deserializer::putImport(StringBuilder& out, const string& name, ConType con)
+void Deserializer::putImportedDocument(StringBuilder& out, const ImportedDocument& importDoc, ConType con)
 {
 	out += CHAR_IMPORT;
-	putLineString(out, name, con);
+	putWebss(out, importDoc.name, con);
 }
 
 void Deserializer::putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc)

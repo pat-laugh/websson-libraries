@@ -155,7 +155,7 @@ TypeContainer webss::skipJunkToContainer(SmartIterator& it)
 		switch (*skipJunkToValid(it.readTwo()))
 		{
 		case OPEN_DICTIONARY:
-			return TypeContainer::TEXT_DICTIONARY;
+			return TypeContainer::MULTILINE_STRING;
 		case OPEN_LIST:
 			return TypeContainer::TEXT_LIST;
 		case OPEN_TUPLE:

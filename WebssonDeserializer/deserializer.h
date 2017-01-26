@@ -62,7 +62,7 @@ namespace webss
 		void putTuple(StringBuilder& out, const Tuple& tuple);
 		void putDocument(StringBuilder& out, const Document& doc);
 
-		void putImport(StringBuilder& out, const std::string& name, ConType con);
+		void putImportedDocument(StringBuilder& out, const ImportedDocument& importDoc, ConType con);
 
 		void putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc);
 

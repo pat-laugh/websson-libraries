@@ -35,6 +35,7 @@ namespace webss
 	using ParamDocument = BasicParamDocument<Webss>;
 	using DocumentHead = BasicDocumentHead<Webss>;
 	using ScopedDocument = BasicScopedDocument<Webss>;
+	using ImportedDocument = BasicImportedDocument<Webss>;
 
 	class Webss
 	{

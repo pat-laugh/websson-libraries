@@ -8,6 +8,8 @@
 #include "multiEntityManager.h"
 #include "WebssonUtils/stringBuilder.h"
 
+#define webss_ALLOW_IMPORT
+
 namespace webss
 {
 	class Parser
@@ -61,6 +63,7 @@ namespace webss
 		};
 
 		BasicEntityManager<WebssBinarySize> entsTypeBinarySize;
+		BasicEntityManager<DocumentHead> importedDocuments;
 
 		Document parseDocument(It&& it);
 		void parseOption(It& it);
@@ -74,8 +77,8 @@ namespace webss
 		Namespace parseNamespace(It& it, const std::string& name, const Namespace& previousNamespace);
 		Enum parseEnum(It& it, const std::string& name);
 		Webss parseContainerText(It& it);
-
-		void parseImport(It& it);
+		ScopedDocument parseScopedDocument(It& it);
+		ImportedDocument parseImport(It& it, ConType con);
 
 
 		//parserKeyValues.cpp
@@ -105,7 +108,6 @@ namespace webss
 		Entity parseAbstractEntity(It& it, const Namespace& currentNamespace);
 		std::string parseName(It& it);
 		std::string parseNameSafe(It& it);
-		ScopedDocument parseScopedDocument(It& it);
 
 		//parserFunctions.cpp
 		Webss parseFunctionHead(It& it);
