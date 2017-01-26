@@ -280,7 +280,10 @@ ImportedDocument Parser::parseImportStatic(It& it, ConType con)
 #ifndef webss_ALLOW_IMPORT
 	throw runtime_error("this parser cannot import documents");
 #else
-	ImportedDocument import(parseValueOnly(it, con));
+	auto importName = parseValueOnly(it, con);
+	if (!importName.isString())
+		throw std::runtime_error("import must reference a string");
+	ImportedDocument import(move(importName));
 	const auto& link = import.getLink();
 	if (!importedDocuments.hasEntity(link))
 		importedDocuments.addLocalSafe(link, Curl().readWebDocument(link).str());
