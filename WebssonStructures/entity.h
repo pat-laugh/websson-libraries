@@ -5,6 +5,8 @@
 #include <string>
 #include <memory>
 
+#include "base.h"
+
 namespace webss
 {
 	template <class Webss>

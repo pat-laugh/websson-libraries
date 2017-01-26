@@ -1,10 +1,12 @@
 #pragma once
 
+#include <memory>
+
+#include "base.h"
 #include "functionHead.h"
 #include "paramBinary.h"
 #include "functionScoped.h"
 #include "typeWebss.h"
-#include <memory>
 
 namespace webss
 {

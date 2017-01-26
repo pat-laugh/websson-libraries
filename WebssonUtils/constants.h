@@ -11,7 +11,8 @@ namespace webss
 	const char CHAR_EQUAL = '=';
 	const char CHAR_IMPORT = '@';
 	const char CHAR_OPTION = '#';
-	const char CHAR_USING_NAMESPACE = '~';
+	const char CHAR_USING_NAMESPACE = '&';
+	const char CHAR_SCOPED_DOCUMENT = '~';
 	const char CHAR_SCOPE = '.';
 	const char CHAR_SELF = '&';
 	const char CHAR_SEPARATOR = ',';

@@ -503,12 +503,27 @@ void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& 
 		using Type = remove_reference<decltype(fhead.getParameters())>::type;
 		putSeparatedValues<Type, CON>(out, fhead.getParameters(), [&](Type::const_iterator it)
 		{
-			if (it->hasEntity())
-				putEntityDeclaration(out, it->getEntity(), CON);
-			else
+			using ParamType = decltype(it->getType());
+			switch (it->getType())
 			{
+			case ParamType::ENTITY_ABSTRACT: 
+				putEntityDeclaration(out, it->getAbstractEntity(), CON);
+				break;
+			case ParamType::ENTITY_CONCRETE:
+				putEntityDeclaration(out, it->getConcreteEntity(), CON);
+				break;
+			case ParamType::NAMESPACE:
 				out += CHAR_USING_NAMESPACE;
 				out += it->getNamespace().getName();
+				break;
+			case ParamType::IMPORT:
+				putImportedDocument(out, it->getImportedDoc(), CON);
+				break;
+			case ParamType::SCOPED_DOCUMENT:
+				putScopedDocument(out, it->getScopedDoc());
+				break;
+			default:
+				assert(false);
 			}
 		});
 	}

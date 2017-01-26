@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 
+#include "base.h"
 #include "documentHead.h"
 
 namespace webss

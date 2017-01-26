@@ -167,45 +167,22 @@ Enum Parser::parseEnum(It& it, const string& name)
 Document Parser::parseDocument(It&& it)
 {
 	static const ConType CON = ConType::DOCUMENT;
-	static const auto& currentNamespace = Namespace::getEmptyInstance();
 #ifdef GET_LINE
 	try
 	{
 #endif
 		Document doc;
-		auto& docHead = doc.getHead();
-		if (checkEmptyContainer(it, CON))
-			return doc;
-		do
+		if (!checkEmptyContainer(it, CON) && !parseDocumentHead(it, doc.getHead(), CON, Namespace::getEmptyInstance()))
 		{
-			switch (*it)
-			{
-			case CHAR_ABSTRACT_ENTITY:
-				checkMultiContainer(++it, [&]() { auto ent = parseAbstractEntity(it, currentNamespace); docHead.push_back(ParamDocument(ent)); ents.addLocal(move(ent)); });
-				break;
-			case CHAR_CONCRETE_ENTITY:
-				checkMultiContainer(++it, [&]() { auto ent = parseConcreteEntity(it, CON); docHead.push_back(ParamDocument(ent, true)); ents.addLocal(move(ent)); });
-				break;
-			case CHAR_USING_NAMESPACE:
-				checkMultiContainer(++it, [&]() { docHead.push_back(parseScopedDocument(it)); });
-				break;
-			case CHAR_IMPORT:
-				checkMultiContainer(++it, [&]() { docHead.push_back(parseImport(it, CON)); });
-				break;
-			case CHAR_OPTION:
-				checkMultiContainer(++it, [&]() { parseOption(it); });
-				break;
-			default: //parse body
-				do
-					parseOtherValue(it, CON,
-						CaseKeyValue{ doc.addSafe(move(key), move(value)); },
-						ErrorKeyOnly(ERROR_INPUT_DOCUMENT),
-						CaseValueOnly{ doc.add(move(value)); },
-						ErrorAbstractEntity(ERROR_INPUT_DOCUMENT));
-				while (checkNextElementContainer(it, CON));
-				return doc;
-			}
-		} while (checkNextElementContainer(it, CON));
+			ParamDocumentIncluder includer(doc.getHead());
+			do
+				parseOtherValue(it, CON,
+					CaseKeyValue{ doc.addSafe(move(key), move(value)); },
+					ErrorKeyOnly(ERROR_INPUT_DOCUMENT),
+					CaseValueOnly{ doc.add(move(value)); },
+					ErrorAbstractEntity(ERROR_INPUT_DOCUMENT));
+			while (checkNextElementContainer(it, CON));
+		}
 		return doc;
 #ifdef GET_LINE
 	}
@@ -216,6 +193,41 @@ Document Parser::parseDocument(It&& it)
 #endif
 }
 
+bool Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType con, const Namespace& nspace)
+{
+	do
+		switch (*it)
+		{
+		case CHAR_ABSTRACT_ENTITY:
+			checkMultiContainer(++it, [&]() { auto ent = parseAbstractEntity(it, nspace); docHead.push_back(ParamDocument(ent)); ents.addLocalSafe(move(ent)); });
+			break;
+		case CHAR_CONCRETE_ENTITY:
+			checkMultiContainer(++it, [&]() { auto ent = parseConcreteEntity(it, con); docHead.push_back(ParamDocument(ent)); ents.addLocalSafe(move(ent)); });
+			break;
+		case CHAR_USING_NAMESPACE:
+			checkMultiContainer(++it, [&]()
+			{
+				skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
+				auto nameType = parseNameType(it);
+				if (nameType.type != NameType::ENTITY || !nameType.entity.getContent().isNamespace())
+					throw runtime_error("expected namespace");
+				docHead.push_back(ParamDocument(nameType.entity.getContent().getNamespace()));
+			});
+			break;
+		case CHAR_SCOPED_DOCUMENT:
+			checkMultiContainer(++it, [&]() { docHead.push_back(parseScopedDocument(it)); });
+			break;
+		case CHAR_IMPORT:
+			checkMultiContainer(++it, [&]() { docHead.push_back(parseImport(it, con)); });
+			break;
+		default:
+			return false;
+		}
+	while (checkNextElementContainer(it, con));
+	return true;
+}
+
+
 void Parser::checkMultiContainer(It& it, function<void()> func)
 {
 	static const ConType CON = ConType::DICTIONARY;
@@ -223,11 +235,7 @@ void Parser::checkMultiContainer(It& it, function<void()> func)
 		func();
 	else if (!checkEmptyContainer(++it, CON))
 		do
-		{
-			if (!isNameStart(*it))
-				throw runtime_error(ERROR_UNEXPECTED);
 			func();
-		}
 		while (checkNextElementContainer(it, CON));
 }
 
@@ -258,66 +266,12 @@ ScopedDocument Parser::parseScopedDocument(It& it)
 
 	skipJunkToValidCondition(it, [&]() { return *it == OPEN_DICTIONARY; });
 	DocumentHead body;
-	if (checkEmptyContainer(++it, CON))
-		return{ move(head), move(body) };
-
-	vector<Entity> entitiesToReAdd;
-
-	//get ents
-	const auto& params = head.getParameters();
-	for (const auto& param : params)
-		if (param.hasEntity())
-			ents.addLocalSafe(param.getEntity());
-		else
-		{
-			const auto& nspace = param.getNamespace();
-			const auto& name = nspace.getName();
-			if (ents.hasEntity(name))
-			{
-				const auto& ent = ents.getWebss(name);
-				const auto& content = ent.getContent();
-				if (content.isNamespace() && content.getNamespace().getPointer() == nspace.getPointer())
-				{
-					entitiesToReAdd.push_back(ent);
-					ents.removeLocal(name);
-				}
-			}
-			for (const auto& ent : nspace)
-				ents.addLocalSafe(ent);
-		}
-
-	do
+	if (!checkEmptyContainer(++it, CON))
 	{
-		switch (*it)
-		{
-		case CHAR_ABSTRACT_ENTITY:
-			checkMultiContainer(++it, [&]() { auto ent = parseAbstractEntity(it, currentNamespace); body.push_back(ParamDocument(ent)); ents.addLocal(move(ent)); });
-			break;
-		case CHAR_CONCRETE_ENTITY:
-			checkMultiContainer(++it, [&]() { auto ent = parseConcreteEntity(it, CON); body.push_back(ParamDocument(ent, true)); ents.addLocal(move(ent)); });
-			break;
-		case CHAR_USING_NAMESPACE:
-			checkMultiContainer(++it, [&]() { body.push_back(parseScopedDocument(it)); });
-			break;
-		case CHAR_IMPORT:
-			checkMultiContainer(++it, [&]() { body.push_back(parseImport(it, CON)); });
-			break;
-		default:
+		ParamDocumentIncluder includer(static_cast<vector<ParamDocument>>(head.getParameters()));
+		if (!parseDocumentHead(it, body, CON, Namespace::getEmptyInstance()))
 			throw runtime_error(ERROR_UNEXPECTED);
-		}
-	} while (checkNextElementContainer(it, CON));
-
-	//remove ents
-	for (const auto& param : params)
-		if (param.hasEntity())
-			ents.removeLocal(param.getEntity());
-		else
-			for (const auto& ent : param.getNamespace())
-				ents.removeLocal(ent);
-
-	for (const auto& ent : entitiesToReAdd)
-		ents.addLocal(ent);
-
+	}
 	return{ move(head), move(body) };
 }
 
@@ -326,47 +280,22 @@ ImportedDocument Parser::parseImport(It& it, ConType con)
 #ifndef webss_ALLOW_IMPORT
 	throw runtime_error("this parser cannot import documents");
 #else
-
-	ImportedDocument import;
-	auto& name = import.name;
-	auto& body = import.body;
-
+	static const ConType CON = ConType::DOCUMENT;
 	try
 	{
-		name = parseValueOnly(it, con);
-		const auto& link = name.getString();
+		ImportedDocument import{ parseValueOnly(it, con) };
+		const auto& link = import.getLink();
 		if (importedDocuments.hasEntity(link))
-			body = importedDocuments[link].getContent();
+			import.content = importedDocuments[link];
 		else
 		{
-			stringstream content;
-			Curl().readWebDocument(content, link);
-			It itImported(content);
-			static const ConType CON = ConType::DOCUMENT;
-			static const auto& currentNamespace = Namespace::getEmptyInstance();
-			if (checkEmptyContainer(itImported, CON))
-				return import;
-
-			do
-			{
-				switch (*itImported)
-				{
-				case CHAR_ABSTRACT_ENTITY:
-					checkMultiContainer(++itImported, [&]() { auto ent = parseAbstractEntity(itImported, currentNamespace); body.push_back(ParamDocument(ent)); ents.addLocal(move(ent)); });
-					break;
-				case CHAR_CONCRETE_ENTITY:
-					checkMultiContainer(++itImported, [&]() { auto ent = parseConcreteEntity(itImported, CON); body.push_back(ParamDocument(ent, true)); ents.addLocal(move(ent)); });
-					break;
-				case CHAR_USING_NAMESPACE:
-					checkMultiContainer(++itImported, [&]() { body.push_back(parseScopedDocument(itImported)); });
-					break;
-				case CHAR_IMPORT:
-					checkMultiContainer(++itImported, [&]() { body.push_back(parseImport(itImported, CON)); });
-					break;
-				default:
-					throw runtime_error(ERROR_UNEXPECTED);
-				}
-			} while (checkNextElementContainer(itImported, CON));
+			It itImported(Curl().readWebDocument(link));
+			DocumentHead docHead;
+			if (!checkEmptyContainer(itImported, CON) && !parseDocumentHead(itImported, docHead, CON, Namespace::getEmptyInstance()))
+				throw runtime_error(ERROR_UNEXPECTED);
+			auto ent = BasicEntity<DocumentHead>(link, move(docHead));
+			import.content = ent;
+			importedDocuments.addLocal(move(ent));
 		}
 		return import;
 	}

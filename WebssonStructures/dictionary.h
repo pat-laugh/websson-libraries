@@ -5,6 +5,8 @@
 #include <string>
 #include <map>
 
+#include "base.h"
+
 namespace webss
 {
 	template<class T>

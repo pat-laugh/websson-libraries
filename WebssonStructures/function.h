@@ -2,6 +2,7 @@
 //Copyright(c) 2016 Patrick Laughrea
 #pragma once
 
+#include "base.h"
 #include "functionHead.h"
 #include "functionBody.h"
 

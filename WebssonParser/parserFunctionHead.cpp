@@ -93,28 +93,16 @@ FunctionHeadScoped Parser::parseFunctionHeadScoped(It& it, FunctionHeadScoped&& 
 	const auto& currentNamespace = Namespace::getEmptyInstance(); //namespace of entities declared within
 	do
 	{
-		switch (*it)
-		{
-		case CHAR_CONCRETE_ENTITY:
-			checkMultiContainer(++it, [&]() { auto ent = parseConcreteEntity(it, CON); fhead.attach(string(ent.getName()), ParamScoped(ent)); });
+		if (parseDocumentHead(it, static_cast<vector<ParamDocument>>(*const_cast<FunctionHeadScoped::Tuple*>(&fhead.getParameters())), CON, currentNamespace))
 			break;
-		case CHAR_ABSTRACT_ENTITY:
-			checkMultiContainer(++it, [&]() { auto ent = parseAbstractEntity(it, currentNamespace); fhead.attach(string(ent.getName()), ParamScoped(ent)); });
-			break;
-		case CHAR_USING_NAMESPACE:
-			checkMultiContainer(++it, [&]()
-			{
-				auto nameType = parseNameType(it);
-				if (nameType.type != NameType::ENTITY || !nameType.entity.getContent().isNamespace())
-					throw runtime_error("expected namespace");
-				fhead.attach(string(nameType.entity.getName()), ParamScoped(nameType.entity.getContent().getNamespace()));
-			});
-			break;
-		default:
+		
+		if (!isNameStart(*it))
 			throw runtime_error(ERROR_UNEXPECTED);
-		}
+
+		//... add variable
 	}
 	while (checkNextElementContainer(it, CON));
+	ParamDocumentIncluder().removeAll(static_cast<vector<ParamDocument>>(fhead.getParameters()));
 	return move(fhead);
 }
 

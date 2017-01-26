@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
+
+#include "base.h"
 #include "entity.h"
 
 namespace webss

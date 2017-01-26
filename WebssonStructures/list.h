@@ -4,6 +4,8 @@
 
 #include <vector>
 
+#include "base.h"
+
 namespace webss
 {
 	template <class T>

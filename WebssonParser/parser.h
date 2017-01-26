@@ -66,7 +66,9 @@ namespace webss
 		BasicEntityManager<DocumentHead> importedDocuments;
 
 		Document parseDocument(It&& it);
-		void parseOption(It& it);
+
+		//returns true if end of container is met, else false
+		bool parseDocumentHead(It& it, std::vector<ParamDocument>& docHead, ConType con, const Namespace& nspace);
 		void checkMultiContainer(It& it, std::function<void()> func);
 
 		Tuple parseTuple(It& it);
@@ -149,5 +151,122 @@ namespace webss
 		const BasicEntity<FunctionHeadScoped>& checkEntFheadScoped(const Entity& ent);
 		const BasicEntity<FunctionHeadBinary>& checkEntFheadBinary(const Entity& ent);
 		const BasicEntity<FunctionHeadStandard>& checkEntFheadStandard(const Entity& ent);
-};
+	};
+
+	class ParamDocumentIncluder : private Parser
+	{
+	private:
+		std::vector<Entity> entitiesToReAdd;
+		std::vector<Entity> entitiesToRemove;
+
+		void remove(const Entity& ent)
+		{
+			entitiesToReAdd.push_back(ent);
+			ents.removeLocal(ent.getName());
+		}
+
+		void include(const Entity& ent)
+		{
+			entitiesToRemove.push_back(ent);
+			ents.addLocalSafe(ent);
+		}
+	public:
+		ParamDocumentIncluder() {}
+		ParamDocumentIncluder(const std::vector<ParamDocument>& params)
+		{
+			for (const auto& param : params)
+				includeEntities(param);
+		}
+
+		~ParamDocumentIncluder()
+		{
+			for (const auto& ent : entitiesToRemove)
+				ents.removeLocal(ent.getName());
+
+			for (const auto& ent : entitiesToReAdd)
+				ents.addLocal(ent);
+		}
+		void includeEntities(const ParamDocument& paramDoc)
+		{
+			using Type = ParamDocument::Type;
+			switch (paramDoc.getType())
+			{
+			case Type::ENTITY_ABSTRACT:
+			{
+				const auto& ent = paramDoc.getAbstractEntity();
+				include(ent);
+				break;
+			}
+			case Type::ENTITY_CONCRETE:
+			{
+				const auto& ent = paramDoc.getConcreteEntity();
+				include(ent);
+				break;
+			}
+			case Type::NAMESPACE:
+			{
+				const auto& nspace = paramDoc.getNamespace();
+				const auto& name = nspace.getName();
+				if (ents.hasEntity(name))
+				{
+					const auto& ent = ents.getWebss(name);
+					const auto& content = ent.getContent();
+					if (content.isNamespace() && content.getNamespace().getPointer() == nspace.getPointer())
+						remove(ent);
+				}
+				for (const auto& ent : nspace)
+					include(ent);
+				break;
+			}
+			case Type::IMPORT:
+				for (const auto& otherParam : paramDoc.getImportedDoc().getContent())
+					includeEntities(otherParam);
+				break;
+			case Type::SCOPED_DOCUMENT:
+			{
+				//		putScopedDocument(out, it->getScopedDoc());
+				//		break;
+				break;
+			}
+			default:
+				assert(false);
+			}
+		}
+
+		void removeAll(const std::vector<ParamDocument>& params)
+		{
+			for (const auto& param : params)
+			{
+				using Type = ParamDocument::Type;
+				switch (param.getType())
+				{
+				case Type::ENTITY_ABSTRACT:
+				{
+					ents.removeLocal(param.getAbstractEntity().getName());
+					break;
+				}
+				case Type::ENTITY_CONCRETE:
+				{
+					ents.removeLocal(param.getConcreteEntity().getName());
+					break;
+				}
+				case Type::NAMESPACE:
+				{
+					ents.removeLocal(param.getNamespace().getName());
+					break;
+				}
+				case Type::IMPORT:
+					removeAll(param.getImportedDoc().getContent());
+					break;
+				case Type::SCOPED_DOCUMENT:
+				{
+					//		putScopedDocument(out, it->getScopedDoc());
+					//		break;
+				}
+				default:
+					assert(false);
+				}
+			}
+		}
+	};
 }

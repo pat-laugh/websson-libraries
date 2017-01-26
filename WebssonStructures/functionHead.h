@@ -2,6 +2,7 @@
 //Copyright(c) 2016 Patrick Laughrea
 #pragma once
 
+#include "base.h"
 #include "tuple.h"
 #include "entity.h"
 #include <cassert>
@@ -17,7 +18,7 @@ namespace webss
 		using Entity = BasicEntity<BasicFunctionHead>;
 		using size_type = typename Tuple::size_type;
 
-		BasicFunctionHead() : t(Type::NONE) {}
+		BasicFunctionHead() : t(Type::TUPLE), tuple(new Tuple()) {}
 		explicit BasicFunctionHead(bool containerText) : t(Type::TUPLE), tuple(new Tuple(containerText)) {}
 		BasicFunctionHead(const Entity& ent) : t(Type::VAR), ent(ent) {}
 		BasicFunctionHead(Tuple&& tuple) : t(Type::TUPLE), tuple(new Tuple(std::move(tuple))) {}

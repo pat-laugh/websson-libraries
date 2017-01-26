@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "base.h"
+
 namespace webss
 {
 	template <class T>
@@ -28,6 +30,9 @@ namespace webss
 		BasicTuple makeCompleteCopy() const { return BasicTuple(*keys, data, containerText); }
 
 		BasicTuple(const std::shared_ptr<Keymap>& keys, bool containerText = false) : keys(keys), data(keys->size()), containerText(containerText) {}
+
+		explicit operator Data&() { return data; }
+		explicit operator const Data&() const { return data; }
 
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }

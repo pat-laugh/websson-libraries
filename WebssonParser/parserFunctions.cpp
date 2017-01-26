@@ -18,45 +18,8 @@ class ParserFunctions : public Parser
 public:
 	Webss parseFunctionBodyScoped(It& it, const FunctionHeadScoped::Tuple& params, ConType con)
 	{
-		vector<Entity> entitiesToReAdd;
-
-		//get ents
-		for (const auto& param : params)
-			if (param.hasEntity())
-				ents.addLocalSafe(param.getEntity());
-			else
-			{
-				const auto& nspace = param.getNamespace();
-				const auto& name = nspace.getName();
-				if (ents.hasEntity(name))
-				{
-					const auto& ent = ents.getWebss(name);
-					const auto& content = ent.getContent();
-					if (content.isNamespace() && content.getNamespace().getPointer() == nspace.getPointer())
-					{
-						entitiesToReAdd.push_back(ent);
-						ents.removeLocal(name);
-					}
-				}
-				for (const auto& ent : nspace)
-					ents.addLocalSafe(ent);
-			}
-
-		//get value
-		auto webss = parseValueOnly(it, con);
-
-		//remove ents
-		for (const auto& param : params)
-			if (param.hasEntity())
-				ents.removeLocal(param.getEntity());
-			else
-				for (const auto& ent : param.getNamespace())
-					ents.removeLocal(ent);
-
-		for (const auto& ent : entitiesToReAdd)
-			ents.addLocal(ent);
-
-		return webss;
+		ParamDocumentIncluder includer(static_cast<vector<ParamDocument>>(params));
+		return parseValueOnly(it, con);
 	}
 
 	Webss parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tuple& params)

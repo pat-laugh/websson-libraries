@@ -8,6 +8,7 @@ using namespace webss;
 
 Entity Parser::parseConcreteEntity(It& it, ConType con)
 {
+	skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
 	Entity ent;
 	parseOtherValue(it, con,
 		CaseKeyValue{ ent = Entity(move(key), move(value)); },
@@ -19,6 +20,7 @@ Entity Parser::parseConcreteEntity(It& it, ConType con)
 
 Entity Parser::parseAbstractEntity(It& it, const Namespace& currentNamespace)
 {
+	skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
 	auto name = parseNameSafe(it);
 	switch (*skipJunkToValid(it))
 	{

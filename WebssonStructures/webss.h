@@ -2,6 +2,7 @@
 //Copyright(c) 2016 Patrick Laughrea
 #pragma once
 
+#include "base.h"
 #include "block.h"
 #include "function.h"
 #include "namespace.h"
@@ -17,7 +18,6 @@ namespace webss
 	using List = BasicList<Webss>;
 	using Tuple = BasicTuple<Webss>;
 	using ParamBinary = BasicParamBinary<Webss>;
-	using ParamScoped = BasicParamScoped<Webss>;
 	using ParamStandard = BasicParamStandard<Webss>;
 	using FunctionHeadBinary = BasicFunctionHead<ParamBinary>;
 	using FunctionHeadScoped = BasicFunctionHeadScoped<Webss>;
@@ -31,6 +31,7 @@ namespace webss
 	using BlockHead = BasicBlockHead<Webss>;
 	using Block = BasicBlock<Webss>;
 	using Default = std::shared_ptr<Webss>;
+	using ParamScoped = BasicParamScoped<Webss>;
 
 	using ParamDocument = BasicParamDocument<Webss>;
 	using DocumentHead = BasicDocumentHead<Webss>;

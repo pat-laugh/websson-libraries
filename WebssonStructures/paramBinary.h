@@ -3,11 +3,12 @@
 #pragma once
 
 #include <assert.h>
+#include <memory>
 
+#include "base.h"
 #include "keywords.h"
 #include "types.h"
 #include "functionHead.h"
-#include <memory>
 
 namespace webss
 {
