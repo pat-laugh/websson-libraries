@@ -1,7 +1,16 @@
 *.*
 Debug/
 ipch/
+
+#allow
 !.editorconfig
 !.gitignore
 !LICENSE
-!*.{h,c,cpp,js,html,css,txt,md}
+!*.h
+!*.c
+!*.cpp
+!*.js
+!*.html
+!*.css
+!*.txt
+!*.md
