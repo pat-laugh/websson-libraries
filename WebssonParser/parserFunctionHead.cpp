@@ -90,7 +90,7 @@ FunctionHeadBinary Parser::parseFunctionHeadBinary(It& it, FunctionHeadBinary&& 
 
 FunctionHeadScoped Parser::parseFunctionHeadScoped(It& it, FunctionHeadScoped&& fhead)
 {
-	auto& docHead = static_cast<vector<ParamDocument>>(*const_cast<FunctionHeadScoped::Parameters*>(&fhead.getParameters()));
+/*	auto& docHead = static_cast<vector<ParamDocument>>(*const_cast<FunctionHeadScoped::Parameters*>(&fhead.getParameters()));
 	do
 	{
 		switch (*it)
@@ -118,6 +118,7 @@ FunctionHeadScoped Parser::parseFunctionHeadScoped(It& it, FunctionHeadScoped&& 
 		}
 	} while (checkNextElementContainer(it, CON));
 	ParamDocumentIncluder().removeAll(static_cast<vector<ParamDocument>>(fhead.getParameters()));
+	return move(fhead);*/
 	return move(fhead);
 }
 
@@ -134,9 +135,9 @@ FunctionHeadStandard Parser::parseFunctionHeadStandard(It& it, FunctionHeadStand
 	return move(fhead);
 }
 
-FunctionHeadStandard Parser::parseFunctionHeadText(It& it)
+FunctionHeadText Parser::parseFunctionHeadText(It& it)
 {
-	FunctionHeadStandard fhead(true);
+	FunctionHeadText fhead;
 	if (checkEmptyContainer(it, CON))
 		throw runtime_error("text function head can't be empty");
 	do
@@ -197,7 +198,7 @@ void Parser::parseOtherValuesFheadStandard(It& it, FunctionHeadStandard& fhead)
 		CaseAbstractEntity{ fhead.attach(checkEntFheadStandard(abstractEntity)); });
 }
 
-void Parser::parseOtherValuesFheadText(It& it, FunctionHeadStandard& fhead)
+void Parser::parseOtherValuesFheadText(It& it, FunctionHeadText& fhead)
 {
 	parseOtherValue(it, CON,
 		CaseKeyValue

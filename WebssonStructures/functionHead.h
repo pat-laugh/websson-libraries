@@ -71,7 +71,7 @@ namespace webss
 		{
 			switch (t)
 			{
-			case Type::NONE:
+			case Type::NONE: default:
 				assert(false);
 				throw std::logic_error("");
 			case Type::PARAMS:

@@ -43,9 +43,11 @@ PATTERN_CONSTRUCT_MOVE(Tuple, tuple, TUPLE)
 PATTERN_CONSTRUCT_MOVE(FunctionHeadBinary, fheadBinary, FUNCTION_HEAD_BINARY)
 PATTERN_CONSTRUCT_MOVE(FunctionHeadScoped, fheadScoped, FUNCTION_HEAD_SCOPED)
 PATTERN_CONSTRUCT_MOVE(FunctionHeadStandard, fheadStandard, FUNCTION_HEAD_STANDARD)
+PATTERN_CONSTRUCT_MOVE(FunctionHeadText, fheadText, FUNCTION_HEAD_TEXT)
 PATTERN_CONSTRUCT_MOVE(FunctionBinary, funcBinary, FUNCTION_BINARY)
 PATTERN_CONSTRUCT_MOVE(FunctionScoped, funcScoped, FUNCTION_SCOPED)
 PATTERN_CONSTRUCT_MOVE(FunctionStandard, funcStandard, FUNCTION_STANDARD)
+PATTERN_CONSTRUCT_MOVE(FunctionText, funcText, FUNCTION_TEXT)
 PATTERN_CONSTRUCT_MOVE(Namespace, nspace, NAMESPACE)
 Webss::Webss(Enum&& name, bool) : t(WebssType::ENUM), nspace(new Namespace(move(name))) {}
 PATTERN_CONSTRUCT_MOVE(BlockHead, blockHead, BLOCK_HEAD)
@@ -62,9 +64,11 @@ PATTERN_CONSTRUCT_CONST(Tuple, tuple, TUPLE)
 PATTERN_CONSTRUCT_CONST(FunctionHeadBinary, fheadBinary, FUNCTION_HEAD_BINARY)
 PATTERN_CONSTRUCT_CONST(FunctionHeadScoped, fheadScoped, FUNCTION_HEAD_SCOPED)
 PATTERN_CONSTRUCT_CONST(FunctionHeadStandard, fheadStandard, FUNCTION_HEAD_STANDARD)
+PATTERN_CONSTRUCT_CONST(FunctionHeadText, fheadText, FUNCTION_HEAD_TEXT)
 PATTERN_CONSTRUCT_CONST(FunctionBinary, funcBinary, FUNCTION_BINARY)
 PATTERN_CONSTRUCT_CONST(FunctionScoped, funcScoped, FUNCTION_SCOPED)
 PATTERN_CONSTRUCT_CONST(FunctionStandard, funcStandard, FUNCTION_STANDARD)
+PATTERN_CONSTRUCT_CONST(FunctionText, funcText, FUNCTION_TEXT)
 PATTERN_CONSTRUCT_CONST(Namespace, nspace, NAMESPACE)
 Webss::Webss(const Enum& name, bool) : t(WebssType::ENUM), nspace(new Namespace(name)) {}
 PATTERN_CONSTRUCT_CONST(BlockHead, blockHead, BLOCK_HEAD)
@@ -92,6 +96,7 @@ Webss::Webss(FunctionHead##Type&& head, Webss&& body) \
 
 PatternConstructFunction(Binary, BINARY)
 PatternConstructFunction(Standard, STANDARD)
+PatternConstructFunction(Text, TEXT)
 
 Webss::Webss(Webss&& o) { copyUnion(move(o)); }
 Webss::Webss(const Webss& o) { copyUnion(o); }
@@ -125,6 +130,9 @@ void Webss::destroyUnion()
 	case WebssType::FUNCTION_HEAD_STANDARD:
 		delete fheadStandard;
 		break;
+	case WebssType::FUNCTION_HEAD_TEXT:
+		delete fheadText;
+		break;
 	case WebssType::FUNCTION_BINARY:
 		delete funcBinary;
 		break;
@@ -133,6 +141,9 @@ void Webss::destroyUnion()
 		break;
 	case WebssType::FUNCTION_STANDARD:
 		delete funcStandard;
+		break;
+	case WebssType::FUNCTION_TEXT:
+		delete funcText;
 		break;
 	case WebssType::NAMESPACE: case WebssType::ENUM:
 		delete nspace;
@@ -212,6 +223,9 @@ void Webss::copyUnion(Webss&& o)
 	case WebssType::FUNCTION_HEAD_STANDARD:
 		fheadStandard = o.fheadStandard;
 		break;
+	case WebssType::FUNCTION_HEAD_TEXT:
+		fheadText = o.fheadText;
+		break;
 	case WebssType::FUNCTION_BINARY:
 		funcBinary = o.funcBinary;
 		break;
@@ -220,6 +234,9 @@ void Webss::copyUnion(Webss&& o)
 		break;
 	case WebssType::FUNCTION_STANDARD:
 		funcStandard = o.funcStandard;
+		break;
+	case WebssType::FUNCTION_TEXT:
+		funcText = o.funcText;
 		break;
 	case WebssType::NAMESPACE: case WebssType::ENUM:
 		nspace = o.nspace;
@@ -283,6 +300,9 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::FUNCTION_HEAD_STANDARD:
 		fheadStandard = new FunctionHeadStandard(*o.fheadStandard);
 		break;
+	case WebssType::FUNCTION_HEAD_TEXT:
+		fheadText = new FunctionHeadText(*o.fheadText);
+		break;
 	case WebssType::FUNCTION_BINARY:
 		funcBinary = new FunctionBinary(*o.funcBinary);
 		break;
@@ -291,6 +311,9 @@ void Webss::copyUnion(const Webss& o)
 		break;
 	case WebssType::FUNCTION_STANDARD:
 		funcStandard = new FunctionStandard(*o.funcStandard);
+		break;
+	case WebssType::FUNCTION_TEXT:
+		funcText = new FunctionText(*o.funcText);
 		break;
 	case WebssType::NAMESPACE: case WebssType::ENUM:
 		nspace = new Namespace(*o.nspace);
@@ -329,6 +352,8 @@ const Webss& Webss::operator[](int index) const
 		return funcScoped->getValue()[index];
 	case WebssType::FUNCTION_STANDARD:
 		return (*funcStandard)[index];
+	case WebssType::FUNCTION_TEXT:
+		return (*funcText)[index];
 	case WebssType::BLOCK:
 		return block->getValue()[index];
 	case WebssType::ENTITY:
@@ -354,6 +379,8 @@ const Webss& Webss::operator[](const std::string& key) const
 		return funcScoped->getValue()[key];
 	case WebssType::FUNCTION_STANDARD:
 		return (*funcStandard)[key];
+	case WebssType::FUNCTION_TEXT:
+		return (*funcText)[key];
 	case WebssType::BLOCK:
 		return block->getValue()[key];
 	case WebssType::ENTITY:
@@ -379,6 +406,8 @@ const Webss& Webss::at(int index) const
 		return funcScoped->getValue().at(index);
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->at(index);
+	case WebssType::FUNCTION_TEXT:
+		return funcText->at(index);
 	case WebssType::BLOCK:
 		return block->getValue().at(index);
 	case WebssType::ENTITY:
@@ -404,6 +433,8 @@ const Webss& Webss::at(const std::string& key) const
 		return funcScoped->getValue().at(key);
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->at(key);
+	case WebssType::FUNCTION_TEXT:
+		return funcText->at(key);
 	case WebssType::BLOCK:
 		return block->getValue().at(key);
 	case WebssType::ENTITY:
@@ -450,6 +481,8 @@ WebssType Webss::getType() const
 		return funcScoped->getValue().getType();
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->getType();
+	case WebssType::FUNCTION_TEXT:
+		return funcText->getType();
 	case WebssType::BLOCK:
 		return block->getValue().getType();
 	default:
@@ -464,9 +497,11 @@ const Document& Webss::getDocument() const { PATTERN_GET_CONST(*document, getDoc
 const FunctionHeadBinary& Webss::getFunctionHeadBinary() const { PATTERN_GET_CONST(*fheadBinary, getFunctionHeadBinary(), WebssType::FUNCTION_HEAD_BINARY); }
 const FunctionHeadScoped& Webss::getFunctionHeadScoped() const { PATTERN_GET_CONST(*fheadScoped, getFunctionHeadScoped(), WebssType::FUNCTION_HEAD_SCOPED); }
 const FunctionHeadStandard& Webss::getFunctionHeadStandard() const { PATTERN_GET_CONST(*fheadStandard, getFunctionHeadStandard(), WebssType::FUNCTION_HEAD_STANDARD); }
+const FunctionHeadText& Webss::getFunctionHeadText() const { PATTERN_GET_CONST(*fheadText, getFunctionHeadText(), WebssType::FUNCTION_HEAD_TEXT); }
 const FunctionBinary& Webss::getFunctionBinary() const { PATTERN_GET_CONST(*funcBinary, getFunctionBinary(), WebssType::FUNCTION_BINARY); }
 const FunctionScoped& Webss::getFunctionScoped() const { PATTERN_GET_CONST(*funcScoped, getFunctionScoped(), WebssType::FUNCTION_SCOPED); }
 const FunctionStandard& Webss::getFunctionStandard() const { PATTERN_GET_CONST(*funcStandard, getFunctionStandard(), WebssType::FUNCTION_STANDARD); }
+const FunctionText& Webss::getFunctionText() const { PATTERN_GET_CONST(*funcText, getFunctionText(), WebssType::FUNCTION_TEXT); }
 const Enum& Webss::getEnum() const { PATTERN_GET_CONST(*nspace, getEnum(), WebssType::ENUM); }
 const BlockHead& Webss::getBlockHead() const { PATTERN_GET_CONST(*blockHead, getBlockHead(), WebssType::BLOCK_HEAD); }
 const Block& Webss::getBlock() const { PATTERN_GET_CONST(*block, getBlock(), WebssType::BLOCK); }
@@ -506,6 +541,8 @@ const Dictionary& Webss::getDictionary() const
 		return funcScoped->getValue().getDictionary();
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->getDictionary();
+	case WebssType::FUNCTION_TEXT:
+		return funcText->getDictionary();
 	case WebssType::BLOCK:
 		return block->getValue().getDictionary();
 	default:
@@ -531,6 +568,8 @@ const List& Webss::getList() const
 		return funcScoped->getValue().getList();
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->getList();
+	case WebssType::FUNCTION_TEXT:
+		return funcText->getList();
 	case WebssType::BLOCK:
 		return block->getValue().getList();
 	default:
@@ -556,6 +595,8 @@ const Tuple& Webss::getTuple() const
 		return funcScoped->getValue().getTuple();
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->getTuple();
+	case WebssType::FUNCTION_TEXT:
+		return funcText->getTuple();
 	case WebssType::BLOCK:
 		return block->getValue().getTuple();
 	default:
@@ -603,6 +644,7 @@ bool Webss::isDocument() const { PATTERN_IS(WebssType::DOCUMENT, isDocument()) }
 bool Webss::isFunctionHeadBinary() const { PATTERN_IS(WebssType::FUNCTION_HEAD_BINARY, isFunctionHeadBinary()) }
 bool Webss::isFunctionHeadScoped() const { PATTERN_IS(WebssType::FUNCTION_HEAD_SCOPED, isFunctionHeadScoped()) }
 bool Webss::isFunctionHeadStandard() const { PATTERN_IS(WebssType::FUNCTION_HEAD_STANDARD, isFunctionHeadStandard()) }
+bool Webss::isFunctionHeadText() const { PATTERN_IS(WebssType::FUNCTION_HEAD_TEXT, isFunctionHeadText()) }
 bool Webss::isEnum() const { PATTERN_IS(WebssType::ENUM, isEnum()) }
 bool Webss::isBlockHead() const { PATTERN_IS(WebssType::BLOCK_HEAD, isBlockHead()) }
 bool Webss::isBlock() const { PATTERN_IS(WebssType::BLOCK, isBlock()) }
@@ -623,6 +665,8 @@ bool Webss::isDictionary() const
 		return funcScoped->getValue().isDictionary();
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->isDictionary();
+	case WebssType::FUNCTION_TEXT:
+		return funcText->isDictionary();
 	case WebssType::BLOCK:
 		return block->getValue().isDictionary();
 	default:
@@ -645,6 +689,8 @@ bool Webss::isList() const
 		return funcScoped->getValue().isList();
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->isList();
+	case WebssType::FUNCTION_TEXT:
+		return funcText->isList();
 	case WebssType::BLOCK:
 		return block->getValue().isList();
 	default:
@@ -667,6 +713,8 @@ bool Webss::isTuple() const
 		return funcScoped->getValue().isTuple();
 	case WebssType::FUNCTION_STANDARD:
 		return funcStandard->isTuple();
+	case WebssType::FUNCTION_TEXT:
+		return funcText->isTuple();
 	case WebssType::BLOCK:
 		return block->getValue().isTuple();
 	default:
@@ -694,7 +742,7 @@ bool Webss::isConcrete() const
 	{
 	case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE: case WebssType::PRIMITIVE_STRING:
 	case WebssType::DICTIONARY: case WebssType::LIST: case WebssType::TUPLE:
-	case WebssType::FUNCTION_BINARY: case WebssType::FUNCTION_SCOPED: case WebssType::FUNCTION_STANDARD: case WebssType::BLOCK:
+	case WebssType::FUNCTION_BINARY: case WebssType::FUNCTION_SCOPED: case WebssType::FUNCTION_STANDARD: case WebssType::FUNCTION_TEXT: case WebssType::BLOCK:
 		return true;
 	case WebssType::ENTITY:
 		return ent.getContent().isConcrete();

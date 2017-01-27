@@ -5,18 +5,30 @@
 
 namespace webss
 {
-#define This ParamText
+#define This BasicParamText
+	template <class Webss>
 	class This
 	{
 	public:
 		This() {}
-		This(std::string&& s) : defaultValue(new std::string(std::move(s))) {}
+		This(Webss&& webss) : defaultValue(new Webss(std::move(webss)))
+		{
+			assert(webss.isString());
+		}
 
 		bool hasDefaultValue() const { return defaultValue.get() != nullptr; }
-		const std::string& getDefaultValue() const { return *defaultValue; }
-		const std::shared_ptr<std::string>& getDefaultPointer() const { return defaultValue; }
+		const Webss& getDefaultValue() const
+		{
+			assert(hasDefaultValue());
+			return *defaultValue;
+		}
+		const std::shared_ptr<Webss>& getDefaultPointer() const
+		{
+			assert(hasDefaultValue());
+			return defaultValue;
+		}
 	private:
-		std::shared_ptr<std::string> defaultValue;
+		std::shared_ptr<Webss> defaultValue;
 	};
 #undef This
 }

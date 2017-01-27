@@ -461,36 +461,31 @@ void Deserializer::putFuncStandardTuple(StringBuilder& out, const FunctionHeadSt
 	static const ConType::Enum CON = ConType::TUPLE;
 	assert(tuple.size() <= params.size() && "too many elements in function tuple");
 
-	if (params.isText())
-		putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it) { putString(out, it->getString(), CON); });
-	else
+	decltype(params.size()) i = 0;
+	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
 	{
-		decltype(params.size()) i = 0;
-		putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
+		const auto& param = params[i++];
+		if (!param.hasFunctionHead())
+			putWebss(out, *it, CON);
+		else
 		{
-			const auto& param = params[i++];
-			if (!param.hasFunctionHead())
-				putWebss(out, *it, CON);
-			else
+			const auto& params2 = param.getFunctionHeadStandard().getParameters();
+			switch (it->getType())
 			{
-				const auto& params2 = param.getFunctionHeadStandard().getParameters();
-				switch (it->getType())
-				{
-				case WebssType::DICTIONARY:
-					putFuncStandardDictionary(out, params2, it->getDictionary());
-					break;
-				case WebssType::LIST:
-					putFuncStandardList(out, params2, it->getList());
-					break;
-				case WebssType::TUPLE:
-					putFuncStandardTuple(out, params2, it->getTuple());
-					break;
-				default:
-					assert(false && "function body must be dictionary, list or tuple");
-				}
+			case WebssType::DICTIONARY:
+				putFuncStandardDictionary(out, params2, it->getDictionary());
+				break;
+			case WebssType::LIST:
+				putFuncStandardList(out, params2, it->getList());
+				break;
+			case WebssType::TUPLE:
+				putFuncStandardTuple(out, params2, it->getTuple());
+				break;
+			default:
+				assert(false && "function body must be dictionary, list or tuple");
 			}
-		});
-	}
+		}
+	});
 }
 
 void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& fhead)
@@ -601,13 +596,7 @@ void Deserializer::putFheadStandard(StringBuilder& out, const FunctionHeadStanda
 	else
 	{
 		assert(!fhead.empty() && "standard function head can't be empty");
-		if (fhead.getParameters().isText())
-		{
-			out += ASSIGN_CONTAINER_STRING;
-			putParamsStandard(out, fhead, [&](FUNC_PARAMS_STANDARD) { putParamText(out, key, value); });
-		}
-		else
-			putParamsStandard(out, fhead, [&](FUNC_PARAMS_STANDARD) { putParamStandard(out, key, value); });
+		putParamsStandard(out, fhead, [&](FUNC_PARAMS_STANDARD) { putParamStandard(out, key, value); });
 	}
 }
 #undef FUNC_PARAMS_STANDARD

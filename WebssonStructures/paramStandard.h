@@ -19,7 +19,7 @@ namespace webss
 		using FheadBinary = BasicFunctionHead<BasicParamBinary<Webss>>;
 		using FheadScoped = BasicFunctionHeadScoped<Webss>;
 		using FheadStandard = BasicFunctionHead<This<Webss>>;
-		using FheadText = BasicFunctionHead<ParamText>;
+		using FheadText = BasicFunctionHead<BasicParamText<Webss>>;
 
 		WebssType typeFhead = WebssType::NONE;
 		union
@@ -33,8 +33,7 @@ namespace webss
 		std::shared_ptr<Webss> defaultValue;
 	public:
 		This() {}
-
-		This(Webss&& webss) : typeFhead(WebssType::NONE), defaultValue(new Webss(std::move(webss))) {}
+		This(Webss&& webss) : defaultValue(new Webss(std::move(webss))) {}
 		~This() { destroyUnion(); }
 
 		This(This&& o) { copyUnion(std::move(o)); }
@@ -59,36 +58,76 @@ namespace webss
 		bool hasDefaultValue() const { return defaultValue.get() != nullptr; }
 		bool hasFunctionHead() const { return typeFhead != WebssType::NONE; }
 
-		const Webss& getDefaultValue() const { return *defaultValue; }
-		const std::shared_ptr<Webss>& getDefaultPointer() const { return defaultValue; }
+		const Webss& getDefaultValue() const
+		{
+			assert(hasDefaultValue());
+			return *defaultValue;
+		}
+		const std::shared_ptr<Webss>& getDefaultPointer() const
+		{
+			assert(hasDefaultValue());
+			return defaultValue;
+		}
 
-		WebssType getTypeFhead() const { return typeFhead; }
+		WebssType getTypeFhead() const
+		{
+			assert(hasFunctionHead());
+			return typeFhead;
+		}
 
-		const FheadBinary& getFunctionHeadBinary() const { return *fheadBin; }
-		const FheadScoped& getFunctionHeadScoped() const { return *fheadScoped; }
-		const FheadStandard& getFunctionHeadStandard() const { return *fheadStd; }
+		const FheadBinary& getFunctionHeadBinary() const
+		{
+			assert(typeFhead == WebssType::FUNCTION_HEAD_BINARY);
+			return *fheadBin;
+		}
+		const FheadScoped& getFunctionHeadScoped() const
+		{
+			assert(typeFhead == WebssType::FUNCTION_HEAD_SCOPED);
+			return *fheadScoped; 
+		}
+		const FheadStandard& getFunctionHeadStandard() const
+		{
+			assert(typeFhead == WebssType::FUNCTION_HEAD_STANDARD); 
+			return *fheadStd;
+		}
+		const FheadText& getFunctionHeadText() const
+		{
+			assert(typeFhead == WebssType::FUNCTION_HEAD_TEXT);
+			return *fheadText; 
+		}
 
 		void removeFunctionHead() { destroyUnion(); }
 		void setFunctionHead(FheadBinary&& o)
 		{
+			assert(!hasFunctionHead());
 			fheadBin = new FheadBinary(std::move(o));
 			typeFhead = WebssType::FUNCTION_HEAD_BINARY;
 		}
 		void setFunctionHead(FheadScoped&& o)
 		{
+			assert(!hasFunctionHead());
 			fheadScoped = new FheadScoped(std::move(o));
 			typeFhead = WebssType::FUNCTION_HEAD_SCOPED;
 		}
 		void setFunctionHead(FheadStandard&& o)
 		{
+			assert(!hasFunctionHead());
 			fheadStd = new FheadStandard(std::move(o));
 			typeFhead = WebssType::FUNCTION_HEAD_STANDARD;
+		}
+		void setFunctionHead(FheadText&& o)
+		{
+			assert(!hasFunctionHead());
+			fheadText = new FheadText(std::move(o));
+			typeFhead = WebssType::FUNCTION_HEAD_TEXT;
 		}
 	private:
 		void destroyUnion()
 		{
 			switch (typeFhead)
 			{
+			case WebssType::NONE:
+				break;
 			case WebssType::FUNCTION_HEAD_BINARY:
 				delete fheadBin;
 				break;
@@ -98,8 +137,12 @@ namespace webss
 			case WebssType::FUNCTION_HEAD_STANDARD:
 				delete fheadStd;
 				break;
-			default:
+			case WebssType::FUNCTION_HEAD_TEXT:
+				delete fheadText;
 				break;
+			default:
+				assert(false);
+				throw std::logic_error("");
 			}
 			typeFhead = WebssType::NONE;
 		}
@@ -108,6 +151,8 @@ namespace webss
 		{
 			switch (o.typeFhead)
 			{
+			case WebssType::NONE:
+				break;
 			case WebssType::FUNCTION_HEAD_BINARY:
 				fheadBin = o.fheadBin;
 				break;
@@ -117,8 +162,12 @@ namespace webss
 			case WebssType::FUNCTION_HEAD_STANDARD:
 				fheadStd = o.fheadStd;
 				break;
-			default:
+			case WebssType::FUNCTION_HEAD_TEXT:
+				fheadText = o.fheadText;
 				break;
+			default:
+				assert(false);
+				throw std::logic_error("");
 			}
 			typeFhead = o.typeFhead;
 			o.typeFhead = WebssType::NONE;
@@ -128,6 +177,8 @@ namespace webss
 		{
 			switch (o.typeFhead)
 			{
+			case WebssType::NONE:
+				break;
 			case WebssType::FUNCTION_HEAD_BINARY:
 				fheadBin = new FheadBinary(*o.fheadBin);
 				break;
@@ -137,8 +188,12 @@ namespace webss
 			case WebssType::FUNCTION_HEAD_STANDARD:
 				fheadStd = new FheadStandard(*o.fheadStd);
 				break;
-			default:
+			case WebssType::FUNCTION_HEAD_TEXT:
+				fheadText = new FheadText(*o.fheadText);
 				break;
+			default:
+				assert(false);
+				throw std::logic_error("");
 			}
 			typeFhead = o.typeFhead;
 			defaultValue = o.defaultValue;

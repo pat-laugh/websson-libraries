@@ -18,20 +18,23 @@ namespace webss
 	using List = BasicList<Webss>;
 	using Tuple = BasicTuple<Webss>;
 	using ParamBinary = BasicParamBinary<Webss>;
+	using ParamScoped = BasicParamScoped<Webss>;
 	using ParamStandard = BasicParamStandard<Webss>;
+	using ParamText = BasicParamText<Webss>;
 	using FunctionHeadBinary = BasicFunctionHead<ParamBinary>;
 	using FunctionHeadScoped = BasicFunctionHeadScoped<Webss>;
 	using FunctionHeadStandard = BasicFunctionHead<ParamStandard>;
+	using FunctionHeadText = BasicFunctionHead<ParamText>;
 	using FunctionBinary = BasicFunction<FunctionHeadBinary, Webss>;
 	using FunctionScoped = BasicFunctionScoped<Webss>;
 	using FunctionStandard = BasicFunction<FunctionHeadStandard, Webss>;
+	using FunctionText = BasicFunction<FunctionHeadText, Webss>;
 	using Entity = BasicEntity<Webss>;
 	using Namespace = BasicNamespace<Webss>;
 	using Enum = Namespace;
 	using BlockHead = BasicBlockHead<Webss>;
 	using Block = BasicBlock<Webss>;
 	using Default = std::shared_ptr<Webss>;
-	using ParamScoped = BasicParamScoped<Webss>;
 
 	using ParamDocument = BasicParamDocument<Webss>;
 	using DocumentHead = BasicDocumentHead<Webss>;
@@ -63,9 +66,11 @@ namespace webss
 		Webss(FunctionHeadBinary&& fheadBinary);
 		Webss(FunctionHeadScoped&& fheadScoped);
 		Webss(FunctionHeadStandard&& fheadStandard);
+		Webss(FunctionHeadText&& fheadText);
 		Webss(FunctionBinary&& funcBinary);
 		Webss(FunctionScoped&& funcScoped);
 		Webss(FunctionStandard&& funcStandard);
+		Webss(FunctionText&& funcText);
 		Webss(Namespace&& nspace);
 		Webss(Enum&& tEnum, bool dummy);
 		Webss(BlockHead&& blockHead);
@@ -79,9 +84,11 @@ namespace webss
 		Webss(const FunctionHeadBinary& fheadBinary);
 		Webss(const FunctionHeadScoped& fheadScoped);
 		Webss(const FunctionHeadStandard& fheadStandard);
+		Webss(const FunctionHeadText& fheadText);
 		Webss(const FunctionBinary& funcBinary);
 		Webss(const FunctionScoped& funcScoped);
 		Webss(const FunctionStandard& funcStandard);
+		Webss(const FunctionText& funcText);
 		Webss(const Namespace& nspace);
 		Webss(const Enum& tEnum, bool dummy);
 		Webss(const BlockHead& blockHead);
@@ -89,6 +96,7 @@ namespace webss
 
 		Webss(FunctionHeadBinary&& head, Webss&& body);
 		Webss(FunctionHeadStandard&& head, Webss&& body);
+		Webss(FunctionHeadText&& head, Webss&& body);
 
 		Webss(const BasicEntity<Webss>& ent) : t(WebssType::ENTITY), ent(ent) {}
 		Webss(const Default& tDefault) : t(WebssType::DEFAULT), tDefault(tDefault) {}
@@ -118,9 +126,11 @@ namespace webss
 		const FunctionHeadBinary& getFunctionHeadBinary() const;
 		const FunctionHeadScoped& getFunctionHeadScoped() const;
 		const FunctionHeadStandard& getFunctionHeadStandard() const;
+		const FunctionHeadText& getFunctionHeadText() const;
 		const FunctionBinary& getFunctionBinary() const;
 		const FunctionScoped& getFunctionScoped() const;
 		const FunctionStandard& getFunctionStandard() const;
+		const FunctionText& getFunctionText() const;
 		const Namespace& getNamespace() const;
 		const Enum& getEnum() const;
 		const BlockHead& getBlockHead() const;
@@ -139,6 +149,7 @@ namespace webss
 		bool isFunctionHeadBinary() const;
 		bool isFunctionHeadScoped() const;
 		bool isFunctionHeadStandard() const;
+		bool isFunctionHeadText() const;
 		bool isNamespace() const;
 		bool isEnum() const;
 		bool isBlockHead() const;
@@ -160,9 +171,11 @@ namespace webss
 			FunctionHeadBinary* fheadBinary;
 			FunctionHeadScoped* fheadScoped;
 			FunctionHeadStandard* fheadStandard;
+			FunctionHeadText* fheadText;
 			FunctionBinary* funcBinary;
 			FunctionScoped* funcScoped;
 			FunctionStandard* funcStandard;
+			FunctionText* funcText;
 			Namespace* nspace;
 			BlockHead* blockHead;
 			Block* block;

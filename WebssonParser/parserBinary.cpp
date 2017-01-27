@@ -8,6 +8,9 @@
 using namespace std;
 using namespace webss;
 
+const char ERROR_BINARY_SIZE_HEAD[] = "size of binary head must be a positive integer, binary function head or equivalent entity";
+const char ERROR_BINARY_SIZE_LIST[] = "size of binary list must be a positive integer or equivalent entity";
+
 Webss parseBinary(It& it, const ParamBinary& bhead);
 void parseBitList(It& it, List& list, WebssBinarySize length);
 Webss parseBinary(It& it, const ParamBinary& bhead, function<Webss()> func);

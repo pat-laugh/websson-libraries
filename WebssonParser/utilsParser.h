@@ -6,11 +6,17 @@
 
 namespace webss
 {
-	//parserFunctions
-	void setDefaultValue(Tuple& tuple, const FunctionHeadStandard::Parameters& params, FunctionHeadStandard::Parameters::size_type index);
-	//parserFunctions
-	Tuple makeDefaultTuple(const FunctionHeadStandard::Parameters& params);
+	const char ERROR_NO_DEFAULT[] = "no default value, so value must be implemented";
 
-	//parsers
-	const Namespace& checkIsNamespace(const BasicEntity<Webss>& ent);
+	void setDefaultValue(Webss& value, const ParamStandard& defaultValue);
+	void setDefaultValue(Webss& value, const ParamText& defaultValue);
+
+	template <class Parameters>
+	Tuple makeDefaultTuple(const Parameters& params)
+	{
+		Tuple tuple(params.getSharedKeys());
+		for (Tuple::size_type i = 0; i < params.size(); ++i)
+			setDefaultValue(tuple[i], params[i]);
+		return tuple;
+	}
 }

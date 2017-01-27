@@ -92,6 +92,8 @@ namespace webss
 	protected:
 		std::shared_ptr<Keymap> keys;
 		Data data;
+
+		This(const Keymap& keymap, const Data& data) : keys(new Keymap(keymap)), data(data) {}
 	};
 #undef This
 }

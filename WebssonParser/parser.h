@@ -121,16 +121,16 @@ namespace webss
 		void parseStandardParameterFunctionHeadText(It& it, FunctionHeadStandard& fhead);
 		void parseOtherValuesFheadStandardParam(It& it, FunctionHeadStandard& fhead);
 		void parseOtherValuesFheadStandard(It& it, FunctionHeadStandard& fhead);
-		void parseOtherValuesFheadText(It& it, FunctionHeadStandard& fhead);
+		void parseOtherValuesFheadText(It& it, FunctionHeadText& fhead);
 		void parseOtherValuesFheadBinary(It& it, FunctionHeadBinary& fhead);
-		FunctionHeadStandard parseFunctionHeadText(It& it);
+		FunctionHeadText parseFunctionHeadText(It& it);
 
 		Webss parseFunction(It& it, ConType con);
 		Webss parseFunctionText(It& it);
 		Webss parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Parameters& params);
 		Webss parseFunctionBodyScoped(It& it, const FunctionHeadScoped::Parameters& params, ConType con);
 		Webss parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Parameters& params);
-		Webss parseFunctionBodyText(It& it, const FunctionHeadStandard::Parameters& params);
+		Webss parseFunctionBodyText(It& it, const FunctionHeadText::Parameters& params);
 
 		//parserBinary.cpp
 		void parseBinaryHead(It& it, FunctionHeadBinary& fhead);

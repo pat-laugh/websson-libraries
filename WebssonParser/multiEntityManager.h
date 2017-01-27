@@ -15,12 +15,14 @@ namespace webss
 		using EntityFheadBinary = BasicEntity<FunctionHeadBinary>;
 		using EntityFheadScoped = BasicEntity<FunctionHeadScoped>;
 		using EntityFheadStandard = BasicEntity<FunctionHeadStandard>;
+		using EntityFheadText = BasicEntity<FunctionHeadText>;
 
 		BasicEntityManager<Webss> entsWebss;
 		BasicEntityManager<BlockHead> entsBlockHead;
 		BasicEntityManager<FunctionHeadBinary> entsFheadBinary;
 		BasicEntityManager<FunctionHeadScoped> entsFheadScoped;
 		BasicEntityManager<FunctionHeadStandard> entsFheadStandard;
+		BasicEntityManager<FunctionHeadText> entsFheadText;
 	public:
 		MultiEntityManager() {}
 		~MultiEntityManager() { clearAll(); }
@@ -32,6 +34,7 @@ namespace webss
 			entsFheadBinary.clearAll();
 			entsFheadScoped.clearAll();
 			entsFheadStandard.clearAll();
+			entsFheadText.clearAll();
 		}
 
 		void clearLocals()
@@ -41,6 +44,7 @@ namespace webss
 			entsFheadBinary.clearLocals();
 			entsFheadScoped.clearLocals();
 			entsFheadStandard.clearLocals();
+			entsFheadText.clearLocals();
 		}
 
 		void addGlobal(std::string name, Webss content)
@@ -68,6 +72,9 @@ namespace webss
 				break;
 			case WebssType::FUNCTION_HEAD_STANDARD:
 				entsFheadStandard.addGlobal(name, content.getFunctionHeadStandard());
+				break;
+			case WebssType::FUNCTION_HEAD_TEXT:
+				entsFheadText.addGlobal(name, content.getFunctionHeadText());
 				break;
 			default:
 				break;
@@ -109,6 +116,9 @@ namespace webss
 			case WebssType::FUNCTION_HEAD_STANDARD:
 				entsFheadStandard.addLocal(name, content.getFunctionHeadStandard());
 				break;
+			case WebssType::FUNCTION_HEAD_TEXT:
+				entsFheadText.addLocal(name, content.getFunctionHeadText());
+				break;
 			default:
 				break;
 			}
@@ -131,12 +141,14 @@ namespace webss
 		const EntityFheadBinary& getFheadBinary(const std::string& name) { return entsFheadBinary[name]; }
 		const EntityFheadScoped& getFheadScoped(const std::string& name) { return entsFheadScoped[name]; }
 		const EntityFheadStandard& getFheadStandard(const std::string& name) { return entsFheadStandard[name]; }
+		const EntityFheadText& getFheadText(const std::string& name) { return entsFheadText[name]; }
 
 		const EntityWebss& getWebssSafe(const std::string& name) { return entsWebss.at(name); }
 		const EntityBlockHead& getBlockHeadSafe(const std::string& name) { return entsBlockHead.at(name); }
 		const EntityFheadBinary& getFheadBinarySafe(const std::string& name) { return entsFheadBinary.at(name); }
 		const EntityFheadScoped& getFheadScopedSafe(const std::string& name) { return entsFheadScoped.at(name); }
 		const EntityFheadStandard& getFheadStandardSafe(const std::string& name) { return entsFheadStandard.at(name); }
+		const EntityFheadText& getFheadTextSafe(const std::string& name) { return entsFheadText.at(name); }
 
 		void removeGlobal(const std::string& name)
 		{
@@ -153,6 +165,9 @@ namespace webss
 				break;
 			case WebssType::FUNCTION_HEAD_STANDARD:
 				entsFheadStandard.removeGlobal(name);
+				break;
+			case WebssType::FUNCTION_HEAD_TEXT:
+				entsFheadText.removeGlobal(name);
 				break;
 			default:
 				break;
@@ -176,13 +191,16 @@ namespace webss
 			case WebssType::FUNCTION_HEAD_STANDARD:
 				entsFheadStandard.removeLocal(name);
 				break;
+			case WebssType::FUNCTION_HEAD_TEXT:
+				entsFheadText.removeLocal(name);
+				break;
 			default:
 				break;
 			}
 
 			entsWebss.removeLocal(name);
 		}
-
+		
 		void removeGlobal(const Entity& ent)
 		{
 			removeGlobal(ent.getName());

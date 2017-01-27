@@ -259,7 +259,7 @@ ScopedDocument Parser::parseScopedDocument(It& it)
 	DocumentHead body;
 	if (!checkEmptyContainer(++it, CON))
 	{
-		ParamDocumentIncluder includer(static_cast<vector<ParamDocument>>(head.getParameters()));
+//		ParamDocumentIncluder includer(static_cast<vector<ParamDocument>>(head.getParameters()));
 		if (!parseDocumentHead(it, body, CON, Namespace::getEmptyInstance()))
 			throw runtime_error(ERROR_UNEXPECTED);
 	}
