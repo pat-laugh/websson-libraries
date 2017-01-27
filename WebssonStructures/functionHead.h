@@ -2,10 +2,8 @@
 //Copyright(c) 2016 Patrick Laughrea
 #pragma once
 
-#include "base.h"
-#include "tuple.h"
 #include "entity.h"
-#include <cassert>
+#include "parameters.h"
 
 namespace webss
 {
@@ -13,17 +11,16 @@ namespace webss
 	class BasicFunctionHead
 	{
 	public:
-		using Tuple = BasicTuple<Parameter>;
-		using Pointer = std::shared_ptr<Tuple>;
+		using Parameters = BasicParameters<Parameter>;
+		using Pointer = std::shared_ptr<BasicFunctionHead>;
 		using Entity = BasicEntity<BasicFunctionHead>;
-		using size_type = typename Tuple::size_type;
+		using size_type = typename Parameters::size_type;
 
-		BasicFunctionHead() : t(Type::TUPLE), tuple(new Tuple()) {}
-		explicit BasicFunctionHead(bool containerText) : t(Type::TUPLE), tuple(new Tuple(containerText)) {}
-		BasicFunctionHead(const Entity& ent) : t(Type::VAR), ent(ent) {}
-		BasicFunctionHead(Tuple&& tuple) : t(Type::TUPLE), tuple(new Tuple(std::move(tuple))) {}
-		BasicFunctionHead(const Tuple& tuple) : t(Type::TUPLE), tuple(new Tuple(tuple)) {}
+		BasicFunctionHead() {}
+		BasicFunctionHead(Parameters&& params) : t(Type::PARAMS), params(new Parameters(std::move(params))) {}
+		BasicFunctionHead(const Parameters& params) : BasicFunctionHead(Parameters(params)) {}
 		BasicFunctionHead(const Pointer& pointer) : t(Type::POINTER), pointer(pointer) {}
+		BasicFunctionHead(const Entity& ent) : t(Type::ENTITY), ent(ent) {}
 		~BasicFunctionHead() { destroyUnion(); }
 
 		BasicFunctionHead(BasicFunctionHead&& o) { copyUnion(std::move(o)); }
@@ -45,31 +42,50 @@ namespace webss
 			return *this;
 		}
 
-		bool hasEntity() const { return t == Type::VAR; }
+		bool hasEntity() const { return t == Type::ENTITY; }
 		bool empty() const { return getParameters().empty(); }
-		bool isText() const { return getParameters().containerText; }
-		typename size_type size() const { return getParameters().size(); }
+		size_type size() const { return getParameters().size(); }
 
-		Parameter& back() { return const_cast<Parameter&>(getParameters().back()); }
-		const Parameter& back() const { return getParameters().back(); }
-
-		const Tuple& getParameters() const
+		Parameter& back()
 		{
 			switch (t)
 			{
-			case Type::TUPLE:
-				return *tuple;
-			case Type::POINTER:
-				return *pointer;
-			case Type::VAR:
-				return ent.getContent().getParameters();
-			default:
+			case Type::NONE:
+				assert(false);
 				throw std::logic_error("");
+			case Type::PARAMS:
+				break;
+			case Type::POINTER:
+				removePointer();
+				break;
+			case Type::ENTITY:
+				removeEntity();
+				break;
+			}
+
+			return params->back();
+		}
+		const Parameter& back() const { return getParameters().back(); }
+
+		const Parameters& getParameters() const
+		{
+			switch (t)
+			{
+			case Type::NONE:
+				assert(false);
+				throw std::logic_error("");
+			case Type::PARAMS:
+				return *params;
+			case Type::POINTER:
+				return pointer->getParameters();
+			case Type::ENTITY:
+				return ent.getContent().getParameters();
 			}
 		}
 
 		const Entity& getEntity() const
 		{
+			assert(hasEntity());
 			return ent;
 		}
 
@@ -82,122 +98,116 @@ namespace webss
 		{
 			switch (t)
 			{
-			case Type::VAR:
+			case Type::NONE:
+				params = new Parameters();
+				t = Type::PARAMS;
+			case Type::PARAMS:
+				break;
+			case Type::ENTITY:
 				removeEntity();
 				break;
 			case Type::POINTER:
 				removePointer();
 				break;
-			case Type::NONE:
-				tuple = new Tuple();
-				t = Type::TUPLE;
-				break;
-			default:
-				break;
 			}
 
-			tuple->addSafe(std::move(key), std::move(value));
+			params->addSafe(std::move(key), std::move(value));
 		}
 
 		void attach(const Entity& ent2)
 		{
-			assert(!ent2.getContent().empty()); //not problematic, but a function head shouldn't be empty anyway
+			if (ent2.getContent().empty())
+				return;
 
 			switch (t)
 			{
-			case Type::VAR:
-				removeEntity();
+			case Type::NONE:
+				new (&ent) Entity(ent2);
+				t = Type::ENTITY;
+				return;
+			case Type::PARAMS:
 				break;
 			case Type::POINTER:
 				removePointer();
 				break;
-			case Type::TUPLE:
-				if (!tuple->empty())
-					break;
-				delete tuple;
-				t = Type::NONE;
-			case Type::NONE:
-				new (&ent) Entity(ent2);
-				t = Type::VAR;
-				return;
-			default:
+			case Type::ENTITY:
+				removeEntity();
 				break;
 			}
 
-			tuple->merge(ent2.getContent().getParameters());
+			params->merge(ent2.getContent().getParameters());
 		}
 
 		void attach(const BasicFunctionHead& value)
 		{
-			assert(!value.empty()); //not problematic, but a function head shouldn't be empty anyway
+			if (value.empty())
+				return;
 
 			const auto& valueTuple = value.getParameters();
 			switch (t)
 			{
-			case Type::VAR:
-				removeEntity();
-				break;
+			case Type::NONE:
+				setParameters(valueTuple.makeCompleteCopy());
+				return;
+			case Type::PARAMS:
+				if (!params->empty())
+					break;
+				*params = valueTuple.makeCompleteCopy();
+				return;
 			case Type::POINTER:
 				removePointer();
 				break;
-			case Type::TUPLE:
-				if (!tuple->empty())
-					break;
-				*tuple = valueTuple.makeCompleteCopy();
-				return;
-			case Type::NONE:
-				setTuple(valueTuple.makeCompleteCopy());
-				return;
-			default:
+			case Type::ENTITY:
+				removeEntity();
 				break;
 			}
 
-			tuple->merge(valueTuple);
+			params->merge(valueTuple);
 		}
 	private:
-		enum class Type { NONE, TUPLE, POINTER, VAR };
+		enum class Type { NONE, PARAMS, POINTER, ENTITY };
 
 		Type t = Type::NONE;
 		union
 		{
-			Tuple* tuple;
+			Parameters* params;
 			Pointer pointer;
 			Entity ent;
 		};
 
 		void removeEntity()
 		{
-			auto newTuple = ent.getContent().getParameters().makeCompleteCopy();
+			auto newParameters = ent.getContent().getParameters().makeCompleteCopy();
 			ent.~BasicEntity();
 			t = Type::NONE;
-			setTuple(std::move(newTuple));
+			setParameters(std::move(newParameters));
 		}
 
 		void removePointer()
 		{
-			auto newTuple = pointer->makeCompleteCopy();
+			auto newParameters = pointer->getParameters().makeCompleteCopy();
 			pointer.~shared_ptr();
 			t = Type::NONE;
-			setTuple(std::move(newTuple));
+			setParameters(std::move(newParameters));
 		}
 
-		void setTuple(Tuple&& newTuple)
+		void setParameters(Parameters&& newParameters)
 		{
-			tuple = new Tuple(std::move(newTuple));
-			t = Type::TUPLE;
+			params = new Parameters(std::move(newParameters));
+			t = Type::PARAMS;
 		}
 
 		void destroyUnion()
 		{
 			switch (t)
 			{
-			case Type::TUPLE:
-				delete tuple;
+			case Type::PARAMS:
+				delete params;
 				break;
 			case Type::POINTER:
 				pointer.~shared_ptr();
 				break;
-			case Type::VAR:
+			case Type::ENTITY:
 				ent.~BasicEntity();
 				break;
 			default:
@@ -210,14 +220,14 @@ namespace webss
 		{
 			switch (o.t)
 			{
-			case Type::TUPLE:
-				tuple = o.tuple;
+			case Type::PARAMS:
+				params = o.params;
 				break;
 			case Type::POINTER:
 				new (&pointer) Pointer(std::move(o.pointer));
 				o.pointer.~shared_ptr();
 				break;
-			case Type::VAR:
+			case Type::ENTITY:
 				new (&ent) Entity(std::move(o.ent));
 				o.ent.~BasicEntity();
 				break;
@@ -231,13 +241,13 @@ namespace webss
 		{
 			switch (o.t)
 			{
-			case Type::TUPLE:
-				tuple = new Tuple(*o.tuple);
+			case Type::PARAMS:
+				params = new Parameters(*o.params);
 				break;
 			case Type::POINTER:
 				new (&pointer) Pointer(o.pointer);
 				break;
-			case Type::VAR:
+			case Type::ENTITY:
 				new (&ent) Entity(o.ent);
 				break;
 			default:
