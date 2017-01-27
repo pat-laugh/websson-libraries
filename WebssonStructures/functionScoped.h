@@ -140,14 +140,14 @@ namespace webss
 		Webss value;
 	public:
 		using Head = BasicFunctionHeadScoped<Webss>;
-		using HeadTuple = typename Head::Tuple;
+		using HeadParameters = typename Head::Parameters;
 		using HeadPointer = typename Head::Pointer;
 		using HeadEntity = typename Head::Entity;
 
 		This(Head&& head, Webss&& value) : Head(std::move(head)), value(std::move(value)) {}
 		This(const Head& head, const Webss& value) : Head(head), value(value) {}
-		This(HeadTuple&& head, Webss&& value) : Head(std::move(head)), value(std::move(value)) {}
-		This(const HeadTuple& head, const Webss& value) : Head(head), value(value) {}
+		This(HeadParameters&& head, Webss&& value) : Head(std::move(head)), value(std::move(value)) {}
+		This(const HeadParameters& head, const Webss& value) : Head(head), value(value) {}
 		This(const HeadPointer& head, Webss&& value) : Head(head), value(std::move(value)) {}
 		This(const HeadPointer& head, const Webss& value) : Head(head), value(value) {}
 		This(const HeadEntity& head, Webss&& value) : Head(head), value(std::move(value)) {}

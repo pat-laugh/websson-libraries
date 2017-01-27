@@ -21,12 +21,12 @@ void setDefaultValue(Webss& value, const ParamStandard& defaultValue)
 		value = Webss(defaultValue.getDefaultPointer());
 }
 
-void webss::setDefaultValue(Tuple& tuple, const FunctionHeadStandard::Tuple& params, Tuple::size_type index)
+void webss::setDefaultValue(Tuple& tuple, const FunctionHeadStandard::Parameters& params, Tuple::size_type index)
 {
 	::setDefaultValue(tuple[index], params[index]);
 }
 
-Tuple webss::makeDefaultTuple(const FunctionHeadStandard::Tuple& params)
+Tuple webss::makeDefaultTuple(const FunctionHeadStandard::Parameters& params)
 {
 	Tuple tuple(params.getSharedKeys(), params.isText());
 	for (Tuple::size_type i = 0; i < params.size(); ++i)

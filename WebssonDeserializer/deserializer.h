@@ -79,9 +79,9 @@ namespace webss
 		void putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con);
 		void putFuncStandard(StringBuilder& out, const FunctionStandard& func);
 
-		void putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Tuple & params, const Dictionary & dict);
-		void putFuncStandardList(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const List& list);
-		void putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Tuple& tuple);
+		void putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Parameters & params, const Dictionary & dict);
+		void putFuncStandardList(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const List& list);
+		void putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const Tuple& tuple);
 
 		void putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead);
 		void putFheadScoped(StringBuilder & out, const FunctionHeadScoped & fhead);
@@ -93,15 +93,15 @@ namespace webss
 		void putParamText(StringBuilder& out, FUNC_PARAMS_STANDARD);
 #undef FUNC_PARAMS_STANDARD
 
-		void putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Dictionary& dict);
-		void putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const List& list);
-		void putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Tuple& tuple);
+		void putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Dictionary& dict);
+		void putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const List& list);
+		void putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& tuple);
 
 #define FUNC_PARAMS_BINARY const std::string& key, const ParamBinary& value
 		void putParamBinary(StringBuilder& out, FUNC_PARAMS_BINARY);
 		void putParamsBinary(StringBuilder& out, const FunctionHeadBinary& fhead, std::function<void(FUNC_PARAMS_BINARY)> func);
 #undef FUNC_PARAMS_BINARY
-		void putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Tuple& data);
+		void putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& data);
 		void putBinary(StringBuilder& out, const ParamBinary& bhead, const Webss& data);
 		void putBinary(StringBuilder& out, const ParamBinary& bhead, const Webss& data, std::function<void(const Webss& webss)> func);
 		void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss);

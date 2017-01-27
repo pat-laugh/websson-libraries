@@ -90,7 +90,7 @@ FunctionHeadBinary Parser::parseFunctionHeadBinary(It& it, FunctionHeadBinary&& 
 
 FunctionHeadScoped Parser::parseFunctionHeadScoped(It& it, FunctionHeadScoped&& fhead)
 {
-	auto& docHead = static_cast<vector<ParamDocument>>(*const_cast<FunctionHeadScoped::Tuple*>(&fhead.getParameters()));
+	auto& docHead = static_cast<vector<ParamDocument>>(*const_cast<FunctionHeadScoped::Parameters*>(&fhead.getParameters()));
 	do
 	{
 		switch (*it)

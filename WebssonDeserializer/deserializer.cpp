@@ -430,7 +430,7 @@ void Deserializer::putEntityDeclaration(StringBuilder& out, const Entity& ent, C
 	putKeyValue(out, "", content, con);
 }
 
-void Deserializer::putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Dictionary& dict)
+void Deserializer::putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const Dictionary& dict)
 {
 	static const ConType::Enum CON = ConType::DICTIONARY;
 	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it)
@@ -446,7 +446,7 @@ void Deserializer::putFuncStandardDictionary(StringBuilder& out, const FunctionH
 	});
 }
 
-void Deserializer::putFuncStandardList(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const List& list)
+void Deserializer::putFuncStandardList(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const List& list)
 {
 	static const ConType::Enum CON = ConType::LIST;
 	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
@@ -456,7 +456,7 @@ void Deserializer::putFuncStandardList(StringBuilder& out, const FunctionHeadSta
 	});
 }
 
-void Deserializer::putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard::Tuple& params, const Tuple& tuple)
+void Deserializer::putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	static const ConType::Enum CON = ConType::TUPLE;
 	assert(tuple.size() <= params.size() && "too many elements in function tuple");
@@ -558,7 +558,7 @@ void Deserializer::putParamsBinary(StringBuilder& out, const FunctionHeadBinary&
 
 #undef FUNC_PARAMS_BINARY
 
-void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Dictionary& dict)
+void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Dictionary& dict)
 {
 	static const ConType::Enum CON = ConType::DICTIONARY;
 	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it)
@@ -574,7 +574,7 @@ void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const FunctionHea
 	});
 }
 
-void Deserializer::putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const List& list)
+void Deserializer::putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const List& list)
 {
 	static const ConType::Enum CON = ConType::LIST;
 	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
@@ -584,7 +584,7 @@ void Deserializer::putFuncBinaryList(StringBuilder& out, const FunctionHeadBinar
 	});
 }
 
-void Deserializer::putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Tuple& tuple)
+void Deserializer::putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& tuple)
 {
 	out += OPEN_TUPLE;
 	putFuncBodyBinary(out, params, tuple);

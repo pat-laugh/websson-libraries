@@ -12,11 +12,11 @@ Webss parseBinary(It& it, const ParamBinary& bhead);
 void parseBitList(It& it, List& list, WebssBinarySize length);
 Webss parseBinary(It& it, const ParamBinary& bhead, function<Webss()> func);
 Webss parseBinaryElement(It& it, const ParamBinary::SizeHead& bhead);
-Tuple parseBinaryFunction(It& it, const FunctionHeadBinary::Tuple& params);
+Tuple parseBinaryFunction(It& it, const FunctionHeadBinary::Parameters& params);
 
 WebssBinarySize checkBinarySize(WebssInt sizeInt);
 
-void setDefaultValueBinary(Tuple& tuple, const FunctionHeadBinary::Tuple& params, FunctionHeadBinary::Tuple::size_type index)
+void setDefaultValueBinary(Tuple& tuple, const FunctionHeadBinary::Parameters& params, FunctionHeadBinary::Parameters::size_type index)
 {
 	tuple[index] = Webss(params[index].sizeHead.getDefaultPointer());
 }
@@ -103,7 +103,7 @@ void Parser::parseBinaryHead(It& it, FunctionHeadBinary& fhead)
 		ErrorAbstractEntity(ERROR_ANONYMOUS_KEY));
 }
 
-Tuple Parser::parseFunctionTupleBinary(It& it, const FunctionHeadBinary::Tuple& params)
+Tuple Parser::parseFunctionTupleBinary(It& it, const FunctionHeadBinary::Parameters& params)
 {
 	auto tuple = parseBinaryFunction(++it, params);
 	if (it != CLOSE_TUPLE)
@@ -223,7 +223,7 @@ Webss parseBinaryElement(It& it, const ParamBinary::SizeHead& bhead)
 }
 #undef GET_BINARY_LENGTH
 
-Tuple parseBinaryFunction(It& it, const FunctionHeadBinary::Tuple& params)
+Tuple parseBinaryFunction(It& it, const FunctionHeadBinary::Parameters& params)
 {
 	using Bhead = ParamBinary::SizeHead;
 	Tuple tuple(params.getSharedKeys());

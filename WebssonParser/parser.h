@@ -127,14 +127,14 @@ namespace webss
 
 		Webss parseFunction(It& it, ConType con);
 		Webss parseFunctionText(It& it);
-		Webss parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Tuple& params);
-		Webss parseFunctionBodyScoped(It& it, const FunctionHeadScoped::Tuple& params, ConType con);
-		Webss parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tuple& params);
-		Webss parseFunctionBodyText(It& it, const FunctionHeadStandard::Tuple& params);
+		Webss parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Parameters& params);
+		Webss parseFunctionBodyScoped(It& it, const FunctionHeadScoped::Parameters& params, ConType con);
+		Webss parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Parameters& params);
+		Webss parseFunctionBodyText(It& it, const FunctionHeadStandard::Parameters& params);
 
 		//parserBinary.cpp
 		void parseBinaryHead(It& it, FunctionHeadBinary& fhead);
-		Tuple parseFunctionTupleBinary(It& it, const FunctionHeadBinary::Tuple& params);
+		Tuple parseFunctionTupleBinary(It& it, const FunctionHeadBinary::Parameters& params);
 		ParamBinary::SizeList parseBinarySizeList(It& it);
 		const BasicEntity<WebssBinarySize>& checkEntTypeBinarySize(const Entity& ent);
 

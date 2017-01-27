@@ -56,7 +56,7 @@ void writeBytes(StringBuilder& out, WebssBinarySize num, char* value)
 #endif
 }
 
-void Deserializer::putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinary::Tuple& params, const Tuple& data)
+void Deserializer::putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& data)
 {
 	Tuple::size_type i = 0;
 	for (const auto& webss : data)

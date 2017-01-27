@@ -5,6 +5,7 @@
 #include "base.h"
 #include "functionHead.h"
 #include "paramBinary.h"
+#include "paramText.h"
 #include "functionScoped.h"
 #include "typeWebss.h"
 
@@ -14,11 +15,23 @@ namespace webss
 	template <class Webss>
 	class This
 	{
-	public:
+	private:
 		using FheadBinary = BasicFunctionHead<BasicParamBinary<Webss>>;
 		using FheadScoped = BasicFunctionHeadScoped<Webss>;
 		using FheadStandard = BasicFunctionHead<This<Webss>>;
+		using FheadText = BasicFunctionHead<ParamText>;
 
+		WebssType typeFhead = WebssType::NONE;
+		union
+		{
+			FheadBinary* fheadBin;
+			FheadScoped* fheadScoped;
+			FheadStandard* fheadStd;
+			FheadText* fheadText;
+		};
+
+		std::shared_ptr<Webss> defaultValue;
+	public:
 		This() {}
 
 		This(Webss&& webss) : typeFhead(WebssType::NONE), defaultValue(new Webss(std::move(webss))) {}
@@ -72,16 +85,6 @@ namespace webss
 			typeFhead = WebssType::FUNCTION_HEAD_STANDARD;
 		}
 	private:
-		WebssType typeFhead = WebssType::NONE;
-		union
-		{
-			FheadBinary* fheadBin;
-			FheadScoped* fheadScoped;
-			FheadStandard* fheadStd;
-		};
-
-		std::shared_ptr<Webss> defaultValue;
-
 		void destroyUnion()
 		{
 			switch (typeFhead)

@@ -6,7 +6,7 @@
 using namespace std;
 using namespace webss;
 
-void checkDefaultValues(Tuple& tuple, const FunctionHeadStandard::Tuple& params)
+void checkDefaultValues(Tuple& tuple, const FunctionHeadStandard::Parameters& params)
 {
 	for (Tuple::size_type index = 0; index < tuple.size(); ++index)
 		if (tuple.at(index).t == WebssType::NONE)
@@ -16,20 +16,20 @@ void checkDefaultValues(Tuple& tuple, const FunctionHeadStandard::Tuple& params)
 class ParserFunctions : public Parser
 {
 public:
-	Webss parseFunctionBodyScoped(It& it, const FunctionHeadScoped::Tuple& params, ConType con)
+	Webss parseFunctionBodyScoped(It& it, const FunctionHeadScoped::Parameters& params, ConType con)
 	{
 		ParamDocumentIncluder includer(static_cast<vector<ParamDocument>>(params));
 		return parseValueOnly(it, con);
 	}
 
-	Webss parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tuple& params)
+	Webss parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Parameters& params)
 	{
-		return parseFunctionBody<FunctionHeadStandard::Tuple>(it, params, [&](It& it, const FunctionHeadStandard::Tuple& params) { return parseFunctionTupleStandard(it, params); }, [&](It& it, const FunctionHeadStandard::Tuple& params) { return parseFunctionTupleText(it, params); });
+		return parseFunctionBody<FunctionHeadStandard::Parameters>(it, params, [&](It& it, const FunctionHeadStandard::Parameters& params) { return parseFunctionTupleStandard(it, params); }, [&](It& it, const FunctionHeadStandard::Parameters& params) { return parseFunctionTupleText(it, params); });
 	}
 
-	Webss parseFunctionBodyText(It& it, const FunctionHeadStandard::Tuple& params)
+	Webss parseFunctionBodyText(It& it, const FunctionHeadStandard::Parameters& params)
 	{
-		return parseFunctionBody<FunctionHeadStandard::Tuple>(it, params, [&](It& it, const FunctionHeadStandard::Tuple& params) { return parseFunctionTupleText(it, params); }, [&](It& it, const FunctionHeadStandard::Tuple& params) { return parseFunctionTupleText(it, params); });
+		return parseFunctionBody<FunctionHeadStandard::Parameters>(it, params, [&](It& it, const FunctionHeadStandard::Parameters& params) { return parseFunctionTupleText(it, params); }, [&](It& it, const FunctionHeadStandard::Parameters& params) { return parseFunctionTupleText(it, params); });
 	}
 
 	template <class Parameters>
@@ -148,7 +148,7 @@ private:
 		}
 	}
 
-	Tuple parseFunctionTupleStandard(It& it, const FunctionHeadStandard::Tuple& params)
+	Tuple parseFunctionTupleStandard(It& it, const FunctionHeadStandard::Parameters& params)
 	{
 		static const ConType CON = ConType::TUPLE;
 		Tuple tuple(params.getSharedKeys());
@@ -213,7 +213,7 @@ private:
 			return tuple;
 	}
 
-	Tuple parseFunctionTupleText(It& it, const FunctionHeadStandard::Tuple& params)
+	Tuple parseFunctionTupleText(It& it, const FunctionHeadStandard::Parameters& params)
 	{
 		static const ConType CON = ConType::TUPLE;
 		Tuple tuple(params.getSharedKeys(), params.isText());
@@ -264,22 +264,22 @@ Webss Parser::parseFunctionText(It& it)
 	return{ move(head), move(body) };
 }
 
-Webss Parser::parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Tuple& params)
+Webss Parser::parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Parameters& params)
 {
-	return static_cast<ParserFunctions*>(this)->parseFunctionBody<FunctionHeadBinary::Tuple>(it, params, [&](It& it, const FunctionHeadBinary::Tuple& params) { return parseFunctionTupleBinary(it, params); }, [&](It& it, const FunctionHeadBinary::Tuple& params) -> Tuple { throw runtime_error(ERROR_UNEXPECTED); });
+	return static_cast<ParserFunctions*>(this)->parseFunctionBody<FunctionHeadBinary::Parameters>(it, params, [&](It& it, const FunctionHeadBinary::Parameters& params) { return parseFunctionTupleBinary(it, params); }, [&](It& it, const FunctionHeadBinary::Parameters& params) -> Tuple { throw runtime_error(ERROR_UNEXPECTED); });
 }
 
-Webss Parser::parseFunctionBodyScoped(It& it, const FunctionHeadScoped::Tuple& params, ConType con)
+Webss Parser::parseFunctionBodyScoped(It& it, const FunctionHeadScoped::Parameters& params, ConType con)
 {
 	return static_cast<ParserFunctions*>(this)->parseFunctionBodyScoped(it, params, con);
 }
 
-Webss Parser::parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Tuple& params)
+Webss Parser::parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Parameters& params)
 {
 	return static_cast<ParserFunctions*>(this)->parseFunctionBodyStandard(it, params);
 }
 
-Webss Parser::parseFunctionBodyText(It& it, const FunctionHeadStandard::Tuple& params)
+Webss Parser::parseFunctionBodyText(It& it, const FunctionHeadStandard::Parameters& params)
 {
 	return static_cast<ParserFunctions*>(this)->parseFunctionBodyText(it, params);
 }
