@@ -97,8 +97,6 @@ bool Parser::checkNextElementContainerVoid(It& it, ConType con, function<void()>
 const BasicEntity<BlockHead>& Parser::checkEntBlockHead(const Entity& ent)
 {
 	return ents.getBlockHead(ent.getName());
-
-	const auto& name = ent.getName();
 }
 
 const BasicEntity<FunctionHeadBinary>& Parser::checkEntFheadBinary(const Entity& ent)

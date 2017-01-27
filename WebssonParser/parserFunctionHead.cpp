@@ -91,17 +91,33 @@ FunctionHeadBinary Parser::parseFunctionHeadBinary(It& it, FunctionHeadBinary&& 
 FunctionHeadScoped Parser::parseFunctionHeadScoped(It& it, FunctionHeadScoped&& fhead)
 {
 	const auto& currentNamespace = Namespace::getEmptyInstance(); //namespace of entities declared within
+	auto& docHead = static_cast<vector<ParamDocument>>(*const_cast<FunctionHeadScoped::Tuple*>(&fhead.getParameters()));
 	do
 	{
-		if (parseDocumentHead(it, static_cast<vector<ParamDocument>>(*const_cast<FunctionHeadScoped::Tuple*>(&fhead.getParameters())), CON, currentNamespace))
+		switch (*it)
+		{
+		case CHAR_ABSTRACT_ENTITY:
+			checkMultiContainer(++it, [&]() { docHead.push_back(parseAbstractEntity(it, nspace)); });
 			break;
-		
-		if (!isNameStart(*it))
-			throw runtime_error(ERROR_UNEXPECTED);
-
-		//... add variable
-	}
-	while (checkNextElementContainer(it, CON));
+		case CHAR_CONCRETE_ENTITY:
+			checkMultiContainer(++it, [&]() { docHead.push_back(parseConcreteEntity(it, con)); });
+			break;
+		case CHAR_USING_NAMESPACE:
+			checkMultiContainer(++it, [&]() { docHead.push_back(parseUsingNamespaceStatic(it)); });
+			break;
+		case CHAR_IMPORT:
+			checkMultiContainer(++it, [&]() { docHead.push_back(parseImportStatic(it, con)); });
+			break;
+		default:
+			if (!isNameStart(*it))
+				throw runtime_error(ERROR_UNEXPECTED);
+			auto nameType = parseNameType(it);
+			if (nameType.type != NameType::ENTITY)
+				throw runtime_error("expected function head scoped entity");
+			fhead.attach(checkEntFheadScoped(nameType.abstractEntity));
+			break;
+		}
+	} while (checkNextElementContainer(it, CON));
 	ParamDocumentIncluder().removeAll(static_cast<vector<ParamDocument>>(fhead.getParameters()));
 	return move(fhead);
 }

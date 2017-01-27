@@ -82,6 +82,7 @@ namespace webss
 		ScopedDocument parseScopedDocument(It& it);
 		ImportedDocument parseImportStatic(It& it, ConType con);
 		void parseImportDynamic(It& it, const ImportedDocument& import);
+		const Namespace& Parser::parseUsingNamespaceStatic(It& it);
 
 		//parserKeyValues.cpp
 		Parser::NameType parseNameType(It& it);

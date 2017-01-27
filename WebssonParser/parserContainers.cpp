@@ -196,6 +196,7 @@ Document Parser::parseDocument(It&& it)
 bool Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType con, const Namespace& nspace)
 {
 	do
+	{
 		switch (*it)
 		{
 		case CHAR_ABSTRACT_ENTITY:
@@ -203,16 +204,6 @@ bool Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType c
 			break;
 		case CHAR_CONCRETE_ENTITY:
 			checkMultiContainer(++it, [&]() { auto ent = parseConcreteEntity(it, con); docHead.push_back(ParamDocument(ent)); ents.addLocalSafe(move(ent)); });
-			break;
-		case CHAR_USING_NAMESPACE:
-			checkMultiContainer(++it, [&]()
-			{
-				skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
-				auto nameType = parseNameType(it);
-				if (nameType.type != NameType::ENTITY || !nameType.entity.getContent().isNamespace())
-					throw runtime_error("expected namespace");
-				docHead.push_back(ParamDocument(nameType.entity.getContent().getNamespace()));
-			});
 			break;
 		case CHAR_SCOPED_DOCUMENT:
 			checkMultiContainer(++it, [&]() { docHead.push_back(parseScopedDocument(it)); });
@@ -223,7 +214,7 @@ bool Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType c
 		default:
 			return false;
 		}
-	while (checkNextElementContainer(it, con));
+	} while (checkNextElementContainer(it, con));
 	return true;
 }
 
@@ -309,4 +300,13 @@ void Parser::parseImportDynamic(It& it, const ImportedDocument& import)
 		throw runtime_error(string("while parsing import, ") + e.what());
 	}
 #endif
+}
+
+const Namespace& Parser::parseUsingNamespaceStatic(It& it)
+{
+	skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
+	auto nameType = parseNameType(it);
+	if (nameType.type != NameType::ENTITY || !nameType.entity.getContent().isNamespace())
+		throw runtime_error("expected namespace");
+	return nameType.entity.getContent().getNamespace();
 }
