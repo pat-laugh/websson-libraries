@@ -26,7 +26,7 @@ namespace webss
 		explicit BasicTuple(bool containerText = false) : keys(new Keymap()), containerText(containerText) {}
 		BasicTuple(Data&& data, bool containerText = false) : keys(nullptr), data(std::move(data)), containerText(containerText) {}
 
-		//instead of the keys being shared, this creates an indepedant copy of the keys and the data
+		//instead of the keys being shared, this creates an indepedent copy of the keys and the data
 		BasicTuple makeCompleteCopy() const { return BasicTuple(*keys, data, containerText); }
 
 		BasicTuple(const std::shared_ptr<Keymap>& keys, bool containerText = false) : keys(keys), data(keys->size()), containerText(containerText) {}
@@ -41,49 +41,31 @@ namespace webss
 		void add(T&& value) { data.push_back(std::move(value)); }
 		void add(const T& value) { data.push_back(value); }
 
-		void add(std::string&& key, T&& value)
+		void add(std::string key, T value)
 		{
-			keys->insert({ std::move(key), data.size() });
+			containerAddUnsafe(*keys, std::move(key), data.size());
 			data.push_back(std::move(value));
 		}
-		void add(const std::string& key, const T& value)
+		void addSafe(std::string key, T value)
 		{
-			keys->insert({ key, data.size() });
-			data.push_back(value);
-		}
-
-		void addSafe(std::string&& key, T&& value)
-		{
-			if (has(key))
-				throw std::runtime_error(ERROR_DUPLICATE_KEY_TUPLE + key);
-
-			keys->insert({ std::move(key), data.size() });
+			containerAddSafe(*keys, std::move(key), data.size());
 			data.push_back(std::move(value));
 		}
-		void addSafe(const std::string& key, const T& value)
-		{
-			if (has(key))
-				throw std::runtime_error(ERROR_DUPLICATE_KEY_TUPLE + key);
 
-			keys->insert({ key, data.size() });
-			data.push_back(value);
-		}
-
-		bool has(size_type index) const { index < data.size(); }
 		bool has(const std::string& key) const { return keys->find(key) != keys->end(); }
 
 		T& back() { return data.back(); }
 		const T& back() const { return data.back(); }
 
-		T& operator[](size_type index) { return data[index]; }
-		const T& operator[](size_type index) const { return data[index]; }
-		T& at(size_type index) { return data.at(index); }
-		const T& at(size_type index) const { return data.at(index); }
+		T& operator[](size_type index) { return accessIndexUnsafe<Data, T>(data, index); }
+		const T& operator[](size_type index) const { return accessIndexUnsafe<Data, T>(data, index); }
+		T& at(size_type index) { return accessIndexSafe<Data, T>(data, index); }
+		const T& at(size_type index) const { return accessIndexSafe<Data, T>(data, index); }
 
-		T& operator[](const std::string& key) { return data[keys->find(key)->second]; } //find is better than [] since it does only what it's supposed to do and is as fast
-		const T& operator[](const std::string& key) const { return data[keys->find(key)->second]; }
-		T& at(const std::string& key) { return data.at(keys->at(key)); }
-		const T& at(const std::string& key) const { return data.at(keys->at(key)); }
+		T& operator[](const std::string& key) { return operator[](accessKeyUnsafe<Keymap, size_type>(*keys, key)); }
+		const T& operator[](const std::string& key) const { return operator[](accessKeyUnsafe<Keymap, size_type>(*keys, key)); }
+		T& at(const std::string& key) { return at(accessKeySafe<Keymap, size_type>(*keys, key)); }
+		const T& at(const std::string& key) const { return at(accessKeySafe<Keymap, size_type>(*keys, key)); }
 
 		//returns keys in order of the index they point to
 		//they key of indices without an associated key are nullptr
@@ -121,7 +103,6 @@ namespace webss
 					addSafe(*keyValue.first, *keyValue.second);
 		}
 
-		const Keymap& getCopiedKeys() const { return *keys; }
 		const std::shared_ptr<Keymap>& getSharedKeys() const { return keys; }
 
 		iterator begin() { return data.begin(); }

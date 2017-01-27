@@ -21,37 +21,23 @@ namespace webss
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }
 
-		void add(std::string&& key, T&& value) { data.insert({ std::move(key), std::move(value) }); }
-		void add(const std::string& key, const T& value) { data.insert({ key, value }); }
-
-		void addSafe(std::string&& key, T&& value)
-		{
-			if (has(key))
-				throw std::runtime_error(ERROR_DUPLICATE_KEY_DICTIONARY + key);
-
-			data.insert({ std::move(key), std::move(value) });
-		}
-		void addSafe(const std::string& key, const T& value)
-		{
-			if (has(key))
-				throw std::runtime_error(ERROR_DUPLICATE_KEY_DICTIONARY + key);
-
-			data.insert({ key, value });
-		}
+		void add(std::string key, T value) { containerAddUnsafe(data, std::move(key), std::move(value)); }
+		void addSafe(std::string key, T value) { containerAddSafe(data, std::move(key), std::move(value)); }
 
 		bool has(const std::string& key) const { return data.find(key) != data.end(); }
 
-		T& operator[](const std::string& key) { return data.find(key)->second; } //find is better, no key created; wonder why they thought a side-effect to a bad access would be good...
-		const T& operator[](const std::string& key) const { return data.find(key)->second; } //[] doesn't have const and find is as fast
-		T& at(const std::string& key) { return data.at(key); }
-		const T& at(const std::string& key) const { return data.at(key); }
+		T& operator[](const std::string& key) { return accessKeyUnsafe<Data, T>(data, key); }
+		const T& operator[](const std::string& key) const { return accessKeyUnsafe<Data, T>(data, key); }
+		T& at(const std::string& key) { return accessKeySafe<Data, T>(data, key); }
+		const T& at(const std::string& key) const { return accessKeySafe<Data, T>(data, key); }
 
 		iterator begin() { return data.begin(); }
 		iterator end() { return data.end(); }
 		const_iterator begin() const { return data.begin(); }
 		const_iterator end() const { return data.end(); }
 	private:
-		static constexpr char* ERROR_DUPLICATE_KEY_DICTIONARY = "key already in dictionary: ";
+		static constexpr char* ERROR_DUPLICATE_KEY = "key already in dictionary: ";
+		static constexpr char* ERROR_KEY_UNKNOWN = "key not in dictionary: ";
 
 		Data data;
 	};

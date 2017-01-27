@@ -24,6 +24,7 @@ bool webss::isDecimalSeparator(char c, Language lang)
 		return c == '.' || c == ',';
 	default:
 		assert(false);
+		throw logic_error("");
 	}
 }
 
@@ -38,5 +39,6 @@ char webss::getLanguageSeparator(Language lang)
 		return ';';
 	default:
 		assert(false);
+		throw logic_error("");
 	}
 }

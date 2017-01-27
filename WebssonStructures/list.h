@@ -29,10 +29,10 @@ namespace webss
 		void add(T&& value) { data.push_back(std::move(value)); }
 		void add(const T& value) { data.push_back(value); }
 
-		T& operator[](size_type index) { return data[index]; }
-		const T& operator[](size_type index) const { return data[index]; }
-		T& at(size_type index) { return data.at(index); }
-		const T& at(size_type index) const { return data.at(index); }
+		T& operator[](size_type index) { return accessIndexUnsafe<Data, T>(data, index); }
+		const T& operator[](size_type index) const { return accessIndexUnsafe<Data, T>(data, index); }
+		T& at(size_type index) { return accessIndexSafe<Data, T>(data, index); }
+		const T& at(size_type index) const { return accessIndexSafe<Data, T>(data, index); }
 
 		iterator begin() { return data.begin(); }
 		iterator end() { return data.end(); }
