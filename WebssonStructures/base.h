@@ -129,6 +129,8 @@ namespace webss
 	template <class Parameter>
 	class BasicFunctionHead;
 
+	class FunctionHeadSelf {};
+
 	template <class Webss>
 	class BasicFunctionBody;
 

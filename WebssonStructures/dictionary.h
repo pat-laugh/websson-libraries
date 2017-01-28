@@ -36,9 +36,6 @@ namespace webss
 		const_iterator begin() const { return data.begin(); }
 		const_iterator end() const { return data.end(); }
 	private:
-		static constexpr char* ERROR_DUPLICATE_KEY = "key already in dictionary: ";
-		static constexpr char* ERROR_KEY_UNKNOWN = "key not in dictionary: ";
-
 		Data data;
 	};
 }

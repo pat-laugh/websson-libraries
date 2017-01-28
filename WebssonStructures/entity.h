@@ -12,7 +12,7 @@ namespace webss
 	template <class Webss>
 	class BasicNamespace;
 
-	template <typename T>
+	template <class T>
 	class BasicEntity
 	{
 	public:

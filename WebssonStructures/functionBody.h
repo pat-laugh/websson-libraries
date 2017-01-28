@@ -55,17 +55,17 @@ namespace webss
 
 		const Dictionary& getDictionary() const
 		{
-			assert(type == WebssType::DICTIONARY);
+			assert(isDictionary());
 			return dict;
 		}
 		const List& getList() const
 		{
-			assert(type == WebssType::LIST);
+			assert(isList());
 			return list;
 		}
 		const Tuple& getTuple() const
 		{
-			assert(type == WebssType::TUPLE);
+			assert(isTuple());
 			return tuple;
 		}
 

@@ -7,8 +7,6 @@
 
 namespace webss
 {
-	class FunctionHeadSelf {};
-
 	template <class Parameter>
 	class BasicFunctionHead
 	{
@@ -89,6 +87,26 @@ namespace webss
 		{
 			assert(hasEntity());
 			return ent;
+		}
+
+		void attach(Parameter&& value)
+		{
+			switch (t)
+			{
+			case Type::NONE:
+				params = new Parameters();
+				t = Type::PARAMS;
+			case Type::PARAMS:
+				break;
+			case Type::ENTITY:
+				removeEntity();
+				break;
+			case Type::POINTER:
+				removePointer();
+				break;
+			}
+
+			params->add(std::move(value));
 		}
 
 		void attachEmpty(std::string&& key)
