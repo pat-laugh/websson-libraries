@@ -1,6 +1,0 @@
-charVariable
-loop
-[
-	charScope
-	itemName
-]

@@ -1,1 +1,0 @@
-Diagram(Terminal('Ascii equal sign (\'=\')'),NonTerminal('Value','#value'))

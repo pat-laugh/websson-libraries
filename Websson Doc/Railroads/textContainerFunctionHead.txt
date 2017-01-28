@@ -1,6 +1,0 @@
-switch
-[
-	itemTextList
-	itemTextTuple
-	itemTextFunctionHead
-]

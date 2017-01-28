@@ -1,9 +1,0 @@
-charOpenFunction
-loop
-[
-	itemSeparator
-	optional itemJunk
-	optional itemBinaryHead
-	optional itemWhitespace
-]
-charCloseFunction

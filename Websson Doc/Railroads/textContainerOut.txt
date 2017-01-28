@@ -1,1 +1,0 @@
-Diagram(Choice(0,NonTerminal('Text List','#textList'),NonTerminal('Text Tuple','#textTuple'),Sequence(NonTerminal('Text Function Head','#textFunctionHead'),Optional(Terminal('Ascii equal sign (\'=\')')),NonTerminal('Function Body','#functionBody'))))

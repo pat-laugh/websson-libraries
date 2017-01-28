@@ -1,7 +1,0 @@
-charColon
-optional loop
-[
-	null
-	itemStringBody
-]
-:string container end

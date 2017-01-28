@@ -1,1 +1,0 @@
-Diagram(Terminal('['),Optional(OneOrMore(Sequence(Optional(NonTerminal('Value','#value'))),NonTerminal('Separator','#separator'))),Terminal(']'))

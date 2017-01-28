@@ -1,1 +1,0 @@
-Diagram(Terminal('Ascii question mark (\'?\')'),Choice(0,NonTerminal('Key-Value function head','#keyValueFunctionHead'),Sequence(Terminal('{'),Optional(OneOrMore(Sequence(Optional(NonTerminal('Key-Value function head','#keyValueFunctionHead'))),NonTerminal('Separator','#separator'))),Terminal('}'))))

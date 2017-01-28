@@ -1,6 +1,5 @@
-*.*
-Debug/
-ipch/
+#ignore everything
+*
 
 #allow
 !.editorconfig
@@ -14,3 +13,7 @@ ipch/
 !*.css
 !*.txt
 !*.md
+!WebssonDeserializer/
+!WebssonParser/
+!WebssonStructures/
+!WebssonUtils/

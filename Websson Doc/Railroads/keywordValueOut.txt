@@ -1,1 +1,0 @@
-Diagram(NonTerminal('Variable-Keyword name','#name'))

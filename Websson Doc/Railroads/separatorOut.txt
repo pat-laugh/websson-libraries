@@ -1,1 +1,0 @@
-Diagram(Choice(0,Terminal('Ascii comma (\',\')'),Terminal('Ascii newline (LF)')))

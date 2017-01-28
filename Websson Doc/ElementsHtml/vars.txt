@@ -1,9 +1,0 @@
-?cssRailroads = link(href:railroads.css, rel:stylesheet, type:text/css);
-
-?svgLink1:../Railroads/
-?svgLink2:Svg.html
-
-?images
-{
-	separator::@"C:\\Users\\Pat-Laugh\\Desktop\\WebSSON Doc\\SVGs\\separatorSvg.html"
-}

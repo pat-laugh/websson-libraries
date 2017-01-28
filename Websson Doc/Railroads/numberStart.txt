@@ -1,6 +1,0 @@
-switch
-[
-	charDigitDec
-	charPlus
-	charMinus
-]

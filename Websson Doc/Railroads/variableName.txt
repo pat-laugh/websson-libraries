@@ -1,5 +1,0 @@
-loop
-[
-	[optional itemJunk, charScope]
-	[optional itemJunk, itemName]
-]

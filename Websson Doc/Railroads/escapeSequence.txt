@@ -1,7 +1,0 @@
-charBackslash
-switch
-[
-	switch switchEscapedLetter
-	itemEscapeSequenceUnicode
-	switchEscapedSpecialAscii
-]

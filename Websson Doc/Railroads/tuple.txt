@@ -1,9 +1,0 @@
-charOpenTuple
-optional loop
-[
-	itemSeparator
-	optional itemJunk
-	optional switch [itemValue, itemKeyValue]
-	optional itemWhitespace
-]
-charCloseTuple

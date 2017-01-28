@@ -1,1 +1,0 @@
-Diagram(Choice(0,Terminal('B'),Terminal('bool'),Terminal('byte'),Terminal('short'),Terminal('I'),Terminal('int'),Terminal('L'),Terminal('long'),Terminal('float'),Terminal('D'),Terminal('double'),Terminal('S'),Terminal('string')))

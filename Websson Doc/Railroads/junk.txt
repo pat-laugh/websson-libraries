@@ -1,5 +1,0 @@
-switch
-[
-	:Any ?charControl
-	charSpace
-]

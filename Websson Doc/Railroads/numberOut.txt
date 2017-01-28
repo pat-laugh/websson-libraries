@@ -1,1 +1,0 @@
-Diagram(NonTerminal('Number Start','#numberStart'))

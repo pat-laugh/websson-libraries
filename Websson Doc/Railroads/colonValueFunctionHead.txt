@@ -1,6 +1,0 @@
-charColon
-switch
-[
-	itemLineString
-	[charColon, itemContainerTextFunctionHead]
-]

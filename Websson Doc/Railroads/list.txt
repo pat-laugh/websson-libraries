@@ -1,9 +1,0 @@
-charOpenList
-optional loop
-[
-	itemSeparator
-	optional itemJunk
-	optional itemValue
-	optional itemWhitespace
-]
-charCloseList

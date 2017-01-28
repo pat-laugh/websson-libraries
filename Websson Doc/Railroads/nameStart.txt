@@ -1,6 +1,0 @@
-switch
-[
-	:Any Ascii letter (A to Z; a to z)
-	:Ascii underscore (\\'_\\')
-	:Any non-Ascii character
-]

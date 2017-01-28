@@ -1,1 +1,0 @@
-Diagram(Choice(0,NonTerminal('Line String','#lineString'),NonTerminal('Text Dictionary','#textDictionary'),NonTerminal('Cstring','#cstring')))

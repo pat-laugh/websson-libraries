@@ -1,6 +1,0 @@
-switch
-[
-	itemLineString
-	itemTextDictionary
-	itemCstring
-]

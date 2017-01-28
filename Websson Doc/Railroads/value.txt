@@ -1,8 +1,0 @@
-switch
-[
-	itemCharValue
-	switchValueKeywords
-	itemVariableName
-	itemKeywordValue
-	itemNumber
-]

@@ -1,1 +1,0 @@
-Diagram(OneOrMore(Sequence(NonTerminal('Name','#name')),Sequence(Terminal('Ascii period (\'.\')'))))

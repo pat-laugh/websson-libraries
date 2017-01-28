@@ -1,1 +1,0 @@
-Diagram(Choice(0,Terminal('Any Ascii letter (A to Z; a to z)'),Terminal('Ascii underscore (\\\'_\\\')'),Terminal('Any non-Ascii character')))
