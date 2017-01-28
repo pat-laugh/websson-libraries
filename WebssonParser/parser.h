@@ -3,9 +3,9 @@
 #pragma once
 
 #include "utilsSweepers.h"
-#include "utilsParser.h"
 #include "language.h"
 #include "multiEntityManager.h"
+#include "WebssonStructures/webss.h"
 #include "WebssonUtils/stringBuilder.h"
 
 #define webss_ALLOW_IMPORT

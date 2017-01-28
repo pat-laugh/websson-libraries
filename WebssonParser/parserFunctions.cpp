@@ -2,6 +2,7 @@
 //Copyright(c) 2016 Patrick Laughrea
 #include "parser.h"
 #include "patternsContainers.h"
+#include "utilsParser.h"
 
 using namespace std;
 using namespace webss;

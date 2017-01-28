@@ -1,6 +1,7 @@
 //MIT License
 //Copyright(c) 2016 Patrick Laughrea
 #include "utilsUsers.h"
+#include "utilsParser.h"
 
 using namespace std;
 using namespace webss;
