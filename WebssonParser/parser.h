@@ -8,7 +8,7 @@
 #include "WebssonStructures/webss.h"
 #include "WebssonUtils/stringBuilder.h"
 
-#define webss_ALLOW_IMPORT
+//#define webss_ALLOW_IMPORT
 
 namespace webss
 {

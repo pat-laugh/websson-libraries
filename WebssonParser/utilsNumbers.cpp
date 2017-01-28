@@ -50,6 +50,7 @@ double webss::getDecimals(SmartIterator& it, NumberMagnitude mag)
 		return checkDecimals(it, mag, FUNCTIONS_HEX);
 	default:
 		assert(false);
+		throw logic_error("");
 	}
 }
 
