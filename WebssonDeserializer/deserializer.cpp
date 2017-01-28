@@ -212,6 +212,9 @@ void Deserializer::putWebss(StringBuilder& out, const Webss& webss, ConType con)
 	case WebssType::FUNCTION_STANDARD:
 		putFuncStandard(out, *webss.funcStandard);
 		break;
+	case WebssType::FUNCTION_TEXT:
+		putFuncText(out, *webss.funcText);
+		break;
 	case WebssType::ENTITY:
 		putEntityName(out, webss.ent);
 		break;
@@ -228,7 +231,8 @@ void Deserializer::putWebss(StringBuilder& out, const Webss& webss, ConType con)
 		putBlock(out, *webss.block, con);
 		break;
 	default:
-		assert(false && ("can't deserialize " + webss.t.toString()).c_str());
+//		assert(false);
+		throw logic_error("can't deserialize " + webss.t.toString());
 	}
 }
 
@@ -488,6 +492,49 @@ void Deserializer::putFuncStandardTuple(StringBuilder& out, const FunctionHeadSt
 	});
 }
 
+void Deserializer::putFuncTextDictionary(StringBuilder& out, const FunctionHeadText::Parameters& params, const Dictionary& dict)
+{
+	static const ConType::Enum CON = ConType::DICTIONARY;
+	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it)
+	{
+		out += it->first;
+		if (it->second.isList())
+			putFuncTextList(out, params, it->second.getList());
+		else
+		{
+			assert(it->second.isTuple());
+			putFuncTextTuple(out, params, it->second.getTuple());
+		}
+	});
+}
+
+void Deserializer::putFuncTextList(StringBuilder& out, const FunctionHeadText::Parameters& params, const List& list)
+{
+	static const ConType::Enum CON = ConType::LIST;
+	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
+	{
+		assert(it->isTuple());
+		putFuncTextTuple(out, params, it->getTuple());
+	});
+}
+
+void Deserializer::putFuncTextTuple(StringBuilder& out, const FunctionHeadText::Parameters& params, const Tuple& tuple)
+{
+	static const ConType::Enum CON = ConType::TUPLE;
+	assert(tuple.size() <= params.size() && "too many elements in function tuple");
+
+	decltype(params.size()) i = 0;
+	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
+	{
+		const auto& param = params[i++];
+		assert(it->isString());
+		if (it->t == WebssType::PRIMITIVE_STRING)
+			putString(out, *it->tString, CON);
+		else
+			putWebss(out, *it, CON);
+	});
+}
+
 void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& fhead)
 {
 	static const ConType::Enum CON = ConType::FUNCTION_HEAD;
@@ -537,6 +584,20 @@ void Deserializer::putParamsStandard(StringBuilder& out, const FunctionHeadStand
 	});
 }
 #undef FUNC_PARAMS_STANDARD
+
+#define FUNC_PARAMS_TEXT const string& key, const ParamText& value
+void Deserializer::putParamsText(StringBuilder& out, const FunctionHeadText& fhead, function<void(FUNC_PARAMS_TEXT)> func)
+{
+	static const ConType::Enum CON = ConType::FUNCTION_HEAD;
+	auto keyValues = fhead.getParameters().getOrderedKeyValues();
+	using Type = decltype(keyValues);
+	putSeparatedValues<Type, CON>(out, keyValues, [&](Type::const_iterator it)
+	{
+		assert(it->first != nullptr && ERROR_ANONYMOUS_KEY);
+		func(*it->first, *it->second);
+	});
+}
+#undef FUNC_PARAMS_TEXT
 
 #define FUNC_PARAMS_BINARY const string& key, const ParamBinary& value
 void Deserializer::putParamsBinary(StringBuilder& out, const FunctionHeadBinary& fhead, function<void(FUNC_PARAMS_BINARY)> func)
@@ -601,6 +662,20 @@ void Deserializer::putFheadStandard(StringBuilder& out, const FunctionHeadStanda
 }
 #undef FUNC_PARAMS_STANDARD
 
+#define FUNC_PARAMS_TEXT const string& key, const ParamText& value
+void Deserializer::putFheadText(StringBuilder& out, const FunctionHeadText& fhead)
+{
+	if (fhead.hasEntity())
+		putFheadEntity(out, fhead.getEntity());
+	else
+	{
+		assert(!fhead.empty() && "text function head can't be empty");
+		out += ASSIGN_CONTAINER_STRING;
+		putParamsText(out, fhead, [&](FUNC_PARAMS_TEXT) { putParamText(out, key, value); });
+	}
+}
+#undef FUNC_PARAMS_TEXT
+
 #define FUNC_PARAMS_BINARY const string& key, const ParamBinary& value
 void Deserializer::putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead)
 {
@@ -650,9 +725,6 @@ void Deserializer::putBinarySizeHead(StringBuilder& out, const ParamBinary::Size
 {
 	using Type = ParamBinary::SizeHead::Type;
 	out += OPEN_TUPLE;
-	if (bhead.getFlag() == ParamBinary::SizeHead::Flag::SELF)
-		out += CHAR_SELF;
-
 	switch (bhead.getType())
 	{
 	case Type::EMPTY:
@@ -671,6 +743,9 @@ void Deserializer::putBinarySizeHead(StringBuilder& out, const ParamBinary::Size
 		break;
 	case Type::ENTITY_FUNCTION_HEAD:
 		putEntityName(out, bhead.getEntityFunctionHead());
+		break;
+	case Type::SELF:
+		out += "(&)";
 		break;
 	default:
 		assert(false);

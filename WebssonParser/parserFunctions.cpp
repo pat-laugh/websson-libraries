@@ -131,7 +131,7 @@ private:
 		return list;
 	}
 
-	Webss parseFunctionContainer(It& it, const ParamStandard& defaultValue)
+	Webss parseFunctionContainer(It& it, const FunctionHeadStandard::Parameters& params, const ParamStandard& defaultValue)
 	{
 		static const ConType CON = ConType::TUPLE;
 		switch (defaultValue.getTypeFhead())
@@ -142,8 +142,10 @@ private:
 			return parseFunctionBodyScoped(it, defaultValue.getFunctionHeadScoped().getParameters(), CON);
 		case WebssType::FUNCTION_HEAD_STANDARD:
 			return parseFunctionBodyStandard(it, defaultValue.getFunctionHeadStandard().getParameters());
-//		case WebssType::FUNCTION_HEAD_TEXT:
+		case WebssType::FUNCTION_HEAD_TEXT:
 //			return parseFunctionBodyText(it, defaultValue.getFunctionHeadText().getParameters());
+		case WebssType::FUNCTION_HEAD_SELF:
+			return parseFunctionBodyStandard(it, params);
 		default:
 			return parseValueOnly(it, CON);
 		}
@@ -160,20 +162,8 @@ private:
 				switch (*it)
 				{
 				case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case CHAR_COLON:
-					tuple.at(index) = parseFunctionContainer(it, params.at(index));
+					tuple.at(index) = parseFunctionContainer(it, params, params.at(index));
 					break;
-				case CHAR_SELF:
-				{
-					auto head = FunctionHeadStandard(params);
-					if (!isNameStart(*skipJunkToValid(it)))
-						tuple.at(index) = { move(head), parseFunctionBodyStandard(it, params) };
-					else
-					{
-						auto name = parseNameSafe(it);
-						tuple.at(name) = { move(head), parseFunctionBodyStandard(it, params) };
-					}
-					break;
-				}
 				default:
 					if (isNameStart(*it))
 					{
@@ -181,7 +171,7 @@ private:
 						switch (nameType.type)
 						{
 						case NameType::NAME:
-							tuple.at(nameType.name) = parseFunctionContainer(it, params.at(nameType.name));
+							tuple.at(nameType.name) = parseFunctionContainer(it, params, params.at(nameType.name));
 							break;
 						case NameType::KEYWORD:
 							if (params.at(index).hasFunctionHead())
@@ -254,6 +244,8 @@ Webss Parser::parseFunction(It& it, ConType con)
 		auto body = parseFunctionBodyStandard(it, head.getParameters());
 		return{ move(head), move(body) };
 	}
+	case WebssType::FUNCTION_HEAD_SELF:
+		throw runtime_error("self in a fhead must be within a non-empty fhead");
 	default:
 		throw logic_error("");
 	}

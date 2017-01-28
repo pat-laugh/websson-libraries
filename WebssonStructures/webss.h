@@ -94,6 +94,8 @@ namespace webss
 		Webss(const BlockHead& blockHead);
 		Webss(const Block& block);
 
+		Webss(FunctionHeadSelf);
+
 		Webss(FunctionHeadBinary&& head, Webss&& body);
 		Webss(FunctionHeadStandard&& head, Webss&& body);
 		Webss(FunctionHeadText&& head, Webss&& body);

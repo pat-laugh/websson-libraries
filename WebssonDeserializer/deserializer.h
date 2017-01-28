@@ -79,19 +79,30 @@ namespace webss
 		void putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con);
 		void putFuncStandard(StringBuilder& out, const FunctionStandard& func);
 
+		void putFuncText(StringBuilder& out, const FunctionText& func);
+
 		void putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Parameters & params, const Dictionary & dict);
 		void putFuncStandardList(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const List& list);
 		void putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const Tuple& tuple);
 
+		void putFuncTextDictionary(StringBuilder& out, const FunctionHeadText::Parameters & params, const Dictionary & dict);
+		void putFuncTextList(StringBuilder& out, const FunctionHeadText::Parameters& params, const List& list);
+		void putFuncTextTuple(StringBuilder& out, const FunctionHeadText::Parameters& params, const Tuple& tuple);
+
 		void putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead);
 		void putFheadScoped(StringBuilder & out, const FunctionHeadScoped & fhead);
 		void putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhead);
+		void putFheadText(StringBuilder& out, const FunctionHeadText& fhead);
 
 #define FUNC_PARAMS_STANDARD const std::string& key, const ParamStandard& value
 		void putParamsStandard(StringBuilder& out, const FunctionHeadStandard& fhead, std::function<void(FUNC_PARAMS_STANDARD)> func);
 		void putParamStandard(StringBuilder& out, FUNC_PARAMS_STANDARD);
-		void putParamText(StringBuilder& out, FUNC_PARAMS_STANDARD);
 #undef FUNC_PARAMS_STANDARD
+
+#define FUNC_PARAMS_TEXT const std::string& key, const ParamText& value
+		void putParamsText(StringBuilder& out, const FunctionHeadText& fhead, std::function<void(FUNC_PARAMS_TEXT)> func);
+		void putParamText(StringBuilder& out, FUNC_PARAMS_TEXT);
+#undef FUNC_PARAMS_TEXT
 
 		void putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Dictionary& dict);
 		void putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const List& list);

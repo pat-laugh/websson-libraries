@@ -23,8 +23,7 @@ namespace webss
 			using FunctionHead = BasicFunctionHead<BasicParamBinary>;
 			using EntityFunctionHead = BasicEntity<FunctionHead>;
 			using EntityNumber = BasicEntity<WebssBinarySize>;
-			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, KEYWORD, NUMBER, FUNCTION_HEAD, FUNCTION_HEAD_POINTER, ENTITY_NUMBER, ENTITY_FUNCTION_HEAD };
-			enum class Flag { NONE, DEFAULT, SELF };
+			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, SELF, KEYWORD, NUMBER, FUNCTION_HEAD, FUNCTION_HEAD_POINTER, ENTITY_NUMBER, ENTITY_FUNCTION_HEAD };
 
 			BasicSizeHead() {}
 			BasicSizeHead(Keyword keyword) : t(Type::KEYWORD)
@@ -70,11 +69,13 @@ namespace webss
 			BasicSizeHead(const FunctionHead& o) : t(Type::FUNCTION_HEAD), fhead(new FunctionHead(o)) {}
 			BasicSizeHead(FunctionHead* o) : t(Type::FUNCTION_HEAD_POINTER), fhead(o) {}
 
+			BasicSizeHead(FunctionHeadSelf) : t(Type::SELF) {}
+
 			BasicSizeHead(Type t) : t(t)
 			{
 				switch (t)
 				{
-				case Type::NONE: case Type::EMPTY:
+				case Type::NONE: case Type::EMPTY: case Type::SELF:
 					break;
 				default:
 					assert(false);
@@ -102,17 +103,19 @@ namespace webss
 				return *this;
 			}
 
-			Flag getFlag() const { return flag; }
-			void setFlag(Flag f) { flag = f; }
 			bool isEmpty() const { return t == Type::EMPTY || t == Type::EMPTY_ENTITY_NUMBER; }
 			bool isKeyword() const { return t == Type::KEYWORD; }
 			bool isBool() const { return isKeyword() && keyword == Keyword::BOOL; }
 			bool isFunctionHead() const { return t == Type::ENTITY_FUNCTION_HEAD || t == Type::FUNCTION_HEAD || t == Type::FUNCTION_HEAD_POINTER; }
 			bool hasEntity() const { return t == Type::ENTITY_FUNCTION_HEAD || t == Type::ENTITY_NUMBER || t == Type::EMPTY_ENTITY_NUMBER; }
 
+			bool hasDefaultValue() const { return defaultValue.get() != nullptr; }
+			bool isSelf() const { return t == Type::SELF; }
+
 			Type getType() const { return t; }
 			Keyword getKeyword() const { return keyword; }
 			WebssBinarySize getNumber() const { return number; }
+
 			const Webss& getDefaultValue() const { return *defaultValue; }
 			const std::shared_ptr<Webss>& getDefaultPointer() const { return defaultValue; }
 			void setDefaultValue(Webss&& value) { defaultValue = std::shared_ptr<Webss>(new Webss(std::move(value))); }
@@ -162,7 +165,6 @@ namespace webss
 				FunctionHead* fhead;
 			};
 
-			Flag flag = Flag::NONE;
 			std::shared_ptr<Webss> defaultValue;
 
 			void destroyUnion()
@@ -188,7 +190,7 @@ namespace webss
 			{
 				switch (o.t)
 				{
-				case Type::NONE: case Type::EMPTY:
+				case Type::NONE: case Type::EMPTY: case Type::SELF:
 					break;
 				case Type::KEYWORD:
 					keyword = o.keyword;
@@ -213,18 +215,14 @@ namespace webss
 				t = o.t;
 				o.t = Type::NONE;
 
-				if (o.flag != Flag::NONE)
-				{
+				if (o.hasDefaultValue())
 					defaultValue = std::move(o.defaultValue);
-					flag = o.flag;
-					o.flag = Flag::NONE;
-				}
 			}
 			void copyUnion(const BasicSizeHead& o)
 			{
 				switch (o.t)
 				{
-				case Type::NONE: case Type::EMPTY:
+				case Type::NONE: case Type::EMPTY: case Type::SELF:
 					break;
 				case Type::KEYWORD:
 					keyword = o.keyword;
@@ -249,11 +247,8 @@ namespace webss
 				}
 				t = o.t;
 
-				if (o.flag != Flag::NONE)
-				{
+				if (o.hasDefaultValue())
 					defaultValue = o.defaultValue;
-					flag = o.flag;
-				}
 			}
 		};
 

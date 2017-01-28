@@ -74,6 +74,8 @@ Webss::Webss(const Enum& name, bool) : t(WebssType::ENUM), nspace(new Namespace(
 PATTERN_CONSTRUCT_CONST(BlockHead, blockHead, BLOCK_HEAD)
 PATTERN_CONSTRUCT_CONST(Block, block, BLOCK)
 
+Webss::Webss(FunctionHeadSelf) : t(WebssType::FUNCTION_HEAD_SELF) {}
+
 #define PatternConstructFunction(Type, TypeCaps) \
 Webss::Webss(FunctionHead##Type&& head, Webss&& body) \
 { \

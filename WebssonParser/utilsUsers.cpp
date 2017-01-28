@@ -58,7 +58,6 @@ ParamBinary webss::makeBinaryDefault(Keyword keyword, Webss&& defaultValue, Webs
 	assert(sizeList >= 0 && ERROR_BINARY_SIZE_LIST);
 
 	ParamBinary::SizeHead bhead(keyword);
-	bhead.setFlag(ParamBinary::SizeHead::Flag::DEFAULT);
 	bhead.setDefaultValue(Webss(std::move(defaultValue)));
 	if (sizeList == 0)
 		return ParamBinary(std::move(bhead), ParamBinary::SizeList(ParamBinary::SizeList::Type::EMPTY));
@@ -74,7 +73,7 @@ ParamBinary webss::makeBinarySelf(Keyword keyword, Webss&& defaultValue, WebssBi
 	assert(sizeList >= 0 && ERROR_BINARY_SIZE_LIST);
 
 	ParamBinary::SizeHead bhead(keyword);
-	bhead.setFlag(ParamBinary::SizeHead::Flag::SELF);
+//	bhead.setFlag(ParamBinary::SizeHead::Flag::SELF);
 	bhead.setDefaultValue(Webss(std::move(defaultValue)));
 	if (sizeList == 0)
 		return ParamBinary(std::move(bhead), ParamBinary::SizeList(ParamBinary::SizeList::Type::EMPTY));

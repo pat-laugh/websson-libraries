@@ -31,20 +31,10 @@ void Parser::parseBinaryHead(It& it, FunctionHeadBinary& fhead)
 {
 	using Bhead = ParamBinary::SizeHead;
 	using Blist = ParamBinary::SizeList;
-	using Flag = Bhead::Flag;
-
-	Flag flag;
-	if (*skipJunkToValid(it) != CHAR_SELF)
-		flag = Flag::NONE;
-	else
-	{
-		flag = Flag::SELF;
-		skipJunkToValid(++it);
-	}
 
 	Bhead bhead;
 	Blist blist;
-	if (*it == CLOSE_TUPLE)
+	if (*skipJunkToValid(it) == CLOSE_TUPLE)
 	{
 		bhead = Bhead(Bhead::Type::EMPTY);
 		blist = Blist(Blist::Type::ONE);
@@ -76,9 +66,17 @@ void Parser::parseBinaryHead(It& it, FunctionHeadBinary& fhead)
 		else if (*it == OPEN_FUNCTION)
 		{
 			auto headWebss = parseFunctionHead(++it);
-			if (headWebss.t != WebssType::FUNCTION_HEAD_BINARY)
+			switch (headWebss.t)
+			{
+			case WebssType::FUNCTION_HEAD_BINARY:
+				bhead = Bhead(move(*headWebss.fheadBinary));
+				break;
+			case WebssType::FUNCTION_HEAD_SELF:
+				bhead = Bhead(FunctionHeadSelf());
+				break;
+			default:
 				throw runtime_error(ERROR_BINARY_SIZE_HEAD);
-			bhead = Bhead(move(*headWebss.fheadBinary));
+			}
 		}
 
 		if (*skipJunkToValid(it) != OPEN_LIST)
@@ -87,19 +85,16 @@ void Parser::parseBinaryHead(It& it, FunctionHeadBinary& fhead)
 			blist = Blist(parseBinarySizeList(++it));
 	}
 
-	bhead.setFlag(flag);
 	skipJunkToValidCondition(it, [&]() { return *it == CLOSE_TUPLE; });
 	parseOtherValue(skipJunkToValid(++it), ConType::FUNCTION_HEAD,
 		CaseKeyValue
 		{
 			bhead.setDefaultValue(move(value));
-			if (bhead.getFlag() != Flag::SELF)
-				bhead.setFlag(Flag::DEFAULT);
 			fhead.attach(move(key), ParamBinary(move(bhead), move(blist)));
 		},
 		CaseKeyOnly
 		{
-			if (bhead.getFlag() == Flag::SELF)
+			if (bhead.isSelf())
 				throw runtime_error("binary param declared with self must have a default value");
 			fhead.attach(move(key), ParamBinary(move(bhead), move(blist)));
 		},
@@ -234,12 +229,12 @@ Tuple parseBinaryFunction(It& it, const FunctionHeadBinary::Parameters& params)
 	for (Tuple::size_type i = 0; i < tuple.size(); ++i)
 	{
 		const auto& bhead = params[i];
-		if (bhead.sizeHead.getFlag() == Bhead::Flag::NONE)
+		if (!bhead.sizeHead.hasDefaultValue())
 			tuple[i] = parseBinary(it, bhead);
 		else if (readByte(it) == BINARY_DEFAULT_VALUE)
 			setDefaultValueBinary(tuple, params, i);
 		else
-			tuple[i] = bhead.sizeHead.getFlag() == Bhead::Flag::DEFAULT ? parseBinary(it, bhead) : parseBinaryFunction(it, params);
+			tuple[i] = bhead.sizeHead.isSelf() ?  parseBinaryFunction(it, params) : parseBinary(it, bhead);
 	}
 	return tuple;
 }

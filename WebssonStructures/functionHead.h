@@ -7,6 +7,8 @@
 
 namespace webss
 {
+	class FunctionHeadSelf {};
+
 	template <class Parameter>
 	class BasicFunctionHead
 	{

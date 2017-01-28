@@ -62,14 +62,14 @@ void Deserializer::putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinar
 	for (const auto& webss : data)
 	{
 		const auto& binary = params.at(i++);
-		if (binary.sizeHead.getFlag() == ParamBinary::SizeHead::Flag::NONE)
+		if (!binary.sizeHead.hasDefaultValue())
 			putBinary(out, binary, webss);
 		else if (webss.t == WebssType::DEFAULT)
 			out += '\x01';
 		else
 		{
 			out += '\x00';
-			if (binary.sizeHead.getFlag() == ParamBinary::SizeHead::Flag::SELF)
+			if (binary.sizeHead.isSelf())
 				putFuncBodyBinary(out, params, webss.getTuple());
 			else
 				putBinary(out, binary, webss);

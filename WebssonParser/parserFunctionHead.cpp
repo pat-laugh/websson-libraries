@@ -31,6 +31,10 @@ Webss Parser::parseFunctionHead(It& it)
 		return parseFunctionHeadScoped(it);
 	case OPEN_DICTIONARY:
 		throw runtime_error("this parser cannot parse mandatory functions");
+	case CHAR_SELF:
+		skipJunkToValidCondition(++it, [&]() { return *it == CLOSE_FUNCTION; });
+		++it;
+		return Webss(FunctionHeadSelf());
 	default:
 		break;
 	}
