@@ -34,7 +34,7 @@ Webss Parser::parseFunctionHead(It& it)
 	case CHAR_SELF:
 		skipJunkToValidCondition(++it, [&]() { return *it == CLOSE_FUNCTION; });
 		++it;
-		return Webss(FunctionHeadSelf());
+		return FunctionHeadSelf();
 	default:
 		break;
 	}
@@ -73,6 +73,11 @@ Webss Parser::parseFunctionHead(It& it)
 		case WebssType::FUNCTION_HEAD_STANDARD:
 			fhead = FunctionHeadStandard(checkEntFheadStandard(other.abstractEntity));
 			return isEnd ? move(fhead) : parseFunctionHeadStandard(it, move(fhead));
+		case WebssType::FUNCTION_HEAD_TEXT:
+		{
+			FunctionHeadText fheadText(checkEntFheadText(other.abstractEntity));
+			return isEnd ? move(fheadText) : parseFunctionHeadText(it, move(fheadText));
+		}
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
@@ -83,6 +88,7 @@ Webss Parser::parseFunctionHead(It& it)
 
 FunctionHeadBinary Parser::parseFunctionHeadBinary(It& it, FunctionHeadBinary&& fhead)
 {
+	assert(it);
 	do
 		if (*it == OPEN_TUPLE)
 			parseBinaryHead(++it, fhead);
@@ -94,38 +100,27 @@ FunctionHeadBinary Parser::parseFunctionHeadBinary(It& it, FunctionHeadBinary&& 
 
 FunctionHeadScoped Parser::parseFunctionHeadScoped(It& it, FunctionHeadScoped&& fhead)
 {
-	auto& docHead = const_cast<FunctionHeadScoped::Parameters&>(fhead.getParameters());
+	assert(it);
 	do
-	{
-		switch (*it)
-		{
-		case CHAR_ABSTRACT_ENTITY:
-			checkMultiContainer(++it, [&]() { docHead.add(parseAbstractEntity(it, Namespace::getEmptyInstance())); });
-			break;
-		case CHAR_CONCRETE_ENTITY:
-			checkMultiContainer(++it, [&]() { docHead.add(parseConcreteEntity(it, CON)); });
-			break;
-		case CHAR_USING_NAMESPACE:
-			checkMultiContainer(++it, [&]() { docHead.add(parseUsingNamespaceStatic(it)); });
-			break;
-		case CHAR_IMPORT:
-			checkMultiContainer(++it, [&]() { docHead.add(parseImportStatic(it, CON)); });
-			break;
-		default:
-			if (!isNameStart(*it))
-				throw runtime_error(ERROR_UNEXPECTED);
-			auto nameType = parseNameType(it);
-			if (nameType.type != NameType::ENTITY)
-				throw runtime_error("expected function head scoped entity");
-			fhead.attach(checkEntFheadScoped(nameType.entity));
-			break;
-		}
-	} while (checkNextElementContainer(it, CON));
+		if (*it == CHAR_ABSTRACT_ENTITY)
+			checkMultiContainer(++it, [&]() { fhead.attach(parseAbstractEntity(it, Namespace::getEmptyInstance())); });
+		else if (*it == CHAR_CONCRETE_ENTITY)
+			checkMultiContainer(++it, [&]() { fhead.attach(parseConcreteEntity(it, CON)); });
+		else if (*it == CHAR_USING_NAMESPACE)
+			checkMultiContainer(++it, [&]() { fhead.attach(parseUsingNamespaceStatic(it)); });
+		else
+			parseOtherValue(it, CON,
+				CaseKeyValue{ throw runtime_error(ERROR_UNEXPECTED); },
+				CaseKeyOnly{ throw runtime_error(ERROR_UNEXPECTED); },
+				CaseValueOnly{ throw runtime_error(ERROR_UNEXPECTED); },
+				CaseAbstractEntity{ fhead.attach(checkEntFheadScoped(abstractEntity)); });
+	while (checkNextElementContainer(it, CON));
 	return move(fhead);
 }
 
 FunctionHeadStandard Parser::parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead)
 {
+	assert(it);
 	do
 		if (*it == OPEN_FUNCTION)
 			parseStandardParameterFunctionHead(it, fhead);
@@ -151,7 +146,7 @@ FunctionHeadText Parser::parseFunctionHeadText(It& it)
 void Parser::parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead)
 {
 	auto headWebss = parseFunctionHead(++it);
-	parseOtherValuesFheadStandardParam(it, fhead);
+	parseOtherValuesFheadStandardAfterFhead(it, fhead);
 	auto& lastParam = fhead.back();
 	switch (headWebss.t)
 	{
@@ -163,8 +158,14 @@ void Parser::parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fh
 	case WebssType::FUNCTION_HEAD_SCOPED:
 		lastParam.setFunctionHead(move(*headWebss.fheadScoped));
 		break;
+	case WebssType::FUNCTION_HEAD_SELF:
+		lastParam.setFunctionHead(FunctionHeadSelf());
+		break;
 	case WebssType::FUNCTION_HEAD_STANDARD:
 		lastParam.setFunctionHead(move(*headWebss.fheadStandard));
+		break;
+	case WebssType::FUNCTION_HEAD_TEXT:
+		lastParam.setFunctionHead(move(*headWebss.fheadText));
 		break;
 	default:
 		throw logic_error("");
@@ -178,11 +179,11 @@ void Parser::parseStandardParameterFunctionHeadText(It& it, FunctionHeadStandard
 	skipJunkToValidCondition(++it, [&]() { return *it == OPEN_FUNCTION; });
 
 	auto head = parseFunctionHeadText(++it);
-	parseOtherValuesFheadStandardParam(it, fhead);
+	parseOtherValuesFheadStandardAfterFhead(it, fhead);
 	fhead.back().setFunctionHead(move(head));
 }
 
-void Parser::parseOtherValuesFheadStandardParam(It& it, FunctionHeadStandard& fhead)
+void Parser::parseOtherValuesFheadStandardAfterFhead(It& it, FunctionHeadStandard& fhead)
 {
 	parseOtherValue(it, CON,
 		CaseKeyValue{ fhead.attach(move(key), move(value)); },
@@ -211,7 +212,7 @@ void Parser::parseOtherValuesFheadText(It& it, FunctionHeadText& fhead)
 		},
 		CaseKeyOnly{ fhead.attachEmpty(move(key)); },
 		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
-		CaseAbstractEntity{ throw runtime_error(ERROR_TEXT_FUNCTION_HEAD); });
+		CaseAbstractEntity{ fhead.attach(checkEntFheadText(abstractEntity)); });
 }
 
 void Parser::parseOtherValuesFheadBinary(It& it, FunctionHeadBinary& fhead)

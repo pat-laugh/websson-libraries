@@ -121,12 +121,17 @@ namespace webss
 			fheadText = new FheadText(std::move(o));
 			typeFhead = WebssType::FUNCTION_HEAD_TEXT;
 		}
+		void setFunctionHead(FunctionHeadSelf)
+		{
+			assert(!hasFunctionHead());
+			typeFhead = WebssType::FUNCTION_HEAD_SELF;
+		}
 	private:
 		void destroyUnion()
 		{
 			switch (typeFhead)
 			{
-			case WebssType::NONE:
+			case WebssType::NONE: case WebssType::FUNCTION_HEAD_SELF:
 				break;
 			case WebssType::FUNCTION_HEAD_BINARY:
 				delete fheadBin;
@@ -151,7 +156,7 @@ namespace webss
 		{
 			switch (o.typeFhead)
 			{
-			case WebssType::NONE:
+			case WebssType::NONE: case WebssType::FUNCTION_HEAD_SELF:
 				break;
 			case WebssType::FUNCTION_HEAD_BINARY:
 				fheadBin = o.fheadBin;
@@ -177,7 +182,7 @@ namespace webss
 		{
 			switch (o.typeFhead)
 			{
-			case WebssType::NONE:
+			case WebssType::NONE: case WebssType::FUNCTION_HEAD_SELF:
 				break;
 			case WebssType::FUNCTION_HEAD_BINARY:
 				fheadBin = new FheadBinary(*o.fheadBin);

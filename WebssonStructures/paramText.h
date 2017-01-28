@@ -13,7 +13,7 @@ namespace webss
 		This() {}
 		This(Webss&& webss) : defaultValue(new Webss(std::move(webss)))
 		{
-			assert(webss.isString());
+			assert(defaultValue->isString());
 		}
 
 		bool hasDefaultValue() const { return defaultValue.get() != nullptr; }

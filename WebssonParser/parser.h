@@ -119,7 +119,7 @@ namespace webss
 		FunctionHeadScoped parseFunctionHeadScoped(It& it, FunctionHeadScoped&& fhead = FunctionHeadScoped());
 		void parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead);
 		void parseStandardParameterFunctionHeadText(It& it, FunctionHeadStandard& fhead);
-		void parseOtherValuesFheadStandardParam(It& it, FunctionHeadStandard& fhead);
+		void parseOtherValuesFheadStandardAfterFhead(It& it, FunctionHeadStandard& fhead);
 		void parseOtherValuesFheadStandard(It& it, FunctionHeadStandard& fhead);
 		void parseOtherValuesFheadText(It& it, FunctionHeadText& fhead);
 		void parseOtherValuesFheadBinary(It& it, FunctionHeadBinary& fhead);

@@ -137,19 +137,20 @@ bool webss::isLineEnd(char c, ConType con, char separator)
 	return c == '\n' || c == separator || con.isEnd(c);
 }
 
+#define CSCase(x) case_##x: case x
 TypeContainer webss::skipJunkToContainer(SmartIterator& it)
 {
 	switch (*skipJunkToValid(it))
 	{
-	case OPEN_DICTIONARY:
+	CSCase(OPEN_DICTIONARY):
 		return TypeContainer::DICTIONARY;
-	case OPEN_LIST:
+	CSCase(OPEN_LIST):
 		return TypeContainer::LIST;
-	case OPEN_TUPLE:
+	CSCase(OPEN_TUPLE):
 		return TypeContainer::TUPLE;
-	case OPEN_FUNCTION:
+	CSCase(OPEN_FUNCTION):
 		return TypeContainer::FUNCTION_HEAD;
-	case CHAR_COLON:
+	CSCase(CHAR_COLON):
 		if (it.peekEnd() || it.peek() != CHAR_COLON)
 			return TypeContainer::LINE_STRING;
 		switch (*skipJunkToValid(it.readTwo()))
@@ -165,11 +166,28 @@ TypeContainer webss::skipJunkToContainer(SmartIterator& it)
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
-	case CHAR_EQUAL:
-		return TypeContainer::EQUAL;
-	case CHAR_CSTRING:
+	CSCase(CHAR_EQUAL):
+		switch (*skipJunkToValid(++it))
+		{
+		case OPEN_DICTIONARY:
+			goto case_OPEN_DICTIONARY;
+		case OPEN_LIST:
+			goto case_OPEN_LIST;
+		case OPEN_TUPLE:
+			goto case_OPEN_TUPLE;
+		case OPEN_FUNCTION:
+			goto case_OPEN_FUNCTION;
+		case CHAR_COLON:
+			goto case_CHAR_COLON;
+		case CHAR_CSTRING:
+			goto case_CHAR_CSTRING;
+		default:
+			throw runtime_error(ERROR_UNEXPECTED);
+		}
+	CSCase(CHAR_CSTRING):
 		return TypeContainer::CSTRING;
 	default:
 		throw runtime_error(ERROR_UNEXPECTED);
 	}
 }
+#undef CSCase
