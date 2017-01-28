@@ -16,7 +16,7 @@ namespace webss
 		using Entity = BasicEntity<BasicFunctionHead>;
 		using size_type = typename Parameters::size_type;
 
-		BasicFunctionHead() {}
+		BasicFunctionHead() : t(Type::PARAMS), params(new Parameters()) {}
 		BasicFunctionHead(Parameters&& params) : t(Type::PARAMS), params(new Parameters(std::move(params))) {}
 		BasicFunctionHead(const Parameters& params) : BasicFunctionHead(Parameters(params)) {}
 		BasicFunctionHead(const Pointer& pointer) : t(Type::POINTER), pointer(pointer) {}

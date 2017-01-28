@@ -40,14 +40,14 @@ namespace webss
 	template <class Container, class T>
 	void containerAddUnsafe(Container& cont, std::string&& key, T&& value)
 	{
-		assert(cont.find(key) != cont.end() && ("key already in container" + key).c_str());
+		assert(cont.find(key) == cont.end() && ("key already in container" + key).c_str());
 		cont.insert({ std::move(key), std::move(value) });
 	}
 
 	template <class Container, class T>
 	void containerAddSafe(Container& cont, std::string&& key, T&& value)
 	{
-		if (cont.find(key) == cont.end())
+		if (cont.find(key) != cont.end())
 			throw std::runtime_error("key already in container" + key + key);
 		cont.insert({ std::move(key), std::move(value) });
 	}

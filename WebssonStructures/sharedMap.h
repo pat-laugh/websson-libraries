@@ -18,7 +18,7 @@ namespace webss
 		using iterator = typename Data::iterator;
 		using const_iterator = typename Data::const_iterator;
 		using reverse_iterator = typename Data::reverse_iterator;
-		using const_reverse_iterator = typename Data::const_iterator;
+		using const_reverse_iterator = typename Data::const_reverse_iterator;
 
 		This() : keys(new Keymap()) {}
 		This(Data&& data) : keys(nullptr), data(std::move(data)) {}
@@ -43,8 +43,16 @@ namespace webss
 
 		bool has(const std::string& key) const { return keys->find(key) != keys->end(); }
 
-		T& back() { return data.back(); }
-		const T& back() const { return data.back(); }
+		T& back()
+		{
+			assert(!empty());
+			return data.back();
+		}
+		const T& back() const
+		{
+			assert(!empty());
+			return data.back();
+		}
 
 		T& operator[](size_type index) { return accessIndexUnsafe<Data, T>(data, index); }
 		const T& operator[](size_type index) const { return accessIndexUnsafe<Data, T>(data, index); }

@@ -90,22 +90,22 @@ FunctionHeadBinary Parser::parseFunctionHeadBinary(It& it, FunctionHeadBinary&& 
 
 FunctionHeadScoped Parser::parseFunctionHeadScoped(It& it, FunctionHeadScoped&& fhead)
 {
-/*	auto& docHead = static_cast<vector<ParamDocument>>(*const_cast<FunctionHeadScoped::Parameters*>(&fhead.getParameters()));
+	auto& docHead = const_cast<FunctionHeadScoped::Parameters&>(fhead.getParameters());
 	do
 	{
 		switch (*it)
 		{
 		case CHAR_ABSTRACT_ENTITY:
-			checkMultiContainer(++it, [&]() { docHead.push_back(parseAbstractEntity(it, Namespace::getEmptyInstance())); });
+			checkMultiContainer(++it, [&]() { docHead.add(parseAbstractEntity(it, Namespace::getEmptyInstance())); });
 			break;
 		case CHAR_CONCRETE_ENTITY:
-			checkMultiContainer(++it, [&]() { docHead.push_back(parseConcreteEntity(it, CON)); });
+			checkMultiContainer(++it, [&]() { docHead.add(parseConcreteEntity(it, CON)); });
 			break;
 		case CHAR_USING_NAMESPACE:
-			checkMultiContainer(++it, [&]() { docHead.push_back(parseUsingNamespaceStatic(it)); });
+			checkMultiContainer(++it, [&]() { docHead.add(parseUsingNamespaceStatic(it)); });
 			break;
 		case CHAR_IMPORT:
-			checkMultiContainer(++it, [&]() { docHead.push_back(parseImportStatic(it, CON)); });
+			checkMultiContainer(++it, [&]() { docHead.add(parseImportStatic(it, CON)); });
 			break;
 		default:
 			if (!isNameStart(*it))
@@ -117,8 +117,6 @@ FunctionHeadScoped Parser::parseFunctionHeadScoped(It& it, FunctionHeadScoped&& 
 			break;
 		}
 	} while (checkNextElementContainer(it, CON));
-	ParamDocumentIncluder().removeAll(static_cast<vector<ParamDocument>>(fhead.getParameters()));
-	return move(fhead);*/
 	return move(fhead);
 }
 
