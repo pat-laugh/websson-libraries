@@ -20,7 +20,7 @@ class ParserFunctions : public Parser
 public:
 	Webss parseFunctionBodyScoped(It& it, const FunctionHeadScoped::Parameters& params, ConType con)
 	{
-		ParamDocumentIncluder includer(params);
+		ParamDocumentIncluder includer(ents, params);
 		return parseValueOnly(it, con);
 	}
 

@@ -8,7 +8,7 @@
 #include "WebssonStructures/webss.h"
 #include "WebssonUtils/stringBuilder.h"
 
-//#define webss_ALLOW_IMPORT
+#define webss_ALLOW_IMPORT
 
 namespace webss
 {
@@ -63,7 +63,7 @@ namespace webss
 		};
 
 		BasicEntityManager<WebssBinarySize> entsTypeBinarySize;
-		BasicEntityManager<std::string> importedDocuments;
+		BasicEntityManager<void*> importedDocuments;
 
 		Document parseDocument(It&& it);
 
@@ -90,8 +90,7 @@ namespace webss
 		Enum parseEnum(It& it, const std::string& name);
 		Webss parseContainerText(It& it);
 		ScopedDocument parseScopedDocument(It& it);
-		ImportedDocument parseImportStatic(It& it, ConType con);
-		void parseImportDynamic(It& it, const ImportedDocument& import);
+		ImportedDocument parseImport(It& it, ConType con);
 		const Namespace& Parser::parseUsingNamespaceStatic(It& it);
 
 		//parserKeyValues.cpp
@@ -165,7 +164,7 @@ namespace webss
 		const BasicEntity<FunctionHeadText>& checkEntFheadText(const Entity& ent);
 	};
 
-	class ParamDocumentIncluder : private Parser
+	class ParamDocumentIncluder
 	{
 	private:
 		std::vector<Entity> entitiesToReAdd;
@@ -174,7 +173,7 @@ namespace webss
 		void remove(const Entity& ent)
 		{
 			entitiesToReAdd.push_back(ent);
-			ents.removeLocal(ent.getName());
+			ents.removeLocal(ent);
 		}
 
 		void include(const Entity& ent)
@@ -182,15 +181,10 @@ namespace webss
 			entitiesToRemove.push_back(ent);
 			ents.addLocalSafe(ent);
 		}
-	public:
-		ParamDocumentIncluder() {}
-		ParamDocumentIncluder(const FunctionHeadScoped::Parameters& params)
-		{
-			for (const auto& param : params)
-				includeEntities(param);
-		}
 
-		ParamDocumentIncluder(const std::vector<ParamDocument>& params)
+		MultiEntityManager& ents;
+	public:
+		ParamDocumentIncluder(MultiEntityManager& ents, const FunctionHeadScoped::Parameters& params) : ents(ents)
 		{
 			for (const auto& param : params)
 				includeEntities(param);
@@ -199,7 +193,7 @@ namespace webss
 		~ParamDocumentIncluder()
 		{
 			for (const auto& ent : entitiesToRemove)
-				ents.removeLocal(ent.getName());
+				ents.removeLocal(ent);
 
 			for (const auto& ent : entitiesToReAdd)
 				ents.addLocal(ent);
@@ -210,40 +204,27 @@ namespace webss
 			switch (paramDoc.getType())
 			{
 			case Type::ENTITY_ABSTRACT:
-			{
-				const auto& ent = paramDoc.getAbstractEntity();
-				include(ent);
+				include(paramDoc.getAbstractEntity());
 				break;
-			}
 			case Type::ENTITY_CONCRETE:
-			{
-				const auto& ent = paramDoc.getConcreteEntity();
-				include(ent);
+				include(paramDoc.getConcreteEntity());
 				break;
-			}
 			case Type::NAMESPACE:
 			{
 				const auto& nspace = paramDoc.getNamespace();
+
+				//first check the namespace entity is accessible; if so it has to be removed since it'll no longer be necessary
+				//and an entity with the same name could be inside.
 				const auto& name = nspace.getName();
 				if (ents.hasEntity(name))
 				{
 					const auto& ent = ents.getWebss(name);
 					const auto& content = ent.getContent();
-					if (content.isNamespace() && content.getNamespace().getPointer() == nspace.getPointer())
+					if (content.isNamespace() && content.getNamespace() == nspace)
 						remove(ent);
 				}
 				for (const auto& ent : nspace)
 					include(ent);
-				break;
-			}
-			case Type::IMPORT:
-	//			for (const auto& otherParam : paramDoc.getImportedDoc().getContent())
-	//				includeEntities(otherParam);
-				break;
-			case Type::SCOPED_DOCUMENT:
-			{
-				//		putScopedDocument(out, it->getScopedDoc());
-				//		break;
 				break;
 			}
 			default:

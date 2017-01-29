@@ -148,7 +148,6 @@ Document Parser::parseDocument(It&& it)
 		Document doc;
 		if (!checkEmptyContainer(it, CON) && !parseDocumentHead(it, doc.getHead(), CON, Namespace::getEmptyInstance()))
 		{
-			ParamDocumentIncluder includer(doc.getHead());
 			do
 				parseOtherValue(it, CON,
 					CaseKeyValue{ doc.addSafe(move(key), move(value)); },
@@ -225,16 +224,14 @@ Webss Parser::parseContainerText(It& it)
 ScopedDocument Parser::parseScopedDocument(It& it)
 {
 	static const ConType CON = ConType::DICTIONARY;
-	static const auto& currentNamespace = Namespace::getEmptyInstance();
-	if (*it != OPEN_FUNCTION)
-		throw runtime_error(ERROR_UNEXPECTED);
+	skipJunkToValidCondition(it, [&]() { return *it == OPEN_FUNCTION; });
 	auto head = parseFunctionHeadScoped(++it);
 
 	skipJunkToValidCondition(it, [&]() { return *it == OPEN_DICTIONARY; });
 	DocumentHead body;
 	if (!checkEmptyContainer(++it, CON))
 	{
-//		ParamDocumentIncluder includer(static_cast<vector<ParamDocument>>(head.getParameters()));
+		ParamDocumentIncluder includer(ents, head.getParameters());
 		if (!parseDocumentHead(it, body, CON, Namespace::getEmptyInstance()))
 			throw runtime_error(ERROR_UNEXPECTED);
 	}
@@ -248,22 +245,22 @@ ImportedDocument Parser::parseImport(It& it, ConType con)
 #else
 	auto importName = parseValueOnly(it, con);
 	if (!importName.isString())
-		throw std::runtime_error("import must reference a string");
+		throw runtime_error("import must reference a string");
 	ImportedDocument import(move(importName));
 	const auto& link = import.getLink();
 	if (!importedDocuments.hasEntity(link))
-		importedDocuments.addLocalSafe(link, Curl().readWebDocument(link).str());
-	try
 	{
-		static const ConType CON = ConType::DOCUMENT;
-		It itImported(importedDocuments[import.getLink()].getContent());
-		DocumentHead docHead;
-		if (!checkEmptyContainer(itImported, CON) && !parseDocumentHead(itImported, docHead, CON, Namespace::getEmptyInstance()))
-			throw runtime_error(ERROR_UNEXPECTED);
-	}
-	catch (exception e)
-	{
-		throw runtime_error(string("while parsing import, ") + e.what());
+		try
+		{
+			importedDocuments.addLocalSafe(link, 0);
+			static const ConType CON = ConType::DOCUMENT;
+			It itImported(Curl().readWebDocument(link));
+			DocumentHead docHead;
+			if (!checkEmptyContainer(itImported, CON) && !parseDocumentHead(itImported, docHead, CON, Namespace::getEmptyInstance()))
+				throw runtime_error(ERROR_UNEXPECTED);
+		}
+		catch (exception e)
+			{ throw runtime_error(string("while parsing import, ") + e.what()); }
 	}
 	return import;
 #endif
