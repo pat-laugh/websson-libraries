@@ -117,8 +117,10 @@ Parser::OtherValue Parser::parseOtherValue(It& it, ConType con)
 			PatternLineGreed(isKeyChar(*it), return OtherValue(move(nameType.name), parseCharValue(it, con)), return{ move(nameType.name) })
 		case NameType::KEYWORD:
 			return{ nameType.keyword };
-		case NameType::ENTITY:
-			return checkOtherValueEntity(it, con, nameType.entity);
+		case NameType::ENTITY_ABSTRACT:
+			return checkAbstractEntity(it, con, nameType.entity);
+		case NameType::ENTITY_CONCRETE:
+			return{ Webss(move(nameType.entity)) };
 		default:
 			assert(false);
 		}
@@ -128,12 +130,9 @@ Parser::OtherValue Parser::parseOtherValue(It& it, ConType con)
 	throw runtime_error(ERROR_UNEXPECTED);
 }
 
-Parser::OtherValue Parser::checkOtherValueEntity(It& it, ConType con, const Entity& ent)
+Parser::OtherValue Parser::checkAbstractEntity(It& it, ConType con, const Entity& ent)
 {
 	const auto& content = ent.getContent();
-	if (content.isConcrete())
-		return{ Webss(ent) };
-	
 	switch (content.getType())
 	{
 	case WebssType::BLOCK_HEAD:
@@ -141,16 +140,11 @@ Parser::OtherValue Parser::checkOtherValueEntity(It& it, ConType con, const Enti
 	case WebssType::FUNCTION_HEAD_BINARY:
 		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadBinary(checkEntFheadBinary(ent)), parseFunctionBodyBinary(it, content.getFunctionHeadBinary().getParameters())) }, break)
 	case WebssType::FUNCTION_HEAD_SCOPED:
-		PatternLineGreed(isKeyChar(*it) || isNameStart(*it)|| isNumberStart(*it), const auto& head = checkEntFheadScoped(ent); return{ FunctionScoped(head, parseFunctionBodyScoped(it, head.getContent().getParameters(), con)) }, break)
+		PatternLineGreed(isKeyChar(*it) || isNameStart(*it) || isNumberStart(*it), const auto& head = checkEntFheadScoped(ent); return{ FunctionScoped(head, parseFunctionBodyScoped(it, head.getContent().getParameters(), con)) }, break)
 	case WebssType::FUNCTION_HEAD_STANDARD:
 		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadStandard(checkEntFheadStandard(ent)), parseFunctionBodyStandard(it, content.getFunctionHeadStandard().getParameters())) }, break)
-	case WebssType::NAMESPACE:
-	{
-		const auto& nspace = content.getNamespace();
-		const auto& name = nspace.getName();
-		if (nspace.has(name))
-			return checkOtherValueEntity(it, con, nspace[name]);
-	}
+	case WebssType::FUNCTION_HEAD_TEXT:
+		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadText(checkEntFheadText(ent)), parseFunctionBodyText(it, content.getFunctionHeadText().getParameters())) }, break)
 	default:
 		break;
 	}

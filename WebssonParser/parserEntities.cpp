@@ -52,7 +52,7 @@ string Parser::parseNameSafe(It& it)
 {
 	skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
 	auto nameType = parseNameType(it);
-	if (nameType.type == NameType::NAME)
-		return move(nameType.name);
-	throw runtime_error("expected name that is neither an entity nor a keyword");
+	if (nameType.type != NameType::NAME)
+		throw runtime_error("expected name that is neither an entity nor a keyword");
+	return move(nameType.name);
 }

@@ -270,7 +270,7 @@ const Namespace& Parser::parseUsingNamespaceStatic(It& it)
 {
 	skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
 	auto nameType = parseNameType(it);
-	if (nameType.type != NameType::ENTITY || !nameType.entity.getContent().isNamespace())
+	if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isNamespace())
 		throw runtime_error("expected namespace");
 	return nameType.entity.getContent().getNamespace();
 }

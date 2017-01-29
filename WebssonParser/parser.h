@@ -50,11 +50,11 @@ namespace webss
 		class NameType
 		{
 		public:
-			enum Type { NAME, KEYWORD, ENTITY };
+			enum Type { NAME, KEYWORD, ENTITY_ABSTRACT, ENTITY_CONCRETE };
 
 			NameType(std::string&& name) : type(Type::NAME), name(std::move(name)) {}
 			NameType(Keyword keyword) : type(Type::KEYWORD), keyword(keyword) {}
-			NameType(const Entity& entity) : type(Type::ENTITY), entity(entity) {}
+			NameType(const Entity& entity) : type(entity.getContent().isAbstract() ? Type::ENTITY_ABSTRACT : Type::ENTITY_CONCRETE), entity(entity) {}
 
 			Type type;
 			std::string name;
@@ -100,7 +100,7 @@ namespace webss
 		Webss parseValueColon(It& it, ConType con);
 		Webss parseValueEqual(It& it, ConType con);
 		OtherValue parseOtherValue(It& it, ConType con);
-		OtherValue checkOtherValueEntity(It& it, ConType con, const Entity& ent);
+		OtherValue checkAbstractEntity(It& it, ConType con, const Entity& ent);
 		void parseOtherValue(It& it, ConType con, std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Entity& abstractEntity)> funcAbstractEntity);
 		Webss parseValueOnly(It& it, ConType con);
 

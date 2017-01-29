@@ -108,6 +108,14 @@ void Webss::destroyUnion()
 {
 	switch (t)
 	{
+	case WebssType::NONE:
+		break;
+	case WebssType::ENTITY:
+		ent.~BasicEntity();
+		break;
+	case WebssType::DEFAULT:
+		tDefault.~shared_ptr();
+		break;
 	case WebssType::PRIMITIVE_STRING:
 		delete tString;
 		break;
@@ -156,14 +164,8 @@ void Webss::destroyUnion()
 	case WebssType::BLOCK:
 		delete block;
 		break;
-	case WebssType::ENTITY:
-		ent.~BasicEntity();
-		break;
-	case WebssType::DEFAULT:
-		tDefault.~shared_ptr();
-		break;
 	default:
-		return;
+		assert(false);
 	}
 	t = WebssType::NONE;
 }
@@ -189,7 +191,15 @@ void Webss::copyUnion(Webss&& o)
 {
 	switch (o.t)
 	{
-	default:
+	case WebssType::NONE:
+		break;
+	case WebssType::ENTITY:
+		new (&ent) Entity(move(o.ent));
+		o.ent.~BasicEntity();
+		break;
+	case WebssType::DEFAULT:
+		new (&tDefault) Default(move(o.tDefault));
+		o.tDefault.~shared_ptr();
 		break;
 	case WebssType::PRIMITIVE_BOOL:
 		tBool = o.tBool;
@@ -249,14 +259,8 @@ void Webss::copyUnion(Webss&& o)
 	case WebssType::BLOCK:
 		block = o.block;
 		break;
-	case WebssType::ENTITY:
-		new (&ent) Entity(move(o.ent));
-		o.ent.~BasicEntity();
-		break;
-	case WebssType::DEFAULT:
-		new (&tDefault) Default(move(o.tDefault));
-		o.tDefault.~shared_ptr();
-		break;
+	default:
+		assert(false);
 	}
 	t = o.t;
 	o.t = WebssType::NONE;
@@ -266,7 +270,13 @@ void Webss::copyUnion(const Webss& o)
 {
 	switch (o.t)
 	{
-	default:
+	case WebssType::NONE:
+		break;
+	case WebssType::ENTITY:
+		new (&ent) Entity(o.ent);
+		break;
+	case WebssType::DEFAULT:
+		new (&tDefault) Default(o.tDefault);
 		break;
 	case WebssType::PRIMITIVE_BOOL:
 		tBool = o.tBool;
@@ -326,12 +336,8 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::BLOCK:
 		block = new Block(*o.block);
 		break;
-	case WebssType::ENTITY:
-		new (&ent) Entity(o.ent);
-		break;
-	case WebssType::DEFAULT:
-		new (&tDefault) Default(o.tDefault);
-		break;
+	default:
+		assert(false);
 	}
 	t = o.t;
 }
@@ -344,6 +350,10 @@ const Webss& Webss::operator[](int index) const
 {
 	switch (t)
 	{
+	case WebssType::ENTITY:
+		return ent.getContent()[index];
+	case WebssType::DEFAULT:
+		return (*tDefault)[index];
 	case WebssType::LIST:
 		return (*list)[index];
 	case WebssType::TUPLE:
@@ -358,10 +368,6 @@ const Webss& Webss::operator[](int index) const
 		return (*funcText)[index];
 	case WebssType::BLOCK:
 		return block->getValue()[index];
-	case WebssType::ENTITY:
-		return ent.getContent()[index];
-	case WebssType::DEFAULT:
-		return (*tDefault)[index];
 	default:
 		throw runtime_error(ERROR_ACCESS + t.toString() + ERROR_ACCESS_INDEX);
 	}
@@ -371,6 +377,10 @@ const Webss& Webss::operator[](const std::string& key) const
 {
 	switch (t)
 	{
+	case WebssType::ENTITY:
+		return ent.getContent()[key];
+	case WebssType::DEFAULT:
+		return (*tDefault)[key];
 	case WebssType::DICTIONARY:
 		return (*dict)[key];
 	case WebssType::TUPLE:
@@ -385,10 +395,6 @@ const Webss& Webss::operator[](const std::string& key) const
 		return (*funcText)[key];
 	case WebssType::BLOCK:
 		return block->getValue()[key];
-	case WebssType::ENTITY:
-		return ent.getContent()[key];
-	case WebssType::DEFAULT:
-		return (*tDefault)[key];
 	default:
 		throw runtime_error(ERROR_ACCESS + t.toString() + ERROR_ACCESS_KEY);
 	}
@@ -398,6 +404,10 @@ const Webss& Webss::at(int index) const
 {
 	switch (t)
 	{
+	case WebssType::ENTITY:
+		return ent.getContent().at(index);
+	case WebssType::DEFAULT:
+		return tDefault->at(index);
 	case WebssType::LIST:
 		return list->at(index);
 	case WebssType::TUPLE:
@@ -412,10 +422,6 @@ const Webss& Webss::at(int index) const
 		return funcText->at(index);
 	case WebssType::BLOCK:
 		return block->getValue().at(index);
-	case WebssType::ENTITY:
-		return ent.getContent().at(index);
-	case WebssType::DEFAULT:
-		return tDefault->at(index);
 	default:
 		throw runtime_error(ERROR_ACCESS + t.toString() + ERROR_ACCESS_INDEX);
 	}
@@ -425,6 +431,10 @@ const Webss& Webss::at(const std::string& key) const
 {
 	switch (t)
 	{
+	case WebssType::ENTITY:
+		return ent.getContent().at(key);
+	case WebssType::DEFAULT:
+		return tDefault->at(key);
 	case WebssType::DICTIONARY:
 		return dict->at(key);
 	case WebssType::TUPLE:
@@ -439,32 +449,9 @@ const Webss& Webss::at(const std::string& key) const
 		return funcText->at(key);
 	case WebssType::BLOCK:
 		return block->getValue().at(key);
-	case WebssType::ENTITY:
-		return ent.getContent().at(key);
-	case WebssType::DEFAULT:
-		return tDefault->at(key);
 	default:
 		throw runtime_error(ERROR_ACCESS + t.toString() + ERROR_ACCESS_KEY);
 	}
-}
-
-bool Webss::hasEntity() const { return t == WebssType::ENTITY; }
-
-const char ERROR_COULD_NOT_GETs1[] = "tried to get ";
-const char ERROR_COULD_NOT_GETs2[] = " but webss type was ";
-#define PATTERN_GET_CONST(x, y, z) \
-switch (t) \
-{ \
-	case WebssType::ENTITY: \
-		return ent.getContent().y; \
-	case WebssType::DEFAULT: \
-		return tDefault->y; \
-	case WebssType::NAMESPACE: \
-		return nspace->at(nspace->getName()).getContent().y; \
-	case z: \
-		return x; \
-	default: \
-		throw runtime_error(ERROR_COULD_NOT_GETs1 + WebssType(z).toString() + ERROR_COULD_NOT_GETs2 + t.toString()); \
 }
 
 WebssType Webss::getType() const
@@ -475,8 +462,6 @@ WebssType Webss::getType() const
 		return ent.getContent().getType();
 	case WebssType::DEFAULT:
 		return tDefault->getType();
-	case WebssType::NAMESPACE:
-		return nspace->has(nspace->getName()) ? (*nspace)[nspace->getName()].getContent().getType() : t;
 	case WebssType::FUNCTION_BINARY:
 		return funcBinary->getType();
 	case WebssType::FUNCTION_SCOPED:
@@ -492,7 +477,23 @@ WebssType Webss::getType() const
 	}
 }
 
+const char ERROR_COULD_NOT_GETs1[] = "tried to get ";
+const char ERROR_COULD_NOT_GETs2[] = " but webss type was ";
+#define PATTERN_GET_CONST(x, y, z) \
+switch (t) \
+{ \
+	case WebssType::ENTITY: \
+		return ent.getContent().y; \
+	case WebssType::DEFAULT: \
+		return tDefault->y; \
+	case z: \
+		return x; \
+	default: \
+		throw runtime_error(ERROR_COULD_NOT_GETs1 + WebssType(z).toString() + ERROR_COULD_NOT_GETs2 + t.toString()); \
+}
+
 bool Webss::getBool() const { PATTERN_GET_CONST(tBool, getBool(), WebssType::PRIMITIVE_BOOL); }
+WebssInt Webss::getInt() const { PATTERN_GET_CONST(tInt, getInt(), WebssType::PRIMITIVE_INT); }
 double Webss::getDouble() const { PATTERN_GET_CONST(tDouble, getDouble(), WebssType::PRIMITIVE_DOUBLE); }
 const std::string& Webss::getString() const { PATTERN_GET_CONST(*tString, getString(), WebssType::PRIMITIVE_STRING); }
 const Document& Webss::getDocument() const { PATTERN_GET_CONST(*document, getDocument(), WebssType::DOCUMENT); }
@@ -504,26 +505,10 @@ const FunctionBinary& Webss::getFunctionBinary() const { PATTERN_GET_CONST(*func
 const FunctionScoped& Webss::getFunctionScoped() const { PATTERN_GET_CONST(*funcScoped, getFunctionScoped(), WebssType::FUNCTION_SCOPED); }
 const FunctionStandard& Webss::getFunctionStandard() const { PATTERN_GET_CONST(*funcStandard, getFunctionStandard(), WebssType::FUNCTION_STANDARD); }
 const FunctionText& Webss::getFunctionText() const { PATTERN_GET_CONST(*funcText, getFunctionText(), WebssType::FUNCTION_TEXT); }
+const Namespace& Webss::getNamespace() const { PATTERN_GET_CONST(*nspace, getNamespace(), WebssType::NAMESPACE); }
 const Enum& Webss::getEnum() const { PATTERN_GET_CONST(*nspace, getEnum(), WebssType::ENUM); }
 const BlockHead& Webss::getBlockHead() const { PATTERN_GET_CONST(*blockHead, getBlockHead(), WebssType::BLOCK_HEAD); }
 const Block& Webss::getBlock() const { PATTERN_GET_CONST(*block, getBlock(), WebssType::BLOCK); }
-
-WebssInt Webss::getInt() const
-{
-	switch (t)
-	{
-	case WebssType::ENTITY:
-		return ent.getContent().getInt();
-	case WebssType::DEFAULT:
-		return tDefault->getInt();
-	case WebssType::NAMESPACE:
-		return nspace->at(nspace->getName()).getContent().getInt();
-	case WebssType::PRIMITIVE_INT:
-		return tInt;
-	default:
-		throw runtime_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::PRIMITIVE_INT).toString() + ERROR_COULD_NOT_GETs2 + t.toString());
-	}
-}
 
 const Dictionary& Webss::getDictionary() const
 {
@@ -533,8 +518,6 @@ const Dictionary& Webss::getDictionary() const
 		return ent.getContent().getDictionary();
 	case WebssType::DEFAULT:
 		return tDefault->getDictionary();
-	case WebssType::NAMESPACE:
-		return nspace->at(nspace->getName()).getContent().getDictionary();
 	case WebssType::DICTIONARY:
 		return *dict;
 	case WebssType::FUNCTION_BINARY:
@@ -560,8 +543,6 @@ const List& Webss::getList() const
 		return ent.getContent().getList();
 	case WebssType::DEFAULT:
 		return tDefault->getList();
-	case WebssType::NAMESPACE:
-		return nspace->at(nspace->getName()).getContent().getList();
 	case WebssType::LIST:
 		return *list;
 	case WebssType::FUNCTION_BINARY:
@@ -587,8 +568,6 @@ const Tuple& Webss::getTuple() const
 		return ent.getContent().getTuple();
 	case WebssType::DEFAULT:
 		return tDefault->getTuple();
-	case WebssType::NAMESPACE:
-		return nspace->at(nspace->getName()).getContent().getTuple();
 	case WebssType::TUPLE:
 		return *tuple;
 	case WebssType::FUNCTION_BINARY:
@@ -606,21 +585,6 @@ const Tuple& Webss::getTuple() const
 	}
 }
 
-const Namespace& Webss::getNamespace() const
-{
-	switch (t)
-	{
-	case WebssType::ENTITY:
-		return ent.getContent().getNamespace();
-	case WebssType::DEFAULT:
-		return tDefault->getNamespace();
-	case WebssType::NAMESPACE:
-		return *nspace;
-	default:
-		throw runtime_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::NAMESPACE).toString() + ERROR_COULD_NOT_GETs2 + t.toString()); \
-	}
-}
-
 #define PATTERN_IS(x, y) \
 switch (t) \
 { \
@@ -628,8 +592,6 @@ switch (t) \
 		return ent.getContent().y; \
 	case WebssType::DEFAULT: \
 		return tDefault->y; \
-	case WebssType::NAMESPACE: \
-		return nspace->has(nspace->getName()) && (*nspace)[nspace->getName()].getContent().y; \
 	case x: \
 		return true; \
 	default: \
@@ -650,6 +612,7 @@ bool Webss::isFunctionHeadText() const { PATTERN_IS(WebssType::FUNCTION_HEAD_TEX
 bool Webss::isEnum() const { PATTERN_IS(WebssType::ENUM, isEnum()) }
 bool Webss::isBlockHead() const { PATTERN_IS(WebssType::BLOCK_HEAD, isBlockHead()) }
 bool Webss::isBlock() const { PATTERN_IS(WebssType::BLOCK, isBlock()) }
+bool Webss::isNamespace() const { PATTERN_IS(WebssType::NAMESPACE, isNamespace()) }
 
 bool Webss::isDictionary() const
 {
@@ -723,15 +686,19 @@ bool Webss::isTuple() const
 		return false;
 	}
 }
-bool Webss::isNamespace() const
+
+bool Webss::isAbstract() const
 {
 	switch (t)
 	{
+	case WebssType::NONE:
+		assert(false);
 	case WebssType::ENTITY:
-		return ent.getContent().isNamespace();
+		return ent.getContent().isAbstract();
 	case WebssType::DEFAULT:
-		return tDefault->isNamespace();
-	case WebssType::NAMESPACE:
+		return tDefault->isAbstract();
+	case WebssType::FUNCTION_HEAD_BINARY: case WebssType::FUNCTION_HEAD_SCOPED: case WebssType::FUNCTION_HEAD_SELF: case WebssType::FUNCTION_HEAD_STANDARD: case WebssType::FUNCTION_HEAD_TEXT:
+	case WebssType::NAMESPACE: case WebssType::ENUM: case WebssType::BLOCK_HEAD:
 		return true;
 	default:
 		return false;
@@ -740,19 +707,5 @@ bool Webss::isNamespace() const
 
 bool Webss::isConcrete() const
 {
-	switch (t)
-	{
-	case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE: case WebssType::PRIMITIVE_STRING:
-	case WebssType::DICTIONARY: case WebssType::LIST: case WebssType::TUPLE:
-	case WebssType::FUNCTION_BINARY: case WebssType::FUNCTION_SCOPED: case WebssType::FUNCTION_STANDARD: case WebssType::FUNCTION_TEXT: case WebssType::BLOCK:
-		return true;
-	case WebssType::ENTITY:
-		return ent.getContent().isConcrete();
-	case WebssType::DEFAULT:
-		return tDefault->isConcrete();
-	case WebssType::NAMESPACE:
-		return nspace->has(nspace->getName()) && (*nspace)[nspace->getName()].getContent().isConcrete();
-	default:
-		return false;
-	}
+	return !isAbstract();
 }

@@ -105,8 +105,6 @@ namespace webss
 
 		~Webss();
 
-		bool hasEntity() const;
-
 		Webss& operator=(Webss&& o);
 		Webss& operator=(const Webss& o);
 
@@ -157,6 +155,7 @@ namespace webss
 		bool isBlockHead() const;
 		bool isBlock() const;
 
+		bool isAbstract() const;
 		bool isConcrete() const;
 
 		WebssType t = WebssType::NONE;

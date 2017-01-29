@@ -145,27 +145,33 @@ private:
 				else
 				{
 					auto nameType = parseNameType(it);
-					switch (nameType.type)
-					{
-					case NameType::NAME:
+					if (nameType.type == NameType::NAME)
 						tuple.at(nameType.name) = parseFunctionContainer(it, params, params.at(nameType.name));
-						break;
-					case NameType::KEYWORD:
+					else
+					{
 						if (params.at(index).hasFunctionHead())
 							throw runtime_error(ERROR_UNEXPECTED);
-						tuple.at(index) = move(nameType.keyword);
-						break;
-					case NameType::ENTITY:
-					{
-						auto otherValue = checkOtherValueEntity(it, CON, nameType.entity);
-						if (params.at(index).hasFunctionHead() || otherValue.type != OtherValue::VALUE_ONLY)
-							throw runtime_error(ERROR_UNEXPECTED);
-						tuple.at(index) = move(otherValue.value);
-						break;
+						switch (nameType.type)
+						{
+						case NameType::KEYWORD:
+							tuple.at(index) = move(nameType.keyword);
+							break;
+						case NameType::ENTITY_ABSTRACT:
+						{
+							auto otherValue = checkAbstractEntity(it, CON, nameType.entity);
+							if (otherValue.type != OtherValue::VALUE_ONLY)
+								throw runtime_error(ERROR_UNEXPECTED);
+							tuple.at(index) = move(otherValue.value);
+							break;
+						}
+						case NameType::ENTITY_CONCRETE:
+							tuple.at(index) = move(nameType.entity);
+							break;
+						default:
+							assert(false);
+						}
 					}
-					default:
-						assert(false);
-					}
+					
 				}
 				++index;
 			} while (checkNextElementContainerVoid(it, CON, [&]() { if (index++ >= tuple.size()) throw runtime_error("too many values"); }));

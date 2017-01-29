@@ -49,19 +49,22 @@ void Parser::parseBinaryHead(It& it, FunctionHeadBinary& fhead)
 		if (isNameStart(*it))
 		{
 			auto nameType = parseNameType(it);
-			if (nameType.type == NameType::KEYWORD)
-				bhead = Bhead(nameType.keyword);
-			else if (nameType.type == NameType::ENTITY)
+			switch (nameType.type)
 			{
-				if (nameType.entity.getContent().getType() == WebssType::FUNCTION_HEAD_BINARY)
-					bhead = Bhead(checkEntFheadBinary(nameType.entity));
-				else
-					bhead = Bhead(checkEntTypeBinarySize(nameType.entity));
-			}
-			else
+			case NameType::KEYWORD:
+				bhead = Bhead(nameType.keyword);
+				break;
+			case NameType::ENTITY_ABSTRACT:
+				bhead = Bhead(checkEntFheadBinary(nameType.entity));
+				break;
+			case NameType::ENTITY_CONCRETE:
+				bhead = Bhead(checkEntTypeBinarySize(nameType.entity));
+				break;
+			default:
 				throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(nameType.name));
+			}
 		}
-		else if (isNumberStart(*it)) //line: 82, 77, 75
+		else if (isNumberStart(*it))
 			bhead = Bhead(checkBinarySize(parseNumber(it).getInt()));
 		else if (*it == OPEN_FUNCTION)
 		{
@@ -251,7 +254,7 @@ ParamBinary::SizeList Parser::parseBinarySizeList(It& it)
 		if (isNameStart(*it))
 		{
 			auto nameType = parseNameType(it);
-			if (nameType.type != NameType::ENTITY)
+			if (nameType.type != NameType::ENTITY_CONCRETE)
 				throw;
 			blist = Blist(checkEntTypeBinarySize(nameType.entity));
 		}
