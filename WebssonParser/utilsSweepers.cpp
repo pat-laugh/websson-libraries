@@ -166,7 +166,7 @@ TypeContainer webss::skipJunkToContainer(SmartIterator& it)
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
-	CSCase(CHAR_EQUAL):
+	case CHAR_EQUAL:
 		switch (*skipJunkToValid(++it))
 		{
 		case OPEN_DICTIONARY:

@@ -71,6 +71,16 @@ namespace webss
 		bool parseDocumentHead(It& it, std::vector<ParamDocument>& docHead, ConType con, const Namespace& nspace);
 		void checkMultiContainer(It& it, std::function<void()> func);
 
+		template <class Container, ConType::Enum CON>
+		Container parseContainer(It& it, Container&& cont, std::function<void(Container& cont, ConType con)> func)
+		{
+			if (!checkEmptyContainer(it, CON))
+				do
+					func(cont, CON);
+			while (checkNextElementContainer(it, CON));
+			return move(cont);
+		}
+
 		Tuple parseTuple(It& it);
 		List parseList(It& it);
 		Tuple parseTupleText(It& it);
@@ -117,13 +127,13 @@ namespace webss
 		FunctionHeadStandard parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead = FunctionHeadStandard());
 		FunctionHeadBinary parseFunctionHeadBinary(It& it, FunctionHeadBinary&& fhead = FunctionHeadBinary());
 		FunctionHeadScoped parseFunctionHeadScoped(It& it, FunctionHeadScoped&& fhead = FunctionHeadScoped());
+		FunctionHeadText parseFunctionHeadText(It& it, FunctionHeadText&& fhead = FunctionHeadText());
 		void parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead);
 		void parseStandardParameterFunctionHeadText(It& it, FunctionHeadStandard& fhead);
 		void parseOtherValuesFheadStandardAfterFhead(It& it, FunctionHeadStandard& fhead);
 		void parseOtherValuesFheadStandard(It& it, FunctionHeadStandard& fhead);
 		void parseOtherValuesFheadText(It& it, FunctionHeadText& fhead);
 		void parseOtherValuesFheadBinary(It& it, FunctionHeadBinary& fhead);
-		FunctionHeadText parseFunctionHeadText(It& it);
 
 		Webss parseFunction(It& it, ConType con);
 		Webss parseFunctionText(It& it);
@@ -152,6 +162,7 @@ namespace webss
 		const BasicEntity<FunctionHeadScoped>& checkEntFheadScoped(const Entity& ent);
 		const BasicEntity<FunctionHeadBinary>& checkEntFheadBinary(const Entity& ent);
 		const BasicEntity<FunctionHeadStandard>& checkEntFheadStandard(const Entity& ent);
+		const BasicEntity<FunctionHeadText>& checkEntFheadText(const Entity& ent);
 	};
 
 	class ParamDocumentIncluder : private Parser
@@ -173,6 +184,12 @@ namespace webss
 		}
 	public:
 		ParamDocumentIncluder() {}
+		ParamDocumentIncluder(const FunctionHeadScoped::Parameters& params)
+		{
+			for (const auto& param : params)
+				includeEntities(param);
+		}
+
 		ParamDocumentIncluder(const std::vector<ParamDocument>& params)
 		{
 			for (const auto& param : params)
@@ -231,42 +248,6 @@ namespace webss
 			}
 			default:
 				assert(false);
-			}
-		}
-
-		void removeAll(const std::vector<ParamDocument>& params)
-		{
-			for (const auto& param : params)
-			{
-				using Type = ParamDocument::Type;
-				switch (param.getType())
-				{
-				case Type::ENTITY_ABSTRACT:
-				{
-					ents.removeLocal(param.getAbstractEntity().getName());
-					break;
-				}
-				case Type::ENTITY_CONCRETE:
-				{
-					ents.removeLocal(param.getConcreteEntity().getName());
-					break;
-				}
-				case Type::NAMESPACE:
-				{
-					ents.removeLocal(param.getNamespace().getName());
-					break;
-				}
-				case Type::IMPORT:
-//					removeAll(param.getImportedDoc().getContent());
-//					break;
-				case Type::SCOPED_DOCUMENT:
-				{
-					//		putScopedDocument(out, it->getScopedDoc());
-					//		break;
-				}
-				default:
-					assert(false);
-				}
 			}
 		}
 	};

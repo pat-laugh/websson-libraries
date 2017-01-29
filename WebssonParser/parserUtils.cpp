@@ -113,3 +113,8 @@ const BasicEntity<FunctionHeadStandard>& Parser::checkEntFheadStandard(const Ent
 {
 	return ents.getFheadStandard(ent.getName());
 }
+
+const BasicEntity<FunctionHeadText>& Parser::checkEntFheadText(const Entity& ent)
+{
+	return ents.getFheadText(ent.getName());
+}

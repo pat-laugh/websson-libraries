@@ -20,7 +20,7 @@ class ParserFunctions : public Parser
 public:
 	Webss parseFunctionBodyScoped(It& it, const FunctionHeadScoped::Parameters& params, ConType con)
 	{
-//		ParamDocumentIncluder includer(static_cast<vector<ParamDocument>>(params));
+		ParamDocumentIncluder includer(params);
 		return parseValueOnly(it, con);
 	}
 
@@ -58,11 +58,7 @@ private:
 	template <class Parameters>
 	Dictionary parseFunctionDictionary(It& it, const Parameters& params, function<Tuple(It& it, const Parameters& params)>&& funcTupleRegular, function<Tuple(It& it, const Parameters& params)>&& funcTupleText)
 	{
-		static const ConType CON = ConType::DICTIONARY;
-		Dictionary dict;
-		if (checkEmptyContainer(it, CON))
-			return dict;
-		do
+		return parseContainer<Dictionary, ConType::DICTIONARY>(it, Dictionary(), [&](Dictionary& dict, ConType con)
 		{
 			if (!isNameStart(*it))
 				throw runtime_error(ERROR_UNEXPECTED);
@@ -84,51 +80,35 @@ private:
 			default:
 				throw runtime_error(ERROR_UNEXPECTED);
 			}
-		} while (checkNextElementContainer(it, CON));
-		return dict;
+		});
 	}
 
 	template <class Parameters>
 	List parseFunctionListRegular(It& it, const Parameters& params, function<Tuple(It& it, const Parameters& params)>&& funcTupleRegular, function<Tuple(It& it, const Parameters& params)>&& funcTupleText)
 	{
-		static const ConType CON = ConType::LIST;
-		List list;
-		if (checkEmptyContainer(it, CON))
-			return list;
-		do
-			switch (skipJunkToContainer(it))
-			{
-			case TypeContainer::TUPLE:
+		return parseContainer<List, ConType::LIST>(it, List(), [&](List& list, ConType con)
+		{
+			auto nextCont = skipJunkToContainer(it);
+			if (nextCont == TypeContainer::TUPLE)
 				list.add(funcTupleRegular(++it, params));
-				break;
-			case TypeContainer::TEXT_TUPLE:
+			else if (nextCont == TypeContainer::TEXT_TUPLE)
 				list.add(funcTupleText(++it, params));
-				break;
-			default:
+			else
 				throw runtime_error(ERROR_UNEXPECTED);
-			}
-		while (checkNextElementContainer(it, CON)); //make it so separators are not required (no need to clean line)
-		return list;
+		});
 	}
 
 	template <class Parameters>
 	List parseFunctionListText(It& it, const Parameters& params, function<Tuple(It& it, const Parameters& params)>&& funcTupleText)
 	{
-		static const ConType CON = ConType::LIST;
-		List list;
-		if (checkEmptyContainer(it, CON))
-			return list;
-		do
-			switch (skipJunkToContainer(it))
-			{
-			case TypeContainer::TUPLE: case TypeContainer::TEXT_TUPLE:
+		return parseContainer<List, ConType::LIST>(it, List(true), [&](List& list, ConType con)
+		{
+			auto nextCont = skipJunkToContainer(it);
+			if (nextCont == TypeContainer::TUPLE || nextCont == TypeContainer::TEXT_TUPLE)
 				list.add(funcTupleText(++it, params));
-				break;
-			default:
+			else
 				throw runtime_error(ERROR_UNEXPECTED);
-			}
-		while (checkNextElementContainer(it, CON)); //make it so separators are not required (no need to clean line)
-		return list;
+		});
 	}
 
 	Webss parseFunctionContainer(It& it, const FunctionHeadStandard::Parameters& params, const ParamStandard& defaultValue)
@@ -140,12 +120,12 @@ private:
 			return parseFunctionBodyBinary(it, defaultValue.getFunctionHeadBinary().getParameters());
 		case WebssType::FUNCTION_HEAD_SCOPED:
 			return parseFunctionBodyScoped(it, defaultValue.getFunctionHeadScoped().getParameters(), CON);
+		case WebssType::FUNCTION_HEAD_SELF:
+			return parseFunctionBodyStandard(it, params);
 		case WebssType::FUNCTION_HEAD_STANDARD:
 			return parseFunctionBodyStandard(it, defaultValue.getFunctionHeadStandard().getParameters());
 		case WebssType::FUNCTION_HEAD_TEXT:
-//			return parseFunctionBodyText(it, defaultValue.getFunctionHeadText().getParameters());
-		case WebssType::FUNCTION_HEAD_SELF:
-			return parseFunctionBodyStandard(it, params);
+			return parseFunctionBodyText(it, defaultValue.getFunctionHeadText().getParameters());
 		default:
 			return parseValueOnly(it, CON);
 		}
@@ -157,51 +137,41 @@ private:
 		Tuple tuple(params.getSharedKeys());
 		Tuple::size_type index = 0;
 		if (!checkEmptyContainerVoid(it, CON, [&]() { if (index++ >= tuple.size()) throw runtime_error("too many values"); }))
+		{
 			do
 			{
-				switch (*it)
-				{
-				case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case CHAR_COLON:
+				if (!isNameStart(*it))
 					tuple.at(index) = parseFunctionContainer(it, params, params.at(index));
-					break;
-				default:
-					if (isNameStart(*it))
+				else
+				{
+					auto nameType = parseNameType(it);
+					switch (nameType.type)
 					{
-						auto nameType = parseNameType(it);
-						switch (nameType.type)
-						{
-						case NameType::NAME:
-							tuple.at(nameType.name) = parseFunctionContainer(it, params, params.at(nameType.name));
-							break;
-						case NameType::KEYWORD:
-							if (params.at(index).hasFunctionHead())
-								throw runtime_error(ERROR_UNEXPECTED);
-							tuple.at(index) = move(nameType.keyword);
-							break;
-						case NameType::ENTITY:
-						{
-							auto otherValue = checkOtherValueEntity(it, CON, nameType.entity);
-							if (params.at(index).hasFunctionHead() || otherValue.type != OtherValue::VALUE_ONLY)
-								throw runtime_error(ERROR_UNEXPECTED);
-							tuple.at(index) = move(otherValue.value);
-							break;
-						}
-						default:
-							assert(false);
-						}
-					}
-					else
-					{
+					case NameType::NAME:
+						tuple.at(nameType.name) = parseFunctionContainer(it, params, params.at(nameType.name));
+						break;
+					case NameType::KEYWORD:
 						if (params.at(index).hasFunctionHead())
 							throw runtime_error(ERROR_UNEXPECTED);
-						tuple.at(index) = parseValueOnly(it, CON);
+						tuple.at(index) = move(nameType.keyword);
+						break;
+					case NameType::ENTITY:
+					{
+						auto otherValue = checkOtherValueEntity(it, CON, nameType.entity);
+						if (params.at(index).hasFunctionHead() || otherValue.type != OtherValue::VALUE_ONLY)
+							throw runtime_error(ERROR_UNEXPECTED);
+						tuple.at(index) = move(otherValue.value);
+						break;
 					}
-					break;
+					default:
+						assert(false);
+					}
 				}
 				++index;
 			} while (checkNextElementContainerVoid(it, CON, [&]() { if (index++ >= tuple.size()) throw runtime_error("too many values"); }));
-			checkDefaultValues(tuple, params);
-			return tuple;
+		}
+		checkDefaultValues(tuple, params);
+		return tuple;
 	}
 
 	template <class Parameters>

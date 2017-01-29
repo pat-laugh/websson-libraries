@@ -132,9 +132,8 @@ FunctionHeadStandard Parser::parseFunctionHeadStandard(It& it, FunctionHeadStand
 	return move(fhead);
 }
 
-FunctionHeadText Parser::parseFunctionHeadText(It& it)
+FunctionHeadText Parser::parseFunctionHeadText(It& it, FunctionHeadText&& fhead)
 {
-	FunctionHeadText fhead;
 	if (checkEmptyContainer(it, CON))
 		throw runtime_error("text function head can't be empty");
 	do

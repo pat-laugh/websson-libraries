@@ -53,90 +53,69 @@ string getItCurrentChar(It& it)
 	return out;
 }
 
+//#define parseContainer static_cast<ParserContainers*>(this)->parseContainer
+
 Dictionary Parser::parseDictionary(It& it)
 {
-	static const ConType CON = ConType::DICTIONARY;
-	Dictionary dict;
-	if (checkEmptyContainer(it, CON))
-		return dict;
-	do
+	return parseContainer<Dictionary, ConType::DICTIONARY>(it, Dictionary(), [&](Dictionary& dict, ConType con)
+	{
 		if (*it == CHAR_CSTRING)
 			addJsonKeyvalue(++it, dict);
 		else
-			parseOtherValue(it, CON,
+			parseOtherValue(it, con,
 				CaseKeyValue{ dict.addSafe(move(key), move(value)); },
 				ErrorKeyOnly(ERROR_INPUT_DICTIONARY),
 				ErrorValueOnly(ERROR_INPUT_DICTIONARY),
 				ErrorAbstractEntity(ERROR_INPUT_DICTIONARY));
-	while (checkNextElementContainer(it, CON));
-	return dict;
+	});
 }
 
 List Parser::parseList(It& it)
 {
-	static const ConType CON = ConType::LIST;
-	List list;
-	if (checkEmptyContainer(it, CON))
-		return list;
-	do
-		list.add(parseValueOnly(it, CON));
-	while (checkNextElementContainer(it, CON));
-	return list;
+	return parseContainer<List, ConType::LIST>(it, List(), [&](List& list, ConType con)
+	{
+		list.add(parseValueOnly(it, con));
+	});
 }
 
 Tuple Parser::parseTuple(It& it)
 {
-	static const ConType CON = ConType::TUPLE;
-	Tuple tuple;
-	if (checkEmptyContainer(it, CON))
-		return tuple;
-	do
-		parseOtherValue(it, CON,
+	return parseContainer<Tuple, ConType::TUPLE>(it, Tuple(), [&](Tuple& tuple, ConType con)
+	{
+		parseOtherValue(it, con,
 			CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
 			ErrorKeyOnly(ERROR_INPUT_TUPLE),
 			CaseValueOnly{ tuple.add(move(value)); },
 			ErrorAbstractEntity(ERROR_INPUT_TUPLE));
-	while (checkNextElementContainer(it, CON));
-	return tuple;
+	});
 }
 
 List Parser::parseListText(It& it)
 {
-	static const ConType CON = ConType::LIST;
-	List list(true);
-	if (checkEmptyContainer(it, CON))
-		return list;
-	do
-		list.add(parseLineString(it, CON));
-	while (checkNextElementContainer(it, CON));
-	return list;
+	return parseContainer<List, ConType::LIST>(it, List(true), [&](List& list, ConType con)
+	{
+		list.add(parseLineString(it, con));
+	});
 }
 Tuple Parser::parseTupleText(It& it)
 {
-	static const ConType CON = ConType::TUPLE;
-	Tuple tuple(true);
-	if (checkEmptyContainer(it, CON))
-		return tuple;
-	do
-		tuple.add(parseLineString(it, CON));
-	while (checkNextElementContainer(it, CON));
-	return tuple;
+	return parseContainer<Tuple, ConType::TUPLE>(it, Tuple(true), [&](Tuple& tuple, ConType con)
+	{
+		tuple.add(parseLineString(it, con));
+	});
 }
 
 Namespace Parser::parseNamespace(It& it, const string& name, const Namespace& previousNamespace)
 {
-	static const ConType CON = ConType::DICTIONARY;
-	auto& nspace = Namespace::make(name, previousNamespace);
-	if (checkEmptyContainer(it, CON))
-		return nspace;
-	do
+	return parseContainer<Namespace, ConType::DICTIONARY>(it, Namespace(name, previousNamespace), [&](Namespace& nspace, ConType con)
+	{
 		switch (*it)
 		{
-		case CHAR_CONCRETE_ENTITY:
-			checkMultiContainer(++it, [&]() { nspace.addSafe(parseConcreteEntity(it, CON)); });
-			break;
 		case CHAR_ABSTRACT_ENTITY:
 			checkMultiContainer(++it, [&]() { nspace.addSafe(parseAbstractEntity(it, nspace)); });
+			break;
+		case CHAR_CONCRETE_ENTITY:
+			checkMultiContainer(++it, [&]() { nspace.addSafe(parseConcreteEntity(it, con)); });
 			break;
 		case CHAR_SELF:
 			skipJunkToValidCondition(++it, [&]() { return *it == OPEN_FUNCTION; });
@@ -145,23 +124,18 @@ Namespace Parser::parseNamespace(It& it, const string& name, const Namespace& pr
 		default:
 			throw runtime_error(ERROR_INPUT_NAMESPACE);
 		}
-	while (checkNextElementContainer(it, CON));
-	return nspace;
+	});
 }
 Enum Parser::parseEnum(It& it, const string& name)
 {
-	static const ConType CON = ConType::LIST;
-	auto&& tEnum = Enum::make(name);
-	if (checkEmptyContainer(it, CON))
-		return tEnum;
-	do
-		parseOtherValue(it, CON,
+	return parseContainer<Enum, ConType::LIST>(it, Enum(name), [&](Enum& tEnum, ConType con)
+	{
+		parseOtherValue(it, con,
 			ErrorKeyValue(ERROR_INPUT_ENUM),
 			CaseKeyOnly{ tEnum.add(move(key), tEnum.size()); },
 			ErrorValueOnly(ERROR_INPUT_ENUM),
 			ErrorAbstractEntity(ERROR_INPUT_ENUM));
-	while (checkNextElementContainer(it, CON));
-	return tEnum;
+	});
 }
 
 Document Parser::parseDocument(It&& it)
@@ -195,6 +169,7 @@ Document Parser::parseDocument(It&& it)
 
 bool Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType con, const Namespace& nspace)
 {
+	assert(it);
 	do
 	{
 		switch (*it)
@@ -209,7 +184,7 @@ bool Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType c
 			checkMultiContainer(++it, [&]() { docHead.push_back(parseScopedDocument(it)); });
 			break;
 		case CHAR_IMPORT:
-			checkMultiContainer(++it, [&]() { auto import = parseImportStatic(it, con); parseImportDynamic(it, import); docHead.push_back(move(import)); });
+			checkMultiContainer(++it, [&]() { auto import = parseImport(it, con); docHead.push_back(move(import)); });
 			break;
 		default:
 			return false;
@@ -266,7 +241,7 @@ ScopedDocument Parser::parseScopedDocument(It& it)
 	return{ move(head), move(body) };
 }
 
-ImportedDocument Parser::parseImportStatic(It& it, ConType con)
+ImportedDocument Parser::parseImport(It& it, ConType con)
 {
 #ifndef webss_ALLOW_IMPORT
 	throw runtime_error("this parser cannot import documents");
@@ -278,15 +253,6 @@ ImportedDocument Parser::parseImportStatic(It& it, ConType con)
 	const auto& link = import.getLink();
 	if (!importedDocuments.hasEntity(link))
 		importedDocuments.addLocalSafe(link, Curl().readWebDocument(link).str());
-	return import;
-#endif
-}
-
-void Parser::parseImportDynamic(It& it, const ImportedDocument& import)
-{
-#ifndef webss_ALLOW_IMPORT
-	throw runtime_error("this parser cannot import documents");
-#else
 	try
 	{
 		static const ConType CON = ConType::DOCUMENT;
@@ -299,6 +265,7 @@ void Parser::parseImportDynamic(It& it, const ImportedDocument& import)
 	{
 		throw runtime_error(string("while parsing import, ") + e.what());
 	}
+	return import;
 #endif
 }
 
