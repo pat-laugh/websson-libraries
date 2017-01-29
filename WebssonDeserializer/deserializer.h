@@ -5,8 +5,8 @@
 #include "WebssonUtils/errors.h"
 #include "WebssonUtils/endOfLine.h"
 #include "WebssonUtils/utilsWebss.h"
-#include "WebssonStructures/webss.h"
 #include "WebssonUtils/stringBuilder.h"
+#include "WebssonStructures/webss.h"
 #include <functional>
 #include <set>
 #include <memory>
@@ -29,16 +29,16 @@ namespace webss
 			deserialize(out, doc);
 			return out;
 		}
-		
-		static void deserialize(StringBuilder& out, const BasicEntity<Webss>& ent)
+
+		static void deserialize(StringBuilder& out, const DocumentHead& docHead)
 		{
-			Deserializer().putEntityDeclaration(out, ent, ConType::DOCUMENT);
+			Deserializer().putDocumentHead(out, docHead);
 		}
-		
-		static std::string deserializeEntity(const BasicEntity<Webss>& ent)
+
+		static std::string deserialize(const DocumentHead& docHead)
 		{
 			StringBuilder out;
-			deserialize(out, ent);
+			deserialize(out, docHead);
 			return out;
 		}
 
@@ -50,16 +50,18 @@ namespace webss
 
 		void putWebss(StringBuilder& out, const Webss& webss, ConType con);
 
+		void putConcreteValue(StringBuilder& out, const Webss& webss, ConType con);
+
 		void putCharValue(StringBuilder& out, const Webss& value, ConType con);
 
 		void putKeyValue(StringBuilder& out, const std::string& key, const Webss& value, ConType con);
 
 		void putLineString(StringBuilder& out, const std::string& str, ConType con);
-
-		void putString(StringBuilder& out, const std::string& str, ConType con);
+		void putCstring(StringBuilder& out, const std::string& str);
 		void putDictionary(StringBuilder& out, const Dictionary& dict);
 		void putList(StringBuilder& out, const List& list);
 		void putTuple(StringBuilder& out, const Tuple& tuple);
+		void putDocumentHead(StringBuilder& out, const DocumentHead& docHead);
 		void putDocument(StringBuilder& out, const Document& doc);
 
 		void putImportedDocument(StringBuilder& out, const ImportedDocument& importDoc, ConType con);
@@ -84,6 +86,7 @@ namespace webss
 		void putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Parameters & params, const Dictionary & dict);
 		void putFuncStandardList(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const List& list);
 		void putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const Tuple& tuple);
+		void putFuncStandardTupleText(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const Tuple& tuple);
 
 		void putFuncTextDictionary(StringBuilder& out, const FunctionHeadText::Parameters & params, const Dictionary & dict);
 		void putFuncTextList(StringBuilder& out, const FunctionHeadText::Parameters& params, const List& list);

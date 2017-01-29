@@ -89,10 +89,7 @@ void Deserializer::putParamBinary(StringBuilder& out, FUNC_PARAMS_BINARY)
 	out += key;
 	putBinarySizeList(out, value.sizeList);
 	if (value.sizeHead.hasDefaultValue())
-	{
-		out += CHAR_EQUAL;
-		putWebss(out, value.sizeHead.getDefaultValue(), ConType::FUNCTION_HEAD);
-	}
+		putCharValue(out, value.sizeHead.getDefaultValue(), ConType::FUNCTION_HEAD);
 }
 
 #undef FUNC_PARAMS_BINARY
