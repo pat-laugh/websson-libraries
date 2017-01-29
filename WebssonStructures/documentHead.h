@@ -31,10 +31,9 @@ namespace webss
 	class BasicImportedDocument
 	{
 	public:
-		BasicImportedDocument(Webss&& name)
+		BasicImportedDocument(Webss&& name) : name(std::move(name))
 		{
-			assert(name.isString() && "import must reference a string");
-			this->name = std::move(name);
+			assert(this->name.isString() && "import must reference a string");
 			link = const_cast<std::string*>(&this->name.getString());
 		}
 		~BasicImportedDocument() {}

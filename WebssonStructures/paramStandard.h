@@ -69,9 +69,9 @@ namespace webss
 			return defaultValue;
 		}
 
+		//returns WebssType::NONE if has no fhead
 		WebssType getTypeFhead() const
 		{
-			assert(hasFunctionHead());
 			return typeFhead;
 		}
 

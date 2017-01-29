@@ -63,10 +63,12 @@ namespace webss
 		{
 			ent.setNamespace(getPointer());
 			containerAddSafe(getKeys(), std::string(ent.getName()), size());
-			add(std::move(ent));
+			getData().push_back(std::move(ent));
 		}
 
 		bool has(const std::string& key) const { return getKeys().find(key) != getKeys().end(); }
+
+		bool operator==(const This& o) const { return ptrBody == o.ptrBody; }
 
 		Entity& operator[](const std::string& key) { return getData()[accessKeyUnsafe<Keymap, size_type>(getKeys(), key)]; }
 		const Entity& operator[](const std::string& key) const { return getData()[accessKeyUnsafe<Keymap, size_type>(getKeys(), key)]; }
@@ -99,7 +101,7 @@ namespace webss
 		Keymap& getKeys() { assert(hasBody()); return ptrBody->keys; }
 		const Keymap& getKeys() const { assert(hasBody()); return ptrBody->keys; }
 
-		This() {}
+		This() : ptrBody(new NamespaceBody{}) {}
 	};
 #undef This
 }
