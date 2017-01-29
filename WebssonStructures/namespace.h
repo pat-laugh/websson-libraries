@@ -20,7 +20,8 @@ namespace webss
 		using Data = std::vector<Entity>;
 		using size_type = typename Data::size_type;
 		using Keymap = std::unordered_map<std::string, size_type>;
-		using Namespaces = std::vector<std::shared_ptr<This<Webss>>>;
+		using PtrThis = std::shared_ptr<This>;
+		using Namespaces = std::vector<PtrThis>;
 		using iterator = typename Data::iterator;
 		using const_iterator = typename Data::const_iterator;
 
@@ -30,84 +31,75 @@ namespace webss
 			return nspace;
 		}
 
-		static This& make(std::string&& name)
+		This(std::string name) : ptrBody(new NamespaceBody{ std::move(name) })
 		{
-			std::shared_ptr<This<Webss>> ptrThis(new This(std::move(name)));
-			ptrThis->nspaces.push_back(ptrThis);
-			return *ptrThis;
-		}
-		static This& make(const std::string& name)
-		{
-			std::shared_ptr<This<Webss>> ptrThis(new This(name));
-			ptrThis->nspaces.push_back(ptrThis);
-			return *ptrThis;
+			ptrBody->nspaces.push_back(PtrThis(new This(*this)));
 		}
 
-		static This& make(std::string&& name, const This& previousNspace)
+		This(std::string name, const This& previousNspace) : ptrBody(new NamespaceBody{ std::move(name), previousNspace.getNamespaces() })
 		{
-			std::shared_ptr<This<Webss>> ptrThis(new This(std::move(name), previousNspace));
-			ptrThis->nspaces.push_back(ptrThis);
-			return *ptrThis;
-		}
-		static This& make(const std::string& name, const This& previousNspace)
-		{
-			std::shared_ptr<This<Webss>> ptrThis(new This(name, previousNspace));
-			ptrThis->nspaces.push_back(ptrThis);
-			return *ptrThis;
+			ptrBody->nspaces.push_back(PtrThis(new This(*this)));
 		}
 
-		bool empty() const { return data.empty(); }
-		size_type size() const { return data.size(); }
+		bool empty() const
+		{
+			return getData().empty();
+		}
+		size_type size() const
+		{
+			return getData().size();
+		}
 
-		void add(std::string&& key, Webss&& value) { add(Entity(std::move(key), std::move(value))); }
-		void add(const std::string& key, const Webss& value) { add(Entity(key, value)); }
-		void addSafe(std::string&& key, Webss&& value) { addSafe(Entity(std::move(key), std::move(value))); }
-		void addSafe(const std::string& key, const Webss& value) { addSafe(Entity(key, value)); }
+		void add(std::string key, Webss value) { add(Entity(std::move(key), std::move(value))); }
+		void addSafe(std::string key, Webss value) { addSafe(Entity(std::move(key), std::move(value))); }
 
 		void add(Entity&& ent)
 		{
 			ent.setNamespace(getPointer());
-			keys.insert({ ent.getName(), data.size() });
-			data.push_back(std::move(ent));
+			containerAddUnsafe(getKeys(), std::string(ent.getName()), size());
+			getData().push_back(std::move(ent));
 		}
 		void addSafe(Entity&& ent)
 		{
-			if (has(ent.getName()))
-				throw std::runtime_error(ERROR_DUPLICATE_KEY_NAMESPACE + ent.getName());
-
+			ent.setNamespace(getPointer());
+			containerAddSafe(getKeys(), std::string(ent.getName()), size());
 			add(std::move(ent));
 		}
 
-		bool has(const std::string& key) const { return keys.find(key) != keys.end(); }
+		bool has(const std::string& key) const { return getKeys().find(key) != getKeys().end(); }
 
-		Entity& operator[](const std::string& key) { return data[keys.find(key)->second]; } //find is better, no key created; wonder why they thought a side-effect to a bad access would be good...
-		const Entity& operator[](const std::string& key) const { return data[keys.find(key)->second]; } //[] doesn't have const and find is as fast
-		Entity& at(const std::string& key) { return data[keys.at(key)]; }
-		const Entity& at(const std::string& key) const { return data[keys.at(key)]; }
+		Entity& operator[](const std::string& key) { return getData()[accessKeyUnsafe<Keymap, size_type>(getKeys(), key)]; }
+		const Entity& operator[](const std::string& key) const { return getData()[accessKeyUnsafe<Keymap, size_type>(getKeys(), key)]; }
+		Entity& at(const std::string& key) { return getData()[accessKeySafe<Keymap, size_type>(getKeys(), key)]; }
+		const Entity& at(const std::string& key) const { return getData()[accessKeySafe<Keymap, size_type>(getKeys(), key)]; }
 
-		const std::string& getName() const { return name; }
-		const std::shared_ptr<This<Webss>>& getPointer() const { return nspaces.back(); }
-		const Namespaces& getNamespaces() const { return nspaces; }
+		const std::string& getName() const { assert(hasBody()); return ptrBody->name; }
+		const Namespaces& getNamespaces() const { assert(hasBody()); return ptrBody->nspaces; }
+		const PtrThis& getPointer() const { return getNamespaces().back(); }
 
-		iterator begin() { return data.begin(); }
-		iterator end() { return data.end(); }
-		const_iterator begin() const { return data.begin(); }
-		const_iterator end() const { return data.end(); }
+		iterator begin() { return getData().begin(); }
+		iterator end() { return getData().end(); }
+		const_iterator begin() const { return getData().begin(); }
+		const_iterator end() const { return getData().end(); }
 	private:
-		static constexpr char* ERROR_DUPLICATE_KEY_NAMESPACE = "key already in namespace: ";
+		bool hasBody() const { return ptrBody.get() != nullptr; }
 
-		std::string name;
-		Data data;
-		Keymap keys;
-		Namespaces nspaces;
+		class NamespaceBody
+		{
+		public:
+			std::string name;
+			Namespaces nspaces;
+			Data data;
+			Keymap keys;
+		};
+		std::shared_ptr<NamespaceBody> ptrBody;
+
+		Data& getData() { assert(hasBody()); return ptrBody->data; }
+		const Data& getData() const { assert(hasBody()); return ptrBody->data; }
+		Keymap& getKeys() { assert(hasBody()); return ptrBody->keys; }
+		const Keymap& getKeys() const { assert(hasBody()); return ptrBody->keys; }
 
 		This() {}
-
-		This(std::string&& name) : name(std::move(name)) {}
-		This(const std::string& name) : name(name) {}
-
-		This(std::string&& name, const This& previousNspace) : name(std::move(name)), nspaces(previousNspace.nspaces) {}
-		This(const std::string& name, const This& previousNspace) : name(name), nspaces(previousNspace.nspaces) {}
 	};
 #undef This
 }

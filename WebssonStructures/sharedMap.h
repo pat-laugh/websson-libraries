@@ -32,12 +32,12 @@ namespace webss
 
 		void add(std::string key, T value)
 		{
-			containerAddUnsafe(*keys, std::move(key), data.size());
+			containerAddUnsafe(*keys, std::move(key), size());
 			data.push_back(std::move(value));
 		}
 		void addSafe(std::string key, T value)
 		{
-			containerAddSafe(*keys, std::move(key), data.size());
+			containerAddSafe(*keys, std::move(key), size());
 			data.push_back(std::move(value));
 		}
 
