@@ -2,7 +2,7 @@
 //Copyright(c) 2016 Patrick Laughrea
 #pragma once
 
-#include "iterators.h"
+#include "WebssonUtils/iterators.h"
 #include "WebssonUtils/stringBuilder.h"
 
 namespace webss
