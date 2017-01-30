@@ -48,7 +48,7 @@ namespace webss
 		Deserializer() {}
 
 
-		void putWebss(StringBuilder& out, const Webss& webss, ConType con);
+		void putAbstractValue(StringBuilder& out, const Webss& webss, ConType con);
 
 		void putConcreteValue(StringBuilder& out, const Webss& webss, ConType con);
 
@@ -68,14 +68,17 @@ namespace webss
 
 		void putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc);
 
+		void putUsingNamespace(StringBuilder& out, const Namespace& nspace);
+
 		void putNamespace(StringBuilder& out, const Namespace& nspace);
 
 		void putEnum(StringBuilder& out, const Enum& tEnum);
 
 		void putBlockHead(StringBuilder& out, const BlockHead& blockHead);
 		void putBlock(StringBuilder& out, const Block& block, ConType con);
-		
-		void putEntityDeclaration(StringBuilder& out, const Entity&, ConType con);
+
+		void putAbstractEntity(StringBuilder& out, const Entity& ent, ConType con);
+		void putConcreteEntity(StringBuilder& out, const Entity& ent, ConType con);
 
 		void putFuncBinary(StringBuilder& out, const FunctionBinary& func);
 		void putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con);
@@ -121,6 +124,30 @@ namespace webss
 		void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss);
 		void putBinarySizeHead(StringBuilder& out, const ParamBinary::SizeHead& bhead);
 		void putBinarySizeList(StringBuilder& out, const ParamBinary::SizeList& blist);
+		
+		class NamespaceIncluder
+		{
+		private:
+			std::set<Namespace*>& currentNamespaces;
+			std::set<Namespace*> toRemove;
+		public:
+			NamespaceIncluder(std::set<Namespace*>& currentNamespaces, const FunctionHeadScoped::Parameters& params) : currentNamespaces(currentNamespaces)
+			{
+				for (const auto& param : params)
+					if (param.hasNamespace())
+					{
+						auto ptr = param.getNamespace().getPointer().get();
+						currentNamespaces.insert(ptr);
+						toRemove.insert(ptr);
+					}
+			}
+
+			~NamespaceIncluder()
+			{
+				for (auto it = toRemove.begin(); it != toRemove.end(); it = toRemove.erase(it))
+					currentNamespaces.erase(*it);
+			}
+		};
 	};
 }
 

@@ -37,13 +37,14 @@ public:
 			const auto& entName = ent.getName();
 			const auto& entNspace = ent.getNamespace();
 			const auto& nspaces = entNspace.getNamespaces();
-			decltype(nspaces.size()) i = 0;
-			for (; i < nspaces.size(); ++i)
-				if (currentNamespaces.find(reinterpret_cast<Namespace*>(nspaces[i].get())) == currentNamespaces.end())
+			const auto& nspaces = nspace.getNamespaces();
+			for (auto it = nspaces.begin(); it != nspaces.end(); ++it)
+				if (currentNamespaces.find(reinterpret_cast<Namespace*>(it->get())) == currentNamespaces.end())
+				{
+					for (; it != nspaces.end(); ++it)
+						out += (*it)->getName() + CHAR_SCOPE;
 					break;
-
-			for (; i < nspaces.size(); ++i)
-				out += nspaces[i]->getName() + CHAR_SCOPE;
+				}
 		}
 
 		out += ent.getName();
@@ -67,10 +68,13 @@ public:
 			switch (it->getType())
 			{
 			case Type::ENTITY_ABSTRACT:
-				putEntityDeclaration(out, it->getAbstractEntity(), CON);
+				putAbstractEntity(out, it->getAbstractEntity(), CON);
 				break;
 			case Type::ENTITY_CONCRETE:
-				putEntityDeclaration(out, it->getConcreteEntity(), CON);
+				putConcreteEntity(out, it->getConcreteEntity(), CON);
+				break;
+			case Type::NAMESPACE:
+				putUsingNamespace(out, it->getNamespace(), CON);
 				break;
 			case Type::IMPORT:
 				putImportedDocument(out, it->getImportedDoc(), CON);
@@ -79,7 +83,8 @@ public:
 				putScopedDocument(out, it->getScopedDoc());
 				break;
 			default:
-				break;
+				assert(false);
+				throw logic_error("");
 			}
 		});
 	}
@@ -163,37 +168,10 @@ void putContainerEnd(StringBuilder& out, ConType con)
 	}
 }
 
-void Deserializer::putWebss(StringBuilder& out, const Webss& webss, ConType con)
+void Deserializer::putAbstractValue(StringBuilder& out, const Webss& webss, ConType con)
 {
 	switch (webss.t)
 	{
-	case WebssType::NONE: case WebssType::DEFAULT:
-		break;
-	case WebssType::PRIMITIVE_NULL:
-		out += 'N';
-		break;
-	case WebssType::PRIMITIVE_BOOL:
-		out += webss.tBool ? 'T' : 'F';
-		break;
-	case WebssType::PRIMITIVE_INT:
-		out += to_string(webss.tInt);
-		break;
-	case WebssType::PRIMITIVE_DOUBLE:
-		out += to_string(webss.tDouble);
-		break;
-	case WebssType::PRIMITIVE_STRING:
-		out += CHAR_COLON;
-		putLineString(out, *webss.tString, con);
-		break;
-	case WebssType::DICTIONARY:
-		putDictionary(out, *webss.dict);
-		break;
-	case WebssType::LIST:
-		putList(out, *webss.list);
-		break;
-	case WebssType::TUPLE:
-		putTuple(out, *webss.tuple);
-		break;
 	case WebssType::FUNCTION_HEAD_BINARY:
 		putFheadBinary(out, *webss.fheadBinary);
 		break;
@@ -206,19 +184,8 @@ void Deserializer::putWebss(StringBuilder& out, const Webss& webss, ConType con)
 	case WebssType::FUNCTION_HEAD_TEXT:
 		putFheadText(out, *webss.fheadText);
 		break;
-	case WebssType::FUNCTION_BINARY:
-		putFuncBinary(out, *webss.funcBinary);
-		break;
-	case WebssType::FUNCTION_SCOPED:
-		putFuncScoped(out, *webss.funcScoped, con);
-		break;
-	case WebssType::FUNCTION_STANDARD:
-		putFuncStandard(out, *webss.funcStandard);
-		break;
-	case WebssType::FUNCTION_TEXT:
-		putFuncText(out, *webss.funcText);
-		break;
 	case WebssType::ENTITY:
+		assert(webss.ent.getContent().isAbstract());
 		putEntityName(out, webss.ent);
 		break;
 	case WebssType::NAMESPACE:
@@ -230,11 +197,8 @@ void Deserializer::putWebss(StringBuilder& out, const Webss& webss, ConType con)
 	case WebssType::BLOCK_HEAD:
 		putBlockHead(out, *webss.blockHead);
 		break;
-	case WebssType::BLOCK:
-		putBlock(out, *webss.block, con);
-		break;
 	default:
-		assert(false && "can't deserialize this type");
+		assert(false && "type is not an abstract value");
 	}
 }
 
@@ -287,7 +251,7 @@ void Deserializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConT
 		putBlock(out, *webss.block, con);
 		break;
 	default:
-		assert(false && "type is not a value-only");
+		assert(false && "type is not a concrete value");
 	}
 }
 
@@ -415,7 +379,7 @@ void Deserializer::putDocument(StringBuilder& out, const Document& doc)
 	putSeparatedValues<Type, CON>(out, doc.getOrderedKeyValues(), [&](Type::const_iterator it)
 	{
 		if (it->first == nullptr)
-			putWebss(out, *it->second, CON);
+			putConcreteValue(out, *it->second, CON);
 		else
 			putKeyValue(out, *it->first, *it->second, CON);
 	});
@@ -436,26 +400,35 @@ void Deserializer::putScopedDocument(StringBuilder& out, const ScopedDocument& s
 {
 	out += CHAR_USING_NAMESPACE;
 	putFheadScoped(out, scopedDoc.head);
-
-	//include the namespaces
-	const auto& params = scopedDoc.head.getParameters();
-	for (const auto& param : params)
-		if (param.hasNamespace())
-			currentNamespaces.insert(param.getNamespace().getPointer().get());
-
+	NamespaceIncluder includer(currentNamespaces, scopedDoc.head.getParameters());
 	static_cast<DeserializerTemplate*>(this)->putDocumentHead<ConType::DICTIONARY>(out, scopedDoc.body);
+}
 
-	//remove the namespaces
-	for (const auto& param : params)
-		if (param.hasNamespace())
-			currentNamespaces.erase(param.getNamespace().getPointer().get());
+void Deserializer::putUsingNamespace(StringBuilder& out, const Namespace& nspace)
+{
+	out += CHAR_USING_NAMESPACE;
+	const auto& nspaces = nspace.getNamespaces();
+	for (auto it = nspaces.begin(); it != nspaces.end(); ++it)
+		if (currentNamespaces.find(reinterpret_cast<Namespace*>(it->get())) == currentNamespaces.end())
+		{
+			out += (*it)->getName();
+			while (++it != nspaces.end())
+				out += CHAR_SCOPE + (*it)->getName();
+			break;
+		}
 }
 
 void Deserializer::putNamespace(StringBuilder& out, const Namespace& nspace)
 {
 	static const ConType::Enum CON = ConType::DICTIONARY;
 	currentNamespaces.insert(nspace.getPointer().get());
-	putSeparatedValues<Namespace, CON>(out, nspace, [&](Namespace::const_iterator it) { putEntityDeclaration(out, *it, CON); });
+	putSeparatedValues<Namespace, CON>(out, nspace, [&](Namespace::const_iterator it)
+	{
+		if (it->getContent().isAbstract())
+			putAbstractEntity(out, *it, CON);
+		else
+			putConcreteEntity(out, *it, CON);
+	});
 	currentNamespaces.erase(nspace.getPointer().get());
 }
 
@@ -488,10 +461,20 @@ void Deserializer::putBlock(StringBuilder& out, const Block& block, ConType con)
 	}
 }
 
-void Deserializer::putEntityDeclaration(StringBuilder& out, const Entity& ent, ConType con)
+void Deserializer::putAbstractEntity(StringBuilder& out, const Entity& ent, ConType con)
 {
 	const auto& content = ent.getContent();
-	out += content.isConcrete() ? CHAR_CONCRETE_ENTITY : CHAR_ABSTRACT_ENTITY;
+	assert(content.isAbstract());
+	out += CHAR_ABSTRACT_ENTITY;
+	putEntityName(out, ent);
+	putAbstractValue(out, content, con);
+}
+
+void Deserializer::putConcreteEntity(StringBuilder& out, const Entity& ent, ConType con)
+{
+	const auto& content = ent.getContent();
+	assert(content.isConcrete());
+	out += CHAR_CONCRETE_ENTITY;
 	putEntityName(out, ent);
 	putCharValue(out, content, con);
 }
@@ -671,20 +654,13 @@ void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& 
 			switch (it->getType())
 			{
 			case ParamType::ENTITY_ABSTRACT: 
-				putEntityDeclaration(out, it->getAbstractEntity(), CON);
+				putAbstractEntity(out, it->getAbstractEntity(), CON);
 				break;
 			case ParamType::ENTITY_CONCRETE:
-				putEntityDeclaration(out, it->getConcreteEntity(), CON);
+				putConcreteEntity(out, it->getConcreteEntity(), CON);
 				break;
 			case ParamType::NAMESPACE:
-				out += CHAR_USING_NAMESPACE;
-				out += it->getNamespace().getName();
-				break;
-			case ParamType::IMPORT:
-				putImportedDocument(out, it->getImportedDoc(), CON);
-				break;
-			case ParamType::SCOPED_DOCUMENT:
-				putScopedDocument(out, it->getScopedDoc());
+				putUsingNamespace(out, it->getNamespace());
 				break;
 			default:
 				assert(false);
@@ -818,11 +794,7 @@ void Deserializer::putFheadBinary(StringBuilder& out, const FunctionHeadBinary& 
 
 void Deserializer::putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con)
 {
-	//include the namespaces
-	for (const auto& param : func.getParameters())
-		if (param.hasNamespace())
-			currentNamespaces.insert(param.getNamespace().getPointer().get());
-
+	NamespaceIncluder includer(currentNamespaces, func.getParameters());
 	if (func.hasEntity())
 	{
 		putEntityName(out, func.getEntity());
@@ -833,11 +805,6 @@ void Deserializer::putFuncScoped(StringBuilder& out, const FunctionScoped& func,
 		putFheadScoped(out, func);
 		putConcreteValue(out, func.getValue(), con);
 	}
-
-	//remove the namespaces
-	for (const auto& param : func.getParameters())
-		if (param.hasNamespace())
-			currentNamespaces.erase(param.getNamespace().getPointer().get());
 }
 
 
