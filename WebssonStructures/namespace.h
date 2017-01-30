@@ -33,12 +33,12 @@ namespace webss
 
 		This(std::string name) : ptrBody(new NamespaceBody{ std::move(name) })
 		{
-			ptrBody->nspaces.push_back(PtrThis(new This(*this)));
+			ptrBody->ptrThis = PtrThis(new This(*this));
 		}
 
 		This(std::string name, const This& previousNspace) : ptrBody(new NamespaceBody{ std::move(name), previousNspace.getNamespaces() })
 		{
-			ptrBody->nspaces.push_back(PtrThis(new This(*this)));
+			ptrBody->ptrThis = PtrThis(new This(*this));
 		}
 
 		bool empty() const
@@ -75,9 +75,9 @@ namespace webss
 		Entity& at(const std::string& key) { return getData()[accessKeySafe<Keymap, size_type>(getKeys(), key)]; }
 		const Entity& at(const std::string& key) const { return getData()[accessKeySafe<Keymap, size_type>(getKeys(), key)]; }
 
-		const std::string& getName() const { assert(hasBody()); return ptrBody->name; }
-		const Namespaces& getNamespaces() const { assert(hasBody()); return ptrBody->nspaces; }
-		const PtrThis& getPointer() const { return getNamespaces().back(); }
+		const std::string& getName() const { return getBody().name; }
+		const Namespaces& getNamespaces() const { return getBody().nspaces; }
+		const PtrThis& getPointer() const { return getBody().ptrThis; }
 
 		iterator begin() { return getData().begin(); }
 		iterator end() { return getData().end(); }
@@ -93,13 +93,16 @@ namespace webss
 			Namespaces nspaces;
 			Data data;
 			Keymap keys;
+			PtrThis ptrThis;
 		};
 		std::shared_ptr<NamespaceBody> ptrBody;
 
-		Data& getData() { assert(hasBody()); return ptrBody->data; }
-		const Data& getData() const { assert(hasBody()); return ptrBody->data; }
-		Keymap& getKeys() { assert(hasBody()); return ptrBody->keys; }
-		const Keymap& getKeys() const { assert(hasBody()); return ptrBody->keys; }
+		NamespaceBody& getBody() { assert(hasBody()); return *ptrBody; }
+		const NamespaceBody& getBody() const  { assert(hasBody()); return *ptrBody; }
+		Data& getData() { return getBody().data; }
+		const Data& getData() const { return getBody().data; }
+		Keymap& getKeys() { return getBody().keys; }
+		const Keymap& getKeys() const { return getBody().keys; }
 
 		This() : ptrBody(new NamespaceBody{}) {}
 	};
