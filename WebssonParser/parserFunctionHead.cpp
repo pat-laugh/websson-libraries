@@ -59,27 +59,27 @@ Webss Parser::parseFunctionHead(It& it)
 		case WebssType::BLOCK_HEAD:
 			if (!isEnd)
 				throw runtime_error(ERROR_UNEXPECTED);
-			return BlockHead(checkEntBlockHead(other.abstractEntity));
+			return BlockHead(other.abstractEntity);
 		case WebssType::FUNCTION_HEAD_BINARY:
 		{
-			FunctionHeadBinary fheadBinary(checkEntFheadBinary(other.abstractEntity));
+			FunctionHeadBinary fheadBinary(other.abstractEntity);
 			return isEnd ? move(fheadBinary) : parseFunctionHeadBinary(it, move(fheadBinary));
 		}
 		case WebssType::FUNCTION_HEAD_SCOPED:
 		{
-			FunctionHeadScoped fheadScoped(checkEntFheadScoped(other.abstractEntity));
+			FunctionHeadScoped fheadScoped(other.abstractEntity);
 			return isEnd ? move(fheadScoped) : parseFunctionHeadScoped(it, move(fheadScoped));
 		}
 		case WebssType::FUNCTION_HEAD_STANDARD:
-			fhead = FunctionHeadStandard(checkEntFheadStandard(other.abstractEntity));
+			fhead = FunctionHeadStandard(other.abstractEntity);
 			return isEnd ? move(fhead) : parseFunctionHeadStandard(it, move(fhead));
 		case WebssType::FUNCTION_HEAD_TEXT:
 		{
-			FunctionHeadText fheadText(checkEntFheadText(other.abstractEntity));
+			FunctionHeadText fheadText(other.abstractEntity);
 			return isEnd ? move(fheadText) : parseFunctionHeadText(it, move(fheadText));
 		}
 		default:
-			throw runtime_error(ERROR_UNEXPECTED);
+			throw runtime_error("unexpected entity type within fhead: " + other.abstractEntity.getContent().getType().toString());
 		}
 	default:
 		THROW_ERROR;
@@ -103,17 +103,22 @@ FunctionHeadScoped Parser::parseFunctionHeadScoped(It& it, FunctionHeadScoped&& 
 	assert(it);
 	do
 		if (*it == CHAR_ABSTRACT_ENTITY)
-			checkMultiContainer(++it, [&]() { fhead.attach(parseAbstractEntity(it, Namespace::getEmptyInstance())); });
+			checkMultiContainer(++it, [&]() { fhead.attach(ParamScoped(parseAbstractEntity(it, Namespace::getEmptyInstance()))); });
 		else if (*it == CHAR_CONCRETE_ENTITY)
-			checkMultiContainer(++it, [&]() { fhead.attach(parseConcreteEntity(it, CON)); });
+			checkMultiContainer(++it, [&]() { fhead.attach(ParamScoped(parseConcreteEntity(it, CON), true)); });
 		else if (*it == CHAR_USING_NAMESPACE)
-			checkMultiContainer(++it, [&]() { fhead.attach(parseUsingNamespaceStatic(it)); });
+			checkMultiContainer(++it, [&]() { fhead.attach(ParamScoped(parseUsingNamespaceStatic(it))); });
 		else
 			parseOtherValue(it, CON,
 				CaseKeyValue{ throw runtime_error(ERROR_UNEXPECTED); },
 				CaseKeyOnly{ throw runtime_error(ERROR_UNEXPECTED); },
 				CaseValueOnly{ throw runtime_error(ERROR_UNEXPECTED); },
-				CaseAbstractEntity{ fhead.attach(checkEntFheadScoped(abstractEntity)); });
+				CaseAbstractEntity
+				{
+					if (!abstractEntity.getContent().isFunctionHeadScoped())
+						throw runtime_error(ERROR_BINARY_FUNCTION);
+					fhead.attach(abstractEntity);
+				});
 	while (checkNextElementContainer(it, CON));
 	return move(fhead);
 }
@@ -197,7 +202,12 @@ void Parser::parseOtherValuesFheadStandard(It& it, FunctionHeadStandard& fhead)
 		CaseKeyValue{ fhead.attach(move(key), move(value)); },
 		CaseKeyOnly{ fhead.attachEmpty(move(key)); },
 		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
-		CaseAbstractEntity{ fhead.attach(checkEntFheadStandard(abstractEntity)); });
+		CaseAbstractEntity
+		{
+			if (!abstractEntity.getContent().isFunctionHeadStandard())
+				throw runtime_error(ERROR_BINARY_FUNCTION);
+			fhead.attach(abstractEntity);
+		});
 }
 
 void Parser::parseOtherValuesFheadText(It& it, FunctionHeadText& fhead)
@@ -211,7 +221,12 @@ void Parser::parseOtherValuesFheadText(It& it, FunctionHeadText& fhead)
 		},
 		CaseKeyOnly{ fhead.attachEmpty(move(key)); },
 		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
-		CaseAbstractEntity{ fhead.attach(checkEntFheadText(abstractEntity)); });
+		CaseAbstractEntity
+		{
+			if (!abstractEntity.getContent().isFunctionHeadText())
+				throw runtime_error(ERROR_BINARY_FUNCTION);
+			fhead.attach(abstractEntity);
+		});
 }
 
 void Parser::parseOtherValuesFheadBinary(It& it, FunctionHeadBinary& fhead)
@@ -220,7 +235,12 @@ void Parser::parseOtherValuesFheadBinary(It& it, FunctionHeadBinary& fhead)
 		CaseKeyValue{ throw runtime_error(ERROR_BINARY_FUNCTION); },
 		CaseKeyOnly{ throw runtime_error(ERROR_BINARY_FUNCTION); },
 		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
-		CaseAbstractEntity{ fhead.attach(checkEntFheadBinary(abstractEntity)); });
+		CaseAbstractEntity
+		{
+			if (!abstractEntity.getContent().isFunctionHeadBinary())
+				throw runtime_error(ERROR_BINARY_FUNCTION);
+			fhead.attach(abstractEntity);
+		});
 }
 
 #undef THROW_ERROR

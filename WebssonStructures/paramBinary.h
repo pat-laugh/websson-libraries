@@ -20,9 +20,9 @@ namespace webss
 		class BasicSizeHead
 		{
 		public:
-			using FunctionHead = BasicFunctionHead<BasicParamBinary>;
-			using EntityFunctionHead = BasicEntity<FunctionHead>;
-			using EntityNumber = BasicEntity<WebssBinarySize>;
+			using FunctionHead = BasicFunctionHead<BasicParamBinary, Webss>;
+			using EntityFunctionHead = BasicEntity<Webss>;
+			using EntityNumber = BasicEntity<Webss>;
 			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, SELF, KEYWORD, NUMBER, FUNCTION_HEAD, FUNCTION_HEAD_POINTER, ENTITY_NUMBER, ENTITY_FUNCTION_HEAD };
 
 			BasicSizeHead() {}
@@ -41,9 +41,9 @@ namespace webss
 				}
 			}
 			BasicSizeHead(const EntityFunctionHead& newEnt) : t(Type::ENTITY_FUNCTION_HEAD), entFunctionHead(newEnt) {}
-			BasicSizeHead(const EntityNumber& newEnt) : t(Type::ENTITY_NUMBER), entNumber(newEnt)
+			BasicSizeHead(const EntityNumber& newEnt, bool number) : t(Type::ENTITY_NUMBER), entNumber(newEnt)
 			{
-				auto num = newEnt.getContent();
+				auto num = newEnt.getContent().getPrimitive<WebssBinarySize>();
 				if (num <= 0)
 				{
 					if (num == 0)
@@ -130,7 +130,7 @@ namespace webss
 				case Type::FUNCTION_HEAD: case Type::FUNCTION_HEAD_POINTER:
 					return *fhead;
 				case Type::ENTITY_FUNCTION_HEAD:
-					return entFunctionHead.getContent();
+					return entFunctionHead.getContent().getElement<FunctionHead>();
 				default:
 					assert(false && "binary size head does not contain a function head");
 					throw domain_error("");
@@ -146,7 +146,7 @@ namespace webss
 				case Type::NUMBER:
 					return number;
 				case Type::ENTITY_NUMBER:
-					return entNumber.getContent();
+					return entNumber.getContent().getPrimitive<WebssBinarySize>();
 				default:
 					assert(false);
 					throw domain_error("");
@@ -255,7 +255,7 @@ namespace webss
 		class BasicSizeList
 		{
 		public:
-			using Entity = BasicEntity<WebssBinarySize>;
+			using Entity = BasicEntity<Webss>;
 			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, ONE, NUMBER, ENTITY_NUMBER };
 
 			BasicSizeList() {}
@@ -271,7 +271,7 @@ namespace webss
 			}
 			BasicSizeList(const Entity& newEnt) : t(Type::ENTITY_NUMBER), ent(newEnt)
 			{
-				auto num = newEnt.getContent();
+				auto num = newEnt.getContent().getPrimitive<WebssBinarySize>();
 				if (num <= 0)
 				{
 					if (num == 0)
@@ -328,7 +328,7 @@ namespace webss
 				case Type::NUMBER:
 					return number;
 				case Type::ENTITY_NUMBER:
-					return ent.getContent();
+					return ent.getContent().getPrimitive<WebssBinarySize>();
 				default:
 					assert(false);
 					throw domain_error("");

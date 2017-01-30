@@ -126,7 +126,7 @@ namespace webss
 	template <class Webss>
 	class BasicEntity;
 
-	template <class Parameter>
+	template <class Parameter, class Webss>
 	class BasicFunctionHead;
 
 	class FunctionHeadSelf {};

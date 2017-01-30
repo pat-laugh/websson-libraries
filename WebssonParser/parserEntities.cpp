@@ -27,7 +27,7 @@ Entity Parser::parseAbstractEntity(It& it, const Namespace& currentNamespace)
 	case OPEN_DICTIONARY:
 		return Entity(move(name), parseNamespace(++it, name, currentNamespace));
 	case OPEN_LIST:
-		return Entity(move(name), Webss(parseEnum(++it, name), true));
+		return Entity(move(name), Webss(parseEnum(++it, name)));
 	case OPEN_FUNCTION:
 		return Entity(move(name), parseFunctionHead(++it));
 	case CHAR_COLON:

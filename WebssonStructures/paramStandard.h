@@ -16,10 +16,10 @@ namespace webss
 	class This
 	{
 	private:
-		using FheadBinary = BasicFunctionHead<BasicParamBinary<Webss>>;
+		using FheadBinary = BasicFunctionHead<BasicParamBinary<Webss>, Webss>;
 		using FheadScoped = BasicFunctionHeadScoped<Webss>;
-		using FheadStandard = BasicFunctionHead<This<Webss>>;
-		using FheadText = BasicFunctionHead<BasicParamText<Webss>>;
+		using FheadStandard = BasicFunctionHead<This<Webss>, Webss>;
+		using FheadText = BasicFunctionHead<BasicParamText<Webss>, Webss>;
 
 		WebssType typeFhead = WebssType::NONE;
 		union

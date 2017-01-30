@@ -12,7 +12,7 @@ namespace webss
 	class This
 	{
 	public:
-		using Entity = BasicEntity<This>;
+		using Entity = BasicEntity<Webss>;
 
 		This() {}
 		This(const Entity& ent) : hasEnt(true), ent(ent) {}
@@ -33,7 +33,7 @@ namespace webss
 		using Head = BasicBlockHead<Webss>;
 		Webss value;
 	public:
-		using Entity = BasicEntity<BasicBlockHead<Webss>>;
+		using Entity = BasicEntity<Webss>;
 
 		This(Webss&& value) : Head(), value(std::move(value)) {}
 		This(const Webss& value) : Head(), value(value) {}

@@ -31,7 +31,7 @@ Parser::NameType Parser::parseNameType(It& it)
 	else if (!ents.hasEntity(name))
 		return{ move(name) };
 
-	const Entity* ent = &ents.getWebss(name);
+	const Entity* ent = &ents[name];
 scopeLoop:
 	PatternLineGreed(*it == CHAR_SCOPE, /* continue below */, return{ *ent })
 	try
@@ -136,15 +136,15 @@ Parser::OtherValue Parser::checkAbstractEntity(It& it, ConType con, const Entity
 	switch (content.getType())
 	{
 	case WebssType::BLOCK_HEAD:
-		return{ Block(checkEntBlockHead(ent), parseValueOnly(it, con)) };
+		return{ Block(ent, parseValueOnly(it, con)) };
 	case WebssType::FUNCTION_HEAD_BINARY:
-		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadBinary(checkEntFheadBinary(ent)), parseFunctionBodyBinary(it, content.getFunctionHeadBinary().getParameters())) }, break)
+		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadBinary(ent), parseFunctionBodyBinary(it, content.getFunctionHeadBinary().getParameters())) }, break)
 	case WebssType::FUNCTION_HEAD_SCOPED:
-		PatternLineGreed(isKeyChar(*it) || isNameStart(*it) || isNumberStart(*it), const auto& head = checkEntFheadScoped(ent); return{ FunctionScoped(head, parseFunctionBodyScoped(it, head.getContent().getParameters(), con)) }, break)
+		PatternLineGreed(isKeyChar(*it) || isNameStart(*it) || isNumberStart(*it), return{ FunctionScoped(ent, parseFunctionBodyScoped(it, ent.getContent().getFunctionHeadScoped().getParameters(), con)) }, break)
 	case WebssType::FUNCTION_HEAD_STANDARD:
-		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadStandard(checkEntFheadStandard(ent)), parseFunctionBodyStandard(it, content.getFunctionHeadStandard().getParameters())) }, break)
+		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadStandard(ent), parseFunctionBodyStandard(it, content.getFunctionHeadStandard().getParameters())) }, break)
 	case WebssType::FUNCTION_HEAD_TEXT:
-		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadText(checkEntFheadText(ent)), parseFunctionBodyText(it, content.getFunctionHeadText().getParameters())) }, break)
+		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadText(ent), parseFunctionBodyText(it, content.getFunctionHeadText().getParameters())) }, break)
 	default:
 		break;
 	}

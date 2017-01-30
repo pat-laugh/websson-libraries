@@ -5,7 +5,7 @@
 using namespace std;
 using namespace webss;
 
-Webss::Webss() : t(WebssType::NONE) {}
+Webss::Webss() {}
 
 Webss::Webss(bool tBool) : t(WebssType::PRIMITIVE_BOOL), tBool(tBool) {}
 Webss::Webss(Keyword keyword) : t(WebssType::PRIMITIVE_BOOL)
@@ -49,7 +49,7 @@ PATTERN_CONSTRUCT_MOVE(FunctionScoped, funcScoped, FUNCTION_SCOPED)
 PATTERN_CONSTRUCT_MOVE(FunctionStandard, funcStandard, FUNCTION_STANDARD)
 PATTERN_CONSTRUCT_MOVE(FunctionText, funcText, FUNCTION_TEXT)
 PATTERN_CONSTRUCT_MOVE(Namespace, nspace, NAMESPACE)
-Webss::Webss(Enum&& name, bool) : t(WebssType::ENUM), nspace(new Namespace(move(name))) {}
+PATTERN_CONSTRUCT_MOVE(Enum, tEnum, ENUM)
 PATTERN_CONSTRUCT_MOVE(BlockHead, blockHead, BLOCK_HEAD)
 PATTERN_CONSTRUCT_MOVE(Block, block, BLOCK)
 
@@ -70,7 +70,7 @@ PATTERN_CONSTRUCT_CONST(FunctionScoped, funcScoped, FUNCTION_SCOPED)
 PATTERN_CONSTRUCT_CONST(FunctionStandard, funcStandard, FUNCTION_STANDARD)
 PATTERN_CONSTRUCT_CONST(FunctionText, funcText, FUNCTION_TEXT)
 PATTERN_CONSTRUCT_CONST(Namespace, nspace, NAMESPACE)
-Webss::Webss(const Enum& name, bool) : t(WebssType::ENUM), nspace(new Namespace(name)) {}
+PATTERN_CONSTRUCT_CONST(Enum, tEnum, ENUM)
 PATTERN_CONSTRUCT_CONST(BlockHead, blockHead, BLOCK_HEAD)
 PATTERN_CONSTRUCT_CONST(Block, block, BLOCK)
 
@@ -108,7 +108,7 @@ void Webss::destroyUnion()
 {
 	switch (t)
 	{
-	case WebssType::NONE:
+	case WebssType::NONE: case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
 		break;
 	case WebssType::ENTITY:
 		ent.~BasicEntity();
@@ -155,8 +155,11 @@ void Webss::destroyUnion()
 	case WebssType::FUNCTION_TEXT:
 		delete funcText;
 		break;
-	case WebssType::NAMESPACE: case WebssType::ENUM:
+	case WebssType::NAMESPACE:
 		delete nspace;
+		break;
+	case WebssType::ENUM:
+		delete tEnum;
 		break;
 	case WebssType::BLOCK_HEAD:
 		delete blockHead;
@@ -191,7 +194,7 @@ void Webss::copyUnion(Webss&& o)
 {
 	switch (o.t)
 	{
-	case WebssType::NONE:
+	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
 		break;
 	case WebssType::ENTITY:
 		new (&ent) Entity(move(o.ent));
@@ -250,8 +253,11 @@ void Webss::copyUnion(Webss&& o)
 	case WebssType::FUNCTION_TEXT:
 		funcText = o.funcText;
 		break;
-	case WebssType::NAMESPACE: case WebssType::ENUM:
+	case WebssType::NAMESPACE:
 		nspace = o.nspace;
+		break;
+	case WebssType::ENUM:
+		tEnum = o.tEnum;
 		break;
 	case WebssType::BLOCK_HEAD:
 		blockHead = o.blockHead;
@@ -270,7 +276,7 @@ void Webss::copyUnion(const Webss& o)
 {
 	switch (o.t)
 	{
-	case WebssType::NONE:
+	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
 		break;
 	case WebssType::ENTITY:
 		new (&ent) Entity(o.ent);
@@ -327,8 +333,11 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::FUNCTION_TEXT:
 		funcText = new FunctionText(*o.funcText);
 		break;
-	case WebssType::NAMESPACE: case WebssType::ENUM:
+	case WebssType::NAMESPACE:
 		nspace = new Namespace(*o.nspace);
+		break;
+	case WebssType::ENUM:
+		tEnum = new Enum(*o.tEnum);
 		break;
 	case WebssType::BLOCK_HEAD:
 		blockHead = new BlockHead(*o.blockHead);
@@ -506,7 +515,7 @@ const FunctionScoped& Webss::getFunctionScoped() const { PATTERN_GET_CONST(*func
 const FunctionStandard& Webss::getFunctionStandard() const { PATTERN_GET_CONST(*funcStandard, getFunctionStandard(), WebssType::FUNCTION_STANDARD); }
 const FunctionText& Webss::getFunctionText() const { PATTERN_GET_CONST(*funcText, getFunctionText(), WebssType::FUNCTION_TEXT); }
 const Namespace& Webss::getNamespace() const { PATTERN_GET_CONST(*nspace, getNamespace(), WebssType::NAMESPACE); }
-const Enum& Webss::getEnum() const { PATTERN_GET_CONST(*nspace, getEnum(), WebssType::ENUM); }
+const Enum& Webss::getEnum() const { PATTERN_GET_CONST(*tEnum, getEnum(), WebssType::ENUM); }
 const BlockHead& Webss::getBlockHead() const { PATTERN_GET_CONST(*blockHead, getBlockHead(), WebssType::BLOCK_HEAD); }
 const Block& Webss::getBlock() const { PATTERN_GET_CONST(*block, getBlock(), WebssType::BLOCK); }
 
@@ -609,10 +618,10 @@ bool Webss::isFunctionHeadBinary() const { PATTERN_IS(WebssType::FUNCTION_HEAD_B
 bool Webss::isFunctionHeadScoped() const { PATTERN_IS(WebssType::FUNCTION_HEAD_SCOPED, isFunctionHeadScoped()) }
 bool Webss::isFunctionHeadStandard() const { PATTERN_IS(WebssType::FUNCTION_HEAD_STANDARD, isFunctionHeadStandard()) }
 bool Webss::isFunctionHeadText() const { PATTERN_IS(WebssType::FUNCTION_HEAD_TEXT, isFunctionHeadText()) }
+bool Webss::isNamespace() const { PATTERN_IS(WebssType::NAMESPACE, isNamespace()) }
 bool Webss::isEnum() const { PATTERN_IS(WebssType::ENUM, isEnum()) }
 bool Webss::isBlockHead() const { PATTERN_IS(WebssType::BLOCK_HEAD, isBlockHead()) }
 bool Webss::isBlock() const { PATTERN_IS(WebssType::BLOCK, isBlock()) }
-bool Webss::isNamespace() const { PATTERN_IS(WebssType::NAMESPACE, isNamespace()) }
 
 bool Webss::isDictionary() const
 {

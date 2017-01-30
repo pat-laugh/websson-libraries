@@ -11,7 +11,7 @@ namespace webss
 	using BasicParamScoped = BasicParamDocument<Webss>;
 
 	template <class Webss>
-	using BasicFunctionHeadScoped = BasicFunctionHead<BasicParamDocument<Webss>>;
+	using BasicFunctionHeadScoped = BasicFunctionHead<BasicParamDocument<Webss>, Webss>;
 
 #define This BasicFunctionScoped
 	template <class Webss>

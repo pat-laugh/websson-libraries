@@ -4,7 +4,7 @@
 
 #include "utilsSweepers.h"
 #include "language.h"
-#include "multiEntityManager.h"
+#include "entityManager.h"
 #include "WebssonStructures/webss.h"
 #include "WebssonUtils/stringBuilder.h"
 
@@ -15,7 +15,7 @@ namespace webss
 	class Parser
 	{
 	public:
-		MultiEntityManager ents;
+		BasicEntityManager<Webss> ents;
 
 		Parser();
 		Parser(Language lang);
@@ -62,7 +62,6 @@ namespace webss
 			Entity entity;
 		};
 
-		BasicEntityManager<WebssBinarySize> entsTypeBinarySize;
 		BasicEntityManager<void*> importedDocuments;
 
 		Document parseDocument(It&& it);
@@ -145,23 +144,13 @@ namespace webss
 		void parseBinaryHead(It& it, FunctionHeadBinary& fhead);
 		Tuple parseFunctionTupleBinary(It& it, const FunctionHeadBinary::Parameters& params);
 		ParamBinary::SizeList parseBinarySizeList(It& it);
-		const BasicEntity<WebssBinarySize>& checkEntTypeBinarySize(const Entity& ent);
+		const Entity& checkEntTypeBinarySize(const Entity& ent);
 
 		//parserUtils.cpp
 		bool checkEmptyContainer(It& it, ConType con);
 		bool checkNextElementContainer(It & it, ConType con);
 		bool checkEmptyContainerVoid(It& it, ConType con, std::function<void()> funcIsVoid);
 		bool checkNextElementContainerVoid(It & it, ConType con, std::function<void()> funcIsVoid);
-
-
-
-		
-
-		const BasicEntity<BlockHead>& checkEntBlockHead(const Entity& ent);
-		const BasicEntity<FunctionHeadScoped>& checkEntFheadScoped(const Entity& ent);
-		const BasicEntity<FunctionHeadBinary>& checkEntFheadBinary(const Entity& ent);
-		const BasicEntity<FunctionHeadStandard>& checkEntFheadStandard(const Entity& ent);
-		const BasicEntity<FunctionHeadText>& checkEntFheadText(const Entity& ent);
 	};
 
 	class ParamDocumentIncluder
@@ -182,9 +171,9 @@ namespace webss
 			ents.addLocalSafe(ent);
 		}
 
-		MultiEntityManager& ents;
+		BasicEntityManager<Webss>& ents;
 	public:
-		ParamDocumentIncluder(MultiEntityManager& ents, const FunctionHeadScoped::Parameters& params) : ents(ents)
+		ParamDocumentIncluder(BasicEntityManager<Webss>& ents, const FunctionHeadScoped::Parameters& params) : ents(ents)
 		{
 			for (const auto& param : params)
 				includeEntities(param);
@@ -218,7 +207,7 @@ namespace webss
 				const auto& name = nspace.getName();
 				if (ents.hasEntity(name))
 				{
-					const auto& ent = ents.getWebss(name);
+					const auto& ent = ents[name];
 					const auto& content = ent.getContent();
 					if (content.isNamespace() && content.getNamespace() == nspace)
 						remove(ent);

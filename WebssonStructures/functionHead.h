@@ -7,32 +7,33 @@
 
 namespace webss
 {
-	template <class Parameter>
-	class BasicFunctionHead
+#define This BasicFunctionHead
+	template <class Parameter, class Webss>
+	class This
 	{
 	public:
 		using Parameters = BasicParameters<Parameter>;
-		using Pointer = std::shared_ptr<BasicFunctionHead>;
-		using Entity = BasicEntity<BasicFunctionHead>;
+		using Pointer = std::shared_ptr<Webss>;
+		using Entity = BasicEntity<Webss>;
 		using size_type = typename Parameters::size_type;
 
-		BasicFunctionHead() : t(Type::PARAMS), params(new Parameters()) {}
-		BasicFunctionHead(Parameters&& params) : t(Type::PARAMS), params(new Parameters(std::move(params))) {}
-		BasicFunctionHead(const Parameters& params) : BasicFunctionHead(Parameters(params)) {}
-		BasicFunctionHead(const Pointer& pointer) : t(Type::POINTER), pointer(pointer) {}
-		BasicFunctionHead(const Entity& ent) : t(Type::ENTITY), ent(ent) {}
-		~BasicFunctionHead() { destroyUnion(); }
+		This() : t(Type::PARAMS), params(new Parameters()) {}
+		This(Parameters&& params) : t(Type::PARAMS), params(new Parameters(std::move(params))) {}
+		This(const Parameters& params) : This(Parameters(params)) {}
+		This(const Pointer& pointer) : t(Type::POINTER), pointer(pointer) {}
+		This(const Entity& ent) : t(Type::ENTITY), ent(ent) {}
+		~This() { destroyUnion(); }
 
-		BasicFunctionHead(BasicFunctionHead&& o) { copyUnion(std::move(o)); }
-		BasicFunctionHead(const BasicFunctionHead& o) { copyUnion(o); }
+		This(This&& o) { copyUnion(std::move(o)); }
+		This(const This& o) { copyUnion(o); }
 
-		BasicFunctionHead& operator=(BasicFunctionHead&& o)
+		This& operator=(This&& o)
 		{
 			destroyUnion();
 			copyUnion(std::move(o));
 			return *this;
 		}
-		BasicFunctionHead& operator=(const BasicFunctionHead& o)
+		This& operator=(const This& o)
 		{
 			if (this != &o)
 			{
@@ -77,9 +78,9 @@ namespace webss
 			case Type::PARAMS:
 				return *params;
 			case Type::POINTER:
-				return pointer->getParameters();
+				return pointer->getElement<This>().getParameters();
 			case Type::ENTITY:
-				return ent.getContent().getParameters();
+				return ent.getContent().getElement<This>().getParameters();
 			}
 		}
 
@@ -136,7 +137,7 @@ namespace webss
 
 		void attach(const Entity& ent2)
 		{
-			if (ent2.getContent().empty())
+			if (ent2.getContent().getElement<This>().empty())
 				return;
 
 			switch (t)
@@ -155,10 +156,10 @@ namespace webss
 				break;
 			}
 
-			params->merge(ent2.getContent().getParameters());
+			params->merge(ent2.getContent().getElement<This>().getParameters());
 		}
 
-		void attach(const BasicFunctionHead& value)
+		void attach(const This& value)
 		{
 			if (value.empty())
 				return;
@@ -197,7 +198,7 @@ namespace webss
 
 		void removeEntity()
 		{
-			auto newParameters = ent.getContent().getParameters().makeCompleteCopy();
+			auto newParameters = ent.getContent().getElement<This>().getParameters().makeCompleteCopy();
 			ent.~BasicEntity();
 			t = Type::NONE;
 			setParameters(std::move(newParameters));
@@ -205,7 +206,7 @@ namespace webss
 
 		void removePointer()
 		{
-			auto newParameters = pointer->getParameters().makeCompleteCopy();
+			auto newParameters = pointer->getElement<This>().getParameters().makeCompleteCopy();
 			pointer.~shared_ptr();
 			t = Type::NONE;
 			setParameters(std::move(newParameters));
@@ -236,7 +237,7 @@ namespace webss
 			t = Type::NONE;
 		}
 
-		void copyUnion(BasicFunctionHead&& o)
+		void copyUnion(This&& o)
 		{
 			switch (o.t)
 			{
@@ -257,7 +258,7 @@ namespace webss
 			t = o.t;
 			o.t = Type::NONE;
 		}
-		void copyUnion(const BasicFunctionHead& o)
+		void copyUnion(const This& o)
 		{
 			switch (o.t)
 			{
@@ -276,4 +277,5 @@ namespace webss
 			t = o.t;
 		}
 	};
+#undef This
 }

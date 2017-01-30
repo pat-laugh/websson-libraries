@@ -209,7 +209,7 @@ const string& Parser::parseStringEntity(It& it)
 {
 	try
 	{
-		const Webss* value = &ents.getWebssSafe(parseName(it)).getContent();
+		const Webss* value = &ents.at(parseName(it)).getContent();
 		while (it == CHAR_SCOPE && it.peekGood() && isNameStart(it.peek()))
 			value = &value->getNamespace().at(parseName(++it)).getContent();
 		return value->getString();

@@ -93,28 +93,3 @@ bool Parser::checkNextElementContainerVoid(It& it, ConType con, function<void()>
 	}
 	return true;
 }
-
-const BasicEntity<BlockHead>& Parser::checkEntBlockHead(const Entity& ent)
-{
-	return ents.getBlockHead(ent.getName());
-}
-
-const BasicEntity<FunctionHeadBinary>& Parser::checkEntFheadBinary(const Entity& ent)
-{
-	return ents.getFheadBinary(ent.getName());
-}
-
-const BasicEntity<FunctionHeadScoped>& Parser::checkEntFheadScoped(const Entity& ent)
-{
-	return ents.getFheadScoped(ent.getName());
-}
-
-const BasicEntity<FunctionHeadStandard>& Parser::checkEntFheadStandard(const Entity& ent)
-{
-	return ents.getFheadStandard(ent.getName());
-}
-
-const BasicEntity<FunctionHeadText>& Parser::checkEntFheadText(const Entity& ent)
-{
-	return ents.getFheadText(ent.getName());
-}

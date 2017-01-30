@@ -55,10 +55,12 @@ void Parser::parseBinaryHead(It& it, FunctionHeadBinary& fhead)
 				bhead = Bhead(nameType.keyword);
 				break;
 			case NameType::ENTITY_ABSTRACT:
-				bhead = Bhead(checkEntFheadBinary(nameType.entity));
+				if (!nameType.entity.getContent().isFunctionHeadBinary())
+					throw runtime_error(ERROR_UNEXPECTED);
+				bhead = Bhead(nameType.entity);
 				break;
 			case NameType::ENTITY_CONCRETE:
-				bhead = Bhead(checkEntTypeBinarySize(nameType.entity));
+				bhead = Bhead(checkEntTypeBinarySize(nameType.entity), true);
 				break;
 			default:
 				throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(nameType.name));
@@ -281,13 +283,11 @@ WebssBinarySize checkBinarySize(WebssInt sizeInt)
 	return static_cast<WebssBinarySize>(sizeInt);
 }
 
-const BasicEntity<WebssBinarySize>& Parser::checkEntTypeBinarySize(const Entity& ent)
+const Entity& Parser::checkEntTypeBinarySize(const Entity& ent)
 {
-	const auto& name = ent.getName();
-	if (!entsTypeBinarySize.hasEntity(name))
-		try { entsTypeBinarySize.addLocal(name, checkBinarySize(ent.getContent().getInt())); }
-		catch (exception e) { throw runtime_error(e.what()); }
-	return entsTypeBinarySize[name];
+	try { checkBinarySize(ent.getContent().getInt()); }
+	catch (exception e) { throw runtime_error(e.what()); }
+	return ent;
 }
 
 #undef BINARY_DEFAULT_VALUE

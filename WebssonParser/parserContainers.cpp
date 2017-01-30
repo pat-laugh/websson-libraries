@@ -132,7 +132,7 @@ Enum Parser::parseEnum(It& it, const string& name)
 	{
 		parseOtherValue(it, con,
 			ErrorKeyValue(ERROR_INPUT_ENUM),
-			CaseKeyOnly{ tEnum.add(move(key), tEnum.size()); },
+			CaseKeyOnly{ tEnum.add(move(key)); },
 			ErrorValueOnly(ERROR_INPUT_ENUM),
 			ErrorAbstractEntity(ERROR_INPUT_ENUM));
 	});
