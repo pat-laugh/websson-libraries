@@ -179,11 +179,11 @@ bool Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType c
 		case CHAR_CONCRETE_ENTITY:
 			checkMultiContainer(++it, [&]() { auto ent = parseConcreteEntity(it, con); docHead.push_back(ParamDocument(ent)); ents.addLocalSafe(move(ent)); });
 			break;
-		case CHAR_SCOPED_DOCUMENT:
-			checkMultiContainer(++it, [&]() { docHead.push_back(parseScopedDocument(it)); });
-			break;
 		case CHAR_IMPORT:
 			checkMultiContainer(++it, [&]() { auto import = parseImport(it, con); docHead.push_back(move(import)); });
+			break;
+		case CHAR_SCOPED_DOCUMENT:
+			checkMultiContainer(++it, [&]() { docHead.push_back(parseScopedDocument(it)); });
 			break;
 		default:
 			return false;
