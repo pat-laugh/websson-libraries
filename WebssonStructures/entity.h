@@ -31,6 +31,8 @@ namespace webss
 			return ptr->content;
 		}
 
+		bool operator==(const BasicEntity& o) const { return ptr == o.ptr; }
+
 		bool hasNamespace() const
 		{
 			assert(hasBody());

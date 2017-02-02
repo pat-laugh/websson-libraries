@@ -48,6 +48,10 @@ namespace webss
 		Deserializer() {}
 
 
+		void putNamespaceName(StringBuilder& out, const Namespace& nspace);
+		void putEntityName(StringBuilder& out, const Entity& ent);
+		void putFheadEntity(StringBuilder& out, const Entity& ent);
+
 		void putAbstractValue(StringBuilder& out, const Webss& webss, ConType con);
 
 		void putConcreteValue(StringBuilder& out, const Webss& webss, ConType con);
@@ -130,16 +134,24 @@ namespace webss
 		private:
 			std::set<Namespace*>& currentNamespaces;
 			std::set<Namespace*> toRemove;
+
+			void include(const Namespace& nspace)
+			{
+				auto ptr = nspace.getPointer().get();
+				currentNamespaces.insert(ptr);
+				toRemove.insert(ptr);
+			}
 		public:
 			NamespaceIncluder(std::set<Namespace*>& currentNamespaces, const FunctionHeadScoped::Parameters& params) : currentNamespaces(currentNamespaces)
 			{
 				for (const auto& param : params)
 					if (param.hasNamespace())
-					{
-						auto ptr = param.getNamespace().getPointer().get();
-						currentNamespaces.insert(ptr);
-						toRemove.insert(ptr);
-					}
+						include(param.getNamespace());
+			}
+
+			NamespaceIncluder(std::set<Namespace*>& currentNamespaces, const Namespace& nspace) : currentNamespaces(currentNamespaces)
+			{
+				include(nspace);
 			}
 
 			~NamespaceIncluder()
