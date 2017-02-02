@@ -77,17 +77,17 @@ void Deserializer::putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinar
 	}
 }
 
-void Deserializer::putBinary(StringBuilder& out, const ParamBinary& bhead, const Webss& data)
+void Deserializer::putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data)
 {
-	const auto& sizeHead = bhead.sizeHead;
+	const auto& sizeHead = param.sizeHead;
 	if (!sizeHead.isFunctionHead())
 	{
-		putBinary(out, bhead, data, [&](const Webss& webss) { putBinaryElement(out, sizeHead, webss); });
+		putBinary(out, param, data, [&](const Webss& webss) { putBinaryElement(out, sizeHead, webss); });
 		return;
 	}
 
-	const auto& params = bhead.sizeHead.getFunctionHead().getParameters();
-	putBinary(out, bhead, data, [&](const Webss& webss) { putFuncBodyBinary(out, params, webss.getTuple()); });
+	const auto& params = param.sizeHead.getFunctionHead().getParameters();
+	putBinary(out, param, data, [&](const Webss& webss) { putFuncBodyBinary(out, params, webss.getTuple()); });
 }
 
 void deserializeBitList(StringBuilder& out, const List& list)
@@ -108,19 +108,19 @@ void deserializeBitList(StringBuilder& out, const List& list)
 	out += c;
 }
 
-void Deserializer::putBinary(StringBuilder& out, const ParamBinary& bhead, const Webss& data, function<void(const Webss& webss)> func)
+void Deserializer::putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data, function<void(const Webss& webss)> func)
 {
-	if (bhead.sizeList.isOne())
+	if (param.sizeList.isOne())
 	{
 		func(data);
 		return;
 	}
 
 	const List& list = data.getList();
-	if (bhead.sizeList.isEmpty())
+	if (param.sizeList.isEmpty())
 		writeBinarySize(out, list.size());
 
-	if (bhead.sizeHead.isBool())
+	if (param.sizeHead.isBool())
 	{
 		deserializeBitList(out, list);
 		return;

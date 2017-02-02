@@ -80,16 +80,11 @@ void Deserializer::putParamText(StringBuilder& out, FUNC_PARAMS_TEXT)
 }
 #undef FUNC_PARAMS_TEXT
 
-
-#define FUNC_PARAMS_BINARY const string& key, const ParamBinary& value
-
-void Deserializer::putParamBinary(StringBuilder& out, FUNC_PARAMS_BINARY)
+void Deserializer::putParamBinary(StringBuilder& out, const string& key, const ParamBinary& param)
 {
-	putBinarySizeHead(out, value.sizeHead);
+	putBinarySizeHead(out, param.sizeHead);
 	out += key;
-	putBinarySizeList(out, value.sizeList);
-	if (value.sizeHead.hasDefaultValue())
-		putCharValue(out, value.sizeHead.getDefaultValue(), ConType::FUNCTION_HEAD);
+	putBinarySizeList(out, param.sizeList);
+	if (param.sizeHead.hasDefaultValue())
+		putCharValue(out, param.sizeHead.getDefaultValue(), ConType::FUNCTION_HEAD);
 }
-
-#undef FUNC_PARAMS_BINARY

@@ -691,8 +691,7 @@ void Deserializer::putParamsText(StringBuilder& out, const FunctionHeadText& fhe
 }
 #undef FUNC_PARAMS_TEXT
 
-#define FUNC_PARAMS_BINARY const string& key, const ParamBinary& value
-void Deserializer::putParamsBinary(StringBuilder& out, const FunctionHeadBinary& fhead, function<void(FUNC_PARAMS_BINARY)> func)
+void Deserializer::putParamsBinary(StringBuilder& out, const FunctionHeadBinary& fhead, function<void(const string& key, const ParamBinary& param)> func)
 {
 	static const ConType::Enum CON = ConType::FUNCTION_HEAD;
 	auto&& keyValues = fhead.getParameters().getOrderedKeyValues();
@@ -703,8 +702,6 @@ void Deserializer::putParamsBinary(StringBuilder& out, const FunctionHeadBinary&
 		func(*it->first, *it->second);
 	});
 }
-
-#undef FUNC_PARAMS_BINARY
 
 void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Dictionary& dict)
 {
@@ -768,7 +765,6 @@ void Deserializer::putFheadText(StringBuilder& out, const FunctionHeadText& fhea
 }
 #undef FUNC_PARAMS_TEXT
 
-#define FUNC_PARAMS_BINARY const string& key, const ParamBinary& value
 void Deserializer::putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead)
 {
 	if (fhead.hasEntity())
@@ -776,10 +772,9 @@ void Deserializer::putFheadBinary(StringBuilder& out, const FunctionHeadBinary& 
 	else
 	{
 		assert(!fhead.empty() && "binary function head can't be empty");
-		putParamsBinary(out, fhead, [&](FUNC_PARAMS_BINARY) { putParamBinary(out, key, value); });
+		putParamsBinary(out, fhead, [&](const string& key, const ParamBinary& param) { putParamBinary(out, key, param); });
 	}
 }
-#undef FUNC_PARAMS_BINARY
 
 
 
