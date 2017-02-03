@@ -12,7 +12,8 @@ namespace webss
 	class This
 	{
 	public:
-		using Parameters = BasicParameters<Parameter>;
+		using Param = Parameter;
+		using Parameters = BasicParameters<Param>;
 		using Pointer = std::shared_ptr<Webss>;
 		using Entity = BasicEntity<Webss>;
 		using size_type = typename Parameters::size_type;
@@ -47,7 +48,7 @@ namespace webss
 		bool empty() const { return getParameters().empty(); }
 		size_type size() const { return getParameters().size(); }
 
-		Parameter& back()
+		Param& back()
 		{
 			switch (t)
 			{
@@ -66,7 +67,7 @@ namespace webss
 
 			return params->back();
 		}
-		const Parameter& back() const { return getParameters().back(); }
+		const Param& back() const { return getParameters().back(); }
 
 		const Parameters& getParameters() const
 		{
@@ -90,7 +91,7 @@ namespace webss
 			return ent;
 		}
 
-		void attach(Parameter&& value)
+		void attach(Param&& value)
 		{
 			switch (t)
 			{
@@ -112,10 +113,10 @@ namespace webss
 
 		void attachEmpty(std::string&& key)
 		{
-			attach(std::move(key), Parameter());
+			attach(std::move(key), Param());
 		}
 
-		void attach(std::string&& key, Parameter&& value)
+		void attach(std::string&& key, Param&& value)
 		{
 			switch (t)
 			{

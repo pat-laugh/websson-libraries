@@ -58,6 +58,120 @@ public:
 			}
 		});
 	}
+
+	void putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead)
+	{
+		putFhead<FunctionHeadBinary, FunctionHeadBinary::Param>(out, fhead, [&](StringBuilder& out, const string& key, const FunctionHeadBinary::Param& param) { putParamBinary(out, key, param); });
+	}
+	void putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhead)
+	{
+		putFhead<FunctionHeadStandard, FunctionHeadStandard::Param>(out, fhead, [&](StringBuilder& out, const string& key, const FunctionHeadStandard::Param& param) { putParamStandard(out, key, param); });
+	}
+	void putFheadText(StringBuilder& out, const FunctionHeadText& fhead)
+	{
+		out += ASSIGN_CONTAINER_STRING;
+		putFhead<FunctionHeadText, FunctionHeadText::Param>(out, fhead, [&](StringBuilder& out, const string& key, const FunctionHeadText::Param& param) { putParamText(out, key, param); });
+	}
+private:
+	template <class FunctionHead, class Param>
+	void putFhead(StringBuilder& out, const FunctionHead& fhead, function<void(StringBuilder& out, const string& key, const Param& param)>&& putParam)
+	{
+		assert(!fhead.empty() && "function head can't be empty");
+		if (fhead.hasEntity())
+			putFheadEntity(out, fhead.getEntity());
+		else
+		{
+			auto&& keyValues = fhead.getParameters().getOrderedKeyValues();
+			using Type = typename remove_reference<decltype(keyValues)>::type;
+			putSeparatedValues<Type, ConType::FUNCTION_HEAD>(out, keyValues, [&](typename Type::const_iterator it)
+			{
+				assert(it->first != nullptr && ERROR_ANONYMOUS_KEY);
+				putParam(out, *it->first, *it->second);
+			});
+		}
+	}
+
+	void putParamBinary(StringBuilder& out, const string& key, const ParamBinary& param)
+	{
+		putBinarySizeHead(out, param.sizeHead);
+		out += key;
+		putBinarySizeList(out, param.sizeList);
+		if (param.sizeHead.hasDefaultValue())
+			putCharValue(out, param.sizeHead.getDefaultValue(), ConType::FUNCTION_HEAD);
+	}
+	void putParamStandard(StringBuilder& out, const string& key, const ParamStandard& param)
+	{
+		if (!param.hasDefaultValue())
+			out += key;
+		else
+			putKeyValue(out, key, param.getDefaultValue(), ConType::FUNCTION_HEAD);
+	}
+	void putParamText(StringBuilder& out, const string& key, const ParamText& param)
+	{
+		if (!param.hasDefaultValue())
+			out += key;
+		else
+		{
+			const auto& webss = param.getDefaultValue();
+			assert(webss.getType() == WebssType::PRIMITIVE_STRING && "function head text parameters' values can only be of type string");
+			putKeyValue(out, key, webss, ConType::FUNCTION_HEAD);
+		}
+	}
+
+	void putBinarySizeHead(StringBuilder& out, const ParamBinary::SizeHead& bhead)
+	{
+		using Type = ParamBinary::SizeHead::Type;
+		out += OPEN_TUPLE;
+		switch (bhead.getType())
+		{
+		case Type::EMPTY:
+			break;
+		case Type::KEYWORD:
+			out += bhead.getKeyword().toString();
+			break;
+		case Type::NUMBER:
+			out += to_string(bhead.size());
+			break;
+		case Type::FUNCTION_HEAD:
+			putFheadBinary(out, bhead.getFunctionHead());
+			break;
+		case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
+			putEntityName(out, bhead.getEntityNumber());
+			break;
+		case Type::ENTITY_FUNCTION_HEAD:
+			putEntityName(out, bhead.getEntityFunctionHead());
+			break;
+		case Type::SELF:
+			out += string() + OPEN_FUNCTION + CHAR_SELF + CLOSE_FUNCTION;
+			break;
+		default:
+			assert(false);
+		}
+		out += CLOSE_TUPLE;
+	}
+
+	void putBinarySizeList(StringBuilder& out, const ParamBinary::SizeList& blist)
+	{
+		using Type = ParamBinary::SizeList::Type;
+		if (blist.isOne())
+			return;
+
+		out += OPEN_LIST;
+		switch (blist.getType())
+		{
+		case Type::EMPTY:
+			break;
+		case Type::NUMBER:
+			out += to_string(blist.size());
+			break;
+		case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
+			putEntityName(out, blist.getEntity());
+			break;
+		default:
+			assert(false);
+		}
+		out += CLOSE_LIST;
+	}
 };
 
 void addCharEscape(StringBuilder& out, char c)
@@ -473,6 +587,96 @@ void Deserializer::putBlock(StringBuilder& out, const Block& block, ConType con)
 	}
 }
 
+void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& fhead)
+{
+	static const ConType::Enum CON = ConType::FUNCTION_HEAD;
+	if (fhead.hasEntity())
+		putFheadEntity(out, fhead.getEntity());
+	else
+	{
+		using Type = remove_reference<decltype(fhead.getParameters())>::type;
+		putSeparatedValues<Type, CON>(out, fhead.getParameters(), [&](Type::const_iterator it)
+		{
+			using ParamType = decltype(it->getType());
+			switch (it->getType())
+			{
+			case ParamType::ENTITY_ABSTRACT: 
+				putAbstractEntity(out, it->getAbstractEntity(), CON);
+				break;
+			case ParamType::ENTITY_CONCRETE:
+				putConcreteEntity(out, it->getConcreteEntity(), CON);
+				break;
+			case ParamType::NAMESPACE:
+				putUsingNamespace(out, it->getNamespace());
+				break;
+			default:
+				assert(false);
+			}
+		});
+	}
+}
+
+void Deserializer::putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con)
+{
+	NamespaceIncluder includer(currentNamespaces, func.getParameters());
+	if (func.hasEntity())
+	{
+		putEntityName(out, func.getEntity());
+		putCharValue(out, func.getValue(), con);
+	}
+	else
+	{
+		putFheadScoped(out, func);
+		putConcreteValue(out, func.getValue(), con);
+	}
+}
+
+void Deserializer::putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead)
+{
+	static_cast<DeserializerTemplate*>(this)->putFheadBinary(out, fhead);
+}
+void Deserializer::putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhead)
+{
+	static_cast<DeserializerTemplate*>(this)->putFheadStandard(out, fhead);
+}
+void Deserializer::putFheadText(StringBuilder& out, const FunctionHeadText& fhead)
+{
+	static_cast<DeserializerTemplate*>(this)->putFheadText(out, fhead);
+}
+
+
+
+void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Dictionary& dict)
+{
+	static const ConType::Enum CON = ConType::DICTIONARY;
+	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it)
+	{
+		out += it->first;
+		if (it->second.isList())
+			putFuncBinaryList(out, params, it->second.getList());
+		else
+		{
+			assert(it->second.isTuple());
+			putFuncBinaryTuple(out, params, it->second.getTuple());
+		}
+	});
+}
+void Deserializer::putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const List& list)
+{
+	static const ConType::Enum CON = ConType::LIST;
+	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
+	{
+		assert(it->isTuple());
+		putFuncBinaryTuple(out, params, it->getTuple());
+	});
+}
+void Deserializer::putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& tuple)
+{
+	out += OPEN_TUPLE;
+	putFuncBodyBinary(out, params, tuple);
+	out += CLOSE_TUPLE;
+}
+
 void Deserializer::putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const Dictionary& dict)
 {
 	static const ConType::Enum CON = ConType::DICTIONARY;
@@ -632,224 +836,4 @@ void Deserializer::putFuncTextTuple(StringBuilder& out, const FunctionHeadText::
 			throw logic_error("");
 		}
 	});
-}
-
-void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& fhead)
-{
-	static const ConType::Enum CON = ConType::FUNCTION_HEAD;
-	if (fhead.hasEntity())
-		putFheadEntity(out, fhead.getEntity());
-	else
-	{
-		using Type = remove_reference<decltype(fhead.getParameters())>::type;
-		putSeparatedValues<Type, CON>(out, fhead.getParameters(), [&](Type::const_iterator it)
-		{
-			using ParamType = decltype(it->getType());
-			switch (it->getType())
-			{
-			case ParamType::ENTITY_ABSTRACT: 
-				putAbstractEntity(out, it->getAbstractEntity(), CON);
-				break;
-			case ParamType::ENTITY_CONCRETE:
-				putConcreteEntity(out, it->getConcreteEntity(), CON);
-				break;
-			case ParamType::NAMESPACE:
-				putUsingNamespace(out, it->getNamespace());
-				break;
-			default:
-				assert(false);
-			}
-		});
-	}
-}
-
-#define FUNC_PARAMS_STANDARD const string& key, const ParamStandard& value
-void Deserializer::putParamsStandard(StringBuilder& out, const FunctionHeadStandard& fhead, function<void(FUNC_PARAMS_STANDARD)> func)
-{
-	static const ConType::Enum CON = ConType::FUNCTION_HEAD;
-	auto&& keyValues = fhead.getParameters().getOrderedKeyValues();
-	using Type = remove_reference<decltype(keyValues)>::type;
-	putSeparatedValues<Type, CON>(out, keyValues, [&](Type::const_iterator it)
-	{
-		assert(it->first != nullptr && ERROR_ANONYMOUS_KEY);
-		func(*it->first, *it->second);
-	});
-}
-#undef FUNC_PARAMS_STANDARD
-
-#define FUNC_PARAMS_TEXT const string& key, const ParamText& value
-void Deserializer::putParamsText(StringBuilder& out, const FunctionHeadText& fhead, function<void(FUNC_PARAMS_TEXT)> func)
-{
-	static const ConType::Enum CON = ConType::FUNCTION_HEAD;
-	auto&& keyValues = fhead.getParameters().getOrderedKeyValues();
-	using Type = remove_reference<decltype(keyValues)>::type;
-	putSeparatedValues<Type, CON>(out, keyValues, [&](Type::const_iterator it)
-	{
-		assert(it->first != nullptr && ERROR_ANONYMOUS_KEY);
-		func(*it->first, *it->second);
-	});
-}
-#undef FUNC_PARAMS_TEXT
-
-void Deserializer::putParamsBinary(StringBuilder& out, const FunctionHeadBinary& fhead, function<void(const string& key, const ParamBinary& param)> func)
-{
-	static const ConType::Enum CON = ConType::FUNCTION_HEAD;
-	auto&& keyValues = fhead.getParameters().getOrderedKeyValues();
-	using Type = remove_reference<decltype(keyValues)>::type;
-	putSeparatedValues<Type, CON>(out, keyValues, [&](Type::const_iterator it)
-	{
-		assert(it->first != nullptr && ERROR_ANONYMOUS_KEY);
-		func(*it->first, *it->second);
-	});
-}
-
-void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Dictionary& dict)
-{
-	static const ConType::Enum CON = ConType::DICTIONARY;
-	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it)
-	{
-		out += it->first;
-		if (it->second.isList())
-			putFuncBinaryList(out, params, it->second.getList());
-		else
-		{
-			assert(it->second.isTuple());
-			putFuncBinaryTuple(out, params, it->second.getTuple());
-		}
-	});
-}
-
-void Deserializer::putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const List& list)
-{
-	static const ConType::Enum CON = ConType::LIST;
-	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
-	{
-		assert(it->isTuple());
-		putFuncBinaryTuple(out, params, it->getTuple());
-	});
-}
-
-void Deserializer::putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& tuple)
-{
-	out += OPEN_TUPLE;
-	putFuncBodyBinary(out, params, tuple);
-	out += CLOSE_TUPLE;
-}
-
-
-
-#define FUNC_PARAMS_STANDARD const string& key, const ParamStandard& value
-void Deserializer::putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhead)
-{
-	if (fhead.hasEntity())
-		putFheadEntity(out, fhead.getEntity());
-	else
-	{
-		assert(!fhead.empty() && "standard function head can't be empty");
-		putParamsStandard(out, fhead, [&](FUNC_PARAMS_STANDARD) { putParamStandard(out, key, value); });
-	}
-}
-#undef FUNC_PARAMS_STANDARD
-
-#define FUNC_PARAMS_TEXT const string& key, const ParamText& value
-void Deserializer::putFheadText(StringBuilder& out, const FunctionHeadText& fhead)
-{
-	if (fhead.hasEntity())
-		putFheadEntity(out, fhead.getEntity());
-	else
-	{
-		assert(!fhead.empty() && "text function head can't be empty");
-		out += ASSIGN_CONTAINER_STRING;
-		putParamsText(out, fhead, [&](FUNC_PARAMS_TEXT) { putParamText(out, key, value); });
-	}
-}
-#undef FUNC_PARAMS_TEXT
-
-void Deserializer::putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead)
-{
-	if (fhead.hasEntity())
-		putFheadEntity(out, fhead.getEntity());
-	else
-	{
-		assert(!fhead.empty() && "binary function head can't be empty");
-		putParamsBinary(out, fhead, [&](const string& key, const ParamBinary& param) { putParamBinary(out, key, param); });
-	}
-}
-
-
-
-
-
-
-void Deserializer::putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con)
-{
-	NamespaceIncluder includer(currentNamespaces, func.getParameters());
-	if (func.hasEntity())
-	{
-		putEntityName(out, func.getEntity());
-		putCharValue(out, func.getValue(), con);
-	}
-	else
-	{
-		putFheadScoped(out, func);
-		putConcreteValue(out, func.getValue(), con);
-	}
-}
-
-
-
-
-void Deserializer::putBinarySizeHead(StringBuilder& out, const ParamBinary::SizeHead& bhead)
-{
-	using Type = ParamBinary::SizeHead::Type;
-	out += OPEN_TUPLE;
-	switch (bhead.getType())
-	{
-	case Type::EMPTY:
-		break;
-	case Type::KEYWORD:
-		out += bhead.getKeyword().toString();
-		break;
-	case Type::NUMBER:
-		out += to_string(bhead.size());
-		break;
-	case Type::FUNCTION_HEAD:
-		putFheadBinary(out, bhead.getFunctionHead());
-		break;
-	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
-		putEntityName(out, bhead.getEntityNumber());
-		break;
-	case Type::ENTITY_FUNCTION_HEAD:
-		putEntityName(out, bhead.getEntityFunctionHead());
-		break;
-	case Type::SELF:
-		out += "(&)";
-		break;
-	default:
-		assert(false);
-	}
-	out += CLOSE_TUPLE;
-}
-
-void Deserializer::putBinarySizeList(StringBuilder& out, const ParamBinary::SizeList& blist)
-{
-	using Type = ParamBinary::SizeList::Type;
-	if (blist.isOne())
-		return;
-
-	out += OPEN_LIST;
-	switch (blist.getType())
-	{
-	case Type::EMPTY:
-		break;
-	case Type::NUMBER:
-		out += to_string(blist.size());
-		break;
-	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
-		putEntityName(out, blist.getEntity());
-		break;
-	default:
-		assert(false);
-	}
-	out += CLOSE_LIST;
 }

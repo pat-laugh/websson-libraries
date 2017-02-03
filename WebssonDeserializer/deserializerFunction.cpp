@@ -56,35 +56,6 @@ void Deserializer::putFuncText(StringBuilder& out, const FunctionText& func)
 	}
 }
 
-#define FUNC_PARAMS_STANDARD const string& key, const ParamStandard& value
-void Deserializer::putParamStandard(StringBuilder& out, FUNC_PARAMS_STANDARD)
-{
-	if (!value.hasDefaultValue())
-		out += key;
-	else
-		putKeyValue(out, key, value.getDefaultValue(), ConType::FUNCTION_HEAD);
-}
-#undef FUNC_PARAMS_STANDARD
 
-#define FUNC_PARAMS_TEXT const string& key, const ParamText& value
-void Deserializer::putParamText(StringBuilder& out, FUNC_PARAMS_TEXT)
-{
-	if (!value.hasDefaultValue())
-		out += key;
-	else
-	{
-		const auto& webss = value.getDefaultValue();
-		assert(webss.getType() == WebssType::PRIMITIVE_STRING && "function head text paramaters should only be of type string");
-		putKeyValue(out, key, webss, ConType::FUNCTION_HEAD);
-	}
-}
-#undef FUNC_PARAMS_TEXT
 
-void Deserializer::putParamBinary(StringBuilder& out, const string& key, const ParamBinary& param)
-{
-	putBinarySizeHead(out, param.sizeHead);
-	out += key;
-	putBinarySizeList(out, param.sizeList);
-	if (param.sizeHead.hasDefaultValue())
-		putCharValue(out, param.sizeHead.getDefaultValue(), ConType::FUNCTION_HEAD);
-}
+

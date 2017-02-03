@@ -104,29 +104,14 @@ namespace webss
 		void putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhead);
 		void putFheadText(StringBuilder& out, const FunctionHeadText& fhead);
 
-#define FUNC_PARAMS_STANDARD const std::string& key, const ParamStandard& value
-		void putParamsStandard(StringBuilder& out, const FunctionHeadStandard& fhead, std::function<void(FUNC_PARAMS_STANDARD)> func);
-		void putParamStandard(StringBuilder& out, FUNC_PARAMS_STANDARD);
-#undef FUNC_PARAMS_STANDARD
-
-#define FUNC_PARAMS_TEXT const std::string& key, const ParamText& value
-		void putParamsText(StringBuilder& out, const FunctionHeadText& fhead, std::function<void(FUNC_PARAMS_TEXT)> func);
-		void putParamText(StringBuilder& out, FUNC_PARAMS_TEXT);
-#undef FUNC_PARAMS_TEXT
-
 		void putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Dictionary& dict);
 		void putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const List& list);
 		void putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& tuple);
-
-		void putParamBinary(StringBuilder& out, const string& key, const ParamBinary& param);
-		void putParamsBinary(StringBuilder& out, const FunctionHeadBinary& fhead, std::function<void(const string& key, const ParamBinary& param)> func);
 
 		void putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& data);
 		void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data);
 		void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data, std::function<void(const Webss& webss)> func);
 		void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss);
-		void putBinarySizeHead(StringBuilder& out, const ParamBinary::SizeHead& bhead);
-		void putBinarySizeList(StringBuilder& out, const ParamBinary::SizeList& blist);
 		
 		class NamespaceIncluder
 		{
