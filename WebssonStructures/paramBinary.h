@@ -21,9 +21,8 @@ namespace webss
 		{
 		public:
 			using FunctionHead = BasicFunctionHead<BasicParamBinary, Webss>;
-			using EntityFunctionHead = BasicEntity<Webss>;
-			using EntityNumber = BasicEntity<Webss>;
-			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, SELF, KEYWORD, NUMBER, FUNCTION_HEAD, FUNCTION_HEAD_POINTER, ENTITY_NUMBER, ENTITY_FUNCTION_HEAD };
+			using Entity = BasicEntity<Webss>;
+			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, SELF, KEYWORD, NUMBER, FUNCTION_HEAD, ENTITY_NUMBER, ENTITY_FUNCTION_HEAD };
 
 			BasicSizeHead() {}
 			BasicSizeHead(Keyword keyword) : type(Type::KEYWORD)
@@ -37,20 +36,20 @@ namespace webss
 					type = Type::EMPTY;
 					break;
 				default:
-					throw runtime_error("invalid binary type: " + keyword.toString());
+					throw std::runtime_error("invalid binary type: " + keyword.toString());
 				}
 			}
-			BasicSizeHead(const EntityFunctionHead& newEnt) : type(Type::ENTITY_FUNCTION_HEAD), entFunctionHead(newEnt) {}
-			BasicSizeHead(const EntityNumber& newEnt, bool number) : type(Type::ENTITY_NUMBER), entNumber(newEnt)
+			BasicSizeHead(const Entity& entFhead) : type(Type::ENTITY_FUNCTION_HEAD), ent(entFhead) {}
+			BasicSizeHead(const Entity& entNumber, bool number) : type(Type::ENTITY_NUMBER), ent(entNumber)
 			{
-				auto num = newEnt.getContent().getPrimitive<WebssBinarySize>();
+				auto num = entNumber.getContent().getPrimitive<WebssBinarySize>();
 				if (num <= 0)
 				{
 					if (num == 0)
 						type = Type::EMPTY_ENTITY_NUMBER;
 					else
 					{
-						entNumber.~BasicEntity();
+						ent.~BasicEntity();
 						throw std::runtime_error(ERROR_BINARY_SIZE_HEAD);
 					}
 				}
@@ -67,7 +66,6 @@ namespace webss
 			}
 			BasicSizeHead(FunctionHead&& o) : type(Type::FUNCTION_HEAD), fhead(new FunctionHead(std::move(o))) {}
 			BasicSizeHead(const FunctionHead& o) : type(Type::FUNCTION_HEAD), fhead(new FunctionHead(o)) {}
-			BasicSizeHead(FunctionHead* o) : type(Type::FUNCTION_HEAD_POINTER), fhead(o) {}
 
 			BasicSizeHead(FunctionHeadSelf) : type(Type::SELF) {}
 
@@ -78,7 +76,7 @@ namespace webss
 				case Type::NONE: case Type::EMPTY: case Type::SELF:
 					break;
 				default:
-					assert(false);
+					assert(false); throw std::domain_error("");
 				}
 			}
 
@@ -106,34 +104,47 @@ namespace webss
 			bool isEmpty() const { return type == Type::EMPTY || type == Type::EMPTY_ENTITY_NUMBER; }
 			bool isKeyword() const { return type == Type::KEYWORD; }
 			bool isBool() const { return isKeyword() && keyword == Keyword::BOOL; }
-			bool isFunctionHead() const { return type == Type::ENTITY_FUNCTION_HEAD || type == Type::FUNCTION_HEAD || type == Type::FUNCTION_HEAD_POINTER; }
+			bool isFunctionHead() const { return type == Type::ENTITY_FUNCTION_HEAD || type == Type::FUNCTION_HEAD; }
 			bool hasEntity() const { return type == Type::ENTITY_FUNCTION_HEAD || type == Type::ENTITY_NUMBER || type == Type::EMPTY_ENTITY_NUMBER; }
 
 			bool hasDefaultValue() const { return defaultValue.get() != nullptr; }
 			bool isSelf() const { return type == Type::SELF; }
 
-			Type getType() const { return type; }
-			Keyword getKeyword() const { return keyword; }
-			WebssBinarySize getNumber() const { return number; }
+			Type getType() const{ return type; }
+			Keyword getKeyword() const
+			{
+				assert(isKeyword());
+				return keyword;
+			}
 
-			const Webss& getDefaultValue() const { return *defaultValue; }
-			const std::shared_ptr<Webss>& getDefaultPointer() const { return defaultValue; }
+			const Webss& getDefaultValue() const
+			{
+				assert(hasDefaultValue());
+				return *defaultValue;
+			}
+			const std::shared_ptr<Webss>& getDefaultPointer() const
+			{
+				assert(hasDefaultValue());
+				return defaultValue;
+			}
 			void setDefaultValue(Webss&& value) { defaultValue = std::shared_ptr<Webss>(new Webss(std::move(value))); }
 
-			const EntityNumber& getEntityNumber() const { return entNumber; }
-			const EntityFunctionHead& getEntityFunctionHead() const { return entFunctionHead; }
+			const Entity& getEntity() const
+			{
+				assert(hasEntity());
+				return ent;
+			}
 
 			const FunctionHead& getFunctionHead() const
 			{
 				switch (type)
 				{
-				case Type::FUNCTION_HEAD: case Type::FUNCTION_HEAD_POINTER:
+				case Type::FUNCTION_HEAD:
 					return *fhead;
 				case Type::ENTITY_FUNCTION_HEAD:
-					return entFunctionHead.getContent().getElement<FunctionHead>();
+					return ent.getContent().getElement<FunctionHead>();
 				default:
-					assert(false && "binary size head does not contain a function head");
-					throw domain_error("");
+					assert(false && "binary size head does not contain a function head"); throw std::domain_error("");
 				}
 			}
 
@@ -146,10 +157,9 @@ namespace webss
 				case Type::NUMBER:
 					return number;
 				case Type::ENTITY_NUMBER:
-					return entNumber.getContent().getPrimitive<WebssBinarySize>();
+					return ent.getContent().getPrimitive<WebssBinarySize>();
 				default:
-					assert(false);
-					throw domain_error("");
+					assert(false); throw std::domain_error("");
 				}
 			}
 		private:
@@ -160,8 +170,7 @@ namespace webss
 			{
 				Keyword keyword;
 				WebssBinarySize number;
-				EntityFunctionHead entFunctionHead;
-				EntityNumber entNumber;
+				Entity ent;
 				FunctionHead* fhead;
 			};
 
@@ -174,11 +183,8 @@ namespace webss
 				case Type::FUNCTION_HEAD:
 					delete fhead;
 					break;
-				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
-					entNumber.~BasicEntity();
-					break;
-				case Type::ENTITY_FUNCTION_HEAD:
-					entFunctionHead.~BasicEntity();
+				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_FUNCTION_HEAD:
+					ent.~BasicEntity();
 					break;
 				default:
 					break;
@@ -198,19 +204,15 @@ namespace webss
 				case Type::NUMBER:
 					number = o.number;
 					break;
-				case Type::FUNCTION_HEAD: case Type::FUNCTION_HEAD_POINTER:
+				case Type::FUNCTION_HEAD:
 					fhead = o.fhead;
 					break;
-				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
-					new (&entNumber) EntityNumber(std::move(o.entNumber));
-					o.entNumber.~BasicEntity();
-					break;
-				case Type::ENTITY_FUNCTION_HEAD:
-					new (&entFunctionHead) EntityFunctionHead(std::move(o.entFunctionHead));
-					o.entFunctionHead.~BasicEntity();
+				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_FUNCTION_HEAD:
+					new (&ent) Entity(std::move(o.ent));
+					o.ent.~BasicEntity();
 					break;
 				default:
-					assert(false);
+					assert(false); throw std::domain_error("");
 				}
 				type = o.type;
 				o.type = Type::NONE;
@@ -233,17 +235,11 @@ namespace webss
 				case Type::FUNCTION_HEAD:
 					fhead = new FunctionHead(*o.fhead);
 					break;
-				case Type::FUNCTION_HEAD_POINTER:
-					fhead = o.fhead;
-					break;
-				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
-					new (&entNumber) EntityNumber(o.entNumber);
-					break;
-				case Type::ENTITY_FUNCTION_HEAD:
-					new (&entFunctionHead) EntityFunctionHead(o.entFunctionHead);
+				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_FUNCTION_HEAD:
+					new (&ent) Entity(o.ent);
 					break;
 				default:
-					assert(false);
+					assert(false); throw std::domain_error("");
 				}
 				type = o.type;
 
@@ -266,12 +262,12 @@ namespace webss
 				case Type::NONE: case Type::EMPTY: case Type::ONE:
 					break;
 				default:
-					assert(false);
+					assert(false); throw std::domain_error("");
 				}
 			}
-			BasicSizeList(const Entity& newEnt) : type(Type::ENTITY_NUMBER), ent(newEnt)
+			BasicSizeList(const Entity& entNumber) : type(Type::ENTITY_NUMBER), ent(entNumber)
 			{
-				auto num = newEnt.getContent().getPrimitive<WebssBinarySize>();
+				auto num = entNumber.getContent().getPrimitive<WebssBinarySize>();
 				if (num <= 0)
 				{
 					if (num == 0)
@@ -330,8 +326,7 @@ namespace webss
 				case Type::ENTITY_NUMBER:
 					return ent.getContent().getPrimitive<WebssBinarySize>();
 				default:
-					assert(false);
-					throw domain_error("");
+					assert(false); throw std::domain_error("");
 				}
 			}
 
@@ -371,7 +366,7 @@ namespace webss
 					o.ent.~BasicEntity();
 					break;
 				default:
-					assert(false);
+					assert(false); throw std::domain_error("");
 				}
 				type = o.type;
 				o.type = Type::NONE;
@@ -389,7 +384,7 @@ namespace webss
 					new (&ent) Entity(o.ent);
 					break;
 				default:
-					assert(false);
+					assert(false); throw std::domain_error("");
 				}
 				type = o.type;
 			}
