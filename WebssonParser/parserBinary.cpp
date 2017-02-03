@@ -71,7 +71,7 @@ void Parser::parseBinaryHead(It& it, FunctionHeadBinary& fhead)
 		else if (*it == OPEN_FUNCTION)
 		{
 			auto headWebss = parseFunctionHead(++it);
-			switch (headWebss.t)
+			switch (headWebss.type)
 			{
 			case WebssType::FUNCTION_HEAD_BINARY:
 				bhead = Bhead(move(*headWebss.fheadBinary));

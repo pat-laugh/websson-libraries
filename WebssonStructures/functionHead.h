@@ -18,11 +18,11 @@ namespace webss
 		using Entity = BasicEntity<Webss>;
 		using size_type = typename Parameters::size_type;
 
-		This() : t(Type::PARAMS), params(new Parameters()) {}
-		This(Parameters&& params) : t(Type::PARAMS), params(new Parameters(std::move(params))) {}
+		This() : type(Type::PARAMS), params(new Parameters()) {}
+		This(Parameters&& params) : type(Type::PARAMS), params(new Parameters(std::move(params))) {}
 		This(const Parameters& params) : This(Parameters(params)) {}
-		This(const Pointer& pointer) : t(Type::POINTER), pointer(pointer) {}
-		This(const Entity& ent) : t(Type::ENTITY), ent(ent) {}
+		This(const Pointer& pointer) : type(Type::POINTER), pointer(pointer) {}
+		This(const Entity& ent) : type(Type::ENTITY), ent(ent) {}
 		~This() { destroyUnion(); }
 
 		This(This&& o) { copyUnion(std::move(o)); }
@@ -44,13 +44,13 @@ namespace webss
 			return *this;
 		}
 
-		bool hasEntity() const { return t == Type::ENTITY; }
+		bool hasEntity() const { return type == Type::ENTITY; }
 		bool empty() const { return getParameters().empty(); }
 		size_type size() const { return getParameters().size(); }
 
 		Param& back()
 		{
-			switch (t)
+			switch (type)
 			{
 			case Type::NONE:
 				assert(false);
@@ -71,7 +71,7 @@ namespace webss
 
 		const Parameters& getParameters() const
 		{
-			switch (t)
+			switch (type)
 			{
 			case Type::NONE: default:
 				assert(false);
@@ -93,11 +93,11 @@ namespace webss
 
 		void attach(Param&& value)
 		{
-			switch (t)
+			switch (type)
 			{
 			case Type::NONE:
 				params = new Parameters();
-				t = Type::PARAMS;
+				type = Type::PARAMS;
 			case Type::PARAMS:
 				break;
 			case Type::ENTITY:
@@ -118,11 +118,11 @@ namespace webss
 
 		void attach(std::string&& key, Param&& value)
 		{
-			switch (t)
+			switch (type)
 			{
 			case Type::NONE:
 				params = new Parameters();
-				t = Type::PARAMS;
+				type = Type::PARAMS;
 			case Type::PARAMS:
 				break;
 			case Type::ENTITY:
@@ -141,11 +141,11 @@ namespace webss
 			if (ent2.getContent().getElement<This>().empty())
 				return;
 
-			switch (t)
+			switch (type)
 			{
 			case Type::NONE:
 				new (&ent) Entity(ent2);
-				t = Type::ENTITY;
+				type = Type::ENTITY;
 				return;
 			case Type::PARAMS:
 				break;
@@ -166,7 +166,7 @@ namespace webss
 				return;
 
 			const auto& valueTuple = value.getParameters();
-			switch (t)
+			switch (type)
 			{
 			case Type::NONE:
 				setParameters(valueTuple.makeCompleteCopy());
@@ -189,7 +189,7 @@ namespace webss
 	private:
 		enum class Type { NONE, PARAMS, POINTER, ENTITY };
 
-		Type t = Type::NONE;
+		Type type = Type::NONE;
 		union
 		{
 			Parameters* params;
@@ -201,7 +201,7 @@ namespace webss
 		{
 			auto newParameters = ent.getContent().getElement<This>().getParameters().makeCompleteCopy();
 			ent.~BasicEntity();
-			t = Type::NONE;
+			type = Type::NONE;
 			setParameters(std::move(newParameters));
 		}
 
@@ -209,19 +209,19 @@ namespace webss
 		{
 			auto newParameters = pointer->getElement<This>().getParameters().makeCompleteCopy();
 			pointer.~shared_ptr();
-			t = Type::NONE;
+			type = Type::NONE;
 			setParameters(std::move(newParameters));
 		}
 
 		void setParameters(Parameters&& newParameters)
 		{
 			params = new Parameters(std::move(newParameters));
-			t = Type::PARAMS;
+			type = Type::PARAMS;
 		}
 
 		void destroyUnion()
 		{
-			switch (t)
+			switch (type)
 			{
 			case Type::PARAMS:
 				delete params;
@@ -235,12 +235,12 @@ namespace webss
 			default:
 				break;
 			}
-			t = Type::NONE;
+			type = Type::NONE;
 		}
 
 		void copyUnion(This&& o)
 		{
-			switch (o.t)
+			switch (o.type)
 			{
 			case Type::PARAMS:
 				params = o.params;
@@ -256,12 +256,12 @@ namespace webss
 			default:
 				break;
 			}
-			t = o.t;
-			o.t = Type::NONE;
+			type = o.type;
+			o.type = Type::NONE;
 		}
 		void copyUnion(const This& o)
 		{
-			switch (o.t)
+			switch (o.type)
 			{
 			case Type::PARAMS:
 				params = new Parameters(*o.params);
@@ -275,7 +275,7 @@ namespace webss
 			default:
 				break;
 			}
-			t = o.t;
+			type = o.type;
 		}
 	};
 #undef This

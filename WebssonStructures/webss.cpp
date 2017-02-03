@@ -7,13 +7,13 @@ using namespace webss;
 
 Webss::Webss() {}
 
-Webss::Webss(bool tBool) : t(WebssType::PRIMITIVE_BOOL), tBool(tBool) {}
-Webss::Webss(Keyword keyword) : t(WebssType::PRIMITIVE_BOOL)
+Webss::Webss(bool tBool) : type(WebssType::PRIMITIVE_BOOL), tBool(tBool) {}
+Webss::Webss(Keyword keyword) : type(WebssType::PRIMITIVE_BOOL)
 {
 	switch (keyword)
 	{
 	case Keyword::KEY_NULL:
-		t = WebssType::PRIMITIVE_NULL;
+		type = WebssType::PRIMITIVE_NULL;
 		break;
 	case Keyword::KEY_FALSE:
 		tBool = false;
@@ -25,15 +25,15 @@ Webss::Webss(Keyword keyword) : t(WebssType::PRIMITIVE_BOOL)
 		throw runtime_error("can't get keyword value: " + keyword.toString());
 	}
 }
-Webss::Webss(int tInt) : t(WebssType::PRIMITIVE_INT), tInt(tInt) {}
-Webss::Webss(WebssInt tInt) : t(WebssType::PRIMITIVE_INT), tInt(tInt) {}
-Webss::Webss(size_t tInt) : t(WebssType::PRIMITIVE_INT), tInt(tInt) {}
-Webss::Webss(double tDouble) : t(WebssType::PRIMITIVE_DOUBLE), tDouble(tDouble) {}
+Webss::Webss(int tInt) : type(WebssType::PRIMITIVE_INT), tInt(tInt) {}
+Webss::Webss(WebssInt tInt) : type(WebssType::PRIMITIVE_INT), tInt(tInt) {}
+Webss::Webss(size_t tInt) : type(WebssType::PRIMITIVE_INT), tInt(tInt) {}
+Webss::Webss(double tDouble) : type(WebssType::PRIMITIVE_DOUBLE), tDouble(tDouble) {}
 
-Webss::Webss(const char* s) : t(WebssType::PRIMITIVE_STRING), tString(new string(s)) {}
+Webss::Webss(const char* s) : type(WebssType::PRIMITIVE_STRING), tString(new string(s)) {}
 
-#define PATTERN_CONSTRUCT_MOVE(type, name, con) \
-Webss::Webss(type&& name) : t(WebssType::con), name(new type(move(name))) {}
+#define PATTERN_CONSTRUCT_MOVE(T, name, con) \
+Webss::Webss(T&& name) : type(WebssType::con), name(new T(move(name))) {}
 
 PATTERN_CONSTRUCT_MOVE(string, tString, PRIMITIVE_STRING)
 PATTERN_CONSTRUCT_MOVE(Document, document, DOCUMENT)
@@ -53,8 +53,8 @@ PATTERN_CONSTRUCT_MOVE(Enum, tEnum, ENUM)
 PATTERN_CONSTRUCT_MOVE(BlockHead, blockHead, BLOCK_HEAD)
 PATTERN_CONSTRUCT_MOVE(Block, block, BLOCK)
 
-#define PATTERN_CONSTRUCT_CONST(type, name, con) \
-Webss::Webss(const type& name) : t(WebssType::con), name(new type(name)) {}
+#define PATTERN_CONSTRUCT_CONST(T, name, con) \
+Webss::Webss(const T& name) : type(WebssType::con), name(new T(name)) {}
 
 PATTERN_CONSTRUCT_CONST(string, tString, PRIMITIVE_STRING)
 PATTERN_CONSTRUCT_CONST(Document, document, DOCUMENT)
@@ -74,12 +74,12 @@ PATTERN_CONSTRUCT_CONST(Enum, tEnum, ENUM)
 PATTERN_CONSTRUCT_CONST(BlockHead, blockHead, BLOCK_HEAD)
 PATTERN_CONSTRUCT_CONST(Block, block, BLOCK)
 
-Webss::Webss(FunctionHeadSelf) : t(WebssType::FUNCTION_HEAD_SELF) {}
+Webss::Webss(FunctionHeadSelf) : type(WebssType::FUNCTION_HEAD_SELF) {}
 
 #define PatternConstructFunction(Type, TypeCaps) \
 Webss::Webss(FunctionHead##Type&& head, Webss&& body) \
 { \
-	switch (body.t) \
+	switch (body.type) \
 	{ \
 	case WebssType::DICTIONARY: \
 		func##Type = new Function##Type(move(head), move(*body.dict)); \
@@ -93,7 +93,7 @@ Webss::Webss(FunctionHead##Type&& head, Webss&& body) \
 	default: \
 		assert(false); \
 	} \
-	t = WebssType::FUNCTION_##TypeCaps; \
+	type = WebssType::FUNCTION_##TypeCaps; \
 }
 
 PatternConstructFunction(Binary, BINARY)
@@ -106,7 +106,7 @@ Webss::~Webss() { destroyUnion(); }
 
 void Webss::destroyUnion()
 {
-	switch (t)
+	switch (type)
 	{
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
 		break;
@@ -170,7 +170,7 @@ void Webss::destroyUnion()
 	default:
 		assert(false);
 	}
-	t = WebssType::NONE;
+	type = WebssType::NONE;
 }
 
 Webss& Webss::operator=(Webss&& o)
@@ -192,7 +192,7 @@ Webss& Webss::operator=(const Webss& o)
 
 void Webss::copyUnion(Webss&& o)
 {
-	switch (o.t)
+	switch (o.type)
 	{
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
 		break;
@@ -268,13 +268,13 @@ void Webss::copyUnion(Webss&& o)
 	default:
 		assert(false);
 	}
-	t = o.t;
-	o.t = WebssType::NONE;
+	type = o.type;
+	o.type = WebssType::NONE;
 }
 
 void Webss::copyUnion(const Webss& o)
 {
-	switch (o.t)
+	switch (o.type)
 	{
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
 		break;
@@ -348,7 +348,7 @@ void Webss::copyUnion(const Webss& o)
 	default:
 		assert(false);
 	}
-	t = o.t;
+	type = o.type;
 }
 
 const char ERROR_ACCESS[] = "can't access ";
@@ -357,7 +357,7 @@ const char ERROR_ACCESS_KEY[] = " with a key";
 
 const Webss& Webss::operator[](int index) const
 {
-	switch (t)
+	switch (type)
 	{
 	case WebssType::ENTITY:
 		return ent.getContent()[index];
@@ -378,13 +378,13 @@ const Webss& Webss::operator[](int index) const
 	case WebssType::BLOCK:
 		return block->getValue()[index];
 	default:
-		throw runtime_error(ERROR_ACCESS + t.toString() + ERROR_ACCESS_INDEX);
+		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_INDEX);
 	}
 }
 
 const Webss& Webss::operator[](const std::string& key) const
 {
-	switch (t)
+	switch (type)
 	{
 	case WebssType::ENTITY:
 		return ent.getContent()[key];
@@ -405,13 +405,13 @@ const Webss& Webss::operator[](const std::string& key) const
 	case WebssType::BLOCK:
 		return block->getValue()[key];
 	default:
-		throw runtime_error(ERROR_ACCESS + t.toString() + ERROR_ACCESS_KEY);
+		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_KEY);
 	}
 }
 
 const Webss& Webss::at(int index) const
 {
-	switch (t)
+	switch (type)
 	{
 	case WebssType::ENTITY:
 		return ent.getContent().at(index);
@@ -432,13 +432,13 @@ const Webss& Webss::at(int index) const
 	case WebssType::BLOCK:
 		return block->getValue().at(index);
 	default:
-		throw runtime_error(ERROR_ACCESS + t.toString() + ERROR_ACCESS_INDEX);
+		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_INDEX);
 	}
 }
 
 const Webss& Webss::at(const std::string& key) const
 {
-	switch (t)
+	switch (type)
 	{
 	case WebssType::ENTITY:
 		return ent.getContent().at(key);
@@ -459,13 +459,13 @@ const Webss& Webss::at(const std::string& key) const
 	case WebssType::BLOCK:
 		return block->getValue().at(key);
 	default:
-		throw runtime_error(ERROR_ACCESS + t.toString() + ERROR_ACCESS_KEY);
+		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_KEY);
 	}
 }
 
 WebssType Webss::getType() const
 {
-	switch (t)
+	switch (type)
 	{
 	case WebssType::ENTITY:
 		return ent.getContent().getType();
@@ -482,14 +482,14 @@ WebssType Webss::getType() const
 	case WebssType::BLOCK:
 		return block->getValue().getType();
 	default:
-		return t;
+		return type;
 	}
 }
 
 const char ERROR_COULD_NOT_GETs1[] = "tried to get ";
 const char ERROR_COULD_NOT_GETs2[] = " but webss type was ";
 #define PATTERN_GET_CONST(x, y, z) \
-switch (t) \
+switch (type) \
 { \
 	case WebssType::ENTITY: \
 		return ent.getContent().y; \
@@ -498,7 +498,7 @@ switch (t) \
 	case z: \
 		return x; \
 	default: \
-		throw runtime_error(ERROR_COULD_NOT_GETs1 + WebssType(z).toString() + ERROR_COULD_NOT_GETs2 + t.toString()); \
+		throw runtime_error(ERROR_COULD_NOT_GETs1 + WebssType(z).toString() + ERROR_COULD_NOT_GETs2 + type.toString()); \
 }
 
 bool Webss::getBool() const { PATTERN_GET_CONST(tBool, getBool(), WebssType::PRIMITIVE_BOOL); }
@@ -521,7 +521,7 @@ const Block& Webss::getBlock() const { PATTERN_GET_CONST(*block, getBlock(), Web
 
 const Dictionary& Webss::getDictionary() const
 {
-	switch (t)
+	switch (type)
 	{
 	case WebssType::ENTITY:
 		return ent.getContent().getDictionary();
@@ -540,13 +540,13 @@ const Dictionary& Webss::getDictionary() const
 	case WebssType::BLOCK:
 		return block->getValue().getDictionary();
 	default:
-		throw logic_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::LIST).toString() + ERROR_COULD_NOT_GETs2 + t.toString());
+		throw logic_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::LIST).toString() + ERROR_COULD_NOT_GETs2 + type.toString());
 
 	}
 }
 const List& Webss::getList() const
 {
-	switch (t)
+	switch (type)
 	{
 	case WebssType::ENTITY:
 		return ent.getContent().getList();
@@ -565,13 +565,13 @@ const List& Webss::getList() const
 	case WebssType::BLOCK:
 		return block->getValue().getList();
 	default:
-		throw logic_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::LIST).toString() + ERROR_COULD_NOT_GETs2 + t.toString());
+		throw logic_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::LIST).toString() + ERROR_COULD_NOT_GETs2 + type.toString());
 
 	}
 }
 const Tuple& Webss::getTuple() const
 {
-	switch (t)
+	switch (type)
 	{
 	case WebssType::ENTITY:
 		return ent.getContent().getTuple();
@@ -590,12 +590,12 @@ const Tuple& Webss::getTuple() const
 	case WebssType::BLOCK:
 		return block->getValue().getTuple();
 	default:
-		throw logic_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::TUPLE).toString() + ERROR_COULD_NOT_GETs2 + t.toString());
+		throw logic_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::TUPLE).toString() + ERROR_COULD_NOT_GETs2 + type.toString());
 	}
 }
 
 #define PATTERN_IS(x, y) \
-switch (t) \
+switch (type) \
 { \
 	case WebssType::ENTITY: \
 		return ent.getContent().y; \
@@ -625,7 +625,7 @@ bool Webss::isBlock() const { PATTERN_IS(WebssType::BLOCK, isBlock()) }
 
 bool Webss::isDictionary() const
 {
-	switch (t)
+	switch (type)
 	{
 	case WebssType::ENTITY:
 		return ent.getContent().isDictionary();
@@ -649,7 +649,7 @@ bool Webss::isDictionary() const
 }
 bool Webss::isList() const
 {
-	switch (t)
+	switch (type)
 	{
 	case WebssType::ENTITY:
 		return ent.getContent().isList();
@@ -673,7 +673,7 @@ bool Webss::isList() const
 }
 bool Webss::isTuple() const
 {
-	switch (t)
+	switch (type)
 	{
 	case WebssType::ENTITY:
 		return ent.getContent().isTuple();
@@ -698,7 +698,7 @@ bool Webss::isTuple() const
 
 bool Webss::isAbstract() const
 {
-	switch (t)
+	switch (type)
 	{
 	case WebssType::NONE:
 		assert(false);

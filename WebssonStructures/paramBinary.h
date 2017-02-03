@@ -26,7 +26,7 @@ namespace webss
 			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, SELF, KEYWORD, NUMBER, FUNCTION_HEAD, FUNCTION_HEAD_POINTER, ENTITY_NUMBER, ENTITY_FUNCTION_HEAD };
 
 			BasicSizeHead() {}
-			BasicSizeHead(Keyword keyword) : t(Type::KEYWORD)
+			BasicSizeHead(Keyword keyword) : type(Type::KEYWORD)
 			{
 				switch (keyword)
 				{
@@ -34,20 +34,20 @@ namespace webss
 					this->keyword = keyword;
 					break;
 				case Keyword::STRING:
-					t = Type::EMPTY;
+					type = Type::EMPTY;
 					break;
 				default:
 					throw runtime_error("invalid binary type: " + keyword.toString());
 				}
 			}
-			BasicSizeHead(const EntityFunctionHead& newEnt) : t(Type::ENTITY_FUNCTION_HEAD), entFunctionHead(newEnt) {}
-			BasicSizeHead(const EntityNumber& newEnt, bool number) : t(Type::ENTITY_NUMBER), entNumber(newEnt)
+			BasicSizeHead(const EntityFunctionHead& newEnt) : type(Type::ENTITY_FUNCTION_HEAD), entFunctionHead(newEnt) {}
+			BasicSizeHead(const EntityNumber& newEnt, bool number) : type(Type::ENTITY_NUMBER), entNumber(newEnt)
 			{
 				auto num = newEnt.getContent().getPrimitive<WebssBinarySize>();
 				if (num <= 0)
 				{
 					if (num == 0)
-						t = Type::EMPTY_ENTITY_NUMBER;
+						type = Type::EMPTY_ENTITY_NUMBER;
 					else
 					{
 						entNumber.~BasicEntity();
@@ -55,25 +55,25 @@ namespace webss
 					}
 				}
 			}
-			BasicSizeHead(WebssBinarySize number) : t(Type::NUMBER), number(number)
+			BasicSizeHead(WebssBinarySize number) : type(Type::NUMBER), number(number)
 			{
 				if (number <= 0)
 				{
 					if (number == 0)
-						t = Type::EMPTY;
+						type = Type::EMPTY;
 					else
 						throw std::runtime_error(ERROR_BINARY_SIZE_HEAD);
 				}
 			}
-			BasicSizeHead(FunctionHead&& o) : t(Type::FUNCTION_HEAD), fhead(new FunctionHead(std::move(o))) {}
-			BasicSizeHead(const FunctionHead& o) : t(Type::FUNCTION_HEAD), fhead(new FunctionHead(o)) {}
-			BasicSizeHead(FunctionHead* o) : t(Type::FUNCTION_HEAD_POINTER), fhead(o) {}
+			BasicSizeHead(FunctionHead&& o) : type(Type::FUNCTION_HEAD), fhead(new FunctionHead(std::move(o))) {}
+			BasicSizeHead(const FunctionHead& o) : type(Type::FUNCTION_HEAD), fhead(new FunctionHead(o)) {}
+			BasicSizeHead(FunctionHead* o) : type(Type::FUNCTION_HEAD_POINTER), fhead(o) {}
 
-			BasicSizeHead(FunctionHeadSelf) : t(Type::SELF) {}
+			BasicSizeHead(FunctionHeadSelf) : type(Type::SELF) {}
 
-			BasicSizeHead(Type t) : t(t)
+			BasicSizeHead(Type type) : type(type)
 			{
-				switch (t)
+				switch (type)
 				{
 				case Type::NONE: case Type::EMPTY: case Type::SELF:
 					break;
@@ -103,16 +103,16 @@ namespace webss
 				return *this;
 			}
 
-			bool isEmpty() const { return t == Type::EMPTY || t == Type::EMPTY_ENTITY_NUMBER; }
-			bool isKeyword() const { return t == Type::KEYWORD; }
+			bool isEmpty() const { return type == Type::EMPTY || type == Type::EMPTY_ENTITY_NUMBER; }
+			bool isKeyword() const { return type == Type::KEYWORD; }
 			bool isBool() const { return isKeyword() && keyword == Keyword::BOOL; }
-			bool isFunctionHead() const { return t == Type::ENTITY_FUNCTION_HEAD || t == Type::FUNCTION_HEAD || t == Type::FUNCTION_HEAD_POINTER; }
-			bool hasEntity() const { return t == Type::ENTITY_FUNCTION_HEAD || t == Type::ENTITY_NUMBER || t == Type::EMPTY_ENTITY_NUMBER; }
+			bool isFunctionHead() const { return type == Type::ENTITY_FUNCTION_HEAD || type == Type::FUNCTION_HEAD || type == Type::FUNCTION_HEAD_POINTER; }
+			bool hasEntity() const { return type == Type::ENTITY_FUNCTION_HEAD || type == Type::ENTITY_NUMBER || type == Type::EMPTY_ENTITY_NUMBER; }
 
 			bool hasDefaultValue() const { return defaultValue.get() != nullptr; }
-			bool isSelf() const { return t == Type::SELF; }
+			bool isSelf() const { return type == Type::SELF; }
 
-			Type getType() const { return t; }
+			Type getType() const { return type; }
 			Keyword getKeyword() const { return keyword; }
 			WebssBinarySize getNumber() const { return number; }
 
@@ -125,7 +125,7 @@ namespace webss
 
 			const FunctionHead& getFunctionHead() const
 			{
-				switch (t)
+				switch (type)
 				{
 				case Type::FUNCTION_HEAD: case Type::FUNCTION_HEAD_POINTER:
 					return *fhead;
@@ -139,7 +139,7 @@ namespace webss
 
 			WebssBinarySize size() const
 			{
-				switch (t)
+				switch (type)
 				{
 				case Type::KEYWORD:
 					return keyword.getSize();
@@ -155,7 +155,7 @@ namespace webss
 		private:
 			static constexpr char* ERROR_BINARY_SIZE_HEAD = "size of binary head must be a positive integer, binary function head or equivalent entity";
 
-			Type t = Type::NONE;
+			Type type = Type::NONE;
 			union
 			{
 				Keyword keyword;
@@ -169,7 +169,7 @@ namespace webss
 
 			void destroyUnion()
 			{
-				switch (t)
+				switch (type)
 				{
 				case Type::FUNCTION_HEAD:
 					delete fhead;
@@ -183,12 +183,12 @@ namespace webss
 				default:
 					break;
 				}
-				t = Type::NONE;
+				type = Type::NONE;
 			}
 
 			void copyUnion(BasicSizeHead&& o)
 			{
-				switch (o.t)
+				switch (o.type)
 				{
 				case Type::NONE: case Type::EMPTY: case Type::SELF:
 					break;
@@ -212,15 +212,15 @@ namespace webss
 				default:
 					assert(false);
 				}
-				t = o.t;
-				o.t = Type::NONE;
+				type = o.type;
+				o.type = Type::NONE;
 
 				if (o.hasDefaultValue())
 					defaultValue = std::move(o.defaultValue);
 			}
 			void copyUnion(const BasicSizeHead& o)
 			{
-				switch (o.t)
+				switch (o.type)
 				{
 				case Type::NONE: case Type::EMPTY: case Type::SELF:
 					break;
@@ -245,7 +245,7 @@ namespace webss
 				default:
 					assert(false);
 				}
-				t = o.t;
+				type = o.type;
 
 				if (o.hasDefaultValue())
 					defaultValue = o.defaultValue;
@@ -259,9 +259,9 @@ namespace webss
 			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, ONE, NUMBER, ENTITY_NUMBER };
 
 			BasicSizeList() {}
-			BasicSizeList(Type t) : t(t)
+			BasicSizeList(Type type) : type(type)
 			{
-				switch (t)
+				switch (type)
 				{
 				case Type::NONE: case Type::EMPTY: case Type::ONE:
 					break;
@@ -269,13 +269,13 @@ namespace webss
 					assert(false);
 				}
 			}
-			BasicSizeList(const Entity& newEnt) : t(Type::ENTITY_NUMBER), ent(newEnt)
+			BasicSizeList(const Entity& newEnt) : type(Type::ENTITY_NUMBER), ent(newEnt)
 			{
 				auto num = newEnt.getContent().getPrimitive<WebssBinarySize>();
 				if (num <= 0)
 				{
 					if (num == 0)
-						t = Type::EMPTY_ENTITY_NUMBER;
+						type = Type::EMPTY_ENTITY_NUMBER;
 					else
 					{
 						ent.~BasicEntity();
@@ -283,12 +283,12 @@ namespace webss
 					}
 				}
 			}
-			BasicSizeList(WebssBinarySize number) : t(Type::NUMBER), number(number)
+			BasicSizeList(WebssBinarySize number) : type(Type::NUMBER), number(number)
 			{
 				if (number <= 0)
 				{
 					if (number == 0)
-						t = Type::EMPTY;
+						type = Type::EMPTY;
 					else
 						throw std::runtime_error(ERROR_BINARY_SIZE_LIST);
 				}
@@ -315,15 +315,15 @@ namespace webss
 				return *this;
 			}
 
-			bool isEmpty() const { return t == Type::EMPTY || t == Type::EMPTY_ENTITY_NUMBER; }
-			bool isOne() const { return t == Type::ONE; }
-			bool hasEntity() const { return t == Type::ENTITY_NUMBER || t == Type::EMPTY_ENTITY_NUMBER; }
+			bool isEmpty() const { return type == Type::EMPTY || type == Type::EMPTY_ENTITY_NUMBER; }
+			bool isOne() const { return type == Type::ONE; }
+			bool hasEntity() const { return type == Type::ENTITY_NUMBER || type == Type::EMPTY_ENTITY_NUMBER; }
 
-			Type getType() const { return t; }
+			Type getType() const { return type; }
 
 			WebssBinarySize size() const
 			{
-				switch (t)
+				switch (type)
 				{
 				case Type::NUMBER:
 					return number;
@@ -343,7 +343,7 @@ namespace webss
 		private:
 			static constexpr char* ERROR_BINARY_SIZE_LIST = "size of binary list must be a positive integer or equivalent entity";
 
-			Type t = Type::NONE;
+			Type type = Type::NONE;
 			union
 			{
 				WebssBinarySize number;
@@ -354,12 +354,12 @@ namespace webss
 			{
 				if (hasEntity())
 					ent.~BasicEntity();
-				t = Type::NONE;
+				type = Type::NONE;
 			}
 
 			void copyUnion(BasicSizeList&& o)
 			{
-				switch (o.t)
+				switch (o.type)
 				{
 				case Type::NONE: case Type::EMPTY: case Type::ONE:
 					break;
@@ -373,12 +373,12 @@ namespace webss
 				default:
 					assert(false);
 				}
-				t = o.t;
-				o.t = Type::NONE;
+				type = o.type;
+				o.type = Type::NONE;
 			}
 			void copyUnion(const BasicSizeList& o)
 			{
-				switch (o.t)
+				switch (o.type)
 				{
 				case Type::NONE: case Type::EMPTY: case Type::ONE:
 					break;
@@ -391,7 +391,7 @@ namespace webss
 				default:
 					assert(false);
 				}
-				t = o.t;
+				type = o.type;
 			}
 		};
 

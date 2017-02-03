@@ -152,7 +152,7 @@ void Parser::parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fh
 	auto headWebss = parseFunctionHead(++it);
 	parseOtherValuesFheadStandardAfterFhead(it, fhead);
 	auto& lastParam = fhead.back();
-	switch (headWebss.t)
+	switch (headWebss.type)
 	{
 	case WebssType::BLOCK_HEAD:
 		break; //do nothing

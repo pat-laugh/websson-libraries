@@ -9,15 +9,15 @@ using namespace webss;
 void putContainerStart(StringBuilder& out, ConType con);
 void putContainerEnd(StringBuilder& out, ConType con);
 
-template <class T, ConType::Enum CON>
-void putSeparatedValues(StringBuilder& out, const T& t, function<void(typename T::const_iterator it)> output)
+template <class Container, ConType::Enum CON>
+void putSeparatedValues(StringBuilder& out, const Container& cont, function<void(typename Container::const_iterator it)> output)
 {
 	putContainerStart(out, CON);
-	if (!t.empty())
+	if (!cont.empty())
 	{
-		typename T::const_iterator it = t.begin();
+		typename Container::const_iterator it = cont.begin();
 		output(it);
-		while (++it != t.end())
+		while (++it != cont.end())
 		{
 			out += CHAR_SEPARATOR;
 			output(it);
@@ -284,7 +284,7 @@ void Deserializer::putFheadEntity(StringBuilder& out, const Entity& ent)
 
 void Deserializer::putAbstractValue(StringBuilder& out, const Webss& webss, ConType con)
 {
-	switch (webss.t)
+	switch (webss.type)
 	{
 	case WebssType::FUNCTION_HEAD_BINARY:
 		putFheadBinary(out, *webss.fheadBinary);
@@ -318,7 +318,7 @@ void Deserializer::putAbstractValue(StringBuilder& out, const Webss& webss, ConT
 
 void Deserializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConType con)
 {
-	switch (webss.t)
+	switch (webss.type)
 	{
 	case WebssType::PRIMITIVE_NULL:
 		out += 'N';
@@ -371,7 +371,7 @@ void Deserializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConT
 
 void Deserializer::putCharValue(StringBuilder& out, const Webss& value, ConType con)
 {
-	switch (value.t)
+	switch (value.type)
 	{
 	case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT:
 	case WebssType::PRIMITIVE_DOUBLE: case WebssType::ENTITY:
@@ -384,7 +384,7 @@ void Deserializer::putCharValue(StringBuilder& out, const Webss& value, ConType 
 
 void Deserializer::putKeyValue(StringBuilder& out, const string& key, const Webss& value, ConType con)
 {
-	assert(value.t != WebssType::DEFAULT && "can't deserialize this type with key");
+	assert(value.type != WebssType::DEFAULT && "can't deserialize this type with key");
 
 	out += key;
 	putCharValue(out, value, con);
@@ -486,7 +486,7 @@ void Deserializer::putImportedDocument(StringBuilder& out, const ImportedDocumen
 	auto&& name = importDoc.getName();
 	assert(name.isString());
 	out += CHAR_IMPORT;
-	if (name.t == WebssType::PRIMITIVE_STRING)
+	if (name.type == WebssType::PRIMITIVE_STRING)
 		putCstring(out, *name.tString);
 	else
 		putConcreteValue(out, name, con);
@@ -733,7 +733,7 @@ void Deserializer::putFuncStandardTuple(StringBuilder& out, const FunctionHeadSt
 		auto&& param = params[i++];
 		if (!param.hasFunctionHead())
 		{
-			if (it->t == WebssType::NONE || it->t == WebssType::DEFAULT)
+			if (it->type == WebssType::NONE || it->type == WebssType::DEFAULT)
 				assert(param.hasDefaultValue());
 			else
 				putConcreteValue(out, *it, CON);
@@ -769,7 +769,7 @@ void Deserializer::putFuncStandardTupleText(StringBuilder& out, const FunctionHe
 	{
 		auto&& param = params[i++];
 		assert(!param.hasFunctionHead());
-		switch (it->t)
+		switch (it->type)
 		{
 		case WebssType::NONE: case WebssType::DEFAULT:
 			assert(param.hasDefaultValue());
@@ -823,7 +823,7 @@ void Deserializer::putFuncTextTuple(StringBuilder& out, const FunctionHeadText::
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
 	{
 		auto&& param = params[i++];
-		switch (it->t)
+		switch (it->type)
 		{
 		case WebssType::NONE: case WebssType::DEFAULT:
 			assert(param.hasDefaultValue());

@@ -101,8 +101,8 @@ namespace webss
 		Webss(FunctionHeadStandard&& head, Webss&& body);
 		Webss(FunctionHeadText&& head, Webss&& body);
 
-		Webss(const BasicEntity<Webss>& ent) : t(WebssType::ENTITY), ent(ent) {}
-		Webss(const Default& tDefault) : t(WebssType::DEFAULT), tDefault(tDefault) {}
+		Webss(const BasicEntity<Webss>& ent) : type(WebssType::ENTITY), ent(ent) {}
+		Webss(const Default& tDefault) : type(WebssType::DEFAULT), tDefault(tDefault) {}
 
 		~Webss();
 
@@ -187,7 +187,7 @@ namespace webss
 		bool isAbstract() const;
 		bool isConcrete() const;
 
-		WebssType t = WebssType::NONE;
+		WebssType type = WebssType::NONE;
 		union
 		{
 			bool tBool;

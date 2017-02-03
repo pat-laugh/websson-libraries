@@ -11,7 +11,7 @@ template <class Parameters>
 void checkDefaultValues(Tuple& tuple, const Parameters& params)
 {
 	for (Tuple::size_type index = 0; index < tuple.size(); ++index)
-		if (tuple.at(index).t == WebssType::NONE)
+		if (tuple.at(index).type == WebssType::NONE)
 			setDefaultValue(tuple[index], params[index]);
 }
 
@@ -198,7 +198,7 @@ private:
 Webss Parser::parseFunction(It& it, ConType con)
 {
 	auto headWebss = parseFunctionHead(it);
-	switch (headWebss.t)
+	switch (headWebss.type)
 	{
 	case WebssType::BLOCK_HEAD:
 		return Block(move(*headWebss.blockHead), parseValueOnly(it, con));

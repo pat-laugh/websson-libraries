@@ -64,7 +64,7 @@ void Deserializer::putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinar
 		const auto& binary = params.at(i++);
 		if (!binary.sizeHead.hasDefaultValue())
 			putBinary(out, binary, webss);
-		else if (webss.t == WebssType::DEFAULT)
+		else if (webss.type == WebssType::DEFAULT)
 			out += '\x01';
 		else
 		{
