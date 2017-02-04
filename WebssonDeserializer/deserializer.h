@@ -85,6 +85,7 @@ namespace webss
 
 		void putFuncBinary(StringBuilder& out, const FunctionBinary& func);
 		void putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con);
+		void putFheadSelf(StringBuilder& out);
 		void putFuncStandard(StringBuilder& out, const FunctionStandard& func);
 
 		void putFuncText(StringBuilder& out, const FunctionText& func);

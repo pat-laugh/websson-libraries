@@ -115,7 +115,7 @@ private:
 			putEntityName(out, bhead.getEntity());
 			break;
 		case Type::SELF:
-			out += string() + OPEN_FUNCTION + CHAR_SELF + CLOSE_FUNCTION;
+			putFheadSelf(out);
 			break;
 		default:
 			assert(false); throw domain_error("");
@@ -131,20 +131,42 @@ private:
 	}
 	void putParamStandard(StringBuilder& out, const string& key, const ParamStandard& param)
 	{
-		if (!param.hasDefaultValue())
-			out += key;
+		if (param.hasFunctionHead())
+			switch (param.getTypeFhead())
+			{
+			case WebssType::FUNCTION_HEAD_BINARY:
+				putFheadBinary(out, param.getFunctionHeadBinary());
+				break;
+			case WebssType::FUNCTION_HEAD_SCOPED:
+				putFheadScoped(out, param.getFunctionHeadScoped());
+				break;
+			case WebssType::FUNCTION_HEAD_SELF:
+				putFheadSelf(out);
+				break;
+			case WebssType::FUNCTION_HEAD_STANDARD:
+				putFheadStandard(out, param.getFunctionHeadStandard());
+				break;
+			case WebssType::FUNCTION_HEAD_TEXT:
+				putFheadText(out, param.getFunctionHeadText());
+				break;
+			default:
+				break;
+			}
+
+		out += key;
+		if (param.hasDefaultValue())
+			putCharValue(out, param.getDefaultValue(), ConType::FUNCTION_HEAD);
 		else
-			putKeyValue(out, key, param.getDefaultValue(), ConType::FUNCTION_HEAD);
+			assert(param.getTypeFhead() != WebssType::FUNCTION_HEAD_SELF);
 	}
 	void putParamText(StringBuilder& out, const string& key, const ParamText& param)
 	{
-		if (!param.hasDefaultValue())
-			out += key;
-		else
+		out += key;
+		if (param.hasDefaultValue())
 		{
-			const auto& webss = param.getDefaultValue();
+			auto&& webss = param.getDefaultValue();
 			assert(webss.getType() == WebssType::PRIMITIVE_STRING && "function head text parameters' values can only be of type string");
-			putKeyValue(out, key, webss, ConType::FUNCTION_HEAD);
+			putCharValue(out, webss, ConType::FUNCTION_HEAD);
 		}
 	}
 
@@ -621,6 +643,13 @@ void Deserializer::putFuncScoped(StringBuilder& out, const FunctionScoped& func,
 		putFheadScoped(out, func);
 		putConcreteValue(out, func.getValue(), con);
 	}
+}
+
+void Deserializer::putFheadSelf(StringBuilder& out)
+{
+	out += OPEN_FUNCTION;
+	out += CHAR_SELF;
+	out += CLOSE_FUNCTION;
 }
 
 void Deserializer::putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead)
