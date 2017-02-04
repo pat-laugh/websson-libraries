@@ -6,13 +6,34 @@
 using namespace std;
 using namespace webss;
 
-void putContainerStart(StringBuilder& out, ConType con);
-void putContainerEnd(StringBuilder& out, ConType con);
+template <ConType::Enum CON> void putContainerStart(StringBuilder& out) = delete;
+template <> void putContainerStart<ConType::DOCUMENT>(StringBuilder& out) {}
+template <> void putContainerStart<ConType::DICTIONARY>(StringBuilder& out) { out += OPEN_DICTIONARY; }
+template <> void putContainerStart<ConType::LIST>(StringBuilder& out) { out += OPEN_LIST; }
+template <> void putContainerStart<ConType::TUPLE>(StringBuilder& out) { out += OPEN_TUPLE; }
+template <> void putContainerStart<ConType::FUNCTION_HEAD>(StringBuilder& out) { out += OPEN_FUNCTION; }
+
+template <ConType::Enum CON> void putContainerEnd(StringBuilder& out) = delete;
+template <> void putContainerEnd<ConType::DOCUMENT>(StringBuilder& out) {}
+template <> void putContainerEnd<ConType::DICTIONARY>(StringBuilder& out) { out += CLOSE_DICTIONARY; }
+template <> void putContainerEnd<ConType::LIST>(StringBuilder& out) { out += CLOSE_LIST; }
+template <> void putContainerEnd<ConType::TUPLE>(StringBuilder& out) { out += CLOSE_TUPLE; }
+template <> void putContainerEnd<ConType::FUNCTION_HEAD>(StringBuilder& out) { out += CLOSE_FUNCTION; }
+
+template <ConType::Enum CON>
+class ContainerIncluder
+{
+private:
+	StringBuilder& out;
+public:
+	ContainerIncluder(StringBuilder& out) : out(out) { putContainerStart<CON>(out); }
+	~ContainerIncluder() { putContainerEnd<CON>(out); }
+};
 
 template <class Container, ConType::Enum CON>
 void putSeparatedValues(StringBuilder& out, const Container& cont, function<void(typename Container::const_iterator it)> output)
 {
-	putContainerStart(out, CON);
+	ContainerIncluder<CON> includer(out);
 	if (!cont.empty())
 	{
 		typename Container::const_iterator it = cont.begin();
@@ -23,7 +44,6 @@ void putSeparatedValues(StringBuilder& out, const Container& cont, function<void
 			output(it);
 		}
 	}
-	putContainerEnd(out, CON);
 }
 
 class DeserializerTemplate : public Deserializer
@@ -75,56 +95,59 @@ private:
 	template <class FunctionHead, class Param>
 	void putFhead(StringBuilder& out, const FunctionHead& fhead, function<void(StringBuilder& out, const string& key, const Param& param)>&& putParam)
 	{
+		static const auto CON = ConType::FUNCTION_HEAD;
 		assert(!fhead.empty() && "function head can't be empty");
-		out += OPEN_FUNCTION;
 		if (fhead.hasEntity())
+		{
+			ContainerIncluder<CON> includer(out);
 			putEntityName(out, fhead.getEntity());
+		}
 		else
 		{
 			auto&& keyValues = fhead.getParameters().getOrderedKeyValues();
 			using Type = typename remove_reference<decltype(keyValues)>::type;
-			putSeparatedValues<Type, ConType::FUNCTION_HEAD>(out, keyValues, [&](typename Type::const_iterator it)
+			putSeparatedValues<Type, CON>(out, keyValues, [&](typename Type::const_iterator it)
 			{
 				assert(it->first != nullptr && ERROR_ANONYMOUS_KEY);
 				putParam(out, *it->first, *it->second);
 			});
 		}
-		out += CLOSE_FUNCTION;
 	}
 
 	void putParamBinary(StringBuilder& out, const string& key, const ParamBinary& param)
 	{
-		using Type = ParamBinary::SizeHead::Type;
 		auto&& bhead = param.sizeHead;
-		out += OPEN_TUPLE;
-		switch (bhead.getType())
 		{
-		case Type::EMPTY:
-			break;
-		case Type::KEYWORD:
-			out += bhead.getKeyword().toString();
-			break;
-		case Type::NUMBER:
-			out += to_string(bhead.size());
-			break;
-		case Type::FUNCTION_HEAD:
-			putFheadBinary(out, bhead.getFunctionHead());
-			break;
-		case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_FUNCTION_HEAD:
-			putEntityName(out, bhead.getEntity());
-			break;
-		case Type::SELF:
-			putFheadSelf(out);
-			break;
-		default:
-			assert(false); throw domain_error("");
+			ContainerIncluder<ConType::TUPLE> includer(out);
+			using Type = ParamBinary::SizeHead::Type;
+			switch (bhead.getType())
+			{
+			case Type::EMPTY:
+				break;
+			case Type::KEYWORD:
+				out += bhead.getKeyword().toString();
+				break;
+			case Type::NUMBER:
+				out += to_string(bhead.size());
+				break;
+			case Type::FUNCTION_HEAD:
+				putFheadBinary(out, bhead.getFunctionHead());
+				break;
+			case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_FUNCTION_HEAD:
+				putEntityName(out, bhead.getEntity());
+				break;
+			case Type::SELF:
+				putFheadSelf(out);
+				break;
+			default:
+				assert(false); throw domain_error("");
+			}
+			putBinarySizeList(out, param.sizeList);
 		}
-		putBinarySizeList(out, param.sizeList);
-		out += CLOSE_TUPLE;
 
 		out += key;
-		if (param.sizeHead.hasDefaultValue())
-			putCharValue(out, param.sizeHead.getDefaultValue(), ConType::FUNCTION_HEAD);
+		if (bhead.hasDefaultValue())
+			putCharValue(out, bhead.getDefaultValue(), ConType::FUNCTION_HEAD);
 		else
 			assert(!bhead.isSelf());
 	}
@@ -175,7 +198,7 @@ private:
 		if (blist.isOne())
 			return;
 
-		out += OPEN_LIST;
+		ContainerIncluder<ConType::LIST> includer(out);
 		switch (blist.getType())
 		{
 		case Type::EMPTY:
@@ -189,7 +212,6 @@ private:
 		default:
 			assert(false); throw domain_error("");
 		}
-		out += CLOSE_LIST;
 	}
 };
 
@@ -219,52 +241,6 @@ void addCharEscape(StringBuilder& out, char c)
 			out += hexToChar(c >> 4);
 			out += hexToChar(c & 0x0F);
 		}
-	}
-}
-
-void putContainerStart(StringBuilder& out, ConType con)
-{
-	switch (con)
-	{
-	case ConType::DOCUMENT:
-		break;
-	case ConType::DICTIONARY:
-		out += OPEN_DICTIONARY;
-		break;
-	case ConType::LIST:
-		out += OPEN_LIST;
-		break;
-	case ConType::TUPLE:
-		out += OPEN_TUPLE;
-		break;
-	case ConType::FUNCTION_HEAD:
-		out += OPEN_FUNCTION;
-		break;
-	default:
-		assert(false); throw domain_error("");
-	}
-}
-
-void putContainerEnd(StringBuilder& out, ConType con)
-{
-	switch (con)
-	{
-	case ConType::DOCUMENT:
-		break;
-	case ConType::DICTIONARY:
-		out += CLOSE_DICTIONARY;
-		break;
-	case ConType::LIST:
-		out += CLOSE_LIST;
-		break;
-	case ConType::TUPLE:
-		out += CLOSE_TUPLE;
-		break;
-	case ConType::FUNCTION_HEAD:
-		out += CLOSE_FUNCTION;
-		break;
-	default:
-		assert(false); throw domain_error("");
 	}
 }
 
@@ -451,7 +427,7 @@ void Deserializer::putCstring(StringBuilder& out, const string& str)
 
 void Deserializer::putDocument(StringBuilder& out, const Document& doc)
 {
-	static const ConType::Enum CON = ConType::DOCUMENT;
+	static const auto CON = ConType::DOCUMENT;
 
 	if (doc.getHead().size() > 0)
 	{
@@ -519,7 +495,7 @@ void Deserializer::putUsingNamespace(StringBuilder& out, const Namespace& nspace
 
 void Deserializer::putNamespace(StringBuilder& out, const Namespace& nspace)
 {
-	static const ConType::Enum CON = ConType::DICTIONARY;
+	static const auto CON = ConType::DICTIONARY;
 	NamespaceIncluder includer(currentNamespaces, nspace);
 	putSeparatedValues<Namespace, CON>(out, nspace, [&](Namespace::const_iterator it)
 	{
@@ -532,7 +508,7 @@ void Deserializer::putNamespace(StringBuilder& out, const Namespace& nspace)
 
 void Deserializer::putEnum(StringBuilder& out, const Enum& tEnum)
 {
-	static const ConType::Enum CON = ConType::LIST;
+	static const auto CON = ConType::LIST;
 	putSeparatedValues<Enum, CON>(out, tEnum, [&](Enum::const_iterator it) { putEntityName(out, *it); });
 }
 
@@ -546,13 +522,13 @@ void Deserializer::putBlockHead(StringBuilder& out, const BlockHead& blockHead)
 
 void Deserializer::putDictionary(StringBuilder& out, const Dictionary& dict)
 {
-	static const ConType::Enum CON = ConType::DICTIONARY;
+	static const auto CON = ConType::DICTIONARY;
 	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it) { putKeyValue(out, it->first, it->second, CON); });
 }
 
 void Deserializer::putList(StringBuilder& out, const List& list)
 {
-	static const ConType::Enum CON = ConType::LIST;
+	static const auto CON = ConType::LIST;
 	if (list.isText())
 	{
 		out += ASSIGN_CONTAINER_STRING;
@@ -564,7 +540,7 @@ void Deserializer::putList(StringBuilder& out, const List& list)
 
 void Deserializer::putTuple(StringBuilder& out, const Tuple& tuple)
 {
-	static const ConType::Enum CON = ConType::TUPLE;
+	static const auto CON = ConType::TUPLE;
 	if (tuple.isText())
 	{
 		out += ASSIGN_CONTAINER_STRING;
@@ -594,7 +570,7 @@ void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& 
 		putEntityName(out, fhead.getEntity());
 	else
 	{
-		static const ConType::Enum CON = ConType::FUNCTION_HEAD;
+		static const auto CON = ConType::FUNCTION_HEAD;
 		using Type = remove_reference<decltype(fhead.getParameters())>::type;
 		putSeparatedValues<Type, CON>(out, fhead.getParameters(), [&](Type::const_iterator it)
 		{
@@ -634,7 +610,7 @@ void Deserializer::putFheadText(StringBuilder& out, const FunctionHeadText& fhea
 
 void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Dictionary& dict)
 {
-	static const ConType::Enum CON = ConType::DICTIONARY;
+	static const auto CON = ConType::DICTIONARY;
 	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it)
 	{
 		out += it->first;
@@ -649,7 +625,7 @@ void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const FunctionHea
 }
 void Deserializer::putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const List& list)
 {
-	static const ConType::Enum CON = ConType::LIST;
+	static const auto CON = ConType::LIST;
 	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
 	{
 		assert(it->isTuple());
@@ -665,7 +641,7 @@ void Deserializer::putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBina
 
 void Deserializer::putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const Dictionary& dict)
 {
-	static const ConType::Enum CON = ConType::DICTIONARY;
+	static const auto CON = ConType::DICTIONARY;
 	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it)
 	{
 		out += it->first;
@@ -681,7 +657,7 @@ void Deserializer::putFuncStandardDictionary(StringBuilder& out, const FunctionH
 
 void Deserializer::putFuncStandardList(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const List& list)
 {
-	static const ConType::Enum CON = ConType::LIST;
+	static const auto CON = ConType::LIST;
 	if (list.isText())
 	{
 		out += ASSIGN_CONTAINER_STRING;
@@ -710,7 +686,7 @@ void Deserializer::putFuncStandardTuple(StringBuilder& out, const FunctionHeadSt
 		return;
 	}
 
-	static const ConType::Enum CON = ConType::TUPLE;
+	static const auto CON = ConType::TUPLE;
 	assert(tuple.size() <= params.size() && "too many elements in function tuple");
 
 	decltype(params.size()) i = 0;
@@ -747,7 +723,7 @@ void Deserializer::putFuncStandardTuple(StringBuilder& out, const FunctionHeadSt
 
 void Deserializer::putFuncStandardTupleText(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const Tuple& tuple)
 {
-	static const ConType::Enum CON = ConType::TUPLE;
+	static const auto CON = ConType::TUPLE;
 	assert(tuple.size() <= params.size() && "too many elements in function tuple");
 
 	decltype(params.size()) i = 0;
@@ -775,7 +751,7 @@ void Deserializer::putFuncStandardTupleText(StringBuilder& out, const FunctionHe
 
 void Deserializer::putFuncTextDictionary(StringBuilder& out, const FunctionHeadText::Parameters& params, const Dictionary& dict)
 {
-	static const ConType::Enum CON = ConType::DICTIONARY;
+	static const auto CON = ConType::DICTIONARY;
 	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it)
 	{
 		out += it->first;
@@ -791,7 +767,7 @@ void Deserializer::putFuncTextDictionary(StringBuilder& out, const FunctionHeadT
 
 void Deserializer::putFuncTextList(StringBuilder& out, const FunctionHeadText::Parameters& params, const List& list)
 {
-	static const ConType::Enum CON = ConType::LIST;
+	static const auto CON = ConType::LIST;
 	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
 	{
 		assert(it->isTuple());
@@ -801,7 +777,7 @@ void Deserializer::putFuncTextList(StringBuilder& out, const FunctionHeadText::P
 
 void Deserializer::putFuncTextTuple(StringBuilder& out, const FunctionHeadText::Parameters& params, const Tuple& tuple)
 {
-	static const ConType::Enum CON = ConType::TUPLE;
+	static const auto CON = ConType::TUPLE;
 	assert(tuple.size() <= params.size() && "too many elements in function tuple");
 
 	decltype(params.size()) i = 0;
