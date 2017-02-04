@@ -215,35 +215,6 @@ private:
 	}
 };
 
-void addCharEscape(StringBuilder& out, char c)
-{
-	out += '\\';
-	switch (c)
-	{
-	case '\0': out += '0'; break;
-	case '\a': out += 'a'; break;
-	case '\b': out += 'b'; break;
-	case '\f': out += 'f'; break;
-	case '\n': out += 'n'; break;
-	case '\r': out += 'r'; break;
-	case '\t': out += 't'; break;
-	case '\v': out += 'v'; break;
-
-	case ' ': out += 's'; break;
-		//no empty char ''!
-
-	default:
-		if (!isControlAscii(c))
-			out += c;
-		else
-		{
-			out += 'x';
-			out += hexToChar(c >> 4);
-			out += hexToChar(c & 0x0F);
-		}
-	}
-}
-
 void Deserializer::putNamespaceName(StringBuilder& out, const Namespace& nspace)
 {
 	auto&& nspaces = nspace.getNamespaces();
@@ -375,6 +346,38 @@ void Deserializer::putKeyValue(StringBuilder& out, const string& key, const Webs
 
 	out += key;
 	putCharValue(out, value, con);
+}
+
+void addCharEscape(StringBuilder& out, char c)
+{
+	out += '\\';
+	switch (c)
+	{
+	case '\0': out += '0'; break;
+	case '\a': out += 'a'; break;
+	case '\b': out += 'b'; break;
+	case '\f': out += 'f'; break;
+	case '\n': out += 'n'; break;
+	case '\r': out += 'r'; break;
+	case '\t': out += 't'; break;
+	case '\v': out += 'v'; break;
+
+	case ' ': out += 's'; break;
+		//no empty char ('\e')!
+
+	default:
+		if (!isControlAscii(c))
+		{
+			assert(isSpecialAscii(c));
+			out += c;
+		}
+		else
+		{
+			out += 'x';
+			out += hexToChar(c >> 4);
+			out += hexToChar(c & 0x0F);
+		}
+	}
 }
 
 void Deserializer::putLineString(StringBuilder& out, const string& str, ConType con)
@@ -595,9 +598,8 @@ void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& 
 }
 void Deserializer::putFheadSelf(StringBuilder& out)
 {
-	out += OPEN_FUNCTION;
+	ContainerIncluder<ConType::FUNCTION_HEAD> includer(out);
 	out += CHAR_SELF;
-	out += CLOSE_FUNCTION;
 }
 void Deserializer::putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhead)
 {
@@ -634,9 +636,8 @@ void Deserializer::putFuncBinaryList(StringBuilder& out, const FunctionHeadBinar
 }
 void Deserializer::putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& tuple)
 {
-	out += OPEN_TUPLE;
+	ContainerIncluder<ConType::TUPLE> includer(out);
 	putFuncBodyBinary(out, params, tuple);
-	out += CLOSE_TUPLE;
 }
 
 void Deserializer::putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const Dictionary& dict)

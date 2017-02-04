@@ -25,8 +25,6 @@ void setDefaultValueBinary(Tuple& tuple, const FunctionHeadBinary::Parameters& p
 	tuple[index] = Webss(params[index].sizeHead.getDefaultPointer());
 }
 
-#define BINARY_DEFAULT_VALUE 1
-
 void Parser::parseBinaryHead(It& it, FunctionHeadBinary& fhead)
 {
 	using Bhead = ParamBinary::SizeHead;
@@ -236,7 +234,7 @@ Tuple parseBinaryFunction(It& it, const FunctionHeadBinary::Parameters& params)
 		const auto& bhead = params[i];
 		if (!bhead.sizeHead.hasDefaultValue())
 			tuple[i] = parseBinary(it, bhead);
-		else if (readByte(it) == BINARY_DEFAULT_VALUE)
+		else if ((unsigned char)readByte(it) >= CHAR_BINARY_DEFAULT_TRUE)
 			setDefaultValueBinary(tuple, params, i);
 		else
 			tuple[i] = bhead.sizeHead.isSelf() ?  parseBinaryFunction(it, params) : parseBinary(it, bhead);
@@ -289,5 +287,3 @@ const Entity& Parser::checkEntTypeBinarySize(const Entity& ent)
 	catch (exception e) { throw runtime_error(e.what()); }
 	return ent;
 }
-
-#undef BINARY_DEFAULT_VALUE

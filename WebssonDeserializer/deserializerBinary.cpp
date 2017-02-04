@@ -5,6 +5,10 @@
 using namespace std;
 using namespace webss;
 
+void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data);
+void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data, function<void(const Webss& webss)> func);
+void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss);
+
 //returns a string containing a number encoded in UTF-7 encoding thing
 void writeBinarySize(StringBuilder& out, WebssBinarySize num)
 {
@@ -56,45 +60,53 @@ void writeBytes(StringBuilder& out, WebssBinarySize num, char* value)
 #endif
 }
 
-void Deserializer::putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& data)
+void putFuncBodyBinary2(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& tuple)
 {
-	Tuple::size_type i = 0;
-	for (const auto& webss : data)
+	assert(tuple.size() == params.size() && "size of binary tuple must match params");
+	decltype(params.size()) i = 0;
+	for (auto&& webss : tuple)
 	{
-		const auto& binary = params.at(i++);
+		auto&& binary = params[i++];
 		if (!binary.sizeHead.hasDefaultValue())
+		{
+			assert(!binary.sizeHead.isSelf());
 			putBinary(out, binary, webss);
-		else if (webss.type == WebssType::DEFAULT)
-			out += '\x01';
+		}
+		else if (webss.type == WebssType::DEFAULT || webss.type == WebssType::NONE)
+			out += CHAR_BINARY_DEFAULT_TRUE;
 		else
 		{
-			out += '\x00';
+			out += CHAR_BINARY_DEFAULT_FALSE;
 			if (binary.sizeHead.isSelf())
-				putFuncBodyBinary(out, params, webss.getTuple());
+				putFuncBodyBinary2(out, params, webss.getTuple());
 			else
 				putBinary(out, binary, webss);
 		}
 	}
 }
 
-void Deserializer::putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data)
+void Deserializer::putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& tuple)
 {
-	const auto& sizeHead = param.sizeHead;
-	if (!sizeHead.isFunctionHead())
-	{
-		putBinary(out, param, data, [&](const Webss& webss) { putBinaryElement(out, sizeHead, webss); });
-		return;
-	}
+	putFuncBodyBinary2(out, params, tuple);
+}
 
-	const auto& params = param.sizeHead.getFunctionHead().getParameters();
-	putBinary(out, param, data, [&](const Webss& webss) { putFuncBodyBinary(out, params, webss.getTuple()); });
+void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data)
+{
+	auto&& sizeHead = param.sizeHead;
+	if (!sizeHead.isFunctionHead())
+		putBinary(out, param, data, [&](const Webss& webss) { putBinaryElement(out, sizeHead, webss); });
+	else
+	{
+		auto&& params = sizeHead.getFunctionHead().getParameters();
+		putBinary(out, param, data, [&](const Webss& webss) { putFuncBodyBinary2(out, params, webss.getTuple()); });
+	}
 }
 
 void deserializeBitList(StringBuilder& out, const List& list)
 {
 	char c = 0;
 	int shift = 0;
-	for (const Webss& webss : list)
+	for (auto&& webss : list)
 	{
 		if (shift == 8)
 		{
@@ -108,7 +120,7 @@ void deserializeBitList(StringBuilder& out, const List& list)
 	out += c;
 }
 
-void Deserializer::putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data, function<void(const Webss& webss)> func)
+void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data, function<void(const Webss& webss)> func)
 {
 	if (param.sizeList.isOne())
 	{
@@ -116,41 +128,50 @@ void Deserializer::putBinary(StringBuilder& out, const ParamBinary& param, const
 		return;
 	}
 
-	const List& list = data.getList();
+	auto&& list = data.getList();
 	if (param.sizeList.isEmpty())
 		writeBinarySize(out, list.size());
 
 	if (param.sizeHead.isBool())
-	{
 		deserializeBitList(out, list);
-		return;
-	}
-
-	for (const Webss& webss : list)
-		func(webss);
+	else
+		for (auto&& webss : list)
+			func(webss);
 }
 
-void Deserializer::putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss)
+void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss)
 {
 	if (bhead.isKeyword())
 		switch (bhead.getKeyword())
 		{
 		case Keyword::BOOL:
-			writeBytes(out, 1, reinterpret_cast<char*>(const_cast<bool*>(&webss.tBool)));
-			return;
+			assert(webss.type == WebssType::PRIMITIVE_BOOL);
+			out += webss.tBool ? 1 : 0;
+			break;
 		case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8:
+			assert(webss.type == WebssType::PRIMITIVE_INT);
 			writeBytes(out, bhead.getKeyword().getSize(), reinterpret_cast<char*>(const_cast<WebssInt*>(&webss.tInt)));
-			return;
-		case Keyword::DEC4: case Keyword::DEC8:
-			writeBytes(out, bhead.getKeyword().getSize(), reinterpret_cast<char*>(const_cast<double*>(&webss.tDouble)));
-			return;
+			break;
+		case Keyword::DEC4:
+			assert(webss.type == WebssType::PRIMITIVE_DOUBLE);
+			float f = static_cast<float>(webss.tDouble);
+			writeBytes(out, sizeof(float), reinterpret_cast<char*>(&f));
+			break;
+		case Keyword::DEC8:
+			assert(webss.type == WebssType::PRIMITIVE_DOUBLE);
+			writeBytes(out, sizeof(double), reinterpret_cast<char*>(const_cast<double*>(&webss.tDouble)));
+			break;
 		default:
 			assert(false); throw domain_error("");
 		}
 	else
 	{
+		assert(webss.type == WebssType::PRIMITIVE_STRING);
+		const auto& s = *webss.tString;
 		if (bhead.isEmpty())
-			writeBinarySize(out, webss.tString->length());
-		out += webss.getString();
+			writeBinarySize(out, s.length());
+		else
+			assert(bhead.size() == s.length());
+		out += s;
 	}
 }

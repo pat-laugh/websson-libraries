@@ -17,4 +17,7 @@ namespace webss
 	const char CHAR_SELF = '&';
 	const char CHAR_SEPARATOR = ',';
 	const char CHAR_USING_NAMESPACE = '~';
+
+	const char CHAR_BINARY_DEFAULT_FALSE = 0;
+	const char CHAR_BINARY_DEFAULT_TRUE = 1;
 }

@@ -19,6 +19,8 @@ void Deserializer::putFuncBinary(StringBuilder& out, const FunctionBinary& func)
 	case WebssType::TUPLE:
 		putFuncBinaryTuple(out, func.getParameters(), func.getTuple());
 		break;
+	default:
+		assert(false); throw domain_error("");
 	}
 }
 
@@ -36,6 +38,8 @@ void Deserializer::putFuncStandard(StringBuilder& out, const FunctionStandard& f
 	case WebssType::TUPLE:
 		putFuncStandardTuple(out, func.getParameters(), func.getTuple());
 		break;
+	default:
+		assert(false); throw domain_error("");
 	}
 }
 
@@ -53,9 +57,7 @@ void Deserializer::putFuncText(StringBuilder& out, const FunctionText& func)
 	case WebssType::TUPLE:
 		putFuncTextTuple(out, func.getParameters(), func.getTuple());
 		break;
+	default:
+		assert(false); throw domain_error("");
 	}
 }
-
-
-
-

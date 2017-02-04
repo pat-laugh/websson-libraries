@@ -108,10 +108,7 @@ namespace webss
 		void putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const List& list);
 		void putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& tuple);
 
-		void putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& data);
-		void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data);
-		void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data, std::function<void(const Webss& webss)> func);
-		void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss);
+		void putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& tuple);
 		
 		class NamespaceIncluder
 		{
