@@ -50,7 +50,6 @@ namespace webss
 
 		void putNamespaceName(StringBuilder& out, const Namespace& nspace);
 		void putEntityName(StringBuilder& out, const Entity& ent);
-		void putFheadEntity(StringBuilder& out, const Entity& ent);
 
 		void putAbstractValue(StringBuilder& out, const Webss& webss, ConType con);
 

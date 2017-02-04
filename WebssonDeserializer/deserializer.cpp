@@ -2,6 +2,7 @@
 //Copyright(c) 2016 Patrick Laughrea
 #include "deserializer.h"
 #include <type_traits>
+#include <limits>
 
 using namespace std;
 using namespace webss;
@@ -53,8 +54,7 @@ public:
 				putScopedDocument(out, it->getScopedDoc());
 				break;
 			default:
-				assert(false);
-				throw logic_error("");
+				assert(false); throw domain_error("");
 			}
 		});
 	}
@@ -77,8 +77,9 @@ private:
 	void putFhead(StringBuilder& out, const FunctionHead& fhead, function<void(StringBuilder& out, const string& key, const Param& param)>&& putParam)
 	{
 		assert(!fhead.empty() && "function head can't be empty");
+		out += OPEN_FUNCTION;
 		if (fhead.hasEntity())
-			putFheadEntity(out, fhead.getEntity());
+			putEntityName(out, fhead.getEntity());
 		else
 		{
 			auto&& keyValues = fhead.getParameters().getOrderedKeyValues();
@@ -89,15 +90,44 @@ private:
 				putParam(out, *it->first, *it->second);
 			});
 		}
+		out += CLOSE_FUNCTION;
 	}
 
 	void putParamBinary(StringBuilder& out, const string& key, const ParamBinary& param)
 	{
-		putBinarySizeHead(out, param.sizeHead);
-		out += key;
+		using Type = ParamBinary::SizeHead::Type;
+		auto&& bhead = param.sizeHead;
+		out += OPEN_TUPLE;
+		switch (bhead.getType())
+		{
+		case Type::EMPTY:
+			break;
+		case Type::KEYWORD:
+			out += bhead.getKeyword().toString();
+			break;
+		case Type::NUMBER:
+			out += to_string(bhead.size());
+			break;
+		case Type::FUNCTION_HEAD:
+			putFheadBinary(out, bhead.getFunctionHead());
+			break;
+		case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_FUNCTION_HEAD:
+			putEntityName(out, bhead.getEntity());
+			break;
+		case Type::SELF:
+			out += string() + OPEN_FUNCTION + CHAR_SELF + CLOSE_FUNCTION;
+			break;
+		default:
+			assert(false); throw domain_error("");
+		}
 		putBinarySizeList(out, param.sizeList);
+		out += CLOSE_TUPLE;
+
+		out += key;
 		if (param.sizeHead.hasDefaultValue())
 			putCharValue(out, param.sizeHead.getDefaultValue(), ConType::FUNCTION_HEAD);
+		else
+			assert(!bhead.isSelf());
 	}
 	void putParamStandard(StringBuilder& out, const string& key, const ParamStandard& param)
 	{
@@ -118,38 +148,6 @@ private:
 		}
 	}
 
-	void putBinarySizeHead(StringBuilder& out, const ParamBinary::SizeHead& bhead)
-	{
-		using Type = ParamBinary::SizeHead::Type;
-		out += OPEN_TUPLE;
-		switch (bhead.getType())
-		{
-		case Type::EMPTY:
-			break;
-		case Type::KEYWORD:
-			out += bhead.getKeyword().toString();
-			break;
-		case Type::NUMBER:
-			out += to_string(bhead.size());
-			break;
-		case Type::FUNCTION_HEAD:
-			putFheadBinary(out, bhead.getFunctionHead());
-			break;
-		case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
-			putEntityName(out, bhead.getEntityNumber());
-			break;
-		case Type::ENTITY_FUNCTION_HEAD:
-			putEntityName(out, bhead.getEntityFunctionHead());
-			break;
-		case Type::SELF:
-			out += string() + OPEN_FUNCTION + CHAR_SELF + CLOSE_FUNCTION;
-			break;
-		default:
-			assert(false);
-		}
-		out += CLOSE_TUPLE;
-	}
-
 	void putBinarySizeList(StringBuilder& out, const ParamBinary::SizeList& blist)
 	{
 		using Type = ParamBinary::SizeList::Type;
@@ -168,7 +166,7 @@ private:
 			putEntityName(out, blist.getEntity());
 			break;
 		default:
-			assert(false);
+			assert(false); throw domain_error("");
 		}
 		out += CLOSE_LIST;
 	}
@@ -272,14 +270,6 @@ void Deserializer::putEntityName(StringBuilder& out, const Entity& ent)
 		out += CHAR_SCOPE;
 	}
 	out += ent.getName();
-}
-
-void Deserializer::putFheadEntity(StringBuilder& out, const Entity& ent)
-{
-	static const ConType CON = ConType::FUNCTION_HEAD;
-	putContainerStart(out, CON);
-	putEntityName(out, ent);
-	putContainerEnd(out, CON);
 }
 
 void Deserializer::putAbstractValue(StringBuilder& out, const Webss& webss, ConType con)
@@ -589,11 +579,12 @@ void Deserializer::putBlock(StringBuilder& out, const Block& block, ConType con)
 
 void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& fhead)
 {
-	static const ConType::Enum CON = ConType::FUNCTION_HEAD;
+	out += OPEN_FUNCTION;
 	if (fhead.hasEntity())
-		putFheadEntity(out, fhead.getEntity());
+		putEntityName(out, fhead.getEntity());
 	else
 	{
+		static const ConType::Enum CON = ConType::FUNCTION_HEAD;
 		using Type = remove_reference<decltype(fhead.getParameters())>::type;
 		putSeparatedValues<Type, CON>(out, fhead.getParameters(), [&](Type::const_iterator it)
 		{
@@ -614,6 +605,7 @@ void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& 
 			}
 		});
 	}
+	out += CLOSE_FUNCTION;
 }
 
 void Deserializer::putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con)
