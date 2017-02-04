@@ -94,8 +94,7 @@ int Keyword::getSize() const
 	case Keyword::STRING:
 		return 0;
 	default:
-		assert(false && ("can't get size of keyword " + toString()).c_str());
-		throw domain_error("");
+		assert(false && "can't get size of keyword "); throw domain_error("");
 	}
 }
 

@@ -146,8 +146,7 @@ namespace webss
 				delete fheadText;
 				break;
 			default:
-				assert(false);
-				throw std::logic_error("");
+				assert(false); throw std::domain_error("");
 			}
 			typeFhead = WebssType::NONE;
 		}
@@ -171,8 +170,7 @@ namespace webss
 				fheadText = o.fheadText;
 				break;
 			default:
-				assert(false);
-				throw std::logic_error("");
+				assert(false); throw std::domain_error("");
 			}
 			typeFhead = o.typeFhead;
 			o.typeFhead = WebssType::NONE;
@@ -197,8 +195,7 @@ namespace webss
 				fheadText = new FheadText(*o.fheadText);
 				break;
 			default:
-				assert(false);
-				throw std::logic_error("");
+				assert(false); throw std::domain_error("");
 			}
 			typeFhead = o.typeFhead;
 			defaultValue = o.defaultValue;

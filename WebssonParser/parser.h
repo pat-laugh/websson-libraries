@@ -217,7 +217,7 @@ namespace webss
 				break;
 			}
 			default:
-				assert(false);
+				assert(false); throw std::domain_error("");
 			}
 		}
 	};

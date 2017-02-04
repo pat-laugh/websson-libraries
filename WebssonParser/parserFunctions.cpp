@@ -168,7 +168,7 @@ private:
 							tuple.at(index) = move(nameType.entity);
 							break;
 						default:
-							assert(false);
+							assert(false); throw domain_error("");
 						}
 					}
 					

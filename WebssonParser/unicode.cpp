@@ -109,6 +109,6 @@ void webss::putEscapedHex(SmartIterator& it, StringBuilder& str, char separator)
 		putContainedEscapedHex(++it, str, separator);
 		return;
 	default:
-		assert(false);
+		assert(false); throw std::domain_error("");
 	}
 }

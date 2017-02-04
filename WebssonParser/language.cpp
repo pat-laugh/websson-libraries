@@ -23,8 +23,7 @@ bool webss::isDecimalSeparator(char c, Language lang)
 	case INTL:
 		return c == '.' || c == ',';
 	default:
-		assert(false);
-		throw logic_error("");
+		assert(false); throw domain_error("");
 	}
 }
 
@@ -38,7 +37,6 @@ char webss::getLanguageSeparator(Language lang)
 	case FR:
 		return ';';
 	default:
-		assert(false);
-		throw logic_error("");
+		assert(false); throw domain_error("");
 	}
 }

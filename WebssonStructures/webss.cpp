@@ -91,7 +91,7 @@ Webss::Webss(FunctionHead##Type&& head, Webss&& body) \
 		func##Type = new Function##Type(move(head), move(*body.tuple)); \
 		break; \
 	default: \
-		assert(false); \
+		assert(false); throw domain_error(""); \
 	} \
 	type = WebssType::FUNCTION_##TypeCaps; \
 }
@@ -168,7 +168,7 @@ void Webss::destroyUnion()
 		delete block;
 		break;
 	default:
-		assert(false);
+		assert(false); throw domain_error("");
 	}
 	type = WebssType::NONE;
 }
@@ -266,7 +266,7 @@ void Webss::copyUnion(Webss&& o)
 		block = o.block;
 		break;
 	default:
-		assert(false);
+		assert(false); throw domain_error("");
 	}
 	type = o.type;
 	o.type = WebssType::NONE;
@@ -346,7 +346,7 @@ void Webss::copyUnion(const Webss& o)
 		block = new Block(*o.block);
 		break;
 	default:
-		assert(false);
+		assert(false); throw domain_error("");
 	}
 	type = o.type;
 }
@@ -701,7 +701,7 @@ bool Webss::isAbstract() const
 	switch (type)
 	{
 	case WebssType::NONE:
-		assert(false);
+		assert(false); throw domain_error("");
 	case WebssType::ENTITY:
 		return ent.getContent().isAbstract();
 	case WebssType::DEFAULT:

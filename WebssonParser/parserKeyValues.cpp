@@ -122,7 +122,7 @@ Parser::OtherValue Parser::parseOtherValue(It& it, ConType con)
 		case NameType::ENTITY_CONCRETE:
 			return{ Webss(move(nameType.entity)) };
 		default:
-			assert(false);
+			assert(false); throw domain_error("");
 		}
 	}
 	else if (isNumberStart(*it))
@@ -169,7 +169,7 @@ void Parser::parseOtherValue(It& it, ConType con, std::function<void(string&& ke
 		funcAbstractEntity(other.abstractEntity);
 		break;
 	default:
-		assert(false);
+		assert(false); throw domain_error("");
 	}
 }
 

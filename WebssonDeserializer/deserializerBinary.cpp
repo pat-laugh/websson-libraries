@@ -145,7 +145,7 @@ void Deserializer::putBinaryElement(StringBuilder& out, const ParamBinary::SizeH
 			writeBytes(out, bhead.getKeyword().getSize(), reinterpret_cast<char*>(const_cast<double*>(&webss.tDouble)));
 			return;
 		default:
-			assert(false);
+			assert(false); throw domain_error("");
 		}
 	else
 	{

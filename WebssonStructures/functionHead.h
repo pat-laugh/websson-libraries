@@ -53,8 +53,7 @@ namespace webss
 			switch (type)
 			{
 			case Type::NONE:
-				assert(false);
-				throw std::logic_error("");
+				assert(false); throw std::domain_error("");
 			case Type::PARAMS:
 				break;
 			case Type::POINTER:
@@ -74,8 +73,7 @@ namespace webss
 			switch (type)
 			{
 			case Type::NONE: default:
-				assert(false);
-				throw std::logic_error("");
+				assert(false); throw std::domain_error("");
 			case Type::PARAMS:
 				return *params;
 			case Type::POINTER:

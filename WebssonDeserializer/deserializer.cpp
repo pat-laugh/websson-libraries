@@ -2,7 +2,6 @@
 //Copyright(c) 2016 Patrick Laughrea
 #include "deserializer.h"
 #include <type_traits>
-#include <limits>
 
 using namespace std;
 using namespace webss;
@@ -242,7 +241,7 @@ void putContainerStart(StringBuilder& out, ConType con)
 		out += OPEN_FUNCTION;
 		break;
 	default:
-		assert(false);
+		assert(false); throw domain_error("");
 	}
 }
 
@@ -265,7 +264,7 @@ void putContainerEnd(StringBuilder& out, ConType con)
 		out += CLOSE_FUNCTION;
 		break;
 	default:
-		assert(false);
+		assert(false); throw domain_error("");
 	}
 }
 
@@ -324,7 +323,7 @@ void Deserializer::putAbstractValue(StringBuilder& out, const Webss& webss, ConT
 		putBlockHead(out, *webss.blockHead);
 		break;
 	default:
-		assert(false && "type is not an abstract value");
+		assert(false && "type is not an abstract value"); throw domain_error("");
 	}
 }
 
@@ -377,7 +376,7 @@ void Deserializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConT
 		putBlock(out, *webss.block, con);
 		break;
 	default:
-		assert(false && "type is not a concrete value");
+		assert(false && "type is not a concrete value"); throw domain_error("");
 	}
 }
 
@@ -584,21 +583,10 @@ void Deserializer::putTuple(StringBuilder& out, const Tuple& tuple)
 	}
 }
 
-void Deserializer::putBlock(StringBuilder& out, const Block& block, ConType con)
+void Deserializer::putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead)
 {
-	if (block.hasEntity())
-	{
-		putEntityName(out, block.getEntity());
-		putCharValue(out, block.getValue(), con);
-	}
-	else
-	{
-		out += OPEN_FUNCTION;
-		out += CLOSE_FUNCTION;
-		putConcreteValue(out, block.getValue(), con);
-	}
+	static_cast<DeserializerTemplate*>(this)->putFheadBinary(out, fhead);
 }
-
 void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& fhead)
 {
 	out += OPEN_FUNCTION;
@@ -613,7 +601,7 @@ void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& 
 			using ParamType = decltype(it->getType());
 			switch (it->getType())
 			{
-			case ParamType::ENTITY_ABSTRACT: 
+			case ParamType::ENTITY_ABSTRACT:
 				putAbstractEntity(out, it->getAbstractEntity(), CON);
 				break;
 			case ParamType::ENTITY_CONCRETE:
@@ -623,38 +611,17 @@ void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& 
 				putUsingNamespace(out, it->getNamespace());
 				break;
 			default:
-				assert(false);
+				assert(false); throw domain_error("");
 			}
 		});
 	}
 	out += CLOSE_FUNCTION;
 }
-
-void Deserializer::putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con)
-{
-	NamespaceIncluder includer(currentNamespaces, func.getParameters());
-	if (func.hasEntity())
-	{
-		putEntityName(out, func.getEntity());
-		putCharValue(out, func.getValue(), con);
-	}
-	else
-	{
-		putFheadScoped(out, func);
-		putConcreteValue(out, func.getValue(), con);
-	}
-}
-
 void Deserializer::putFheadSelf(StringBuilder& out)
 {
 	out += OPEN_FUNCTION;
 	out += CHAR_SELF;
 	out += CLOSE_FUNCTION;
-}
-
-void Deserializer::putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead)
-{
-	static_cast<DeserializerTemplate*>(this)->putFheadBinary(out, fhead);
 }
 void Deserializer::putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhead)
 {
@@ -664,8 +631,6 @@ void Deserializer::putFheadText(StringBuilder& out, const FunctionHeadText& fhea
 {
 	static_cast<DeserializerTemplate*>(this)->putFheadText(out, fhead);
 }
-
-
 
 void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Dictionary& dict)
 {
@@ -774,7 +739,7 @@ void Deserializer::putFuncStandardTuple(StringBuilder& out, const FunctionHeadSt
 				putFuncStandardTuple(out, params2, it->getTuple());
 				break;
 			default:
-				assert(false && "function body must be dictionary, list or tuple");
+				assert(false && "function body must be dictionary, list or tuple"); throw domain_error("");
 			}
 		}
 	});
@@ -799,8 +764,7 @@ void Deserializer::putFuncStandardTupleText(StringBuilder& out, const FunctionHe
 			putLineString(out, *it->tString, CON);
 			break;
 		default:
-			assert(false);
-			throw logic_error("");
+			assert(false); throw domain_error("");
 		}
 	});
 #ifdef assert
@@ -853,8 +817,37 @@ void Deserializer::putFuncTextTuple(StringBuilder& out, const FunctionHeadText::
 			putLineString(out, *it->tString, CON);
 			break;
 		default:
-			assert(false);
-			throw logic_error("");
+			assert(false); throw domain_error("");
 		}
 	});
+}
+
+void Deserializer::putBlock(StringBuilder& out, const Block& block, ConType con)
+{
+	if (block.hasEntity())
+	{
+		putEntityName(out, block.getEntity());
+		putCharValue(out, block.getValue(), con);
+	}
+	else
+	{
+		out += OPEN_FUNCTION;
+		out += CLOSE_FUNCTION;
+		putConcreteValue(out, block.getValue(), con);
+	}
+}
+
+void Deserializer::putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con)
+{
+	NamespaceIncluder includer(currentNamespaces, func.getParameters());
+	if (func.hasEntity())
+	{
+		putEntityName(out, func.getEntity());
+		putCharValue(out, func.getValue(), con);
+	}
+	else
+	{
+		putFheadScoped(out, func);
+		putConcreteValue(out, func.getValue(), con);
+	}
 }
