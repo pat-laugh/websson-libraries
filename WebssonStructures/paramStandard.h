@@ -3,10 +3,10 @@
 #include <memory>
 
 #include "base.h"
-#include "functionHead.h"
+#include "templateHead.h"
 #include "paramBinary.h"
 #include "paramText.h"
-#include "functionScoped.h"
+#include "templateScoped.h"
 #include "typeWebss.h"
 
 namespace webss
@@ -16,10 +16,10 @@ namespace webss
 	class This
 	{
 	private:
-		using FheadBinary = BasicFunctionHead<BasicParamBinary<Webss>, Webss>;
-		using FheadScoped = BasicFunctionHeadScoped<Webss>;
-		using FheadStandard = BasicFunctionHead<This<Webss>, Webss>;
-		using FheadText = BasicFunctionHead<BasicParamText<Webss>, Webss>;
+		using FheadBinary = BasicTemplateHead<BasicParamBinary<Webss>, Webss>;
+		using FheadScoped = BasicTemplateHeadScoped<Webss>;
+		using FheadStandard = BasicTemplateHead<This<Webss>, Webss>;
+		using FheadText = BasicTemplateHead<BasicParamText<Webss>, Webss>;
 
 		WebssType typeFhead = WebssType::NONE;
 		union
@@ -56,7 +56,7 @@ namespace webss
 		}
 
 		bool hasDefaultValue() const { return defaultValue.get() != nullptr; }
-		bool hasFunctionHead() const { return typeFhead != WebssType::NONE; }
+		bool hasTemplateHead() const { return typeFhead != WebssType::NONE; }
 
 		const Webss& getDefaultValue() const
 		{
@@ -69,80 +69,80 @@ namespace webss
 			return defaultValue;
 		}
 
-		//returns WebssType::NONE if has no fhead
+		//returns WebssType::NONE if has no thead
 		WebssType getTypeFhead() const
 		{
 			return typeFhead;
 		}
 
-		const FheadBinary& getFunctionHeadBinary() const
+		const FheadBinary& getTemplateHeadBinary() const
 		{
-			assert(typeFhead == WebssType::FUNCTION_HEAD_BINARY);
+			assert(typeFhead == WebssType::TEMPLATE_HEAD_BINARY);
 			return *fheadBin;
 		}
-		const FheadScoped& getFunctionHeadScoped() const
+		const FheadScoped& getTemplateHeadScoped() const
 		{
-			assert(typeFhead == WebssType::FUNCTION_HEAD_SCOPED);
+			assert(typeFhead == WebssType::TEMPLATE_HEAD_SCOPED);
 			return *fheadScoped; 
 		}
-		const FheadStandard& getFunctionHeadStandard() const
+		const FheadStandard& getTemplateHeadStandard() const
 		{
-			assert(typeFhead == WebssType::FUNCTION_HEAD_STANDARD); 
+			assert(typeFhead == WebssType::TEMPLATE_HEAD_STANDARD); 
 			return *fheadStd;
 		}
-		const FheadText& getFunctionHeadText() const
+		const FheadText& getTemplateHeadText() const
 		{
-			assert(typeFhead == WebssType::FUNCTION_HEAD_TEXT);
+			assert(typeFhead == WebssType::TEMPLATE_HEAD_TEXT);
 			return *fheadText; 
 		}
 
-		void removeFunctionHead() { destroyUnion(); }
-		void setFunctionHead(FheadBinary&& o)
+		void removeTemplateHead() { destroyUnion(); }
+		void setTemplateHead(FheadBinary&& o)
 		{
-			assert(!hasFunctionHead());
+			assert(!hasTemplateHead());
 			fheadBin = new FheadBinary(std::move(o));
-			typeFhead = WebssType::FUNCTION_HEAD_BINARY;
+			typeFhead = WebssType::TEMPLATE_HEAD_BINARY;
 		}
-		void setFunctionHead(FheadScoped&& o)
+		void setTemplateHead(FheadScoped&& o)
 		{
-			assert(!hasFunctionHead());
+			assert(!hasTemplateHead());
 			fheadScoped = new FheadScoped(std::move(o));
-			typeFhead = WebssType::FUNCTION_HEAD_SCOPED;
+			typeFhead = WebssType::TEMPLATE_HEAD_SCOPED;
 		}
-		void setFunctionHead(FheadStandard&& o)
+		void setTemplateHead(FheadStandard&& o)
 		{
-			assert(!hasFunctionHead());
+			assert(!hasTemplateHead());
 			fheadStd = new FheadStandard(std::move(o));
-			typeFhead = WebssType::FUNCTION_HEAD_STANDARD;
+			typeFhead = WebssType::TEMPLATE_HEAD_STANDARD;
 		}
-		void setFunctionHead(FheadText&& o)
+		void setTemplateHead(FheadText&& o)
 		{
-			assert(!hasFunctionHead());
+			assert(!hasTemplateHead());
 			fheadText = new FheadText(std::move(o));
-			typeFhead = WebssType::FUNCTION_HEAD_TEXT;
+			typeFhead = WebssType::TEMPLATE_HEAD_TEXT;
 		}
-		void setFunctionHead(FunctionHeadSelf)
+		void setTemplateHead(TemplateHeadSelf)
 		{
-			assert(!hasFunctionHead());
-			typeFhead = WebssType::FUNCTION_HEAD_SELF;
+			assert(!hasTemplateHead());
+			typeFhead = WebssType::TEMPLATE_HEAD_SELF;
 		}
 	private:
 		void destroyUnion()
 		{
 			switch (typeFhead)
 			{
-			case WebssType::NONE: case WebssType::FUNCTION_HEAD_SELF:
+			case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
 				break;
-			case WebssType::FUNCTION_HEAD_BINARY:
+			case WebssType::TEMPLATE_HEAD_BINARY:
 				delete fheadBin;
 				break;
-			case WebssType::FUNCTION_HEAD_SCOPED:
+			case WebssType::TEMPLATE_HEAD_SCOPED:
 				delete fheadScoped;
 				break;
-			case WebssType::FUNCTION_HEAD_STANDARD:
+			case WebssType::TEMPLATE_HEAD_STANDARD:
 				delete fheadStd;
 				break;
-			case WebssType::FUNCTION_HEAD_TEXT:
+			case WebssType::TEMPLATE_HEAD_TEXT:
 				delete fheadText;
 				break;
 			default:
@@ -155,18 +155,18 @@ namespace webss
 		{
 			switch (o.typeFhead)
 			{
-			case WebssType::NONE: case WebssType::FUNCTION_HEAD_SELF:
+			case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
 				break;
-			case WebssType::FUNCTION_HEAD_BINARY:
+			case WebssType::TEMPLATE_HEAD_BINARY:
 				fheadBin = o.fheadBin;
 				break;
-			case WebssType::FUNCTION_HEAD_SCOPED:
+			case WebssType::TEMPLATE_HEAD_SCOPED:
 				fheadScoped = o.fheadScoped;
 				break;
-			case WebssType::FUNCTION_HEAD_STANDARD:
+			case WebssType::TEMPLATE_HEAD_STANDARD:
 				fheadStd = o.fheadStd;
 				break;
-			case WebssType::FUNCTION_HEAD_TEXT:
+			case WebssType::TEMPLATE_HEAD_TEXT:
 				fheadText = o.fheadText;
 				break;
 			default:
@@ -180,18 +180,18 @@ namespace webss
 		{
 			switch (o.typeFhead)
 			{
-			case WebssType::NONE: case WebssType::FUNCTION_HEAD_SELF:
+			case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
 				break;
-			case WebssType::FUNCTION_HEAD_BINARY:
+			case WebssType::TEMPLATE_HEAD_BINARY:
 				fheadBin = new FheadBinary(*o.fheadBin);
 				break;
-			case WebssType::FUNCTION_HEAD_SCOPED:
+			case WebssType::TEMPLATE_HEAD_SCOPED:
 				fheadScoped = new FheadScoped(*o.fheadScoped);
 				break;
-			case WebssType::FUNCTION_HEAD_STANDARD:
+			case WebssType::TEMPLATE_HEAD_STANDARD:
 				fheadStd = new FheadStandard(*o.fheadStd);
 				break;
-			case WebssType::FUNCTION_HEAD_TEXT:
+			case WebssType::TEMPLATE_HEAD_TEXT:
 				fheadText = new FheadText(*o.fheadText);
 				break;
 			default:

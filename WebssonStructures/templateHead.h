@@ -7,7 +7,7 @@
 
 namespace webss
 {
-#define This BasicFunctionHead
+#define This BasicTemplateHead
 	template <class Parameter, class Webss>
 	class This
 	{

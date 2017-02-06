@@ -5,57 +5,57 @@
 using namespace std;
 using namespace webss;
 
-void Deserializer::putFuncBinary(StringBuilder& out, const FunctionBinary& func)
+void Deserializer::putFuncBinary(StringBuilder& out, const TemplateBinary& templ)
 {
-	putFheadBinary(out, func);
-	switch (func.getType())
+	putFheadBinary(out, templ);
+	switch (templ.getType())
 	{
 	case WebssType::DICTIONARY:
-		putFuncBinaryDictionary(out, func.getParameters(), func.getDictionary());
+		putFuncBinaryDictionary(out, templ.getParameters(), templ.getDictionary());
 		break;
 	case WebssType::LIST:
-		putFuncBinaryList(out, func.getParameters(), func.getList());
+		putFuncBinaryList(out, templ.getParameters(), templ.getList());
 		break;
 	case WebssType::TUPLE:
-		putFuncBinaryTuple(out, func.getParameters(), func.getTuple());
+		putFuncBinaryTuple(out, templ.getParameters(), templ.getTuple());
 		break;
 	default:
 		assert(false); throw domain_error("");
 	}
 }
 
-void Deserializer::putFuncStandard(StringBuilder& out, const FunctionStandard& func)
+void Deserializer::putFuncStandard(StringBuilder& out, const TemplateStandard& templ)
 {
-	putFheadStandard(out, func);
-	switch (func.getType())
+	putFheadStandard(out, templ);
+	switch (templ.getType())
 	{
 	case WebssType::DICTIONARY:
-		putFuncStandardDictionary(out, func.getParameters(), func.getDictionary());
+		putFuncStandardDictionary(out, templ.getParameters(), templ.getDictionary());
 		break;
 	case WebssType::LIST:
-		putFuncStandardList(out, func.getParameters(), func.getList());
+		putFuncStandardList(out, templ.getParameters(), templ.getList());
 		break;
 	case WebssType::TUPLE:
-		putFuncStandardTuple(out, func.getParameters(), func.getTuple());
+		putFuncStandardTuple(out, templ.getParameters(), templ.getTuple());
 		break;
 	default:
 		assert(false); throw domain_error("");
 	}
 }
 
-void Deserializer::putFuncText(StringBuilder& out, const FunctionText& func)
+void Deserializer::putFuncText(StringBuilder& out, const TemplateText& templ)
 {
-	putFheadText(out, func);
-	switch (func.getType())
+	putFheadText(out, templ);
+	switch (templ.getType())
 	{
 	case WebssType::DICTIONARY:
-		putFuncTextDictionary(out, func.getParameters(), func.getDictionary());
+		putFuncTextDictionary(out, templ.getParameters(), templ.getDictionary());
 		break;
 	case WebssType::LIST:
-		putFuncTextList(out, func.getParameters(), func.getList());
+		putFuncTextList(out, templ.getParameters(), templ.getList());
 		break;
 	case WebssType::TUPLE:
-		putFuncTextTuple(out, func.getParameters(), func.getTuple());
+		putFuncTextTuple(out, templ.getParameters(), templ.getTuple());
 		break;
 	default:
 		assert(false); throw domain_error("");

@@ -4,7 +4,7 @@
 
 #include "base.h"
 #include "block.h"
-#include "function.h"
+#include "template.h"
 #include "namespace.h"
 #include "enum.h"
 #include "paramStandard.h"
@@ -22,14 +22,14 @@ namespace webss
 	using ParamScoped = BasicParamScoped<Webss>;
 	using ParamStandard = BasicParamStandard<Webss>;
 	using ParamText = BasicParamText<Webss>;
-	using FunctionHeadBinary = BasicFunctionHead<ParamBinary, Webss>;
-	using FunctionHeadScoped = BasicFunctionHeadScoped<Webss>;
-	using FunctionHeadStandard = BasicFunctionHead<ParamStandard, Webss>;
-	using FunctionHeadText = BasicFunctionHead<ParamText, Webss>;
-	using FunctionBinary = BasicFunction<FunctionHeadBinary, Webss>;
-	using FunctionScoped = BasicFunctionScoped<Webss>;
-	using FunctionStandard = BasicFunction<FunctionHeadStandard, Webss>;
-	using FunctionText = BasicFunction<FunctionHeadText, Webss>;
+	using TemplateHeadBinary = BasicTemplateHead<ParamBinary, Webss>;
+	using TemplateHeadScoped = BasicTemplateHeadScoped<Webss>;
+	using TemplateHeadStandard = BasicTemplateHead<ParamStandard, Webss>;
+	using TemplateHeadText = BasicTemplateHead<ParamText, Webss>;
+	using TemplateBinary = BasicTemplate<TemplateHeadBinary, Webss>;
+	using TemplateScoped = BasicTemplateScoped<Webss>;
+	using TemplateStandard = BasicTemplate<TemplateHeadStandard, Webss>;
+	using TemplateText = BasicTemplate<TemplateHeadText, Webss>;
 	using Entity = BasicEntity<Webss>;
 	using Namespace = BasicNamespace<Webss>;
 	using Enum = BasicEnum<Webss>;
@@ -64,14 +64,14 @@ namespace webss
 		Webss(Dictionary&& dict);
 		Webss(List&& list);
 		Webss(Tuple&& tuple);
-		Webss(FunctionHeadBinary&& fheadBinary);
-		Webss(FunctionHeadScoped&& fheadScoped);
-		Webss(FunctionHeadStandard&& fheadStandard);
-		Webss(FunctionHeadText&& fheadText);
-		Webss(FunctionBinary&& funcBinary);
-		Webss(FunctionScoped&& funcScoped);
-		Webss(FunctionStandard&& funcStandard);
-		Webss(FunctionText&& funcText);
+		Webss(TemplateHeadBinary&& fheadBinary);
+		Webss(TemplateHeadScoped&& fheadScoped);
+		Webss(TemplateHeadStandard&& fheadStandard);
+		Webss(TemplateHeadText&& fheadText);
+		Webss(TemplateBinary&& templBinary);
+		Webss(TemplateScoped&& templScoped);
+		Webss(TemplateStandard&& templStandard);
+		Webss(TemplateText&& templText);
 		Webss(Namespace&& nspace);
 		Webss(Enum&& tEnum);
 		Webss(BlockHead&& blockHead);
@@ -82,24 +82,24 @@ namespace webss
 		Webss(const Dictionary& dict);
 		Webss(const List& list);
 		Webss(const Tuple& tuple);
-		Webss(const FunctionHeadBinary& fheadBinary);
-		Webss(const FunctionHeadScoped& fheadScoped);
-		Webss(const FunctionHeadStandard& fheadStandard);
-		Webss(const FunctionHeadText& fheadText);
-		Webss(const FunctionBinary& funcBinary);
-		Webss(const FunctionScoped& funcScoped);
-		Webss(const FunctionStandard& funcStandard);
-		Webss(const FunctionText& funcText);
+		Webss(const TemplateHeadBinary& fheadBinary);
+		Webss(const TemplateHeadScoped& fheadScoped);
+		Webss(const TemplateHeadStandard& fheadStandard);
+		Webss(const TemplateHeadText& fheadText);
+		Webss(const TemplateBinary& templBinary);
+		Webss(const TemplateScoped& templScoped);
+		Webss(const TemplateStandard& templStandard);
+		Webss(const TemplateText& templText);
 		Webss(const Namespace& nspace);
 		Webss(const Enum& tEnum);
 		Webss(const BlockHead& blockHead);
 		Webss(const Block& block);
 
-		Webss(FunctionHeadSelf);
+		Webss(TemplateHeadSelf);
 
-		Webss(FunctionHeadBinary&& head, Webss&& body);
-		Webss(FunctionHeadStandard&& head, Webss&& body);
-		Webss(FunctionHeadText&& head, Webss&& body);
+		Webss(TemplateHeadBinary&& head, Webss&& body);
+		Webss(TemplateHeadStandard&& head, Webss&& body);
+		Webss(TemplateHeadText&& head, Webss&& body);
 
 		Webss(const BasicEntity<Webss>& ent) : type(WebssType::ENTITY), ent(ent) {}
 		Webss(const Default& tDefault) : type(WebssType::DEFAULT), tDefault(tDefault) {}
@@ -124,14 +124,14 @@ namespace webss
 		const Dictionary& getDictionary() const;
 		const List& getList() const;
 		const Tuple& getTuple() const;
-		const FunctionHeadBinary& getFunctionHeadBinary() const;
-		const FunctionHeadScoped& getFunctionHeadScoped() const;
-		const FunctionHeadStandard& getFunctionHeadStandard() const;
-		const FunctionHeadText& getFunctionHeadText() const;
-		const FunctionBinary& getFunctionBinary() const;
-		const FunctionScoped& getFunctionScoped() const;
-		const FunctionStandard& getFunctionStandard() const;
-		const FunctionText& getFunctionText() const;
+		const TemplateHeadBinary& getTemplateHeadBinary() const;
+		const TemplateHeadScoped& getTemplateHeadScoped() const;
+		const TemplateHeadStandard& getTemplateHeadStandard() const;
+		const TemplateHeadText& getTemplateHeadText() const;
+		const TemplateBinary& getTemplateBinary() const;
+		const TemplateScoped& getTemplateScoped() const;
+		const TemplateStandard& getTemplateStandard() const;
+		const TemplateText& getTemplateText() const;
 		const Namespace& getNamespace() const;
 		const Enum& getEnum() const;
 		const BlockHead& getBlockHead() const;
@@ -146,14 +146,14 @@ namespace webss
 		explicit operator const Dictionary&() const { return getDictionary(); }
 		explicit operator const List&() const { return getList(); }
 		explicit operator const Tuple&() const { return getTuple(); }
-		explicit operator const FunctionHeadBinary&() const { return getFunctionHeadBinary(); }
-		explicit operator const FunctionHeadScoped&() const { return getFunctionHeadScoped(); }
-		explicit operator const FunctionHeadStandard&() const { return getFunctionHeadStandard(); }
-		explicit operator const FunctionHeadText&() const { return getFunctionHeadText(); }
-		explicit operator const FunctionBinary&() const { return getFunctionBinary(); }
-		explicit operator const FunctionScoped&() const { return getFunctionScoped(); }
-		explicit operator const FunctionStandard&() const { return getFunctionStandard(); }
-		explicit operator const FunctionText&() const { return getFunctionText(); }
+		explicit operator const TemplateHeadBinary&() const { return getTemplateHeadBinary(); }
+		explicit operator const TemplateHeadScoped&() const { return getTemplateHeadScoped(); }
+		explicit operator const TemplateHeadStandard&() const { return getTemplateHeadStandard(); }
+		explicit operator const TemplateHeadText&() const { return getTemplateHeadText(); }
+		explicit operator const TemplateBinary&() const { return getTemplateBinary(); }
+		explicit operator const TemplateScoped&() const { return getTemplateScoped(); }
+		explicit operator const TemplateStandard&() const { return getTemplateStandard(); }
+		explicit operator const TemplateText&() const { return getTemplateText(); }
 		explicit operator const Namespace&() const { return getNamespace(); }
 		explicit operator const Enum&() const { return getEnum(); }
 		explicit operator const BlockHead&() const { return getBlockHead(); }
@@ -175,10 +175,10 @@ namespace webss
 		bool isDictionary() const;
 		bool isList() const;
 		bool isTuple() const;
-		bool isFunctionHeadBinary() const;
-		bool isFunctionHeadScoped() const;
-		bool isFunctionHeadStandard() const;
-		bool isFunctionHeadText() const;
+		bool isTemplateHeadBinary() const;
+		bool isTemplateHeadScoped() const;
+		bool isTemplateHeadStandard() const;
+		bool isTemplateHeadText() const;
 		bool isNamespace() const;
 		bool isEnum() const;
 		bool isBlockHead() const;
@@ -198,14 +198,14 @@ namespace webss
 			Dictionary* dict;
 			List* list;
 			Tuple* tuple;
-			FunctionHeadBinary* fheadBinary;
-			FunctionHeadScoped* fheadScoped;
-			FunctionHeadStandard* fheadStandard;
-			FunctionHeadText* fheadText;
-			FunctionBinary* funcBinary;
-			FunctionScoped* funcScoped;
-			FunctionStandard* funcStandard;
-			FunctionText* funcText;
+			TemplateHeadBinary* fheadBinary;
+			TemplateHeadScoped* fheadScoped;
+			TemplateHeadStandard* fheadStandard;
+			TemplateHeadText* fheadText;
+			TemplateBinary* templBinary;
+			TemplateScoped* templScoped;
+			TemplateStandard* templStandard;
+			TemplateText* templText;
 			Namespace* nspace;
 			Enum* tEnum;
 			BlockHead* blockHead;

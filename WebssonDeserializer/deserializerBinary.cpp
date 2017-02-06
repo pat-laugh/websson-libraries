@@ -60,7 +60,7 @@ void writeBytes(StringBuilder& out, WebssBinarySize num, char* value)
 #endif
 }
 
-void putFuncBodyBinary2(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& tuple)
+void putFuncBodyBinary2(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
 {
 	assert(tuple.size() == params.size() && "size of binary tuple must match params");
 	decltype(params.size()) i = 0;
@@ -85,7 +85,7 @@ void putFuncBodyBinary2(StringBuilder& out, const FunctionHeadBinary::Parameters
 	}
 }
 
-void Deserializer::putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& tuple)
+void Deserializer::putFuncBodyBinary(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
 {
 	putFuncBodyBinary2(out, params, tuple);
 }
@@ -93,11 +93,11 @@ void Deserializer::putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinar
 void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data)
 {
 	auto&& sizeHead = param.sizeHead;
-	if (!sizeHead.isFunctionHead())
+	if (!sizeHead.isTemplateHead())
 		putBinary(out, param, data, [&](const Webss& webss) { putBinaryElement(out, sizeHead, webss); });
 	else
 	{
-		auto&& params = sizeHead.getFunctionHead().getParameters();
+		auto&& params = sizeHead.getTemplateHead().getParameters();
 		putBinary(out, param, data, [&](const Webss& webss) { putFuncBodyBinary2(out, params, webss.getTuple()); });
 	}
 }
@@ -153,10 +153,12 @@ void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, co
 			writeBytes(out, bhead.getKeyword().getSize(), reinterpret_cast<char*>(const_cast<WebssInt*>(&webss.tInt)));
 			break;
 		case Keyword::DEC4:
+		{
 			assert(webss.type == WebssType::PRIMITIVE_DOUBLE);
 			float f = static_cast<float>(webss.tDouble);
 			writeBytes(out, sizeof(float), reinterpret_cast<char*>(&f));
 			break;
+		}
 		case Keyword::DEC8:
 			assert(webss.type == WebssType::PRIMITIVE_DOUBLE);
 			writeBytes(out, sizeof(double), reinterpret_cast<char*>(const_cast<double*>(&webss.tDouble)));

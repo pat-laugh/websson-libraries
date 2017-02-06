@@ -17,8 +17,8 @@ string ConType::toString() const
 		return "list";
 	case ConType::TUPLE:
 		return "tuple";
-	case ConType::FUNCTION_HEAD:
-		return "function head";
+	case ConType::TEMPLATE_HEAD:
+		return "template head";
 	default:
 		return "unknown";
 	}
@@ -34,8 +34,8 @@ bool ConType::isEnd(char c) const
 		return c == CLOSE_LIST;
 	case ConType::TUPLE:
 		return c == CLOSE_TUPLE;
-	case ConType::FUNCTION_HEAD:
-		return c == CLOSE_FUNCTION;
+	case ConType::TEMPLATE_HEAD:
+		return c == CLOSE_TEMPLATE;
 	default:
 		return false;
 	}

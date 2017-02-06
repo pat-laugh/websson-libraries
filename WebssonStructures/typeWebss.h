@@ -12,15 +12,15 @@ namespace webss
 			NONE, ENTITY, DEFAULT,
 			PRIMITIVE_NULL, PRIMITIVE_BOOL, PRIMITIVE_INT, PRIMITIVE_DOUBLE, PRIMITIVE_STRING,
 			DICTIONARY, LIST, TUPLE,
-			FUNCTION_HEAD_BINARY, FUNCTION_HEAD_SCOPED, FUNCTION_HEAD_SELF, FUNCTION_HEAD_STANDARD, FUNCTION_HEAD_TEXT,
-			FUNCTION_BINARY, FUNCTION_SCOPED, FUNCTION_STANDARD, FUNCTION_TEXT,
+			TEMPLATE_HEAD_BINARY, TEMPLATE_HEAD_SCOPED, TEMPLATE_HEAD_SELF, TEMPLATE_HEAD_STANDARD, TEMPLATE_HEAD_TEXT,
+			TEMPLATE_BINARY, TEMPLATE_SCOPED, TEMPLATE_STANDARD, TEMPLATE_TEXT,
 			DOCUMENT, NAMESPACE, ENUM, BLOCK_HEAD, BLOCK
 		};
 		static const Enum NONE = Enum::NONE, ENTITY = Enum::ENTITY, DEFAULT = Enum::DEFAULT,
 			PRIMITIVE_NULL = Enum::PRIMITIVE_NULL, PRIMITIVE_BOOL = Enum::PRIMITIVE_BOOL, PRIMITIVE_INT = Enum::PRIMITIVE_INT, PRIMITIVE_DOUBLE = Enum::PRIMITIVE_DOUBLE, PRIMITIVE_STRING = Enum::PRIMITIVE_STRING,
 			DICTIONARY = Enum::DICTIONARY, LIST = Enum::LIST, TUPLE = Enum::TUPLE,
-			FUNCTION_HEAD_BINARY = Enum::FUNCTION_HEAD_BINARY, FUNCTION_HEAD_SCOPED = Enum::FUNCTION_HEAD_SCOPED, FUNCTION_HEAD_SELF = Enum::FUNCTION_HEAD_SELF, FUNCTION_HEAD_STANDARD = Enum::FUNCTION_HEAD_STANDARD, FUNCTION_HEAD_TEXT = Enum::FUNCTION_HEAD_TEXT,
-			FUNCTION_BINARY = Enum::FUNCTION_BINARY, FUNCTION_SCOPED = Enum::FUNCTION_SCOPED, FUNCTION_STANDARD = Enum::FUNCTION_STANDARD, FUNCTION_TEXT = Enum::FUNCTION_TEXT,
+			TEMPLATE_HEAD_BINARY = Enum::TEMPLATE_HEAD_BINARY, TEMPLATE_HEAD_SCOPED = Enum::TEMPLATE_HEAD_SCOPED, TEMPLATE_HEAD_SELF = Enum::TEMPLATE_HEAD_SELF, TEMPLATE_HEAD_STANDARD = Enum::TEMPLATE_HEAD_STANDARD, TEMPLATE_HEAD_TEXT = Enum::TEMPLATE_HEAD_TEXT,
+			TEMPLATE_BINARY = Enum::TEMPLATE_BINARY, TEMPLATE_SCOPED = Enum::TEMPLATE_SCOPED, TEMPLATE_STANDARD = Enum::TEMPLATE_STANDARD, TEMPLATE_TEXT = Enum::TEMPLATE_TEXT,
 			DOCUMENT = Enum::DOCUMENT, NAMESPACE = Enum::NAMESPACE, ENUM = Enum::ENUM, BLOCK_HEAD = Enum::BLOCK_HEAD, BLOCK = Enum::BLOCK;
 
 		constexpr WebssType() : e(Enum::NONE) {}
@@ -61,24 +61,24 @@ namespace webss
 				return "list";
 			case WebssType::TUPLE:
 				return "tuple";
-			case WebssType::FUNCTION_HEAD_BINARY:
-				return "function head binary";
-			case WebssType::FUNCTION_HEAD_SCOPED:
-				return "function head scoped";
-			case WebssType::FUNCTION_HEAD_SELF:
-				return "function head self";
-			case WebssType::FUNCTION_HEAD_STANDARD:
-				return "function head standard";
-			case WebssType::FUNCTION_HEAD_TEXT:
-				return "function head text";
-			case WebssType::FUNCTION_BINARY:
-				return "function binary";
-			case WebssType::FUNCTION_SCOPED:
-				return "function scoped";
-			case WebssType::FUNCTION_STANDARD:
-				return "function standard";
-			case WebssType::FUNCTION_TEXT:
-				return "function text";
+			case WebssType::TEMPLATE_HEAD_BINARY:
+				return "template head binary";
+			case WebssType::TEMPLATE_HEAD_SCOPED:
+				return "template head scoped";
+			case WebssType::TEMPLATE_HEAD_SELF:
+				return "template head self";
+			case WebssType::TEMPLATE_HEAD_STANDARD:
+				return "template head standard";
+			case WebssType::TEMPLATE_HEAD_TEXT:
+				return "template head text";
+			case WebssType::TEMPLATE_BINARY:
+				return "template binary";
+			case WebssType::TEMPLATE_SCOPED:
+				return "template scoped";
+			case WebssType::TEMPLATE_STANDARD:
+				return "template standard";
+			case WebssType::TEMPLATE_TEXT:
+				return "template text";
 			case WebssType::DOCUMENT:
 				return "document";
 			case WebssType::NAMESPACE:

@@ -6,53 +6,53 @@
 using namespace std;
 using namespace webss;
 
-const char ERROR_TEXT_FUNCTION_HEAD[] = "values in text function head must be of type string";
-const char ERROR_BINARY_FUNCTION[] = "all values in a binary function must be binary";
+const char ERROR_TEXT_TEMPLATE_HEAD[] = "values in text template head must be of type string";
+const char ERROR_BINARY_TEMPLATE[] = "all values in a binary template must be binary";
 
-const ConType CON = ConType::FUNCTION_HEAD;
+const ConType CON = ConType::TEMPLATE_HEAD;
 
 #define THROW_ERROR throw runtime_error(ERROR_ANONYMOUS_KEY)
 #define THROW_ERROR_ANONYMOUS_KEY throw runtime_error(ERROR_ANONYMOUS_KEY)
-#define THROW_ERROR_TEXT_FUNCTION_HEAD throw runtime_error(ERROR_TEXT_FUNCTION_HEAD)
-#define THROW_ERROR_BINARY_FUNCTION throw runtime_error(ERROR_BINARY_FUNCTION)
+#define THROW_ERROR_TEXT_TEMPLATE_HEAD throw runtime_error(ERROR_TEXT_TEMPLATE_HEAD)
+#define THROW_ERROR_BINARY_TEMPLATE throw runtime_error(ERROR_BINARY_TEMPLATE)
 
-Webss Parser::parseFunctionHead(It& it)
+Webss Parser::parseTemplateHead(It& it)
 {
 	if (checkEmptyContainer(it, CON))
 		return BlockHead();
 
 	switch (*it)
 	{
-	case OPEN_FUNCTION: case CHAR_COLON:
-		return parseFunctionHeadStandard(it);
+	case OPEN_TEMPLATE: case CHAR_COLON:
+		return parseTemplateHeadStandard(it);
 	case OPEN_TUPLE:
-		return parseFunctionHeadBinary(it);
+		return parseTemplateHeadBinary(it);
 	case CHAR_CONCRETE_ENTITY: case CHAR_ABSTRACT_ENTITY: case CHAR_USING_NAMESPACE:
-		return parseFunctionHeadScoped(it);
+		return parseTemplateHeadScoped(it);
 	case OPEN_DICTIONARY:
-		throw runtime_error("this parser cannot parse mandatory functions");
+		throw runtime_error("this parser cannot parse mandatory templates");
 	case CHAR_SELF:
-		skipJunkToValidCondition(++it, [&]() { return *it == CLOSE_FUNCTION; });
+		skipJunkToValidCondition(++it, [&]() { return *it == CLOSE_TEMPLATE; });
 		++it;
-		return FunctionHeadSelf();
+		return TemplateHeadSelf();
 	default:
 		break;
 	}
 
-	//if it's a entity, then the fhead is of the same type as the entity
-	//if not, then the fhead is a standard fhead
+	//if it's a entity, then the thead is of the same type as the entity
+	//if not, then the thead is a standard thead
 
-	FunctionHeadStandard fhead;
+	TemplateHeadStandard thead;
 	auto other = parseOtherValue(it, CON);
 	bool isEnd = !checkNextElementContainer(it, CON);
 	switch (other.type)
 	{
 	case OtherValue::Type::KEY_VALUE:
-		fhead.attach(move(other.key), move(other.value));
-		return isEnd ? move(fhead) : parseFunctionHeadStandard(it, move(fhead));
+		thead.attach(move(other.key), move(other.value));
+		return isEnd ? move(thead) : parseTemplateHeadStandard(it, move(thead));
 	case OtherValue::Type::KEY_ONLY:
-		fhead.attachEmpty(move(other.key));
-		return isEnd ? move(fhead) : parseFunctionHeadStandard(it, move(fhead));
+		thead.attachEmpty(move(other.key));
+		return isEnd ? move(thead) : parseTemplateHeadStandard(it, move(thead));
 	case OtherValue::Type::ABSTRACT_ENTITY:
 		switch (other.abstractEntity.getContent().getType())
 		{
@@ -60,54 +60,54 @@ Webss Parser::parseFunctionHead(It& it)
 			if (!isEnd)
 				throw runtime_error(ERROR_UNEXPECTED);
 			return BlockHead(other.abstractEntity);
-		case WebssType::FUNCTION_HEAD_BINARY:
+		case WebssType::TEMPLATE_HEAD_BINARY:
 		{
-			FunctionHeadBinary fheadBinary(other.abstractEntity);
-			return isEnd ? move(fheadBinary) : parseFunctionHeadBinary(it, move(fheadBinary));
+			TemplateHeadBinary fheadBinary(other.abstractEntity);
+			return isEnd ? move(fheadBinary) : parseTemplateHeadBinary(it, move(fheadBinary));
 		}
-		case WebssType::FUNCTION_HEAD_SCOPED:
+		case WebssType::TEMPLATE_HEAD_SCOPED:
 		{
-			FunctionHeadScoped fheadScoped(other.abstractEntity);
-			return isEnd ? move(fheadScoped) : parseFunctionHeadScoped(it, move(fheadScoped));
+			TemplateHeadScoped fheadScoped(other.abstractEntity);
+			return isEnd ? move(fheadScoped) : parseTemplateHeadScoped(it, move(fheadScoped));
 		}
-		case WebssType::FUNCTION_HEAD_STANDARD:
-			fhead = FunctionHeadStandard(other.abstractEntity);
-			return isEnd ? move(fhead) : parseFunctionHeadStandard(it, move(fhead));
-		case WebssType::FUNCTION_HEAD_TEXT:
+		case WebssType::TEMPLATE_HEAD_STANDARD:
+			thead = TemplateHeadStandard(other.abstractEntity);
+			return isEnd ? move(thead) : parseTemplateHeadStandard(it, move(thead));
+		case WebssType::TEMPLATE_HEAD_TEXT:
 		{
-			FunctionHeadText fheadText(other.abstractEntity);
-			return isEnd ? move(fheadText) : parseFunctionHeadText(it, move(fheadText));
+			TemplateHeadText fheadText(other.abstractEntity);
+			return isEnd ? move(fheadText) : parseTemplateHeadText(it, move(fheadText));
 		}
 		default:
-			throw runtime_error("unexpected entity type within fhead: " + other.abstractEntity.getContent().getType().toString());
+			throw runtime_error("unexpected entity type within thead: " + other.abstractEntity.getContent().getType().toString());
 		}
 	default:
 		THROW_ERROR;
 	}
 }
 
-FunctionHeadBinary Parser::parseFunctionHeadBinary(It& it, FunctionHeadBinary&& fhead)
+TemplateHeadBinary Parser::parseTemplateHeadBinary(It& it, TemplateHeadBinary&& thead)
 {
 	assert(it);
 	do
 		if (*it == OPEN_TUPLE)
-			parseBinaryHead(++it, fhead);
+			parseBinaryHead(++it, thead);
 		else
-			parseOtherValuesFheadBinary(it, fhead);
+			parseOtherValuesFheadBinary(it, thead);
 	while (checkNextElementContainer(it, CON));
-	return move(fhead);
+	return move(thead);
 }
 
-FunctionHeadScoped Parser::parseFunctionHeadScoped(It& it, FunctionHeadScoped&& fhead)
+TemplateHeadScoped Parser::parseTemplateHeadScoped(It& it, TemplateHeadScoped&& thead)
 {
 	assert(it);
 	do
 		if (*it == CHAR_ABSTRACT_ENTITY)
-			checkMultiContainer(++it, [&]() { fhead.attach(ParamScoped(parseAbstractEntity(it, Namespace::getEmptyInstance()))); });
+			checkMultiContainer(++it, [&]() { thead.attach(ParamScoped(parseAbstractEntity(it, Namespace::getEmptyInstance()))); });
 		else if (*it == CHAR_CONCRETE_ENTITY)
-			checkMultiContainer(++it, [&]() { fhead.attach(ParamScoped(parseConcreteEntity(it, CON), true)); });
+			checkMultiContainer(++it, [&]() { thead.attach(ParamScoped(parseConcreteEntity(it, CON), true)); });
 		else if (*it == CHAR_USING_NAMESPACE)
-			checkMultiContainer(++it, [&]() { fhead.attach(ParamScoped(parseUsingNamespaceStatic(it))); });
+			checkMultiContainer(++it, [&]() { thead.attach(ParamScoped(parseUsingNamespaceStatic(it))); });
 		else
 			parseOtherValue(it, CON,
 				CaseKeyValue{ throw runtime_error(ERROR_UNEXPECTED); },
@@ -115,131 +115,131 @@ FunctionHeadScoped Parser::parseFunctionHeadScoped(It& it, FunctionHeadScoped&& 
 				CaseValueOnly{ throw runtime_error(ERROR_UNEXPECTED); },
 				CaseAbstractEntity
 				{
-					if (!abstractEntity.getContent().isFunctionHeadScoped())
-						throw runtime_error(ERROR_BINARY_FUNCTION);
-					fhead.attach(abstractEntity);
+					if (!abstractEntity.getContent().isTemplateHeadScoped())
+						throw runtime_error(ERROR_BINARY_TEMPLATE);
+					thead.attach(abstractEntity);
 				});
 	while (checkNextElementContainer(it, CON));
-	return move(fhead);
+	return move(thead);
 }
 
-FunctionHeadStandard Parser::parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead)
+TemplateHeadStandard Parser::parseTemplateHeadStandard(It& it, TemplateHeadStandard&& thead)
 {
 	assert(it);
 	do
-		if (*it == OPEN_FUNCTION)
-			parseStandardParameterFunctionHead(it, fhead);
+		if (*it == OPEN_TEMPLATE)
+			parseStandardParameterTemplateHead(it, thead);
 		else if (*it == CHAR_COLON)
-			parseStandardParameterFunctionHeadText(it, fhead);
+			parseStandardParameterTemplateHeadText(it, thead);
 		else
-			parseOtherValuesFheadStandard(it, fhead);
+			parseOtherValuesFheadStandard(it, thead);
 	while (checkNextElementContainer(it, CON));
-	return move(fhead);
+	return move(thead);
 }
 
-FunctionHeadText Parser::parseFunctionHeadText(It& it, FunctionHeadText&& fhead)
+TemplateHeadText Parser::parseTemplateHeadText(It& it, TemplateHeadText&& thead)
 {
 	if (checkEmptyContainer(it, CON))
-		throw runtime_error("text function head can't be empty");
+		throw runtime_error("text template head can't be empty");
 	do
-		parseOtherValuesFheadText(it, fhead);
+		parseOtherValuesFheadText(it, thead);
 	while (checkNextElementContainer(it, CON));
-	return fhead;
+	return thead;
 }
 
-void Parser::parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead)
+void Parser::parseStandardParameterTemplateHead(It& it, TemplateHeadStandard& thead)
 {
-	auto headWebss = parseFunctionHead(++it);
-	parseOtherValuesFheadStandardAfterFhead(it, fhead);
-	auto& lastParam = fhead.back();
+	auto headWebss = parseTemplateHead(++it);
+	parseOtherValuesFheadStandardAfterFhead(it, thead);
+	auto& lastParam = thead.back();
 	switch (headWebss.type)
 	{
 	case WebssType::BLOCK_HEAD:
 		break; //do nothing
-	case WebssType::FUNCTION_HEAD_BINARY:
-		lastParam.setFunctionHead(move(*headWebss.fheadBinary));
+	case WebssType::TEMPLATE_HEAD_BINARY:
+		lastParam.setTemplateHead(move(*headWebss.fheadBinary));
 		break;
-	case WebssType::FUNCTION_HEAD_SCOPED:
-		lastParam.setFunctionHead(move(*headWebss.fheadScoped));
+	case WebssType::TEMPLATE_HEAD_SCOPED:
+		lastParam.setTemplateHead(move(*headWebss.fheadScoped));
 		break;
-	case WebssType::FUNCTION_HEAD_SELF:
-		lastParam.setFunctionHead(FunctionHeadSelf());
+	case WebssType::TEMPLATE_HEAD_SELF:
+		lastParam.setTemplateHead(TemplateHeadSelf());
 		break;
-	case WebssType::FUNCTION_HEAD_STANDARD:
-		lastParam.setFunctionHead(move(*headWebss.fheadStandard));
+	case WebssType::TEMPLATE_HEAD_STANDARD:
+		lastParam.setTemplateHead(move(*headWebss.fheadStandard));
 		break;
-	case WebssType::FUNCTION_HEAD_TEXT:
-		lastParam.setFunctionHead(move(*headWebss.fheadText));
+	case WebssType::TEMPLATE_HEAD_TEXT:
+		lastParam.setTemplateHead(move(*headWebss.fheadText));
 		break;
 	default:
 		throw logic_error("");
 	}
 }
 
-void Parser::parseStandardParameterFunctionHeadText(It& it, FunctionHeadStandard& fhead)
+void Parser::parseStandardParameterTemplateHeadText(It& it, TemplateHeadStandard& thead)
 {
 	if (++it != CHAR_COLON)
 		throw runtime_error(webss_ERROR_EXPECTED_CHAR(CHAR_COLON));
-	skipJunkToValidCondition(++it, [&]() { return *it == OPEN_FUNCTION; });
+	skipJunkToValidCondition(++it, [&]() { return *it == OPEN_TEMPLATE; });
 
-	auto head = parseFunctionHeadText(++it);
-	parseOtherValuesFheadStandardAfterFhead(it, fhead);
-	fhead.back().setFunctionHead(move(head));
+	auto head = parseTemplateHeadText(++it);
+	parseOtherValuesFheadStandardAfterFhead(it, thead);
+	thead.back().setTemplateHead(move(head));
 }
 
-void Parser::parseOtherValuesFheadStandardAfterFhead(It& it, FunctionHeadStandard& fhead)
+void Parser::parseOtherValuesFheadStandardAfterFhead(It& it, TemplateHeadStandard& thead)
 {
 	parseOtherValue(it, CON,
-		CaseKeyValue{ fhead.attach(move(key), move(value)); },
-		CaseKeyOnly{ fhead.attachEmpty(move(key)); },
+		CaseKeyValue{ thead.attach(move(key), move(value)); },
+		CaseKeyOnly{ thead.attachEmpty(move(key)); },
 		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
 		CaseAbstractEntity{ throw runtime_error(ERROR_UNEXPECTED); });
 }
 
-void Parser::parseOtherValuesFheadStandard(It& it, FunctionHeadStandard& fhead)
+void Parser::parseOtherValuesFheadStandard(It& it, TemplateHeadStandard& thead)
 {
 	parseOtherValue(it, CON,
-		CaseKeyValue{ fhead.attach(move(key), move(value)); },
-		CaseKeyOnly{ fhead.attachEmpty(move(key)); },
+		CaseKeyValue{ thead.attach(move(key), move(value)); },
+		CaseKeyOnly{ thead.attachEmpty(move(key)); },
 		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
 		CaseAbstractEntity
 		{
-			if (!abstractEntity.getContent().isFunctionHeadStandard())
-				throw runtime_error(ERROR_BINARY_FUNCTION);
-			fhead.attach(abstractEntity);
+			if (!abstractEntity.getContent().isTemplateHeadStandard())
+				throw runtime_error(ERROR_BINARY_TEMPLATE);
+			thead.attach(abstractEntity);
 		});
 }
 
-void Parser::parseOtherValuesFheadText(It& it, FunctionHeadText& fhead)
+void Parser::parseOtherValuesFheadText(It& it, TemplateHeadText& thead)
 {
 	parseOtherValue(it, CON,
 		CaseKeyValue
 		{
 			if (!value.isString())
-				throw runtime_error(ERROR_TEXT_FUNCTION_HEAD);
-			fhead.attach(move(key), move(value));
+				throw runtime_error(ERROR_TEXT_TEMPLATE_HEAD);
+			thead.attach(move(key), move(value));
 		},
-		CaseKeyOnly{ fhead.attachEmpty(move(key)); },
+		CaseKeyOnly{ thead.attachEmpty(move(key)); },
 		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
 		CaseAbstractEntity
 		{
-			if (!abstractEntity.getContent().isFunctionHeadText())
-				throw runtime_error(ERROR_BINARY_FUNCTION);
-			fhead.attach(abstractEntity);
+			if (!abstractEntity.getContent().isTemplateHeadText())
+				throw runtime_error(ERROR_BINARY_TEMPLATE);
+			thead.attach(abstractEntity);
 		});
 }
 
-void Parser::parseOtherValuesFheadBinary(It& it, FunctionHeadBinary& fhead)
+void Parser::parseOtherValuesFheadBinary(It& it, TemplateHeadBinary& thead)
 {
 	parseOtherValue(it, CON,
-		CaseKeyValue{ throw runtime_error(ERROR_BINARY_FUNCTION); },
-		CaseKeyOnly{ throw runtime_error(ERROR_BINARY_FUNCTION); },
+		CaseKeyValue{ throw runtime_error(ERROR_BINARY_TEMPLATE); },
+		CaseKeyOnly{ throw runtime_error(ERROR_BINARY_TEMPLATE); },
 		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
 		CaseAbstractEntity
 		{
-			if (!abstractEntity.getContent().isFunctionHeadBinary())
-				throw runtime_error(ERROR_BINARY_FUNCTION);
-			fhead.attach(abstractEntity);
+			if (!abstractEntity.getContent().isTemplateHeadBinary())
+				throw runtime_error(ERROR_BINARY_TEMPLATE);
+			thead.attach(abstractEntity);
 		});
 }
 

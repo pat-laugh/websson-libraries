@@ -127,24 +127,24 @@ namespace webss
 	class BasicEntity;
 
 	template <class Parameter, class Webss>
-	class BasicFunctionHead;
+	class BasicTemplateHead;
 
-	class FunctionHeadSelf {};
+	class TemplateHeadSelf {};
 
 	template <class Webss>
-	class BasicFunctionBody;
+	class BasicTemplateBody;
 
-	template <class FunctionHead, class Webss>
-	class BasicFunction;
+	template <class TemplateHead, class Webss>
+	class BasicTemplate;
 
 //	template <class Webss>
 //	class BasicParamScoped;
 
 //	template <class Webss>
-//	class BasicFunctionHeadScoped;
+//	class BasicTemplateHeadScoped;
 
 	template <class Webss>
-	class BasicFunctionScoped;
+	class BasicTemplateScoped;
 
 	template <class Webss>
 	class BasicList;

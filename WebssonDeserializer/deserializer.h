@@ -83,32 +83,32 @@ namespace webss
 		void putAbstractEntity(StringBuilder& out, const Entity& ent, ConType con);
 		void putConcreteEntity(StringBuilder& out, const Entity& ent, ConType con);
 
-		void putFuncBinary(StringBuilder& out, const FunctionBinary& func);
-		void putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con);
+		void putFuncBinary(StringBuilder& out, const TemplateBinary& templ);
+		void putFuncScoped(StringBuilder& out, const TemplateScoped& templ, ConType con);
 		void putFheadSelf(StringBuilder& out);
-		void putFuncStandard(StringBuilder& out, const FunctionStandard& func);
+		void putFuncStandard(StringBuilder& out, const TemplateStandard& templ);
 
-		void putFuncText(StringBuilder& out, const FunctionText& func);
+		void putFuncText(StringBuilder& out, const TemplateText& templ);
 
-		void putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Parameters & params, const Dictionary & dict);
-		void putFuncStandardList(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const List& list);
-		void putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const Tuple& tuple);
-		void putFuncStandardTupleText(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const Tuple& tuple);
+		void putFuncStandardDictionary(StringBuilder& out, const TemplateHeadStandard::Parameters & params, const Dictionary & dict);
+		void putFuncStandardList(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const List& list);
+		void putFuncStandardTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
+		void putFuncStandardTupleText(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
 
-		void putFuncTextDictionary(StringBuilder& out, const FunctionHeadText::Parameters & params, const Dictionary & dict);
-		void putFuncTextList(StringBuilder& out, const FunctionHeadText::Parameters& params, const List& list);
-		void putFuncTextTuple(StringBuilder& out, const FunctionHeadText::Parameters& params, const Tuple& tuple);
+		void putFuncTextDictionary(StringBuilder& out, const TemplateHeadText::Parameters & params, const Dictionary & dict);
+		void putFuncTextList(StringBuilder& out, const TemplateHeadText::Parameters& params, const List& list);
+		void putFuncTextTuple(StringBuilder& out, const TemplateHeadText::Parameters& params, const Tuple& tuple);
 
-		void putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead);
-		void putFheadScoped(StringBuilder & out, const FunctionHeadScoped & fhead);
-		void putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhead);
-		void putFheadText(StringBuilder& out, const FunctionHeadText& fhead);
+		void putFheadBinary(StringBuilder& out, const TemplateHeadBinary& thead);
+		void putFheadScoped(StringBuilder & out, const TemplateHeadScoped & thead);
+		void putFheadStandard(StringBuilder& out, const TemplateHeadStandard& thead);
+		void putFheadText(StringBuilder& out, const TemplateHeadText& thead);
 
-		void putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Dictionary& dict);
-		void putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const List& list);
-		void putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& tuple);
+		void putFuncBinaryDictionary(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Dictionary& dict);
+		void putFuncBinaryList(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const List& list);
+		void putFuncBinaryTuple(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple);
 
-		void putFuncBodyBinary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& tuple);
+		void putFuncBodyBinary(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple);
 		
 		class NamespaceIncluder
 		{
@@ -123,7 +123,7 @@ namespace webss
 				toRemove.insert(ptr);
 			}
 		public:
-			NamespaceIncluder(std::set<Namespace*>& currentNamespaces, const FunctionHeadScoped::Parameters& params) : currentNamespaces(currentNamespaces)
+			NamespaceIncluder(std::set<Namespace*>& currentNamespaces, const TemplateHeadScoped::Parameters& params) : currentNamespaces(currentNamespaces)
 			{
 				for (const auto& param : params)
 					if (param.hasNamespace())

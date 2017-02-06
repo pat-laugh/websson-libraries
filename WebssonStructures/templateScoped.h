@@ -2,7 +2,7 @@
 
 #include "base.h"
 #include "entity.h"
-#include "functionHead.h"
+#include "templateHead.h"
 #include "namespace.h"
 
 namespace webss
@@ -11,16 +11,16 @@ namespace webss
 	using BasicParamScoped = BasicParamDocument<Webss>;
 
 	template <class Webss>
-	using BasicFunctionHeadScoped = BasicFunctionHead<BasicParamDocument<Webss>, Webss>;
+	using BasicTemplateHeadScoped = BasicTemplateHead<BasicParamDocument<Webss>, Webss>;
 
-#define This BasicFunctionScoped
+#define This BasicTemplateScoped
 	template <class Webss>
-	class This : public BasicFunctionHeadScoped<Webss>
+	class This : public BasicTemplateHeadScoped<Webss>
 	{
 	private:
 		Webss value;
 	public:
-		using Head = BasicFunctionHeadScoped<Webss>;
+		using Head = BasicTemplateHeadScoped<Webss>;
 		using HeadParameters = typename Head::Parameters;
 		using HeadPointer = typename Head::Pointer;
 		using HeadEntity = typename Head::Entity;

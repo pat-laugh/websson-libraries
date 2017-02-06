@@ -7,7 +7,7 @@
 namespace webss
 {
 	const char ERROR_EXPECTED[] = "expected character";
-	const char ERROR_BINARY_SIZE_HEAD[] = "size of binary head must be a positive integer, binary function head or equivalent entity";
+	const char ERROR_BINARY_SIZE_HEAD[] = "size of binary head must be a positive integer, binary template head or equivalent entity";
 	const char ERROR_BINARY_SIZE_LIST[] = "size of binary list must be a positive integer or equivalent entity";
 
 	const char ERROR_ADD_VALUE_DICTIONARY[] = "can't add value-only to dictionary";
@@ -26,7 +26,7 @@ namespace webss
 #define webss_ERROR_ENTITY_EXISTS(name) ERROR_ENTITY_EXISTSs1 + name
 
 	const char ERROR_EXPECTED_NUMBER[] = "expected number";
-	const char ERROR_ANONYMOUS_KEY[] = "can't have anonymous key in dictionary, function head or enum";
+	const char ERROR_ANONYMOUS_KEY[] = "can't have anonymous key in dictionary, template head or enum";
 
 	const char ERROR_KEY_NAMESPACE[] = "namespace members must be entities";
 	const char ERROR_ADD_KEY_ENUM[] = "enums must have names without values";

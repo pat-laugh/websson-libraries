@@ -8,23 +8,19 @@ namespace webss
 {
 	const char OPEN_DICTIONARY = '{';
 	const char OPEN_LIST = '[';
-	const char OPEN_TUPLE = '<';
-	const char OPEN_FUNCTION = '(';
+	const char OPEN_TUPLE = '(';
+	const char OPEN_TEMPLATE = '<';
 	const char CLOSE_DICTIONARY = '}';
 	const char CLOSE_LIST = ']';
-	const char CLOSE_TUPLE = '>';
-	const char CLOSE_FUNCTION = ')';
-	const char EMPTY_DICTIONARY[] = "{}";
-	const char EMPTY_LIST[] = "[]";
-	const char EMPTY_TUPLE[] = "<>";
-	const char EMPTY_FUNCTION[] = "()";
+	const char CLOSE_TUPLE = ')';
+	const char CLOSE_TEMPLATE = '>';
 	const char ASSIGN_CONTAINER_STRING[] = "::";
 
 	class ConType
 	{
 	public:
-		enum class Enum { DOCUMENT, DICTIONARY, LIST, TUPLE, FUNCTION_HEAD };
-		static const Enum DOCUMENT = Enum::DOCUMENT, DICTIONARY = Enum::DICTIONARY, LIST = Enum::LIST, TUPLE = Enum::TUPLE, FUNCTION_HEAD = Enum::FUNCTION_HEAD;
+		enum class Enum { DOCUMENT, DICTIONARY, LIST, TUPLE, TEMPLATE_HEAD };
+		static const Enum DOCUMENT = Enum::DOCUMENT, DICTIONARY = Enum::DICTIONARY, LIST = Enum::LIST, TUPLE = Enum::TUPLE, TEMPLATE_HEAD = Enum::TEMPLATE_HEAD;
 
 		constexpr ConType() : e(Enum::DOCUMENT) {}
 		constexpr ConType(Enum e) : e(e) {}

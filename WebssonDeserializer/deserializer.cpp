@@ -11,14 +11,14 @@ template <> void putContainerStart<ConType::DOCUMENT>(StringBuilder& out) {}
 template <> void putContainerStart<ConType::DICTIONARY>(StringBuilder& out) { out += OPEN_DICTIONARY; }
 template <> void putContainerStart<ConType::LIST>(StringBuilder& out) { out += OPEN_LIST; }
 template <> void putContainerStart<ConType::TUPLE>(StringBuilder& out) { out += OPEN_TUPLE; }
-template <> void putContainerStart<ConType::FUNCTION_HEAD>(StringBuilder& out) { out += OPEN_FUNCTION; }
+template <> void putContainerStart<ConType::TEMPLATE_HEAD>(StringBuilder& out) { out += OPEN_TEMPLATE; }
 
 template <ConType::Enum CON> void putContainerEnd(StringBuilder& out) = delete;
 template <> void putContainerEnd<ConType::DOCUMENT>(StringBuilder& out) {}
 template <> void putContainerEnd<ConType::DICTIONARY>(StringBuilder& out) { out += CLOSE_DICTIONARY; }
 template <> void putContainerEnd<ConType::LIST>(StringBuilder& out) { out += CLOSE_LIST; }
 template <> void putContainerEnd<ConType::TUPLE>(StringBuilder& out) { out += CLOSE_TUPLE; }
-template <> void putContainerEnd<ConType::FUNCTION_HEAD>(StringBuilder& out) { out += CLOSE_FUNCTION; }
+template <> void putContainerEnd<ConType::TEMPLATE_HEAD>(StringBuilder& out) { out += CLOSE_TEMPLATE; }
 
 template <ConType::Enum CON>
 class ContainerIncluder
@@ -78,33 +78,33 @@ public:
 		});
 	}
 
-	void putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead)
+	void putFheadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
 	{
-		putFhead<FunctionHeadBinary, FunctionHeadBinary::Param>(out, fhead, [&](StringBuilder& out, const string& key, const FunctionHeadBinary::Param& param) { putParamBinary(out, key, param); });
+		putFhead<TemplateHeadBinary, TemplateHeadBinary::Param>(out, thead, [&](StringBuilder& out, const string& key, const TemplateHeadBinary::Param& param) { putParamBinary(out, key, param); });
 	}
-	void putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhead)
+	void putFheadStandard(StringBuilder& out, const TemplateHeadStandard& thead)
 	{
-		putFhead<FunctionHeadStandard, FunctionHeadStandard::Param>(out, fhead, [&](StringBuilder& out, const string& key, const FunctionHeadStandard::Param& param) { putParamStandard(out, key, param); });
+		putFhead<TemplateHeadStandard, TemplateHeadStandard::Param>(out, thead, [&](StringBuilder& out, const string& key, const TemplateHeadStandard::Param& param) { putParamStandard(out, key, param); });
 	}
-	void putFheadText(StringBuilder& out, const FunctionHeadText& fhead)
+	void putFheadText(StringBuilder& out, const TemplateHeadText& thead)
 	{
 		out += ASSIGN_CONTAINER_STRING;
-		putFhead<FunctionHeadText, FunctionHeadText::Param>(out, fhead, [&](StringBuilder& out, const string& key, const FunctionHeadText::Param& param) { putParamText(out, key, param); });
+		putFhead<TemplateHeadText, TemplateHeadText::Param>(out, thead, [&](StringBuilder& out, const string& key, const TemplateHeadText::Param& param) { putParamText(out, key, param); });
 	}
 private:
-	template <class FunctionHead, class Param>
-	void putFhead(StringBuilder& out, const FunctionHead& fhead, function<void(StringBuilder& out, const string& key, const Param& param)>&& putParam)
+	template <class TemplateHead, class Param>
+	void putFhead(StringBuilder& out, const TemplateHead& thead, function<void(StringBuilder& out, const string& key, const Param& param)>&& putParam)
 	{
-		static const auto CON = ConType::FUNCTION_HEAD;
-		assert(!fhead.empty() && "function head can't be empty");
-		if (fhead.hasEntity())
+		static const auto CON = ConType::TEMPLATE_HEAD;
+		assert(!thead.empty() && "template head can't be empty");
+		if (thead.hasEntity())
 		{
 			ContainerIncluder<CON> includer(out);
-			putEntityName(out, fhead.getEntity());
+			putEntityName(out, thead.getEntity());
 		}
 		else
 		{
-			auto&& keyValues = fhead.getParameters().getOrderedKeyValues();
+			auto&& keyValues = thead.getParameters().getOrderedKeyValues();
 			using Type = typename remove_reference<decltype(keyValues)>::type;
 			putSeparatedValues<Type, CON>(out, keyValues, [&](typename Type::const_iterator it)
 			{
@@ -130,10 +130,10 @@ private:
 			case Type::NUMBER:
 				out += to_string(bhead.size());
 				break;
-			case Type::FUNCTION_HEAD:
-				putFheadBinary(out, bhead.getFunctionHead());
+			case Type::TEMPLATE_HEAD:
+				putFheadBinary(out, bhead.getTemplateHead());
 				break;
-			case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_FUNCTION_HEAD:
+			case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD:
 				putEntityName(out, bhead.getEntity());
 				break;
 			case Type::SELF:
@@ -147,29 +147,29 @@ private:
 
 		out += key;
 		if (bhead.hasDefaultValue())
-			putCharValue(out, bhead.getDefaultValue(), ConType::FUNCTION_HEAD);
+			putCharValue(out, bhead.getDefaultValue(), ConType::TEMPLATE_HEAD);
 		else
 			assert(!bhead.isSelf());
 	}
 	void putParamStandard(StringBuilder& out, const string& key, const ParamStandard& param)
 	{
-		if (param.hasFunctionHead())
+		if (param.hasTemplateHead())
 			switch (param.getTypeFhead())
 			{
-			case WebssType::FUNCTION_HEAD_BINARY:
-				putFheadBinary(out, param.getFunctionHeadBinary());
+			case WebssType::TEMPLATE_HEAD_BINARY:
+				putFheadBinary(out, param.getTemplateHeadBinary());
 				break;
-			case WebssType::FUNCTION_HEAD_SCOPED:
-				putFheadScoped(out, param.getFunctionHeadScoped());
+			case WebssType::TEMPLATE_HEAD_SCOPED:
+				putFheadScoped(out, param.getTemplateHeadScoped());
 				break;
-			case WebssType::FUNCTION_HEAD_SELF:
+			case WebssType::TEMPLATE_HEAD_SELF:
 				putFheadSelf(out);
 				break;
-			case WebssType::FUNCTION_HEAD_STANDARD:
-				putFheadStandard(out, param.getFunctionHeadStandard());
+			case WebssType::TEMPLATE_HEAD_STANDARD:
+				putFheadStandard(out, param.getTemplateHeadStandard());
 				break;
-			case WebssType::FUNCTION_HEAD_TEXT:
-				putFheadText(out, param.getFunctionHeadText());
+			case WebssType::TEMPLATE_HEAD_TEXT:
+				putFheadText(out, param.getTemplateHeadText());
 				break;
 			default:
 				break;
@@ -177,9 +177,9 @@ private:
 
 		out += key;
 		if (param.hasDefaultValue())
-			putCharValue(out, param.getDefaultValue(), ConType::FUNCTION_HEAD);
+			putCharValue(out, param.getDefaultValue(), ConType::TEMPLATE_HEAD);
 		else
-			assert(param.getTypeFhead() != WebssType::FUNCTION_HEAD_SELF);
+			assert(param.getTypeFhead() != WebssType::TEMPLATE_HEAD_SELF);
 	}
 	void putParamText(StringBuilder& out, const string& key, const ParamText& param)
 	{
@@ -187,8 +187,8 @@ private:
 		if (param.hasDefaultValue())
 		{
 			auto&& webss = param.getDefaultValue();
-			assert(webss.getType() == WebssType::PRIMITIVE_STRING && "function head text parameters' values can only be of type string");
-			putCharValue(out, webss, ConType::FUNCTION_HEAD);
+			assert(webss.getType() == WebssType::PRIMITIVE_STRING && "template head text parameters' values can only be of type string");
+			putCharValue(out, webss, ConType::TEMPLATE_HEAD);
 		}
 	}
 
@@ -244,16 +244,16 @@ void Deserializer::putAbstractValue(StringBuilder& out, const Webss& webss, ConT
 {
 	switch (webss.type)
 	{
-	case WebssType::FUNCTION_HEAD_BINARY:
+	case WebssType::TEMPLATE_HEAD_BINARY:
 		putFheadBinary(out, *webss.fheadBinary);
 		break;
-	case WebssType::FUNCTION_HEAD_SCOPED:
+	case WebssType::TEMPLATE_HEAD_SCOPED:
 		putFheadScoped(out, *webss.fheadScoped);
 		break;
-	case WebssType::FUNCTION_HEAD_STANDARD:
+	case WebssType::TEMPLATE_HEAD_STANDARD:
 		putFheadStandard(out, *webss.fheadStandard);
 		break;
-	case WebssType::FUNCTION_HEAD_TEXT:
+	case WebssType::TEMPLATE_HEAD_TEXT:
 		putFheadText(out, *webss.fheadText);
 		break;
 	case WebssType::ENTITY:
@@ -303,17 +303,17 @@ void Deserializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConT
 	case WebssType::TUPLE:
 		putTuple(out, *webss.tuple);
 		break;
-	case WebssType::FUNCTION_BINARY:
-		putFuncBinary(out, *webss.funcBinary);
+	case WebssType::TEMPLATE_BINARY:
+		putFuncBinary(out, *webss.templBinary);
 		break;
-	case WebssType::FUNCTION_SCOPED:
-		putFuncScoped(out, *webss.funcScoped, con);
+	case WebssType::TEMPLATE_SCOPED:
+		putFuncScoped(out, *webss.templScoped, con);
 		break;
-	case WebssType::FUNCTION_STANDARD:
-		putFuncStandard(out, *webss.funcStandard);
+	case WebssType::TEMPLATE_STANDARD:
+		putFuncStandard(out, *webss.templStandard);
 		break;
-	case WebssType::FUNCTION_TEXT:
-		putFuncText(out, *webss.funcText);
+	case WebssType::TEMPLATE_TEXT:
+		putFuncText(out, *webss.templText);
 		break;
 	case WebssType::ENTITY:
 		assert(webss.ent.getContent().isConcrete());
@@ -517,10 +517,10 @@ void Deserializer::putEnum(StringBuilder& out, const Enum& tEnum)
 
 void Deserializer::putBlockHead(StringBuilder& out, const BlockHead& blockHead)
 {
-	out += OPEN_FUNCTION;
+	out += OPEN_TEMPLATE;
 	if (blockHead.hasEntity())
 		putEntityName(out, blockHead.getEntity());
-	out += CLOSE_FUNCTION;
+	out += CLOSE_TEMPLATE;
 }
 
 void Deserializer::putDictionary(StringBuilder& out, const Dictionary& dict)
@@ -562,20 +562,20 @@ void Deserializer::putTuple(StringBuilder& out, const Tuple& tuple)
 	}
 }
 
-void Deserializer::putFheadBinary(StringBuilder& out, const FunctionHeadBinary& fhead)
+void Deserializer::putFheadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
 {
-	static_cast<DeserializerTemplate*>(this)->putFheadBinary(out, fhead);
+	static_cast<DeserializerTemplate*>(this)->putFheadBinary(out, thead);
 }
-void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& fhead)
+void Deserializer::putFheadScoped(StringBuilder& out, const TemplateHeadScoped& thead)
 {
-	out += OPEN_FUNCTION;
-	if (fhead.hasEntity())
-		putEntityName(out, fhead.getEntity());
+	out += OPEN_TEMPLATE;
+	if (thead.hasEntity())
+		putEntityName(out, thead.getEntity());
 	else
 	{
-		static const auto CON = ConType::FUNCTION_HEAD;
-		using Type = remove_reference<decltype(fhead.getParameters())>::type;
-		putSeparatedValues<Type, CON>(out, fhead.getParameters(), [&](Type::const_iterator it)
+		static const auto CON = ConType::TEMPLATE_HEAD;
+		using Type = remove_reference<decltype(thead.getParameters())>::type;
+		putSeparatedValues<Type, CON>(out, thead.getParameters(), [&](Type::const_iterator it)
 		{
 			using ParamType = decltype(it->getType());
 			switch (it->getType())
@@ -594,23 +594,23 @@ void Deserializer::putFheadScoped(StringBuilder& out, const FunctionHeadScoped& 
 			}
 		});
 	}
-	out += CLOSE_FUNCTION;
+	out += CLOSE_TEMPLATE;
 }
 void Deserializer::putFheadSelf(StringBuilder& out)
 {
-	ContainerIncluder<ConType::FUNCTION_HEAD> includer(out);
+	ContainerIncluder<ConType::TEMPLATE_HEAD> includer(out);
 	out += CHAR_SELF;
 }
-void Deserializer::putFheadStandard(StringBuilder& out, const FunctionHeadStandard& fhead)
+void Deserializer::putFheadStandard(StringBuilder& out, const TemplateHeadStandard& thead)
 {
-	static_cast<DeserializerTemplate*>(this)->putFheadStandard(out, fhead);
+	static_cast<DeserializerTemplate*>(this)->putFheadStandard(out, thead);
 }
-void Deserializer::putFheadText(StringBuilder& out, const FunctionHeadText& fhead)
+void Deserializer::putFheadText(StringBuilder& out, const TemplateHeadText& thead)
 {
-	static_cast<DeserializerTemplate*>(this)->putFheadText(out, fhead);
+	static_cast<DeserializerTemplate*>(this)->putFheadText(out, thead);
 }
 
-void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Dictionary& dict)
+void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Dictionary& dict)
 {
 	static const auto CON = ConType::DICTIONARY;
 	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it)
@@ -625,7 +625,7 @@ void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const FunctionHea
 		}
 	});
 }
-void Deserializer::putFuncBinaryList(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const List& list)
+void Deserializer::putFuncBinaryList(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const List& list)
 {
 	static const auto CON = ConType::LIST;
 	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
@@ -634,13 +634,13 @@ void Deserializer::putFuncBinaryList(StringBuilder& out, const FunctionHeadBinar
 		putFuncBinaryTuple(out, params, it->getTuple());
 	});
 }
-void Deserializer::putFuncBinaryTuple(StringBuilder& out, const FunctionHeadBinary::Parameters& params, const Tuple& tuple)
+void Deserializer::putFuncBinaryTuple(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
 {
 	ContainerIncluder<ConType::TUPLE> includer(out);
 	putFuncBodyBinary(out, params, tuple);
 }
 
-void Deserializer::putFuncStandardDictionary(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const Dictionary& dict)
+void Deserializer::putFuncStandardDictionary(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Dictionary& dict)
 {
 	static const auto CON = ConType::DICTIONARY;
 	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it)
@@ -656,7 +656,7 @@ void Deserializer::putFuncStandardDictionary(StringBuilder& out, const FunctionH
 	});
 }
 
-void Deserializer::putFuncStandardList(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const List& list)
+void Deserializer::putFuncStandardList(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const List& list)
 {
 	static const auto CON = ConType::LIST;
 	if (list.isText())
@@ -678,7 +678,7 @@ void Deserializer::putFuncStandardList(StringBuilder& out, const FunctionHeadSta
 	}
 }
 
-void Deserializer::putFuncStandardTuple(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const Tuple& tuple)
+void Deserializer::putFuncStandardTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	if (tuple.isText())
 	{
@@ -688,13 +688,13 @@ void Deserializer::putFuncStandardTuple(StringBuilder& out, const FunctionHeadSt
 	}
 
 	static const auto CON = ConType::TUPLE;
-	assert(tuple.size() <= params.size() && "too many elements in function tuple");
+	assert(tuple.size() <= params.size() && "too many elements in template tuple");
 
 	decltype(params.size()) i = 0;
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
 	{
 		auto&& param = params[i++];
-		if (!param.hasFunctionHead())
+		if (!param.hasTemplateHead())
 		{
 			if (it->type == WebssType::NONE || it->type == WebssType::DEFAULT)
 				assert(param.hasDefaultValue());
@@ -703,7 +703,7 @@ void Deserializer::putFuncStandardTuple(StringBuilder& out, const FunctionHeadSt
 		}
 		else
 		{
-			auto&& params2 = param.getFunctionHeadStandard().getParameters();
+			auto&& params2 = param.getTemplateHeadStandard().getParameters();
 			switch (it->getType())
 			{
 			case WebssType::DICTIONARY:
@@ -716,22 +716,22 @@ void Deserializer::putFuncStandardTuple(StringBuilder& out, const FunctionHeadSt
 				putFuncStandardTuple(out, params2, it->getTuple());
 				break;
 			default:
-				assert(false && "function body must be dictionary, list or tuple"); throw domain_error("");
+				assert(false && "template body must be dictionary, list or tuple"); throw domain_error("");
 			}
 		}
 	});
 }
 
-void Deserializer::putFuncStandardTupleText(StringBuilder& out, const FunctionHeadStandard::Parameters& params, const Tuple& tuple)
+void Deserializer::putFuncStandardTupleText(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
-	assert(tuple.size() <= params.size() && "too many elements in function tuple");
+	assert(tuple.size() <= params.size() && "too many elements in template tuple");
 
 	decltype(params.size()) i = 0;
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
 	{
 		auto&& param = params[i++];
-		assert(!param.hasFunctionHead());
+		assert(!param.hasTemplateHead());
 		switch (it->type)
 		{
 		case WebssType::NONE: case WebssType::DEFAULT:
@@ -750,7 +750,7 @@ void Deserializer::putFuncStandardTupleText(StringBuilder& out, const FunctionHe
 #endif
 }
 
-void Deserializer::putFuncTextDictionary(StringBuilder& out, const FunctionHeadText::Parameters& params, const Dictionary& dict)
+void Deserializer::putFuncTextDictionary(StringBuilder& out, const TemplateHeadText::Parameters& params, const Dictionary& dict)
 {
 	static const auto CON = ConType::DICTIONARY;
 	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it)
@@ -766,7 +766,7 @@ void Deserializer::putFuncTextDictionary(StringBuilder& out, const FunctionHeadT
 	});
 }
 
-void Deserializer::putFuncTextList(StringBuilder& out, const FunctionHeadText::Parameters& params, const List& list)
+void Deserializer::putFuncTextList(StringBuilder& out, const TemplateHeadText::Parameters& params, const List& list)
 {
 	static const auto CON = ConType::LIST;
 	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
@@ -776,10 +776,10 @@ void Deserializer::putFuncTextList(StringBuilder& out, const FunctionHeadText::P
 	});
 }
 
-void Deserializer::putFuncTextTuple(StringBuilder& out, const FunctionHeadText::Parameters& params, const Tuple& tuple)
+void Deserializer::putFuncTextTuple(StringBuilder& out, const TemplateHeadText::Parameters& params, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
-	assert(tuple.size() <= params.size() && "too many elements in function tuple");
+	assert(tuple.size() <= params.size() && "too many elements in template tuple");
 
 	decltype(params.size()) i = 0;
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
@@ -808,23 +808,23 @@ void Deserializer::putBlock(StringBuilder& out, const Block& block, ConType con)
 	}
 	else
 	{
-		out += OPEN_FUNCTION;
-		out += CLOSE_FUNCTION;
+		out += OPEN_TEMPLATE;
+		out += CLOSE_TEMPLATE;
 		putConcreteValue(out, block.getValue(), con);
 	}
 }
 
-void Deserializer::putFuncScoped(StringBuilder& out, const FunctionScoped& func, ConType con)
+void Deserializer::putFuncScoped(StringBuilder& out, const TemplateScoped& templ, ConType con)
 {
-	NamespaceIncluder includer(currentNamespaces, func.getParameters());
-	if (func.hasEntity())
+	NamespaceIncluder includer(currentNamespaces, templ.getParameters());
+	if (templ.hasEntity())
 	{
-		putEntityName(out, func.getEntity());
-		putCharValue(out, func.getValue(), con);
+		putEntityName(out, templ.getEntity());
+		putCharValue(out, templ.getValue(), con);
 	}
 	else
 	{
-		putFheadScoped(out, func);
-		putConcreteValue(out, func.getValue(), con);
+		putFheadScoped(out, templ);
+		putConcreteValue(out, templ.getValue(), con);
 	}
 }

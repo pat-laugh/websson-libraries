@@ -11,7 +11,7 @@
 
 namespace webss
 {
-#define This BasicFunctionBody
+#define This BasicTemplateBody
 	template <class Webss>
 	class This
 	{

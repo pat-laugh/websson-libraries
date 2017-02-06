@@ -40,14 +40,14 @@ PATTERN_CONSTRUCT_MOVE(Document, document, DOCUMENT)
 PATTERN_CONSTRUCT_MOVE(Dictionary, dict, DICTIONARY)
 PATTERN_CONSTRUCT_MOVE(List, list, LIST)
 PATTERN_CONSTRUCT_MOVE(Tuple, tuple, TUPLE)
-PATTERN_CONSTRUCT_MOVE(FunctionHeadBinary, fheadBinary, FUNCTION_HEAD_BINARY)
-PATTERN_CONSTRUCT_MOVE(FunctionHeadScoped, fheadScoped, FUNCTION_HEAD_SCOPED)
-PATTERN_CONSTRUCT_MOVE(FunctionHeadStandard, fheadStandard, FUNCTION_HEAD_STANDARD)
-PATTERN_CONSTRUCT_MOVE(FunctionHeadText, fheadText, FUNCTION_HEAD_TEXT)
-PATTERN_CONSTRUCT_MOVE(FunctionBinary, funcBinary, FUNCTION_BINARY)
-PATTERN_CONSTRUCT_MOVE(FunctionScoped, funcScoped, FUNCTION_SCOPED)
-PATTERN_CONSTRUCT_MOVE(FunctionStandard, funcStandard, FUNCTION_STANDARD)
-PATTERN_CONSTRUCT_MOVE(FunctionText, funcText, FUNCTION_TEXT)
+PATTERN_CONSTRUCT_MOVE(TemplateHeadBinary, fheadBinary, TEMPLATE_HEAD_BINARY)
+PATTERN_CONSTRUCT_MOVE(TemplateHeadScoped, fheadScoped, TEMPLATE_HEAD_SCOPED)
+PATTERN_CONSTRUCT_MOVE(TemplateHeadStandard, fheadStandard, TEMPLATE_HEAD_STANDARD)
+PATTERN_CONSTRUCT_MOVE(TemplateHeadText, fheadText, TEMPLATE_HEAD_TEXT)
+PATTERN_CONSTRUCT_MOVE(TemplateBinary, templBinary, TEMPLATE_BINARY)
+PATTERN_CONSTRUCT_MOVE(TemplateScoped, templScoped, TEMPLATE_SCOPED)
+PATTERN_CONSTRUCT_MOVE(TemplateStandard, templStandard, TEMPLATE_STANDARD)
+PATTERN_CONSTRUCT_MOVE(TemplateText, templText, TEMPLATE_TEXT)
 PATTERN_CONSTRUCT_MOVE(Namespace, nspace, NAMESPACE)
 PATTERN_CONSTRUCT_MOVE(Enum, tEnum, ENUM)
 PATTERN_CONSTRUCT_MOVE(BlockHead, blockHead, BLOCK_HEAD)
@@ -61,44 +61,44 @@ PATTERN_CONSTRUCT_CONST(Document, document, DOCUMENT)
 PATTERN_CONSTRUCT_CONST(Dictionary, dict, DICTIONARY)
 PATTERN_CONSTRUCT_CONST(List, list, LIST)
 PATTERN_CONSTRUCT_CONST(Tuple, tuple, TUPLE)
-PATTERN_CONSTRUCT_CONST(FunctionHeadBinary, fheadBinary, FUNCTION_HEAD_BINARY)
-PATTERN_CONSTRUCT_CONST(FunctionHeadScoped, fheadScoped, FUNCTION_HEAD_SCOPED)
-PATTERN_CONSTRUCT_CONST(FunctionHeadStandard, fheadStandard, FUNCTION_HEAD_STANDARD)
-PATTERN_CONSTRUCT_CONST(FunctionHeadText, fheadText, FUNCTION_HEAD_TEXT)
-PATTERN_CONSTRUCT_CONST(FunctionBinary, funcBinary, FUNCTION_BINARY)
-PATTERN_CONSTRUCT_CONST(FunctionScoped, funcScoped, FUNCTION_SCOPED)
-PATTERN_CONSTRUCT_CONST(FunctionStandard, funcStandard, FUNCTION_STANDARD)
-PATTERN_CONSTRUCT_CONST(FunctionText, funcText, FUNCTION_TEXT)
+PATTERN_CONSTRUCT_CONST(TemplateHeadBinary, fheadBinary, TEMPLATE_HEAD_BINARY)
+PATTERN_CONSTRUCT_CONST(TemplateHeadScoped, fheadScoped, TEMPLATE_HEAD_SCOPED)
+PATTERN_CONSTRUCT_CONST(TemplateHeadStandard, fheadStandard, TEMPLATE_HEAD_STANDARD)
+PATTERN_CONSTRUCT_CONST(TemplateHeadText, fheadText, TEMPLATE_HEAD_TEXT)
+PATTERN_CONSTRUCT_CONST(TemplateBinary, templBinary, TEMPLATE_BINARY)
+PATTERN_CONSTRUCT_CONST(TemplateScoped, templScoped, TEMPLATE_SCOPED)
+PATTERN_CONSTRUCT_CONST(TemplateStandard, templStandard, TEMPLATE_STANDARD)
+PATTERN_CONSTRUCT_CONST(TemplateText, templText, TEMPLATE_TEXT)
 PATTERN_CONSTRUCT_CONST(Namespace, nspace, NAMESPACE)
 PATTERN_CONSTRUCT_CONST(Enum, tEnum, ENUM)
 PATTERN_CONSTRUCT_CONST(BlockHead, blockHead, BLOCK_HEAD)
 PATTERN_CONSTRUCT_CONST(Block, block, BLOCK)
 
-Webss::Webss(FunctionHeadSelf) : type(WebssType::FUNCTION_HEAD_SELF) {}
+Webss::Webss(TemplateHeadSelf) : type(WebssType::TEMPLATE_HEAD_SELF) {}
 
-#define PatternConstructFunction(Type, TypeCaps) \
-Webss::Webss(FunctionHead##Type&& head, Webss&& body) \
+#define PatternConstructTemplate(Type, TypeCaps) \
+Webss::Webss(TemplateHead##Type&& head, Webss&& body) \
 { \
 	switch (body.type) \
 	{ \
 	case WebssType::DICTIONARY: \
-		func##Type = new Function##Type(move(head), move(*body.dict)); \
+		templ##Type = new Template##Type(move(head), move(*body.dict)); \
 		break; \
 	case WebssType::LIST: \
-		func##Type = new Function##Type(move(head), move(*body.list)); \
+		templ##Type = new Template##Type(move(head), move(*body.list)); \
 		break; \
 	case WebssType::TUPLE: \
-		func##Type = new Function##Type(move(head), move(*body.tuple)); \
+		templ##Type = new Template##Type(move(head), move(*body.tuple)); \
 		break; \
 	default: \
 		assert(false); throw domain_error(""); \
 	} \
-	type = WebssType::FUNCTION_##TypeCaps; \
+	type = WebssType::TEMPLATE_##TypeCaps; \
 }
 
-PatternConstructFunction(Binary, BINARY)
-PatternConstructFunction(Standard, STANDARD)
-PatternConstructFunction(Text, TEXT)
+PatternConstructTemplate(Binary, BINARY)
+PatternConstructTemplate(Standard, STANDARD)
+PatternConstructTemplate(Text, TEXT)
 
 Webss::Webss(Webss&& o) { copyUnion(move(o)); }
 Webss::Webss(const Webss& o) { copyUnion(o); }
@@ -131,29 +131,29 @@ void Webss::destroyUnion()
 	case WebssType::TUPLE:
 		delete tuple;
 		break;
-	case WebssType::FUNCTION_HEAD_BINARY:
+	case WebssType::TEMPLATE_HEAD_BINARY:
 		delete fheadBinary;
 		break;
-	case WebssType::FUNCTION_HEAD_SCOPED:
+	case WebssType::TEMPLATE_HEAD_SCOPED:
 		delete fheadScoped;
 		break;
-	case WebssType::FUNCTION_HEAD_STANDARD:
+	case WebssType::TEMPLATE_HEAD_STANDARD:
 		delete fheadStandard;
 		break;
-	case WebssType::FUNCTION_HEAD_TEXT:
+	case WebssType::TEMPLATE_HEAD_TEXT:
 		delete fheadText;
 		break;
-	case WebssType::FUNCTION_BINARY:
-		delete funcBinary;
+	case WebssType::TEMPLATE_BINARY:
+		delete templBinary;
 		break;
-	case WebssType::FUNCTION_SCOPED:
-		delete funcScoped;
+	case WebssType::TEMPLATE_SCOPED:
+		delete templScoped;
 		break;
-	case WebssType::FUNCTION_STANDARD:
-		delete funcStandard;
+	case WebssType::TEMPLATE_STANDARD:
+		delete templStandard;
 		break;
-	case WebssType::FUNCTION_TEXT:
-		delete funcText;
+	case WebssType::TEMPLATE_TEXT:
+		delete templText;
 		break;
 	case WebssType::NAMESPACE:
 		delete nspace;
@@ -229,29 +229,29 @@ void Webss::copyUnion(Webss&& o)
 	case WebssType::TUPLE:
 		tuple = o.tuple;
 		break;
-	case WebssType::FUNCTION_HEAD_BINARY:
+	case WebssType::TEMPLATE_HEAD_BINARY:
 		fheadBinary = o.fheadBinary;
 		break;
-	case WebssType::FUNCTION_HEAD_SCOPED:
+	case WebssType::TEMPLATE_HEAD_SCOPED:
 		fheadScoped = o.fheadScoped;
 		break;
-	case WebssType::FUNCTION_HEAD_STANDARD:
+	case WebssType::TEMPLATE_HEAD_STANDARD:
 		fheadStandard = o.fheadStandard;
 		break;
-	case WebssType::FUNCTION_HEAD_TEXT:
+	case WebssType::TEMPLATE_HEAD_TEXT:
 		fheadText = o.fheadText;
 		break;
-	case WebssType::FUNCTION_BINARY:
-		funcBinary = o.funcBinary;
+	case WebssType::TEMPLATE_BINARY:
+		templBinary = o.templBinary;
 		break;
-	case WebssType::FUNCTION_SCOPED:
-		funcScoped = o.funcScoped;
+	case WebssType::TEMPLATE_SCOPED:
+		templScoped = o.templScoped;
 		break;
-	case WebssType::FUNCTION_STANDARD:
-		funcStandard = o.funcStandard;
+	case WebssType::TEMPLATE_STANDARD:
+		templStandard = o.templStandard;
 		break;
-	case WebssType::FUNCTION_TEXT:
-		funcText = o.funcText;
+	case WebssType::TEMPLATE_TEXT:
+		templText = o.templText;
 		break;
 	case WebssType::NAMESPACE:
 		nspace = o.nspace;
@@ -309,29 +309,29 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::TUPLE:
 		tuple = new Tuple(*o.tuple);
 		break;
-	case WebssType::FUNCTION_HEAD_BINARY:
-		fheadBinary = new FunctionHeadBinary(*o.fheadBinary);
+	case WebssType::TEMPLATE_HEAD_BINARY:
+		fheadBinary = new TemplateHeadBinary(*o.fheadBinary);
 		break;
-	case WebssType::FUNCTION_HEAD_SCOPED:
-		fheadScoped = new FunctionHeadScoped(*o.fheadScoped);
+	case WebssType::TEMPLATE_HEAD_SCOPED:
+		fheadScoped = new TemplateHeadScoped(*o.fheadScoped);
 		break;
-	case WebssType::FUNCTION_HEAD_STANDARD:
-		fheadStandard = new FunctionHeadStandard(*o.fheadStandard);
+	case WebssType::TEMPLATE_HEAD_STANDARD:
+		fheadStandard = new TemplateHeadStandard(*o.fheadStandard);
 		break;
-	case WebssType::FUNCTION_HEAD_TEXT:
-		fheadText = new FunctionHeadText(*o.fheadText);
+	case WebssType::TEMPLATE_HEAD_TEXT:
+		fheadText = new TemplateHeadText(*o.fheadText);
 		break;
-	case WebssType::FUNCTION_BINARY:
-		funcBinary = new FunctionBinary(*o.funcBinary);
+	case WebssType::TEMPLATE_BINARY:
+		templBinary = new TemplateBinary(*o.templBinary);
 		break;
-	case WebssType::FUNCTION_SCOPED:
-		funcScoped = new FunctionScoped(*o.funcScoped);
+	case WebssType::TEMPLATE_SCOPED:
+		templScoped = new TemplateScoped(*o.templScoped);
 		break;
-	case WebssType::FUNCTION_STANDARD:
-		funcStandard = new FunctionStandard(*o.funcStandard);
+	case WebssType::TEMPLATE_STANDARD:
+		templStandard = new TemplateStandard(*o.templStandard);
 		break;
-	case WebssType::FUNCTION_TEXT:
-		funcText = new FunctionText(*o.funcText);
+	case WebssType::TEMPLATE_TEXT:
+		templText = new TemplateText(*o.templText);
 		break;
 	case WebssType::NAMESPACE:
 		nspace = new Namespace(*o.nspace);
@@ -367,14 +367,14 @@ const Webss& Webss::operator[](int index) const
 		return (*list)[index];
 	case WebssType::TUPLE:
 		return (*tuple)[index];
-	case WebssType::FUNCTION_BINARY:
-		return (*funcBinary)[index];
-	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->getValue()[index];
-	case WebssType::FUNCTION_STANDARD:
-		return (*funcStandard)[index];
-	case WebssType::FUNCTION_TEXT:
-		return (*funcText)[index];
+	case WebssType::TEMPLATE_BINARY:
+		return (*templBinary)[index];
+	case WebssType::TEMPLATE_SCOPED:
+		return templScoped->getValue()[index];
+	case WebssType::TEMPLATE_STANDARD:
+		return (*templStandard)[index];
+	case WebssType::TEMPLATE_TEXT:
+		return (*templText)[index];
 	case WebssType::BLOCK:
 		return block->getValue()[index];
 	default:
@@ -394,14 +394,14 @@ const Webss& Webss::operator[](const std::string& key) const
 		return (*dict)[key];
 	case WebssType::TUPLE:
 		return (*tuple)[key];
-	case WebssType::FUNCTION_BINARY:
-		return (*funcBinary)[key];
-	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->getValue()[key];
-	case WebssType::FUNCTION_STANDARD:
-		return (*funcStandard)[key];
-	case WebssType::FUNCTION_TEXT:
-		return (*funcText)[key];
+	case WebssType::TEMPLATE_BINARY:
+		return (*templBinary)[key];
+	case WebssType::TEMPLATE_SCOPED:
+		return templScoped->getValue()[key];
+	case WebssType::TEMPLATE_STANDARD:
+		return (*templStandard)[key];
+	case WebssType::TEMPLATE_TEXT:
+		return (*templText)[key];
 	case WebssType::BLOCK:
 		return block->getValue()[key];
 	default:
@@ -421,14 +421,14 @@ const Webss& Webss::at(int index) const
 		return list->at(index);
 	case WebssType::TUPLE:
 		return tuple->at(index);
-	case WebssType::FUNCTION_BINARY:
-		return funcBinary->at(index);
-	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->getValue().at(index);
-	case WebssType::FUNCTION_STANDARD:
-		return funcStandard->at(index);
-	case WebssType::FUNCTION_TEXT:
-		return funcText->at(index);
+	case WebssType::TEMPLATE_BINARY:
+		return templBinary->at(index);
+	case WebssType::TEMPLATE_SCOPED:
+		return templScoped->getValue().at(index);
+	case WebssType::TEMPLATE_STANDARD:
+		return templStandard->at(index);
+	case WebssType::TEMPLATE_TEXT:
+		return templText->at(index);
 	case WebssType::BLOCK:
 		return block->getValue().at(index);
 	default:
@@ -448,14 +448,14 @@ const Webss& Webss::at(const std::string& key) const
 		return dict->at(key);
 	case WebssType::TUPLE:
 		return tuple->at(key);
-	case WebssType::FUNCTION_BINARY:
-		return funcBinary->at(key);
-	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->getValue().at(key);
-	case WebssType::FUNCTION_STANDARD:
-		return funcStandard->at(key);
-	case WebssType::FUNCTION_TEXT:
-		return funcText->at(key);
+	case WebssType::TEMPLATE_BINARY:
+		return templBinary->at(key);
+	case WebssType::TEMPLATE_SCOPED:
+		return templScoped->getValue().at(key);
+	case WebssType::TEMPLATE_STANDARD:
+		return templStandard->at(key);
+	case WebssType::TEMPLATE_TEXT:
+		return templText->at(key);
 	case WebssType::BLOCK:
 		return block->getValue().at(key);
 	default:
@@ -471,14 +471,14 @@ WebssType Webss::getType() const
 		return ent.getContent().getType();
 	case WebssType::DEFAULT:
 		return tDefault->getType();
-	case WebssType::FUNCTION_BINARY:
-		return funcBinary->getType();
-	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->getValue().getType();
-	case WebssType::FUNCTION_STANDARD:
-		return funcStandard->getType();
-	case WebssType::FUNCTION_TEXT:
-		return funcText->getType();
+	case WebssType::TEMPLATE_BINARY:
+		return templBinary->getType();
+	case WebssType::TEMPLATE_SCOPED:
+		return templScoped->getValue().getType();
+	case WebssType::TEMPLATE_STANDARD:
+		return templStandard->getType();
+	case WebssType::TEMPLATE_TEXT:
+		return templText->getType();
 	case WebssType::BLOCK:
 		return block->getValue().getType();
 	default:
@@ -506,14 +506,14 @@ WebssInt Webss::getInt() const { PATTERN_GET_CONST(tInt, getInt(), WebssType::PR
 double Webss::getDouble() const { PATTERN_GET_CONST(tDouble, getDouble(), WebssType::PRIMITIVE_DOUBLE); }
 const std::string& Webss::getString() const { PATTERN_GET_CONST(*tString, getString(), WebssType::PRIMITIVE_STRING); }
 const Document& Webss::getDocument() const { PATTERN_GET_CONST(*document, getDocument(), WebssType::DOCUMENT); }
-const FunctionHeadBinary& Webss::getFunctionHeadBinary() const { PATTERN_GET_CONST(*fheadBinary, getFunctionHeadBinary(), WebssType::FUNCTION_HEAD_BINARY); }
-const FunctionHeadScoped& Webss::getFunctionHeadScoped() const { PATTERN_GET_CONST(*fheadScoped, getFunctionHeadScoped(), WebssType::FUNCTION_HEAD_SCOPED); }
-const FunctionHeadStandard& Webss::getFunctionHeadStandard() const { PATTERN_GET_CONST(*fheadStandard, getFunctionHeadStandard(), WebssType::FUNCTION_HEAD_STANDARD); }
-const FunctionHeadText& Webss::getFunctionHeadText() const { PATTERN_GET_CONST(*fheadText, getFunctionHeadText(), WebssType::FUNCTION_HEAD_TEXT); }
-const FunctionBinary& Webss::getFunctionBinary() const { PATTERN_GET_CONST(*funcBinary, getFunctionBinary(), WebssType::FUNCTION_BINARY); }
-const FunctionScoped& Webss::getFunctionScoped() const { PATTERN_GET_CONST(*funcScoped, getFunctionScoped(), WebssType::FUNCTION_SCOPED); }
-const FunctionStandard& Webss::getFunctionStandard() const { PATTERN_GET_CONST(*funcStandard, getFunctionStandard(), WebssType::FUNCTION_STANDARD); }
-const FunctionText& Webss::getFunctionText() const { PATTERN_GET_CONST(*funcText, getFunctionText(), WebssType::FUNCTION_TEXT); }
+const TemplateHeadBinary& Webss::getTemplateHeadBinary() const { PATTERN_GET_CONST(*fheadBinary, getTemplateHeadBinary(), WebssType::TEMPLATE_HEAD_BINARY); }
+const TemplateHeadScoped& Webss::getTemplateHeadScoped() const { PATTERN_GET_CONST(*fheadScoped, getTemplateHeadScoped(), WebssType::TEMPLATE_HEAD_SCOPED); }
+const TemplateHeadStandard& Webss::getTemplateHeadStandard() const { PATTERN_GET_CONST(*fheadStandard, getTemplateHeadStandard(), WebssType::TEMPLATE_HEAD_STANDARD); }
+const TemplateHeadText& Webss::getTemplateHeadText() const { PATTERN_GET_CONST(*fheadText, getTemplateHeadText(), WebssType::TEMPLATE_HEAD_TEXT); }
+const TemplateBinary& Webss::getTemplateBinary() const { PATTERN_GET_CONST(*templBinary, getTemplateBinary(), WebssType::TEMPLATE_BINARY); }
+const TemplateScoped& Webss::getTemplateScoped() const { PATTERN_GET_CONST(*templScoped, getTemplateScoped(), WebssType::TEMPLATE_SCOPED); }
+const TemplateStandard& Webss::getTemplateStandard() const { PATTERN_GET_CONST(*templStandard, getTemplateStandard(), WebssType::TEMPLATE_STANDARD); }
+const TemplateText& Webss::getTemplateText() const { PATTERN_GET_CONST(*templText, getTemplateText(), WebssType::TEMPLATE_TEXT); }
 const Namespace& Webss::getNamespace() const { PATTERN_GET_CONST(*nspace, getNamespace(), WebssType::NAMESPACE); }
 const Enum& Webss::getEnum() const { PATTERN_GET_CONST(*tEnum, getEnum(), WebssType::ENUM); }
 const BlockHead& Webss::getBlockHead() const { PATTERN_GET_CONST(*blockHead, getBlockHead(), WebssType::BLOCK_HEAD); }
@@ -529,14 +529,14 @@ const Dictionary& Webss::getDictionary() const
 		return tDefault->getDictionary();
 	case WebssType::DICTIONARY:
 		return *dict;
-	case WebssType::FUNCTION_BINARY:
-		return funcBinary->getDictionary();
-	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->getValue().getDictionary();
-	case WebssType::FUNCTION_STANDARD:
-		return funcStandard->getDictionary();
-	case WebssType::FUNCTION_TEXT:
-		return funcText->getDictionary();
+	case WebssType::TEMPLATE_BINARY:
+		return templBinary->getDictionary();
+	case WebssType::TEMPLATE_SCOPED:
+		return templScoped->getValue().getDictionary();
+	case WebssType::TEMPLATE_STANDARD:
+		return templStandard->getDictionary();
+	case WebssType::TEMPLATE_TEXT:
+		return templText->getDictionary();
 	case WebssType::BLOCK:
 		return block->getValue().getDictionary();
 	default:
@@ -554,14 +554,14 @@ const List& Webss::getList() const
 		return tDefault->getList();
 	case WebssType::LIST:
 		return *list;
-	case WebssType::FUNCTION_BINARY:
-		return funcBinary->getList();
-	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->getValue().getList();
-	case WebssType::FUNCTION_STANDARD:
-		return funcStandard->getList();
-	case WebssType::FUNCTION_TEXT:
-		return funcText->getList();
+	case WebssType::TEMPLATE_BINARY:
+		return templBinary->getList();
+	case WebssType::TEMPLATE_SCOPED:
+		return templScoped->getValue().getList();
+	case WebssType::TEMPLATE_STANDARD:
+		return templStandard->getList();
+	case WebssType::TEMPLATE_TEXT:
+		return templText->getList();
 	case WebssType::BLOCK:
 		return block->getValue().getList();
 	default:
@@ -579,14 +579,14 @@ const Tuple& Webss::getTuple() const
 		return tDefault->getTuple();
 	case WebssType::TUPLE:
 		return *tuple;
-	case WebssType::FUNCTION_BINARY:
-		return funcBinary->getTuple();
-	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->getValue().getTuple();
-	case WebssType::FUNCTION_STANDARD:
-		return funcStandard->getTuple();
-	case WebssType::FUNCTION_TEXT:
-		return funcText->getTuple();
+	case WebssType::TEMPLATE_BINARY:
+		return templBinary->getTuple();
+	case WebssType::TEMPLATE_SCOPED:
+		return templScoped->getValue().getTuple();
+	case WebssType::TEMPLATE_STANDARD:
+		return templStandard->getTuple();
+	case WebssType::TEMPLATE_TEXT:
+		return templText->getTuple();
 	case WebssType::BLOCK:
 		return block->getValue().getTuple();
 	default:
@@ -614,10 +614,10 @@ bool Webss::isInt() const { PATTERN_IS(WebssType::PRIMITIVE_INT, isInt()) }
 bool Webss::isDouble() const { PATTERN_IS(WebssType::PRIMITIVE_DOUBLE, isDouble()) }
 bool Webss::isString() const { PATTERN_IS(WebssType::PRIMITIVE_STRING, isString()) }
 bool Webss::isDocument() const { PATTERN_IS(WebssType::DOCUMENT, isDocument()) }
-bool Webss::isFunctionHeadBinary() const { PATTERN_IS(WebssType::FUNCTION_HEAD_BINARY, isFunctionHeadBinary()) }
-bool Webss::isFunctionHeadScoped() const { PATTERN_IS(WebssType::FUNCTION_HEAD_SCOPED, isFunctionHeadScoped()) }
-bool Webss::isFunctionHeadStandard() const { PATTERN_IS(WebssType::FUNCTION_HEAD_STANDARD, isFunctionHeadStandard()) }
-bool Webss::isFunctionHeadText() const { PATTERN_IS(WebssType::FUNCTION_HEAD_TEXT, isFunctionHeadText()) }
+bool Webss::isTemplateHeadBinary() const { PATTERN_IS(WebssType::TEMPLATE_HEAD_BINARY, isTemplateHeadBinary()) }
+bool Webss::isTemplateHeadScoped() const { PATTERN_IS(WebssType::TEMPLATE_HEAD_SCOPED, isTemplateHeadScoped()) }
+bool Webss::isTemplateHeadStandard() const { PATTERN_IS(WebssType::TEMPLATE_HEAD_STANDARD, isTemplateHeadStandard()) }
+bool Webss::isTemplateHeadText() const { PATTERN_IS(WebssType::TEMPLATE_HEAD_TEXT, isTemplateHeadText()) }
 bool Webss::isNamespace() const { PATTERN_IS(WebssType::NAMESPACE, isNamespace()) }
 bool Webss::isEnum() const { PATTERN_IS(WebssType::ENUM, isEnum()) }
 bool Webss::isBlockHead() const { PATTERN_IS(WebssType::BLOCK_HEAD, isBlockHead()) }
@@ -633,14 +633,14 @@ bool Webss::isDictionary() const
 		return tDefault->isDictionary();
 	case WebssType::DICTIONARY:
 		return true;
-	case WebssType::FUNCTION_BINARY:
-		return funcBinary->isDictionary();
-	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->getValue().isDictionary();
-	case WebssType::FUNCTION_STANDARD:
-		return funcStandard->isDictionary();
-	case WebssType::FUNCTION_TEXT:
-		return funcText->isDictionary();
+	case WebssType::TEMPLATE_BINARY:
+		return templBinary->isDictionary();
+	case WebssType::TEMPLATE_SCOPED:
+		return templScoped->getValue().isDictionary();
+	case WebssType::TEMPLATE_STANDARD:
+		return templStandard->isDictionary();
+	case WebssType::TEMPLATE_TEXT:
+		return templText->isDictionary();
 	case WebssType::BLOCK:
 		return block->getValue().isDictionary();
 	default:
@@ -657,14 +657,14 @@ bool Webss::isList() const
 		return tDefault->isList();
 	case WebssType::LIST:
 		return true;
-	case WebssType::FUNCTION_BINARY:
-		return funcBinary->isList();
-	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->getValue().isList();
-	case WebssType::FUNCTION_STANDARD:
-		return funcStandard->isList();
-	case WebssType::FUNCTION_TEXT:
-		return funcText->isList();
+	case WebssType::TEMPLATE_BINARY:
+		return templBinary->isList();
+	case WebssType::TEMPLATE_SCOPED:
+		return templScoped->getValue().isList();
+	case WebssType::TEMPLATE_STANDARD:
+		return templStandard->isList();
+	case WebssType::TEMPLATE_TEXT:
+		return templText->isList();
 	case WebssType::BLOCK:
 		return block->getValue().isList();
 	default:
@@ -681,14 +681,14 @@ bool Webss::isTuple() const
 		return tDefault->isTuple();
 	case WebssType::TUPLE:
 		return true;
-	case WebssType::FUNCTION_BINARY:
-		return funcBinary->isTuple();
-	case WebssType::FUNCTION_SCOPED:
-		return funcScoped->getValue().isTuple();
-	case WebssType::FUNCTION_STANDARD:
-		return funcStandard->isTuple();
-	case WebssType::FUNCTION_TEXT:
-		return funcText->isTuple();
+	case WebssType::TEMPLATE_BINARY:
+		return templBinary->isTuple();
+	case WebssType::TEMPLATE_SCOPED:
+		return templScoped->getValue().isTuple();
+	case WebssType::TEMPLATE_STANDARD:
+		return templStandard->isTuple();
+	case WebssType::TEMPLATE_TEXT:
+		return templText->isTuple();
 	case WebssType::BLOCK:
 		return block->getValue().isTuple();
 	default:
@@ -706,7 +706,7 @@ bool Webss::isAbstract() const
 		return ent.getContent().isAbstract();
 	case WebssType::DEFAULT:
 		return tDefault->isAbstract();
-	case WebssType::FUNCTION_HEAD_BINARY: case WebssType::FUNCTION_HEAD_SCOPED: case WebssType::FUNCTION_HEAD_SELF: case WebssType::FUNCTION_HEAD_STANDARD: case WebssType::FUNCTION_HEAD_TEXT:
+	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_SCOPED: case WebssType::TEMPLATE_HEAD_SELF: case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
 	case WebssType::NAMESPACE: case WebssType::ENUM: case WebssType::BLOCK_HEAD:
 		return true;
 	default:

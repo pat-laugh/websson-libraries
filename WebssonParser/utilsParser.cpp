@@ -7,8 +7,8 @@ using namespace webss;
 
 void webss::setDefaultValue(Webss& value, const ParamStandard& defaultValue)
 {
-	if (defaultValue.hasFunctionHead())
-		value = makeDefaultTuple(defaultValue.getFunctionHeadStandard().getParameters());
+	if (defaultValue.hasTemplateHead())
+		value = makeDefaultTuple(defaultValue.getTemplateHeadStandard().getParameters());
 	else if (!defaultValue.hasDefaultValue())
 		throw runtime_error(ERROR_NO_DEFAULT);
 	else

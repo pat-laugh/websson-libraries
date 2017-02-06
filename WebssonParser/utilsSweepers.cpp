@@ -148,8 +148,8 @@ TypeContainer webss::skipJunkToContainer(SmartIterator& it)
 		return TypeContainer::LIST;
 	CSCase(OPEN_TUPLE):
 		return TypeContainer::TUPLE;
-	CSCase(OPEN_FUNCTION):
-		return TypeContainer::FUNCTION_HEAD;
+	CSCase(OPEN_TEMPLATE):
+		return TypeContainer::TEMPLATE_HEAD;
 	CSCase(CHAR_COLON):
 		if (it.peekEnd() || it.peek() != CHAR_COLON)
 			return TypeContainer::LINE_STRING;
@@ -161,8 +161,8 @@ TypeContainer webss::skipJunkToContainer(SmartIterator& it)
 			return TypeContainer::TEXT_LIST;
 		case OPEN_TUPLE:
 			return TypeContainer::TEXT_TUPLE;
-		case OPEN_FUNCTION:
-			return TypeContainer::TEXT_FUNCTION_HEAD;
+		case OPEN_TEMPLATE:
+			return TypeContainer::TEXT_TEMPLATE_HEAD;
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
@@ -175,8 +175,8 @@ TypeContainer webss::skipJunkToContainer(SmartIterator& it)
 			goto case_OPEN_LIST;
 		case OPEN_TUPLE:
 			goto case_OPEN_TUPLE;
-		case OPEN_FUNCTION:
-			goto case_OPEN_FUNCTION;
+		case OPEN_TEMPLATE:
+			goto case_OPEN_TEMPLATE;
 		case CHAR_COLON:
 			goto case_CHAR_COLON;
 		case CHAR_CSTRING:

@@ -120,29 +120,29 @@ namespace webss
 		std::string parseName(It& it);
 		std::string parseNameSafe(It& it);
 
-		//parserFunctions.cpp
-		Webss parseFunctionHead(It& it);
-		FunctionHeadStandard parseFunctionHeadStandard(It& it, FunctionHeadStandard&& fhead = FunctionHeadStandard());
-		FunctionHeadBinary parseFunctionHeadBinary(It& it, FunctionHeadBinary&& fhead = FunctionHeadBinary());
-		FunctionHeadScoped parseFunctionHeadScoped(It& it, FunctionHeadScoped&& fhead = FunctionHeadScoped());
-		FunctionHeadText parseFunctionHeadText(It& it, FunctionHeadText&& fhead = FunctionHeadText());
-		void parseStandardParameterFunctionHead(It& it, FunctionHeadStandard& fhead);
-		void parseStandardParameterFunctionHeadText(It& it, FunctionHeadStandard& fhead);
-		void parseOtherValuesFheadStandardAfterFhead(It& it, FunctionHeadStandard& fhead);
-		void parseOtherValuesFheadStandard(It& it, FunctionHeadStandard& fhead);
-		void parseOtherValuesFheadText(It& it, FunctionHeadText& fhead);
-		void parseOtherValuesFheadBinary(It& it, FunctionHeadBinary& fhead);
+		//parserTemplates.cpp
+		Webss parseTemplateHead(It& it);
+		TemplateHeadStandard parseTemplateHeadStandard(It& it, TemplateHeadStandard&& thead = TemplateHeadStandard());
+		TemplateHeadBinary parseTemplateHeadBinary(It& it, TemplateHeadBinary&& thead = TemplateHeadBinary());
+		TemplateHeadScoped parseTemplateHeadScoped(It& it, TemplateHeadScoped&& thead = TemplateHeadScoped());
+		TemplateHeadText parseTemplateHeadText(It& it, TemplateHeadText&& thead = TemplateHeadText());
+		void parseStandardParameterTemplateHead(It& it, TemplateHeadStandard& thead);
+		void parseStandardParameterTemplateHeadText(It& it, TemplateHeadStandard& thead);
+		void parseOtherValuesFheadStandardAfterFhead(It& it, TemplateHeadStandard& thead);
+		void parseOtherValuesFheadStandard(It& it, TemplateHeadStandard& thead);
+		void parseOtherValuesFheadText(It& it, TemplateHeadText& thead);
+		void parseOtherValuesFheadBinary(It& it, TemplateHeadBinary& thead);
 
-		Webss parseFunction(It& it, ConType con);
-		Webss parseFunctionText(It& it);
-		Webss parseFunctionBodyBinary(It& it, const FunctionHeadBinary::Parameters& params);
-		Webss parseFunctionBodyScoped(It& it, const FunctionHeadScoped::Parameters& params, ConType con);
-		Webss parseFunctionBodyStandard(It& it, const FunctionHeadStandard::Parameters& params);
-		Webss parseFunctionBodyText(It& it, const FunctionHeadText::Parameters& params);
+		Webss parseTemplate(It& it, ConType con);
+		Webss parseTemplateText(It& it);
+		Webss parseTemplateBodyBinary(It& it, const TemplateHeadBinary::Parameters& params);
+		Webss parseTemplateBodyScoped(It& it, const TemplateHeadScoped::Parameters& params, ConType con);
+		Webss parseTemplateBodyStandard(It& it, const TemplateHeadStandard::Parameters& params);
+		Webss parseTemplateBodyText(It& it, const TemplateHeadText::Parameters& params);
 
 		//parserBinary.cpp
-		void parseBinaryHead(It& it, FunctionHeadBinary& fhead);
-		Tuple parseFunctionTupleBinary(It& it, const FunctionHeadBinary::Parameters& params);
+		void parseBinaryHead(It& it, TemplateHeadBinary& thead);
+		Tuple parseTemplateTupleBinary(It& it, const TemplateHeadBinary::Parameters& params);
 		ParamBinary::SizeList parseBinarySizeList(It& it);
 		const Entity& checkEntTypeBinarySize(const Entity& ent);
 
@@ -173,7 +173,7 @@ namespace webss
 
 		BasicEntityManager<Webss>& ents;
 	public:
-		ParamDocumentIncluder(BasicEntityManager<Webss>& ents, const FunctionHeadScoped::Parameters& params) : ents(ents)
+		ParamDocumentIncluder(BasicEntityManager<Webss>& ents, const TemplateHeadScoped::Parameters& params) : ents(ents)
 		{
 			for (const auto& param : params)
 				includeEntities(param);

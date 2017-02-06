@@ -118,8 +118,8 @@ Namespace Parser::parseNamespace(It& it, const string& name, const Namespace& pr
 			checkMultiContainer(++it, [&]() { nspace.addSafe(parseConcreteEntity(it, con)); });
 			break;
 		case CHAR_SELF:
-			skipJunkToValidCondition(++it, [&]() { return *it == OPEN_FUNCTION; });
-			nspace.addSafe(Entity(string(name), parseFunctionHead(++it)));
+			skipJunkToValidCondition(++it, [&]() { return *it == OPEN_TEMPLATE; });
+			nspace.addSafe(Entity(string(name), parseTemplateHead(++it)));
 			break;
 		default:
 			throw runtime_error(ERROR_INPUT_NAMESPACE);
@@ -214,8 +214,8 @@ Webss Parser::parseContainerText(It& it)
 		return parseListText(++it);
 	case OPEN_TUPLE:
 		return parseTupleText(++it);
-	case OPEN_FUNCTION:
-		return parseFunctionText(++it);
+	case OPEN_TEMPLATE:
+		return parseTemplateText(++it);
 	default:
 		throw runtime_error(ERROR_UNEXPECTED);
 	}
@@ -224,8 +224,8 @@ Webss Parser::parseContainerText(It& it)
 ScopedDocument Parser::parseScopedDocument(It& it)
 {
 	static const ConType CON = ConType::DICTIONARY;
-	skipJunkToValidCondition(it, [&]() { return *it == OPEN_FUNCTION; });
-	auto head = parseFunctionHeadScoped(++it);
+	skipJunkToValidCondition(it, [&]() { return *it == OPEN_TEMPLATE; });
+	auto head = parseTemplateHeadScoped(++it);
 
 	skipJunkToValidCondition(it, [&]() { return *it == OPEN_DICTIONARY; });
 	DocumentHead body;

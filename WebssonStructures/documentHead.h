@@ -4,7 +4,7 @@
 
 #include "base.h"
 #include "entity.h"
-#include "functionScoped.h"
+#include "templateScoped.h"
 
 namespace webss
 {
@@ -18,7 +18,7 @@ namespace webss
 	class BasicScopedDocument
 	{
 	public:
-		using FheadScoped = BasicFunctionHeadScoped<Webss>;
+		using FheadScoped = BasicTemplateHeadScoped<Webss>;
 		using DocHead = BasicDocumentHead<Webss>;
 
 		~BasicScopedDocument() {}

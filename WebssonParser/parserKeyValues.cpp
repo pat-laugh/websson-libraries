@@ -53,8 +53,8 @@ Webss Parser::parseCharValue(It& it, ConType con)
 		return parseList(++it);
 	case OPEN_TUPLE:
 		return parseTuple(++it);
-	case OPEN_FUNCTION:
-		return parseFunction(++it, con);
+	case OPEN_TEMPLATE:
+		return parseTemplate(++it, con);
 	case CHAR_COLON:
 		return parseValueColon(++it, con);
 	case CHAR_EQUAL:
@@ -97,7 +97,7 @@ bool isKeyChar(char c)
 {
 	switch (c)
 	{
-	case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case OPEN_FUNCTION: case CHAR_COLON: case CHAR_EQUAL: case CHAR_CSTRING:
+	case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case OPEN_TEMPLATE: case CHAR_COLON: case CHAR_EQUAL: case CHAR_CSTRING:
 		return true;
 	default:
 		return false;
@@ -137,14 +137,14 @@ Parser::OtherValue Parser::checkAbstractEntity(It& it, ConType con, const Entity
 	{
 	case WebssType::BLOCK_HEAD:
 		return{ Block(ent, parseValueOnly(it, con)) };
-	case WebssType::FUNCTION_HEAD_BINARY:
-		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadBinary(ent), parseFunctionBodyBinary(it, content.getFunctionHeadBinary().getParameters())) }, break)
-	case WebssType::FUNCTION_HEAD_SCOPED:
-		PatternLineGreed(isKeyChar(*it) || isNameStart(*it) || isNumberStart(*it), return{ FunctionScoped(ent, parseFunctionBodyScoped(it, ent.getContent().getFunctionHeadScoped().getParameters(), con)) }, break)
-	case WebssType::FUNCTION_HEAD_STANDARD:
-		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadStandard(ent), parseFunctionBodyStandard(it, content.getFunctionHeadStandard().getParameters())) }, break)
-	case WebssType::FUNCTION_HEAD_TEXT:
-		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(FunctionHeadText(ent), parseFunctionBodyText(it, content.getFunctionHeadText().getParameters())) }, break)
+	case WebssType::TEMPLATE_HEAD_BINARY:
+		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadBinary(ent), parseTemplateBodyBinary(it, content.getTemplateHeadBinary().getParameters())) }, break)
+	case WebssType::TEMPLATE_HEAD_SCOPED:
+		PatternLineGreed(isKeyChar(*it) || isNameStart(*it) || isNumberStart(*it), return{ TemplateScoped(ent, parseTemplateBodyScoped(it, ent.getContent().getTemplateHeadScoped().getParameters(), con)) }, break)
+	case WebssType::TEMPLATE_HEAD_STANDARD:
+		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyStandard(it, content.getTemplateHeadStandard().getParameters())) }, break)
+	case WebssType::TEMPLATE_HEAD_TEXT:
+		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadText(ent), parseTemplateBodyText(it, content.getTemplateHeadText().getParameters())) }, break)
 	default:
 		break;
 	}

@@ -8,7 +8,7 @@
 #include "base.h"
 #include "keywords.h"
 #include "types.h"
-#include "functionHead.h"
+#include "templateHead.h"
 
 namespace webss
 {
@@ -20,9 +20,9 @@ namespace webss
 		class BasicSizeHead
 		{
 		public:
-			using FunctionHead = BasicFunctionHead<BasicParamBinary, Webss>;
+			using TemplateHead = BasicTemplateHead<BasicParamBinary, Webss>;
 			using Entity = BasicEntity<Webss>;
-			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, SELF, KEYWORD, NUMBER, FUNCTION_HEAD, ENTITY_NUMBER, ENTITY_FUNCTION_HEAD };
+			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, SELF, KEYWORD, NUMBER, TEMPLATE_HEAD, ENTITY_NUMBER, ENTITY_TEMPLATE_HEAD };
 
 			BasicSizeHead() {}
 			BasicSizeHead(Keyword keyword) : type(Type::KEYWORD)
@@ -39,7 +39,7 @@ namespace webss
 					throw std::runtime_error("invalid binary type: " + keyword.toString());
 				}
 			}
-			BasicSizeHead(const Entity& entFhead) : type(Type::ENTITY_FUNCTION_HEAD), ent(entFhead) {}
+			BasicSizeHead(const Entity& entFhead) : type(Type::ENTITY_TEMPLATE_HEAD), ent(entFhead) {}
 			BasicSizeHead(const Entity& entNumber, bool number) : type(Type::ENTITY_NUMBER), ent(entNumber)
 			{
 				auto num = entNumber.getContent().getPrimitive<WebssBinarySize>();
@@ -64,10 +64,10 @@ namespace webss
 						throw std::runtime_error(ERROR_BINARY_SIZE_HEAD);
 				}
 			}
-			BasicSizeHead(FunctionHead&& o) : type(Type::FUNCTION_HEAD), fhead(new FunctionHead(std::move(o))) {}
-			BasicSizeHead(const FunctionHead& o) : type(Type::FUNCTION_HEAD), fhead(new FunctionHead(o)) {}
+			BasicSizeHead(TemplateHead&& o) : type(Type::TEMPLATE_HEAD), thead(new TemplateHead(std::move(o))) {}
+			BasicSizeHead(const TemplateHead& o) : type(Type::TEMPLATE_HEAD), thead(new TemplateHead(o)) {}
 
-			BasicSizeHead(FunctionHeadSelf) : type(Type::SELF) {}
+			BasicSizeHead(TemplateHeadSelf) : type(Type::SELF) {}
 
 			BasicSizeHead(Type type) : type(type)
 			{
@@ -104,8 +104,8 @@ namespace webss
 			bool isEmpty() const { return type == Type::EMPTY || type == Type::EMPTY_ENTITY_NUMBER; }
 			bool isKeyword() const { return type == Type::KEYWORD; }
 			bool isBool() const { return isKeyword() && keyword == Keyword::BOOL; }
-			bool isFunctionHead() const { return type == Type::ENTITY_FUNCTION_HEAD || type == Type::FUNCTION_HEAD; }
-			bool hasEntity() const { return type == Type::ENTITY_FUNCTION_HEAD || type == Type::ENTITY_NUMBER || type == Type::EMPTY_ENTITY_NUMBER; }
+			bool isTemplateHead() const { return type == Type::ENTITY_TEMPLATE_HEAD || type == Type::TEMPLATE_HEAD; }
+			bool hasEntity() const { return type == Type::ENTITY_TEMPLATE_HEAD || type == Type::ENTITY_NUMBER || type == Type::EMPTY_ENTITY_NUMBER; }
 
 			bool hasDefaultValue() const { return defaultValue.get() != nullptr; }
 			bool isSelf() const { return type == Type::SELF; }
@@ -135,16 +135,16 @@ namespace webss
 				return ent;
 			}
 
-			const FunctionHead& getFunctionHead() const
+			const TemplateHead& getTemplateHead() const
 			{
 				switch (type)
 				{
-				case Type::FUNCTION_HEAD:
-					return *fhead;
-				case Type::ENTITY_FUNCTION_HEAD:
-					return ent.getContent().getElement<FunctionHead>();
+				case Type::TEMPLATE_HEAD:
+					return *thead;
+				case Type::ENTITY_TEMPLATE_HEAD:
+					return ent.getContent().getElement<TemplateHead>();
 				default:
-					assert(false && "binary size head does not contain a function head"); throw std::domain_error("");
+					assert(false && "binary size head does not contain a template head"); throw std::domain_error("");
 				}
 			}
 
@@ -163,7 +163,7 @@ namespace webss
 				}
 			}
 		private:
-			static constexpr char* ERROR_BINARY_SIZE_HEAD = "size of binary head must be a positive integer, binary function head or equivalent entity";
+			static constexpr char* ERROR_BINARY_SIZE_HEAD = "size of binary head must be a positive integer, binary template head or equivalent entity";
 
 			Type type = Type::NONE;
 			union
@@ -171,7 +171,7 @@ namespace webss
 				Keyword keyword;
 				WebssBinarySize number;
 				Entity ent;
-				FunctionHead* fhead;
+				TemplateHead* thead;
 			};
 
 			std::shared_ptr<Webss> defaultValue;
@@ -180,10 +180,10 @@ namespace webss
 			{
 				switch (type)
 				{
-				case Type::FUNCTION_HEAD:
-					delete fhead;
+				case Type::TEMPLATE_HEAD:
+					delete thead;
 					break;
-				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_FUNCTION_HEAD:
+				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD:
 					ent.~BasicEntity();
 					break;
 				default:
@@ -204,10 +204,10 @@ namespace webss
 				case Type::NUMBER:
 					number = o.number;
 					break;
-				case Type::FUNCTION_HEAD:
-					fhead = o.fhead;
+				case Type::TEMPLATE_HEAD:
+					thead = o.thead;
 					break;
-				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_FUNCTION_HEAD:
+				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD:
 					new (&ent) Entity(std::move(o.ent));
 					o.ent.~BasicEntity();
 					break;
@@ -232,10 +232,10 @@ namespace webss
 				case Type::NUMBER:
 					number = o.number;
 					break;
-				case Type::FUNCTION_HEAD:
-					fhead = new FunctionHead(*o.fhead);
+				case Type::TEMPLATE_HEAD:
+					thead = new TemplateHead(*o.thead);
 					break;
-				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_FUNCTION_HEAD:
+				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD:
 					new (&ent) Entity(o.ent);
 					break;
 				default:
