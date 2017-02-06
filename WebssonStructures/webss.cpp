@@ -40,10 +40,10 @@ PATTERN_CONSTRUCT_MOVE(Document, document, DOCUMENT)
 PATTERN_CONSTRUCT_MOVE(Dictionary, dict, DICTIONARY)
 PATTERN_CONSTRUCT_MOVE(List, list, LIST)
 PATTERN_CONSTRUCT_MOVE(Tuple, tuple, TUPLE)
-PATTERN_CONSTRUCT_MOVE(TemplateHeadBinary, fheadBinary, TEMPLATE_HEAD_BINARY)
-PATTERN_CONSTRUCT_MOVE(TemplateHeadScoped, fheadScoped, TEMPLATE_HEAD_SCOPED)
-PATTERN_CONSTRUCT_MOVE(TemplateHeadStandard, fheadStandard, TEMPLATE_HEAD_STANDARD)
-PATTERN_CONSTRUCT_MOVE(TemplateHeadText, fheadText, TEMPLATE_HEAD_TEXT)
+PATTERN_CONSTRUCT_MOVE(TemplateHeadBinary, theadBinary, TEMPLATE_HEAD_BINARY)
+PATTERN_CONSTRUCT_MOVE(TemplateHeadScoped, theadScoped, TEMPLATE_HEAD_SCOPED)
+PATTERN_CONSTRUCT_MOVE(TemplateHeadStandard, theadStandard, TEMPLATE_HEAD_STANDARD)
+PATTERN_CONSTRUCT_MOVE(TemplateHeadText, theadText, TEMPLATE_HEAD_TEXT)
 PATTERN_CONSTRUCT_MOVE(TemplateBinary, templBinary, TEMPLATE_BINARY)
 PATTERN_CONSTRUCT_MOVE(TemplateScoped, templScoped, TEMPLATE_SCOPED)
 PATTERN_CONSTRUCT_MOVE(TemplateStandard, templStandard, TEMPLATE_STANDARD)
@@ -61,10 +61,10 @@ PATTERN_CONSTRUCT_CONST(Document, document, DOCUMENT)
 PATTERN_CONSTRUCT_CONST(Dictionary, dict, DICTIONARY)
 PATTERN_CONSTRUCT_CONST(List, list, LIST)
 PATTERN_CONSTRUCT_CONST(Tuple, tuple, TUPLE)
-PATTERN_CONSTRUCT_CONST(TemplateHeadBinary, fheadBinary, TEMPLATE_HEAD_BINARY)
-PATTERN_CONSTRUCT_CONST(TemplateHeadScoped, fheadScoped, TEMPLATE_HEAD_SCOPED)
-PATTERN_CONSTRUCT_CONST(TemplateHeadStandard, fheadStandard, TEMPLATE_HEAD_STANDARD)
-PATTERN_CONSTRUCT_CONST(TemplateHeadText, fheadText, TEMPLATE_HEAD_TEXT)
+PATTERN_CONSTRUCT_CONST(TemplateHeadBinary, theadBinary, TEMPLATE_HEAD_BINARY)
+PATTERN_CONSTRUCT_CONST(TemplateHeadScoped, theadScoped, TEMPLATE_HEAD_SCOPED)
+PATTERN_CONSTRUCT_CONST(TemplateHeadStandard, theadStandard, TEMPLATE_HEAD_STANDARD)
+PATTERN_CONSTRUCT_CONST(TemplateHeadText, theadText, TEMPLATE_HEAD_TEXT)
 PATTERN_CONSTRUCT_CONST(TemplateBinary, templBinary, TEMPLATE_BINARY)
 PATTERN_CONSTRUCT_CONST(TemplateScoped, templScoped, TEMPLATE_SCOPED)
 PATTERN_CONSTRUCT_CONST(TemplateStandard, templStandard, TEMPLATE_STANDARD)
@@ -132,16 +132,16 @@ void Webss::destroyUnion()
 		delete tuple;
 		break;
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		delete fheadBinary;
+		delete theadBinary;
 		break;
 	case WebssType::TEMPLATE_HEAD_SCOPED:
-		delete fheadScoped;
+		delete theadScoped;
 		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD:
-		delete fheadStandard;
+		delete theadStandard;
 		break;
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		delete fheadText;
+		delete theadText;
 		break;
 	case WebssType::TEMPLATE_BINARY:
 		delete templBinary;
@@ -230,16 +230,16 @@ void Webss::copyUnion(Webss&& o)
 		tuple = o.tuple;
 		break;
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		fheadBinary = o.fheadBinary;
+		theadBinary = o.theadBinary;
 		break;
 	case WebssType::TEMPLATE_HEAD_SCOPED:
-		fheadScoped = o.fheadScoped;
+		theadScoped = o.theadScoped;
 		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD:
-		fheadStandard = o.fheadStandard;
+		theadStandard = o.theadStandard;
 		break;
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		fheadText = o.fheadText;
+		theadText = o.theadText;
 		break;
 	case WebssType::TEMPLATE_BINARY:
 		templBinary = o.templBinary;
@@ -310,16 +310,16 @@ void Webss::copyUnion(const Webss& o)
 		tuple = new Tuple(*o.tuple);
 		break;
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		fheadBinary = new TemplateHeadBinary(*o.fheadBinary);
+		theadBinary = new TemplateHeadBinary(*o.theadBinary);
 		break;
 	case WebssType::TEMPLATE_HEAD_SCOPED:
-		fheadScoped = new TemplateHeadScoped(*o.fheadScoped);
+		theadScoped = new TemplateHeadScoped(*o.theadScoped);
 		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD:
-		fheadStandard = new TemplateHeadStandard(*o.fheadStandard);
+		theadStandard = new TemplateHeadStandard(*o.theadStandard);
 		break;
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		fheadText = new TemplateHeadText(*o.fheadText);
+		theadText = new TemplateHeadText(*o.theadText);
 		break;
 	case WebssType::TEMPLATE_BINARY:
 		templBinary = new TemplateBinary(*o.templBinary);
@@ -506,10 +506,10 @@ WebssInt Webss::getInt() const { PATTERN_GET_CONST(tInt, getInt(), WebssType::PR
 double Webss::getDouble() const { PATTERN_GET_CONST(tDouble, getDouble(), WebssType::PRIMITIVE_DOUBLE); }
 const std::string& Webss::getString() const { PATTERN_GET_CONST(*tString, getString(), WebssType::PRIMITIVE_STRING); }
 const Document& Webss::getDocument() const { PATTERN_GET_CONST(*document, getDocument(), WebssType::DOCUMENT); }
-const TemplateHeadBinary& Webss::getTemplateHeadBinary() const { PATTERN_GET_CONST(*fheadBinary, getTemplateHeadBinary(), WebssType::TEMPLATE_HEAD_BINARY); }
-const TemplateHeadScoped& Webss::getTemplateHeadScoped() const { PATTERN_GET_CONST(*fheadScoped, getTemplateHeadScoped(), WebssType::TEMPLATE_HEAD_SCOPED); }
-const TemplateHeadStandard& Webss::getTemplateHeadStandard() const { PATTERN_GET_CONST(*fheadStandard, getTemplateHeadStandard(), WebssType::TEMPLATE_HEAD_STANDARD); }
-const TemplateHeadText& Webss::getTemplateHeadText() const { PATTERN_GET_CONST(*fheadText, getTemplateHeadText(), WebssType::TEMPLATE_HEAD_TEXT); }
+const TemplateHeadBinary& Webss::getTemplateHeadBinary() const { PATTERN_GET_CONST(*theadBinary, getTemplateHeadBinary(), WebssType::TEMPLATE_HEAD_BINARY); }
+const TemplateHeadScoped& Webss::getTemplateHeadScoped() const { PATTERN_GET_CONST(*theadScoped, getTemplateHeadScoped(), WebssType::TEMPLATE_HEAD_SCOPED); }
+const TemplateHeadStandard& Webss::getTemplateHeadStandard() const { PATTERN_GET_CONST(*theadStandard, getTemplateHeadStandard(), WebssType::TEMPLATE_HEAD_STANDARD); }
+const TemplateHeadText& Webss::getTemplateHeadText() const { PATTERN_GET_CONST(*theadText, getTemplateHeadText(), WebssType::TEMPLATE_HEAD_TEXT); }
 const TemplateBinary& Webss::getTemplateBinary() const { PATTERN_GET_CONST(*templBinary, getTemplateBinary(), WebssType::TEMPLATE_BINARY); }
 const TemplateScoped& Webss::getTemplateScoped() const { PATTERN_GET_CONST(*templScoped, getTemplateScoped(), WebssType::TEMPLATE_SCOPED); }
 const TemplateStandard& Webss::getTemplateStandard() const { PATTERN_GET_CONST(*templStandard, getTemplateStandard(), WebssType::TEMPLATE_STANDARD); }

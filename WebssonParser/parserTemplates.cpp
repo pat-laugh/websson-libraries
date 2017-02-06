@@ -204,19 +204,19 @@ Webss Parser::parseTemplate(It& it, ConType con)
 		return Block(move(*headWebss.blockHead), parseValueOnly(it, con));
 	case WebssType::TEMPLATE_HEAD_BINARY:
 	{
-		auto head = move(*headWebss.fheadBinary);
+		auto head = move(*headWebss.theadBinary);
 		auto body = parseTemplateBodyBinary(it, head.getParameters());
 		return{ move(head), move(body) };
 	}
 	case WebssType::TEMPLATE_HEAD_SCOPED:
 	{
-		auto head = move(*headWebss.fheadScoped);
+		auto head = move(*headWebss.theadScoped);
 		auto body = parseTemplateBodyScoped(it, head.getParameters(), con);
 		return TemplateScoped(move(head), move(body));
 	}
 	case WebssType::TEMPLATE_HEAD_STANDARD:
 	{
-		auto head = move(*headWebss.fheadStandard);
+		auto head = move(*headWebss.theadStandard);
 		auto body = parseTemplateBodyStandard(it, head.getParameters());
 		return{ move(head), move(body) };
 	}

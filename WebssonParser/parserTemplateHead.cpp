@@ -62,21 +62,21 @@ Webss Parser::parseTemplateHead(It& it)
 			return BlockHead(other.abstractEntity);
 		case WebssType::TEMPLATE_HEAD_BINARY:
 		{
-			TemplateHeadBinary fheadBinary(other.abstractEntity);
-			return isEnd ? move(fheadBinary) : parseTemplateHeadBinary(it, move(fheadBinary));
+			TemplateHeadBinary theadBinary(other.abstractEntity);
+			return isEnd ? move(theadBinary) : parseTemplateHeadBinary(it, move(theadBinary));
 		}
 		case WebssType::TEMPLATE_HEAD_SCOPED:
 		{
-			TemplateHeadScoped fheadScoped(other.abstractEntity);
-			return isEnd ? move(fheadScoped) : parseTemplateHeadScoped(it, move(fheadScoped));
+			TemplateHeadScoped theadScoped(other.abstractEntity);
+			return isEnd ? move(theadScoped) : parseTemplateHeadScoped(it, move(theadScoped));
 		}
 		case WebssType::TEMPLATE_HEAD_STANDARD:
 			thead = TemplateHeadStandard(other.abstractEntity);
 			return isEnd ? move(thead) : parseTemplateHeadStandard(it, move(thead));
 		case WebssType::TEMPLATE_HEAD_TEXT:
 		{
-			TemplateHeadText fheadText(other.abstractEntity);
-			return isEnd ? move(fheadText) : parseTemplateHeadText(it, move(fheadText));
+			TemplateHeadText theadText(other.abstractEntity);
+			return isEnd ? move(theadText) : parseTemplateHeadText(it, move(theadText));
 		}
 		default:
 			throw runtime_error("unexpected entity type within thead: " + other.abstractEntity.getContent().getType().toString());
@@ -157,19 +157,19 @@ void Parser::parseStandardParameterTemplateHead(It& it, TemplateHeadStandard& th
 	case WebssType::BLOCK_HEAD:
 		break; //do nothing
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		lastParam.setTemplateHead(move(*headWebss.fheadBinary));
+		lastParam.setTemplateHead(move(*headWebss.theadBinary));
 		break;
 	case WebssType::TEMPLATE_HEAD_SCOPED:
-		lastParam.setTemplateHead(move(*headWebss.fheadScoped));
+		lastParam.setTemplateHead(move(*headWebss.theadScoped));
 		break;
 	case WebssType::TEMPLATE_HEAD_SELF:
 		lastParam.setTemplateHead(TemplateHeadSelf());
 		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD:
-		lastParam.setTemplateHead(move(*headWebss.fheadStandard));
+		lastParam.setTemplateHead(move(*headWebss.theadStandard));
 		break;
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		lastParam.setTemplateHead(move(*headWebss.fheadText));
+		lastParam.setTemplateHead(move(*headWebss.theadText));
 		break;
 	default:
 		throw logic_error("");

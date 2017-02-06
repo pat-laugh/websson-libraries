@@ -245,16 +245,16 @@ void Deserializer::putAbstractValue(StringBuilder& out, const Webss& webss, ConT
 	switch (webss.type)
 	{
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		putFheadBinary(out, *webss.fheadBinary);
+		putFheadBinary(out, *webss.theadBinary);
 		break;
 	case WebssType::TEMPLATE_HEAD_SCOPED:
-		putFheadScoped(out, *webss.fheadScoped);
+		putFheadScoped(out, *webss.theadScoped);
 		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD:
-		putFheadStandard(out, *webss.fheadStandard);
+		putFheadStandard(out, *webss.theadStandard);
 		break;
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		putFheadText(out, *webss.fheadText);
+		putFheadText(out, *webss.theadText);
 		break;
 	case WebssType::ENTITY:
 		assert(webss.ent.getContent().isAbstract());

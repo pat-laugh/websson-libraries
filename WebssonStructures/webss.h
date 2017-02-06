@@ -64,10 +64,10 @@ namespace webss
 		Webss(Dictionary&& dict);
 		Webss(List&& list);
 		Webss(Tuple&& tuple);
-		Webss(TemplateHeadBinary&& fheadBinary);
-		Webss(TemplateHeadScoped&& fheadScoped);
-		Webss(TemplateHeadStandard&& fheadStandard);
-		Webss(TemplateHeadText&& fheadText);
+		Webss(TemplateHeadBinary&& theadBinary);
+		Webss(TemplateHeadScoped&& theadScoped);
+		Webss(TemplateHeadStandard&& theadStandard);
+		Webss(TemplateHeadText&& theadText);
 		Webss(TemplateBinary&& templBinary);
 		Webss(TemplateScoped&& templScoped);
 		Webss(TemplateStandard&& templStandard);
@@ -82,10 +82,10 @@ namespace webss
 		Webss(const Dictionary& dict);
 		Webss(const List& list);
 		Webss(const Tuple& tuple);
-		Webss(const TemplateHeadBinary& fheadBinary);
-		Webss(const TemplateHeadScoped& fheadScoped);
-		Webss(const TemplateHeadStandard& fheadStandard);
-		Webss(const TemplateHeadText& fheadText);
+		Webss(const TemplateHeadBinary& theadBinary);
+		Webss(const TemplateHeadScoped& theadScoped);
+		Webss(const TemplateHeadStandard& theadStandard);
+		Webss(const TemplateHeadText& theadText);
 		Webss(const TemplateBinary& templBinary);
 		Webss(const TemplateScoped& templScoped);
 		Webss(const TemplateStandard& templStandard);
@@ -101,7 +101,7 @@ namespace webss
 		Webss(TemplateHeadStandard&& head, Webss&& body);
 		Webss(TemplateHeadText&& head, Webss&& body);
 
-		Webss(const BasicEntity<Webss>& ent) : type(WebssType::ENTITY), ent(ent) {}
+		Webss(const Entity& ent) : type(WebssType::ENTITY), ent(ent) {}
 		Webss(const Default& tDefault) : type(WebssType::DEFAULT), tDefault(tDefault) {}
 
 		~Webss();
@@ -198,10 +198,10 @@ namespace webss
 			Dictionary* dict;
 			List* list;
 			Tuple* tuple;
-			TemplateHeadBinary* fheadBinary;
-			TemplateHeadScoped* fheadScoped;
-			TemplateHeadStandard* fheadStandard;
-			TemplateHeadText* fheadText;
+			TemplateHeadBinary* theadBinary;
+			TemplateHeadScoped* theadScoped;
+			TemplateHeadStandard* theadStandard;
+			TemplateHeadText* theadText;
 			TemplateBinary* templBinary;
 			TemplateScoped* templScoped;
 			TemplateStandard* templStandard;
@@ -210,10 +210,10 @@ namespace webss
 			Enum* tEnum;
 			BlockHead* blockHead;
 			Block* block;
-			BasicEntity<Webss> ent;
+			Entity ent;
 			Default tDefault;
 		};
-
+	private:
 		void destroyUnion();
 		void copyUnion(Webss&& o);
 		void copyUnion(const Webss& o);

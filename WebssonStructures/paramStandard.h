@@ -24,10 +24,10 @@ namespace webss
 		WebssType typeFhead = WebssType::NONE;
 		union
 		{
-			FheadBinary* fheadBin;
-			FheadScoped* fheadScoped;
-			FheadStandard* fheadStd;
-			FheadText* fheadText;
+			FheadBinary* theadBin;
+			FheadScoped* theadScoped;
+			FheadStandard* theadStd;
+			FheadText* theadText;
 		};
 
 		std::shared_ptr<Webss> defaultValue;
@@ -78,47 +78,47 @@ namespace webss
 		const FheadBinary& getTemplateHeadBinary() const
 		{
 			assert(typeFhead == WebssType::TEMPLATE_HEAD_BINARY);
-			return *fheadBin;
+			return *theadBin;
 		}
 		const FheadScoped& getTemplateHeadScoped() const
 		{
 			assert(typeFhead == WebssType::TEMPLATE_HEAD_SCOPED);
-			return *fheadScoped; 
+			return *theadScoped; 
 		}
 		const FheadStandard& getTemplateHeadStandard() const
 		{
 			assert(typeFhead == WebssType::TEMPLATE_HEAD_STANDARD); 
-			return *fheadStd;
+			return *theadStd;
 		}
 		const FheadText& getTemplateHeadText() const
 		{
 			assert(typeFhead == WebssType::TEMPLATE_HEAD_TEXT);
-			return *fheadText; 
+			return *theadText; 
 		}
 
 		void removeTemplateHead() { destroyUnion(); }
 		void setTemplateHead(FheadBinary&& o)
 		{
 			assert(!hasTemplateHead());
-			fheadBin = new FheadBinary(std::move(o));
+			theadBin = new FheadBinary(std::move(o));
 			typeFhead = WebssType::TEMPLATE_HEAD_BINARY;
 		}
 		void setTemplateHead(FheadScoped&& o)
 		{
 			assert(!hasTemplateHead());
-			fheadScoped = new FheadScoped(std::move(o));
+			theadScoped = new FheadScoped(std::move(o));
 			typeFhead = WebssType::TEMPLATE_HEAD_SCOPED;
 		}
 		void setTemplateHead(FheadStandard&& o)
 		{
 			assert(!hasTemplateHead());
-			fheadStd = new FheadStandard(std::move(o));
+			theadStd = new FheadStandard(std::move(o));
 			typeFhead = WebssType::TEMPLATE_HEAD_STANDARD;
 		}
 		void setTemplateHead(FheadText&& o)
 		{
 			assert(!hasTemplateHead());
-			fheadText = new FheadText(std::move(o));
+			theadText = new FheadText(std::move(o));
 			typeFhead = WebssType::TEMPLATE_HEAD_TEXT;
 		}
 		void setTemplateHead(TemplateHeadSelf)
@@ -134,16 +134,16 @@ namespace webss
 			case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
 				break;
 			case WebssType::TEMPLATE_HEAD_BINARY:
-				delete fheadBin;
+				delete theadBin;
 				break;
 			case WebssType::TEMPLATE_HEAD_SCOPED:
-				delete fheadScoped;
+				delete theadScoped;
 				break;
 			case WebssType::TEMPLATE_HEAD_STANDARD:
-				delete fheadStd;
+				delete theadStd;
 				break;
 			case WebssType::TEMPLATE_HEAD_TEXT:
-				delete fheadText;
+				delete theadText;
 				break;
 			default:
 				assert(false); throw std::domain_error("");
@@ -158,16 +158,16 @@ namespace webss
 			case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
 				break;
 			case WebssType::TEMPLATE_HEAD_BINARY:
-				fheadBin = o.fheadBin;
+				theadBin = o.theadBin;
 				break;
 			case WebssType::TEMPLATE_HEAD_SCOPED:
-				fheadScoped = o.fheadScoped;
+				theadScoped = o.theadScoped;
 				break;
 			case WebssType::TEMPLATE_HEAD_STANDARD:
-				fheadStd = o.fheadStd;
+				theadStd = o.theadStd;
 				break;
 			case WebssType::TEMPLATE_HEAD_TEXT:
-				fheadText = o.fheadText;
+				theadText = o.theadText;
 				break;
 			default:
 				assert(false); throw std::domain_error("");
@@ -183,16 +183,16 @@ namespace webss
 			case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
 				break;
 			case WebssType::TEMPLATE_HEAD_BINARY:
-				fheadBin = new FheadBinary(*o.fheadBin);
+				theadBin = new FheadBinary(*o.theadBin);
 				break;
 			case WebssType::TEMPLATE_HEAD_SCOPED:
-				fheadScoped = new FheadScoped(*o.fheadScoped);
+				theadScoped = new FheadScoped(*o.theadScoped);
 				break;
 			case WebssType::TEMPLATE_HEAD_STANDARD:
-				fheadStd = new FheadStandard(*o.fheadStd);
+				theadStd = new FheadStandard(*o.theadStd);
 				break;
 			case WebssType::TEMPLATE_HEAD_TEXT:
-				fheadText = new FheadText(*o.fheadText);
+				theadText = new FheadText(*o.theadText);
 				break;
 			default:
 				assert(false); throw std::domain_error("");

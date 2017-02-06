@@ -72,7 +72,7 @@ void Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
 			switch (headWebss.type)
 			{
 			case WebssType::TEMPLATE_HEAD_BINARY:
-				bhead = Bhead(move(*headWebss.fheadBinary));
+				bhead = Bhead(move(*headWebss.theadBinary));
 				break;
 			case WebssType::TEMPLATE_HEAD_SELF:
 				bhead = Bhead(TemplateHeadSelf());
