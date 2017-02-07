@@ -92,14 +92,14 @@ Tuple Parser::parseTuple(It& it)
 
 List Parser::parseListText(It& it)
 {
-	return parseContainer<List, ConType::LIST>(it, List(true), [&](List& list, ConType con)
+	return parseContainer<List, ConType::LIST>(it, List(), [&](List& list, ConType con)
 	{
 		list.add(parseLineString(it, con));
 	});
 }
 Tuple Parser::parseTupleText(It& it)
 {
-	return parseContainer<Tuple, ConType::TUPLE>(it, Tuple(true), [&](Tuple& tuple, ConType con)
+	return parseContainer<Tuple, ConType::TUPLE>(it, Tuple(), [&](Tuple& tuple, ConType con)
 	{
 		tuple.add(parseLineString(it, con));
 	});
@@ -211,9 +211,9 @@ Webss Parser::parseContainerText(It& it)
 	case OPEN_DICTIONARY:
 		return parseMultilineString(++it);
 	case OPEN_LIST:
-		return parseListText(++it);
+		return{ parseListText(++it), true };
 	case OPEN_TUPLE:
-		return parseTupleText(++it);
+		return{ parseTupleText(++it), true };
 	case OPEN_TEMPLATE:
 		return parseTemplateText(++it);
 	default:

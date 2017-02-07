@@ -1,6 +1,7 @@
 //MIT License
 //Copyright(c) 2016 Patrick Laughrea
 #include "typeContainers.h"
+#include <assert.h>
 
 using namespace std;
 using namespace webss;

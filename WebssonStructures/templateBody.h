@@ -23,9 +23,11 @@ namespace webss
 		This(Dictionary&& dict) : type(WebssType::DICTIONARY), dict(std::move(dict)) {}
 		This(List&& list) : type(WebssType::LIST), list(std::move(list)) {}
 		This(Tuple&& tuple) : type(WebssType::TUPLE), tuple(std::move(tuple)) {}
+		This(Tuple&& tuple, bool isText) : type(WebssType::TUPLE_TEXT), tuple(std::move(tuple)) {}
 		This(const Dictionary& dict) : type(WebssType::DICTIONARY), dict(dict) {}
 		This(const List& list) : type(WebssType::LIST), list(list) {}
 		This(const Tuple& tuple) : type(WebssType::TUPLE), tuple(tuple) {}
+		This(const Tuple& tuple, bool isText) : type(WebssType::TUPLE_TEXT), tuple(tuple) {}
 
 		~This() { destroyUnion(); }
 
@@ -79,7 +81,11 @@ namespace webss
 		}
 		bool isTuple() const
 		{
-			return type == WebssType::TUPLE;
+			return type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT;
+		}
+		bool isTupleText() const
+		{
+			return type == WebssType::TUPLE_TEXT;
 		}
 
 		Webss& operator[](int index)
@@ -87,13 +93,13 @@ namespace webss
 			switch (type)
 			{
 			case WebssType::DICTIONARY:
-				throw std::logic_error(ERROR_DICTIONARY_ACCESS_INDEX);
+				assert(false); throw std::logic_error(ERROR_DICTIONARY_ACCESS_INDEX);
 			case WebssType::LIST:
 				return list[index];
-			case WebssType::TUPLE:
+			case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 				return tuple[index];
 			default:
-				throw logic_error("");
+				assert(false); throw std::domain_error("");
 			}
 		}
 		const Webss& operator[](int index) const
@@ -101,13 +107,13 @@ namespace webss
 			switch (type)
 			{
 			case WebssType::DICTIONARY:
-				throw std::logic_error(ERROR_DICTIONARY_ACCESS_INDEX);
+				assert(false); throw std::logic_error(ERROR_DICTIONARY_ACCESS_INDEX);
 			case WebssType::LIST:
 				return list[index];
-			case WebssType::TUPLE:
+			case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 				return tuple[index];
 			default:
-				throw logic_error("");
+				assert(false); throw std::domain_error("");
 			}
 		}
 		Webss& at(int index)
@@ -118,10 +124,10 @@ namespace webss
 				throw std::logic_error(ERROR_DICTIONARY_ACCESS_INDEX);
 			case WebssType::LIST:
 				return list.at(index);
-			case WebssType::TUPLE:
+			case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 				return tuple.at(index);
 			default:
-				throw logic_error("");
+				assert(false); throw std::domain_error("");
 			}
 		}
 		const Webss& at(int index) const
@@ -132,10 +138,10 @@ namespace webss
 				throw std::logic_error(ERROR_DICTIONARY_ACCESS_INDEX);
 			case WebssType::LIST:
 				return list.at(index);
-			case WebssType::TUPLE:
+			case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 				return tuple.at(index);
 			default:
-				throw logic_error("");
+				assert(false); throw std::domain_error("");
 			}
 		}
 
@@ -146,11 +152,11 @@ namespace webss
 			case WebssType::DICTIONARY:
 				return dict[key];
 			case WebssType::LIST:
-				throw std::logic_error(ERROR_LIST_ACCESS_KEY);
-			case WebssType::TUPLE:
+				assert(false); throw std::logic_error(ERROR_LIST_ACCESS_KEY);
+			case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 				return tuple[key];
 			default:
-				throw logic_error("");
+				assert(false); throw std::domain_error("");
 			}
 		}
 		const Webss& operator[](const std::string& key) const
@@ -160,11 +166,11 @@ namespace webss
 			case WebssType::DICTIONARY:
 				return dict[key];
 			case WebssType::LIST:
-				throw std::logic_error(ERROR_LIST_ACCESS_KEY);
-			case WebssType::TUPLE:
+				assert(false); throw std::logic_error(ERROR_LIST_ACCESS_KEY);
+			case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 				return tuple[key];
 			default:
-				throw logic_error("");
+				assert(false); throw std::domain_error("");
 			}
 		}
 		Webss& at(const std::string& key)
@@ -175,10 +181,10 @@ namespace webss
 				return dict.at(key);
 			case WebssType::LIST:
 				throw std::logic_error(ERROR_LIST_ACCESS_KEY);
-			case WebssType::TUPLE:
+			case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 				return tuple.at(key);
 			default:
-				throw logic_error("");
+				assert(false); throw std::domain_error("");
 			}
 		}
 		const Webss& at(const std::string& key) const
@@ -189,10 +195,10 @@ namespace webss
 				return dict.at(key);
 			case WebssType::LIST:
 				throw std::logic_error(ERROR_LIST_ACCESS_KEY);
-			case WebssType::TUPLE:
+			case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 				return tuple.at(key);
 			default:
-				throw logic_error("");
+				assert(false); throw std::domain_error("");
 			}
 		}
 	private:
@@ -217,7 +223,7 @@ namespace webss
 			case WebssType::LIST:
 				list.~BasicList();
 				break;
-			case WebssType::TUPLE:
+			case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 				tuple.~BasicTuple();
 				break;
 			default:
@@ -238,7 +244,7 @@ namespace webss
 				new (&list) List(std::move(o.list));
 				o.list.~BasicList();
 				break;
-			case WebssType::TUPLE:
+			case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 				new (&tuple) Tuple(std::move(o.tuple));
 				o.tuple.~BasicTuple();
 				break;
@@ -258,7 +264,7 @@ namespace webss
 			case WebssType::LIST:
 				new (&list) List(o.list);
 				break;
-			case WebssType::TUPLE:
+			case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 				new (&tuple) Tuple(o.tuple);
 				break;
 			default:

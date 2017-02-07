@@ -20,16 +20,16 @@ class ParserTemplates : public Parser
 public:
 	Webss parseTemplateBodyStandard(It& it, const TemplateHeadStandard::Parameters& params)
 	{
-		return parseTemplateBody<TemplateHeadStandard::Parameters>(it, params, [&](It& it, const TemplateHeadStandard::Parameters& params) { return parseTemplateTupleStandard(it, params); }, [&](It& it, const TemplateHeadStandard::Parameters& params) { return parseTemplateTupleText(it, params); });
+		return parseTemplateBody<TemplateHeadStandard::Parameters>(it, params, [&](It& it, const TemplateHeadStandard::Parameters& params) { return Webss(parseTemplateTupleStandard(it, params)); }, [&](It& it, const TemplateHeadStandard::Parameters& params) { return Webss(parseTemplateTupleText(it, params), true); });
 	}
 
 	Webss parseTemplateBodyText(It& it, const TemplateHeadStandard::Parameters& params)
 	{
-		return parseTemplateBody<TemplateHeadStandard::Parameters>(it, params, [&](It& it, const TemplateHeadStandard::Parameters& params) { return parseTemplateTupleText(it, params); }, [&](It& it, const TemplateHeadStandard::Parameters& params) { return parseTemplateTupleText(it, params); });
+		return parseTemplateBody<TemplateHeadStandard::Parameters>(it, params, [&](It& it, const TemplateHeadStandard::Parameters& params) { return Webss(parseTemplateTupleText(it, params), true); }, [&](It& it, const TemplateHeadStandard::Parameters& params) { return Webss(parseTemplateTupleText(it, params), true); });
 	}
 
 	template <class Parameters>
-	Webss parseTemplateBody(It& it, const Parameters& params, function<Tuple(It& it, const Parameters& params)>&& funcTemplTupleRegular, function<Tuple(It& it, const Parameters& params)>&& funcTemplTupleText)
+	Webss parseTemplateBody(It& it, const Parameters& params, function<Webss(It& it, const Parameters& params)>&& funcTemplTupleRegular, function<Webss(It& it, const Parameters& params)>&& funcTemplTupleText)
 	{
 		switch (skipJunkToContainer(it))
 		{
@@ -48,7 +48,7 @@ public:
 
 private:
 	template <class Parameters>
-	Dictionary parseTemplateDictionary(It& it, const Parameters& params, function<Tuple(It& it, const Parameters& params)>&& funcTemplTupleRegular, function<Tuple(It& it, const Parameters& params)>&& funcTemplTupleText)
+	Dictionary parseTemplateDictionary(It& it, const Parameters& params, function<Webss(It& it, const Parameters& params)>&& funcTemplTupleRegular, function<Webss(It& it, const Parameters& params)>&& funcTemplTupleText)
 	{
 		return parseContainer<Dictionary, ConType::DICTIONARY>(it, Dictionary(), [&](Dictionary& dict, ConType con)
 		{
@@ -73,7 +73,7 @@ private:
 	}
 
 	template <class Parameters>
-	List parseTemplateList(It& it, const Parameters& params, function<Tuple(It& it, const Parameters& params)>&& funcTemplTupleRegular, function<Tuple(It& it, const Parameters& params)>&& funcTemplTupleText)
+	List parseTemplateList(It& it, const Parameters& params, function<Webss(It& it, const Parameters& params)>&& funcTemplTupleRegular, function<Webss(It& it, const Parameters& params)>&& funcTemplTupleText)
 	{
 		return parseContainer<List, ConType::LIST>(it, List(), [&](List& list, ConType con)
 		{
@@ -160,7 +160,7 @@ private:
 	Tuple parseTemplateTupleText(It& it, const Parameters& params)
 	{
 		static const ConType CON = ConType::TUPLE;
-		Tuple tuple(params.getSharedKeys(), true);
+		Tuple tuple(params.getSharedKeys());
 		Tuple::size_type index = 0;
 		if (!checkEmptyContainerVoid(it, CON, [&]() { ++index; }))
 			do

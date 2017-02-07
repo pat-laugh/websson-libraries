@@ -11,11 +11,8 @@ namespace webss
 	{
 	private:
 		using base = VectorWrapper<T>;
-		bool containerText;
 	public:
-		BasicList(bool containerText = false) : base(), containerText(containerText) {}
-		BasicList(Data&& data, bool containerText = false) : base(std::move(data)), containerText(containerText) {}
-
-		bool isText() const { return containerText; }
+		BasicList(bool containerText = false) : base() {}
+		BasicList(Data&& data, bool containerText = false) : base(std::move(data)) {}
 	};
 }

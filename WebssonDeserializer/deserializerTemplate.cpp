@@ -16,7 +16,7 @@ void Deserializer::putFuncBinary(StringBuilder& out, const TemplateBinary& templ
 	case WebssType::LIST:
 		putFuncBinaryList(out, templ.getParameters(), templ.getList());
 		break;
-	case WebssType::TUPLE:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		putFuncBinaryTuple(out, templ.getParameters(), templ.getTuple());
 		break;
 	default:
@@ -38,6 +38,9 @@ void Deserializer::putFuncStandard(StringBuilder& out, const TemplateStandard& t
 	case WebssType::TUPLE:
 		putFuncStandardTuple(out, templ.getParameters(), templ.getTuple());
 		break;
+	case WebssType::TUPLE_TEXT:
+		putFuncStandardTupleText(out, templ.getParameters(), templ.getTuple());
+		break;
 	default:
 		assert(false); throw domain_error("");
 	}
@@ -54,7 +57,7 @@ void Deserializer::putFuncText(StringBuilder& out, const TemplateStandard& templ
 	case WebssType::LIST:
 		putFuncTextList(out, templ.getParameters(), templ.getList());
 		break;
-	case WebssType::TUPLE:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		putFuncTextTuple(out, templ.getParameters(), templ.getTuple());
 		break;
 	default:

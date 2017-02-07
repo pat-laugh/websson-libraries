@@ -63,7 +63,9 @@ namespace webss
 		void putCstring(StringBuilder& out, const std::string& str);
 		void putDictionary(StringBuilder& out, const Dictionary& dict);
 		void putList(StringBuilder& out, const List& list);
+		void putListText(StringBuilder& out, const List& list);
 		void putTuple(StringBuilder& out, const Tuple& tuple);
+		void putTupleText(StringBuilder& out, const Tuple& tuple);
 		void putDocumentHead(StringBuilder& out, const DocumentHead& docHead);
 		void putDocument(StringBuilder& out, const Document& doc);
 

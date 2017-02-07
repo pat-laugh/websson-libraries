@@ -39,7 +39,9 @@ PATTERN_CONSTRUCT_MOVE(string, tString, PRIMITIVE_STRING)
 PATTERN_CONSTRUCT_MOVE(Document, document, DOCUMENT)
 PATTERN_CONSTRUCT_MOVE(Dictionary, dict, DICTIONARY)
 PATTERN_CONSTRUCT_MOVE(List, list, LIST)
+Webss::Webss(List&& list, bool isText) : type(WebssType::LIST_TEXT), list(new List(move(list))) {}
 PATTERN_CONSTRUCT_MOVE(Tuple, tuple, TUPLE)
+Webss::Webss(Tuple&& tuple, bool isText) : type(WebssType::TUPLE_TEXT), tuple(new Tuple(move(tuple))) {}
 PATTERN_CONSTRUCT_MOVE(TemplateHeadBinary, theadBinary, TEMPLATE_HEAD_BINARY)
 PATTERN_CONSTRUCT_MOVE(TemplateHeadScoped, theadScoped, TEMPLATE_HEAD_SCOPED)
 PATTERN_CONSTRUCT_MOVE(TemplateHeadStandard, theadStandard, TEMPLATE_HEAD_STANDARD)
@@ -60,7 +62,9 @@ PATTERN_CONSTRUCT_CONST(string, tString, PRIMITIVE_STRING)
 PATTERN_CONSTRUCT_CONST(Document, document, DOCUMENT)
 PATTERN_CONSTRUCT_CONST(Dictionary, dict, DICTIONARY)
 PATTERN_CONSTRUCT_CONST(List, list, LIST)
+Webss::Webss(const List& list, bool isText) : type(WebssType::LIST_TEXT), list(new List(list)) {}
 PATTERN_CONSTRUCT_CONST(Tuple, tuple, TUPLE)
+Webss::Webss(const Tuple& tuple, bool isText) : type(WebssType::TUPLE_TEXT), tuple(new Tuple(tuple)) {}
 PATTERN_CONSTRUCT_CONST(TemplateHeadBinary, theadBinary, TEMPLATE_HEAD_BINARY)
 PATTERN_CONSTRUCT_CONST(TemplateHeadScoped, theadScoped, TEMPLATE_HEAD_SCOPED)
 PATTERN_CONSTRUCT_CONST(TemplateHeadStandard, theadStandard, TEMPLATE_HEAD_STANDARD)
@@ -90,6 +94,9 @@ Webss::Webss(TemplateHead##Type&& head, Webss&& body) \
 	case WebssType::TUPLE: \
 		templ##Type = new Template##Type(move(head), move(*body.tuple)); \
 		break; \
+	case WebssType::TUPLE_TEXT: \
+		templ##Type = new Template##Type(move(head), move(*body.tuple), true); \
+		break; \
 	default: \
 		assert(false); throw domain_error(""); \
 	} \
@@ -111,6 +118,9 @@ Webss::Webss(TemplateHeadStandard&& head, Webss&& body, bool isText)
 		break;
 	case WebssType::TUPLE:
 		templStandard = new TemplateStandard(move(head), move(*body.tuple));
+		break;
+	case WebssType::TUPLE_TEXT:
+		templStandard = new TemplateStandard(move(head), move(*body.tuple), true);
 		break;
 	default:
 		assert(false); throw domain_error("");
@@ -143,10 +153,10 @@ void Webss::destroyUnion()
 	case WebssType::DICTIONARY:
 		delete dict;
 		break;
-	case WebssType::LIST:
+	case WebssType::LIST: case WebssType::LIST_TEXT:
 		delete list;
 		break;
-	case WebssType::TUPLE:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		delete tuple;
 		break;
 	case WebssType::TEMPLATE_HEAD_BINARY:
@@ -235,10 +245,10 @@ void Webss::copyUnion(Webss&& o)
 	case WebssType::DICTIONARY:
 		dict = o.dict;
 		break;
-	case WebssType::LIST:
+	case WebssType::LIST: case WebssType::LIST_TEXT:
 		list = o.list;
 		break;
-	case WebssType::TUPLE:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		tuple = o.tuple;
 		break;
 	case WebssType::TEMPLATE_HEAD_BINARY:
@@ -309,10 +319,10 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::DICTIONARY:
 		dict = new Dictionary(*o.dict);
 		break;
-	case WebssType::LIST:
+	case WebssType::LIST: case WebssType::LIST_TEXT:
 		list = new List(*o.list);
 		break;
-	case WebssType::TUPLE:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		tuple = new Tuple(*o.tuple);
 		break;
 	case WebssType::TEMPLATE_HEAD_BINARY:
@@ -363,9 +373,9 @@ const Webss& Webss::operator[](int index) const
 		return ent.getContent()[index];
 	case WebssType::DEFAULT:
 		return (*tDefault)[index];
-	case WebssType::LIST:
+	case WebssType::LIST: case WebssType::LIST_TEXT:
 		return (*list)[index];
-	case WebssType::TUPLE:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return (*tuple)[index];
 	case WebssType::TEMPLATE_BINARY:
 		return (*templBinary)[index];
@@ -390,7 +400,7 @@ const Webss& Webss::operator[](const std::string& key) const
 		return (*tDefault)[key];
 	case WebssType::DICTIONARY:
 		return (*dict)[key];
-	case WebssType::TUPLE:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return (*tuple)[key];
 	case WebssType::TEMPLATE_BINARY:
 		return (*templBinary)[key];
@@ -413,9 +423,9 @@ const Webss& Webss::at(int index) const
 		return ent.getContent().at(index);
 	case WebssType::DEFAULT:
 		return tDefault->at(index);
-	case WebssType::LIST:
+	case WebssType::LIST: case WebssType::LIST_TEXT:
 		return list->at(index);
-	case WebssType::TUPLE:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return tuple->at(index);
 	case WebssType::TEMPLATE_BINARY:
 		return templBinary->at(index);
@@ -440,7 +450,7 @@ const Webss& Webss::at(const std::string& key) const
 		return tDefault->at(key);
 	case WebssType::DICTIONARY:
 		return dict->at(key);
-	case WebssType::TUPLE:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return tuple->at(key);
 	case WebssType::TEMPLATE_BINARY:
 		return templBinary->at(key);
@@ -528,7 +538,7 @@ const Dictionary& Webss::getDictionary() const
 	case WebssType::BLOCK:
 		return block->getValue().getDictionary();
 	default:
-		throw logic_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::LIST).toString() + ERROR_COULD_NOT_GETs2 + type.toString());
+		throw logic_error(ERROR_COULD_NOT_GETs1 + WebssType(WebssType::DICTIONARY).toString() + ERROR_COULD_NOT_GETs2 + type.toString());
 
 	}
 }
@@ -606,6 +616,8 @@ bool Webss::isNamespace() const { PATTERN_IS(WebssType::NAMESPACE, isNamespace()
 bool Webss::isEnum() const { PATTERN_IS(WebssType::ENUM, isEnum()) }
 bool Webss::isBlockHead() const { PATTERN_IS(WebssType::BLOCK_HEAD, isBlockHead()) }
 bool Webss::isBlock() const { PATTERN_IS(WebssType::BLOCK, isBlock()) }
+bool Webss::isListText() const { PATTERN_IS(WebssType::LIST_TEXT, isListText()) }
+bool Webss::isTupleText() const { PATTERN_IS(WebssType::TUPLE_TEXT, isTupleText()) }
 
 bool Webss::isDictionary() const
 {

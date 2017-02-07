@@ -11,12 +11,9 @@ namespace webss
 	{
 	private:
 		using base = BasicSharedMap<Webss>;
-		bool containerText;
 	public:
-		BasicTuple(bool containerText = false) : base(), containerText(containerText) {}
-		BasicTuple(Data&& data, bool containerText = false) : base(std::move(data)), containerText(containerText) {}
-		BasicTuple(const std::shared_ptr<Keymap>& keys, bool containerText = false) : base(keys), containerText(containerText) {}
-
-		bool isText() const { return containerText; }
+		BasicTuple() : base() {}
+		BasicTuple(Data&& data) : base(std::move(data)) {}
+		BasicTuple(const std::shared_ptr<Keymap>& keys) : base(keys) {}
 	};
 }

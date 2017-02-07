@@ -300,8 +300,14 @@ void Deserializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConT
 	case WebssType::LIST:
 		putList(out, *webss.list);
 		break;
+	case WebssType::LIST_TEXT:
+		putListText(out, *webss.list);
+		break;
 	case WebssType::TUPLE:
 		putTuple(out, *webss.tuple);
+		break;
+	case WebssType::TUPLE_TEXT:
+		putTupleText(out, *webss.tuple);
 		break;
 	case WebssType::TEMPLATE_BINARY:
 		putFuncBinary(out, *webss.templBinary);
@@ -532,34 +538,34 @@ void Deserializer::putDictionary(StringBuilder& out, const Dictionary& dict)
 void Deserializer::putList(StringBuilder& out, const List& list)
 {
 	static const auto CON = ConType::LIST;
-	if (list.isText())
-	{
-		out += ASSIGN_CONTAINER_STRING;
-		putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it) { putLineString(out, it->getString(), CON); });
-	}
-	else
-		putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it) { putConcreteValue(out, *it, CON); });
+	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it) { putConcreteValue(out, *it, CON); });
+}
+
+void Deserializer::putListText(StringBuilder& out, const List& list)
+{
+	static const auto CON = ConType::LIST;
+	out += ASSIGN_CONTAINER_STRING;
+	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it) { putLineString(out, it->getString(), CON); });
 }
 
 void Deserializer::putTuple(StringBuilder& out, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
-	if (tuple.isText())
+	using Type = decltype(tuple.getOrderedKeyValues());
+	putSeparatedValues<Type, CON>(out, tuple.getOrderedKeyValues(), [&](Type::const_iterator it)
 	{
-		out += ASSIGN_CONTAINER_STRING;
-		putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it) { putLineString(out, it->getString(), CON); });
-	}
-	else
-	{
-		using Type = decltype(tuple.getOrderedKeyValues());
-		putSeparatedValues<Type, CON>(out, tuple.getOrderedKeyValues(), [&](Type::const_iterator it)
-		{
-			if (it->first == nullptr)
-				putConcreteValue(out, *it->second, CON);
-			else
-				putKeyValue(out, *it->first, *it->second, CON);
-		});
-	}
+		if (it->first == nullptr)
+			putConcreteValue(out, *it->second, CON);
+		else
+			putKeyValue(out, *it->first, *it->second, CON);
+	});
+}
+
+void Deserializer::putTupleText(StringBuilder& out, const Tuple& tuple)
+{
+	static const auto CON = ConType::TUPLE;
+	out += ASSIGN_CONTAINER_STRING;
+	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it) { putLineString(out, it->getString(), CON); });
 }
 
 void Deserializer::putTheadScoped(StringBuilder& out, const TemplateHeadScoped& thead)
@@ -668,23 +674,11 @@ void Deserializer::putFuncBinaryList(StringBuilder& out, const TemplateHeadBinar
 void Deserializer::putFuncStandardList(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const List& list)
 {
 	static const auto CON = ConType::LIST;
-	if (list.isText())
+	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
 	{
-		out += ASSIGN_CONTAINER_STRING;
-		putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
-		{
-			assert(it->isTuple());
-			putFuncStandardTupleText(out, params, it->getTuple());
-		});
-	}
-	else
-	{
-		putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
-		{
-			assert(it->isTuple());
-			putFuncStandardTuple(out, params, it->getTuple());
-		});
-	}
+		assert(it->isTuple());
+		putFuncStandardTuple(out, params, it->getTuple());
+	});
 }
 void Deserializer::putFuncTextList(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const List& list)
 {
@@ -704,12 +698,12 @@ void Deserializer::putFuncBinaryTuple(StringBuilder& out, const TemplateHeadBina
 }
 void Deserializer::putFuncStandardTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
-	if (tuple.isText())
-	{
-		out += ASSIGN_CONTAINER_STRING;
-		putFuncStandardTupleText(out, params, tuple);
-		return;
-	}
+//	if (tuple.isText())
+//	{
+//		out += ASSIGN_CONTAINER_STRING;
+//		putFuncStandardTupleText(out, params, tuple);
+//		return;
+//	}
 
 	static const auto CON = ConType::TUPLE;
 	assert(tuple.size() <= params.size() && "too many elements in template tuple");

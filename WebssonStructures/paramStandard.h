@@ -1,3 +1,5 @@
+//MIT License
+//Copyright(c) 2016 Patrick Laughrea
 #pragma once
 
 #include <memory>

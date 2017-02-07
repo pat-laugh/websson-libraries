@@ -61,6 +61,8 @@ namespace webss
 		Webss(Dictionary&& dict);
 		Webss(List&& list);
 		Webss(Tuple&& tuple);
+		Webss(List&& list, bool isText);
+		Webss(Tuple&& tuple, bool isText);
 		Webss(TemplateHeadBinary&& theadBinary);
 		Webss(TemplateHeadScoped&& theadScoped);
 		Webss(TemplateHeadStandard&& theadStandard);
@@ -79,6 +81,8 @@ namespace webss
 		Webss(const Dictionary& dict);
 		Webss(const List& list);
 		Webss(const Tuple& tuple);
+		Webss(const List& list, bool isText);
+		Webss(const Tuple& tuple, bool isText);
 		Webss(const TemplateHeadBinary& theadBinary);
 		Webss(const TemplateHeadScoped& theadScoped);
 		Webss(const TemplateHeadStandard& theadStandard);
@@ -170,6 +174,8 @@ namespace webss
 		bool isDictionary() const;
 		bool isList() const;
 		bool isTuple() const;
+		bool isListText() const;
+		bool isTupleText() const;
 		bool isTemplateHeadBinary() const;
 		bool isTemplateHeadScoped() const;
 		bool isTemplateHeadStandard() const;
