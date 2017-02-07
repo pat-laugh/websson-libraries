@@ -562,18 +562,14 @@ void Deserializer::putTuple(StringBuilder& out, const Tuple& tuple)
 	}
 }
 
-void Deserializer::putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
-{
-	static_cast<DeserializerTemplate*>(this)->putTheadBinary(out, thead);
-}
 void Deserializer::putTheadScoped(StringBuilder& out, const TemplateHeadScoped& thead)
 {
-	out += OPEN_TEMPLATE;
+	static const auto CON = ConType::TEMPLATE_HEAD;
+	ContainerIncluder<CON> includer(out);
 	if (thead.hasEntity())
 		putEntityName(out, thead.getEntity());
 	else
 	{
-		static const auto CON = ConType::TEMPLATE_HEAD;
 		using Type = remove_reference<decltype(thead.getParameters())>::type;
 		putSeparatedValues<Type, CON>(out, thead.getParameters(), [&](Type::const_iterator it)
 		{
@@ -594,12 +590,15 @@ void Deserializer::putTheadScoped(StringBuilder& out, const TemplateHeadScoped& 
 			}
 		});
 	}
-	out += CLOSE_TEMPLATE;
 }
 void Deserializer::putTheadSelf(StringBuilder& out)
 {
 	ContainerIncluder<ConType::TEMPLATE_HEAD> includer(out);
 	out += CHAR_SELF;
+}
+void Deserializer::putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
+{
+	static_cast<DeserializerTemplate*>(this)->putTheadBinary(out, thead);
 }
 void Deserializer::putTheadStandard(StringBuilder& out, const TemplateHeadStandard& thead)
 {
@@ -625,21 +624,6 @@ void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const TemplateHea
 		}
 	});
 }
-void Deserializer::putFuncBinaryList(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const List& list)
-{
-	static const auto CON = ConType::LIST;
-	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
-	{
-		assert(it->isTuple());
-		putFuncBinaryTuple(out, params, it->getTuple());
-	});
-}
-void Deserializer::putFuncBinaryTuple(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
-{
-	ContainerIncluder<ConType::TUPLE> includer(out);
-	putFuncBodyBinary(out, params, tuple);
-}
-
 void Deserializer::putFuncStandardDictionary(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Dictionary& dict)
 {
 	static const auto CON = ConType::DICTIONARY;
@@ -655,7 +639,32 @@ void Deserializer::putFuncStandardDictionary(StringBuilder& out, const TemplateH
 		}
 	});
 }
+void Deserializer::putFuncTextDictionary(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Dictionary& dict)
+{
+	static const auto CON = ConType::DICTIONARY;
+	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it)
+	{
+		out += it->first;
+		if (it->second.isList())
+			putFuncTextList(out, params, it->second.getList());
+		else
+		{
+			assert(it->second.isTuple());
+			putFuncTextTuple(out, params, it->second.getTuple());
+		}
+	});
+}
 
+
+void Deserializer::putFuncBinaryList(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const List& list)
+{
+	static const auto CON = ConType::LIST;
+	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
+	{
+		assert(it->isTuple());
+		putFuncBinaryTuple(out, params, it->getTuple());
+	});
+}
 void Deserializer::putFuncStandardList(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const List& list)
 {
 	static const auto CON = ConType::LIST;
@@ -677,7 +686,22 @@ void Deserializer::putFuncStandardList(StringBuilder& out, const TemplateHeadSta
 		});
 	}
 }
+void Deserializer::putFuncTextList(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const List& list)
+{
+	static const auto CON = ConType::LIST;
+	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
+	{
+		assert(it->isTuple());
+		putFuncTextTuple(out, params, it->getTuple());
+	});
+}
 
+
+void Deserializer::putFuncBinaryTuple(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
+{
+	ContainerIncluder<ConType::TUPLE> includer(out);
+	putFuncBodyBinary(out, params, tuple);
+}
 void Deserializer::putFuncStandardTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	if (tuple.isText())
@@ -721,7 +745,6 @@ void Deserializer::putFuncStandardTuple(StringBuilder& out, const TemplateHeadSt
 		}
 	});
 }
-
 void Deserializer::putFuncStandardTupleText(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
@@ -749,33 +772,6 @@ void Deserializer::putFuncStandardTupleText(StringBuilder& out, const TemplateHe
 		assert(params[i++].hasDefaultValue());
 #endif
 }
-
-void Deserializer::putFuncTextDictionary(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Dictionary& dict)
-{
-	static const auto CON = ConType::DICTIONARY;
-	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it)
-	{
-		out += it->first;
-		if (it->second.isList())
-			putFuncTextList(out, params, it->second.getList());
-		else
-		{
-			assert(it->second.isTuple());
-			putFuncTextTuple(out, params, it->second.getTuple());
-		}
-	});
-}
-
-void Deserializer::putFuncTextList(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const List& list)
-{
-	static const auto CON = ConType::LIST;
-	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
-	{
-		assert(it->isTuple());
-		putFuncTextTuple(out, params, it->getTuple());
-	});
-}
-
 void Deserializer::putFuncTextTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;

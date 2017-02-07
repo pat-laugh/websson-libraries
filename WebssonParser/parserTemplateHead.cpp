@@ -6,15 +6,9 @@
 using namespace std;
 using namespace webss;
 
-const char ERROR_TEXT_TEMPLATE_HEAD[] = "values in text template head must be of type string";
 const char ERROR_BINARY_TEMPLATE[] = "all values in a binary template must be binary";
 
 const ConType CON = ConType::TEMPLATE_HEAD;
-
-#define THROW_ERROR throw runtime_error(ERROR_ANONYMOUS_KEY)
-#define THROW_ERROR_ANONYMOUS_KEY throw runtime_error(ERROR_ANONYMOUS_KEY)
-#define THROW_ERROR_TEXT_TEMPLATE_HEAD throw runtime_error(ERROR_TEXT_TEMPLATE_HEAD)
-#define THROW_ERROR_BINARY_TEMPLATE throw runtime_error(ERROR_BINARY_TEMPLATE)
 
 Webss Parser::parseTemplateHead(It& it)
 {
@@ -80,7 +74,7 @@ Webss Parser::parseTemplateHead(It& it)
 			throw runtime_error("unexpected entity type within thead: " + other.abstractEntity.getContent().getType().toString());
 		}
 	default:
-		THROW_ERROR;
+		throw runtime_error(ERROR_ANONYMOUS_KEY);
 	}
 }
 
@@ -209,7 +203,4 @@ void Parser::parseOtherValuesTheadStandardAfterThead(It& it, TemplateHeadStandar
 		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
 		CaseAbstractEntity{ throw runtime_error(ERROR_UNEXPECTED); });
 }
-
-#undef THROW_ERROR
-#undef CON
 
