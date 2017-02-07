@@ -9,7 +9,6 @@ namespace webss
 	const char ERROR_NO_DEFAULT[] = "no default value, so value must be implemented";
 
 	void setDefaultValue(Webss& value, const ParamStandard& defaultValue);
-	void setDefaultValue(Webss& value, const ParamText& defaultValue);
 
 	template <class Parameters>
 	Tuple makeDefaultTuple(const Parameters& params)

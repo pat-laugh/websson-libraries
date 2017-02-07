@@ -85,24 +85,24 @@ namespace webss
 
 		void putFuncBinary(StringBuilder& out, const TemplateBinary& templ);
 		void putFuncScoped(StringBuilder& out, const TemplateScoped& templ, ConType con);
-		void putFheadSelf(StringBuilder& out);
+		void putTheadSelf(StringBuilder& out);
 		void putFuncStandard(StringBuilder& out, const TemplateStandard& templ);
 
-		void putFuncText(StringBuilder& out, const TemplateText& templ);
+		void putFuncText(StringBuilder& out, const TemplateStandard& templ);
 
 		void putFuncStandardDictionary(StringBuilder& out, const TemplateHeadStandard::Parameters & params, const Dictionary & dict);
 		void putFuncStandardList(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const List& list);
 		void putFuncStandardTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
 		void putFuncStandardTupleText(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
 
-		void putFuncTextDictionary(StringBuilder& out, const TemplateHeadText::Parameters & params, const Dictionary & dict);
-		void putFuncTextList(StringBuilder& out, const TemplateHeadText::Parameters& params, const List& list);
-		void putFuncTextTuple(StringBuilder& out, const TemplateHeadText::Parameters& params, const Tuple& tuple);
+		void putFuncTextDictionary(StringBuilder& out, const TemplateHeadStandard::Parameters & params, const Dictionary & dict);
+		void putFuncTextList(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const List& list);
+		void putFuncTextTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
 
-		void putFheadBinary(StringBuilder& out, const TemplateHeadBinary& thead);
-		void putFheadScoped(StringBuilder & out, const TemplateHeadScoped & thead);
-		void putFheadStandard(StringBuilder& out, const TemplateHeadStandard& thead);
-		void putFheadText(StringBuilder& out, const TemplateHeadText& thead);
+		void putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead);
+		void putTheadScoped(StringBuilder & out, const TemplateHeadScoped & thead);
+		void putTheadStandard(StringBuilder& out, const TemplateHeadStandard& thead);
+		void putTheadText(StringBuilder& out, const TemplateHeadStandard& thead);
 
 		void putFuncBinaryDictionary(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Dictionary& dict);
 		void putFuncBinaryList(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const List& list);

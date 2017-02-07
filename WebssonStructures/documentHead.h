@@ -18,12 +18,12 @@ namespace webss
 	class BasicScopedDocument
 	{
 	public:
-		using FheadScoped = BasicTemplateHeadScoped<Webss>;
+		using TheadScoped = BasicTemplateHeadScoped<Webss>;
 		using DocHead = BasicDocumentHead<Webss>;
 
 		~BasicScopedDocument() {}
 
-		FheadScoped head;
+		TheadScoped head;
 		DocHead body;
 	};
 

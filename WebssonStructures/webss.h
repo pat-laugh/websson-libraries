@@ -21,15 +21,12 @@ namespace webss
 	using ParamBinary = BasicParamBinary<Webss>;
 	using ParamScoped = BasicParamScoped<Webss>;
 	using ParamStandard = BasicParamStandard<Webss>;
-	using ParamText = BasicParamText<Webss>;
 	using TemplateHeadBinary = BasicTemplateHead<ParamBinary, Webss>;
 	using TemplateHeadScoped = BasicTemplateHeadScoped<Webss>;
 	using TemplateHeadStandard = BasicTemplateHead<ParamStandard, Webss>;
-	using TemplateHeadText = BasicTemplateHead<ParamText, Webss>;
 	using TemplateBinary = BasicTemplate<TemplateHeadBinary, Webss>;
 	using TemplateScoped = BasicTemplateScoped<Webss>;
 	using TemplateStandard = BasicTemplate<TemplateHeadStandard, Webss>;
-	using TemplateText = BasicTemplate<TemplateHeadText, Webss>;
 	using Entity = BasicEntity<Webss>;
 	using Namespace = BasicNamespace<Webss>;
 	using Enum = BasicEnum<Webss>;
@@ -67,11 +64,11 @@ namespace webss
 		Webss(TemplateHeadBinary&& theadBinary);
 		Webss(TemplateHeadScoped&& theadScoped);
 		Webss(TemplateHeadStandard&& theadStandard);
-		Webss(TemplateHeadText&& theadText);
+		Webss(TemplateHeadStandard&& theadStandard, bool isText);
 		Webss(TemplateBinary&& templBinary);
 		Webss(TemplateScoped&& templScoped);
 		Webss(TemplateStandard&& templStandard);
-		Webss(TemplateText&& templText);
+		Webss(TemplateStandard&& templStandard, bool isText);
 		Webss(Namespace&& nspace);
 		Webss(Enum&& tEnum);
 		Webss(BlockHead&& blockHead);
@@ -85,11 +82,11 @@ namespace webss
 		Webss(const TemplateHeadBinary& theadBinary);
 		Webss(const TemplateHeadScoped& theadScoped);
 		Webss(const TemplateHeadStandard& theadStandard);
-		Webss(const TemplateHeadText& theadText);
+		Webss(const TemplateHeadStandard& theadStandard, bool isText);
 		Webss(const TemplateBinary& templBinary);
 		Webss(const TemplateScoped& templScoped);
 		Webss(const TemplateStandard& templStandard);
-		Webss(const TemplateText& templText);
+		Webss(const TemplateStandard& templStandard, bool isText);
 		Webss(const Namespace& nspace);
 		Webss(const Enum& tEnum);
 		Webss(const BlockHead& blockHead);
@@ -99,7 +96,7 @@ namespace webss
 
 		Webss(TemplateHeadBinary&& head, Webss&& body);
 		Webss(TemplateHeadStandard&& head, Webss&& body);
-		Webss(TemplateHeadText&& head, Webss&& body);
+		Webss(TemplateHeadStandard&& head, Webss&& body, bool isText);
 
 		Webss(const Entity& ent) : type(WebssType::ENTITY), ent(ent) {}
 		Webss(const Default& tDefault) : type(WebssType::DEFAULT), tDefault(tDefault) {}
@@ -127,11 +124,11 @@ namespace webss
 		const TemplateHeadBinary& getTemplateHeadBinary() const;
 		const TemplateHeadScoped& getTemplateHeadScoped() const;
 		const TemplateHeadStandard& getTemplateHeadStandard() const;
-		const TemplateHeadText& getTemplateHeadText() const;
+		const TemplateHeadStandard& getTemplateHeadText() const;
 		const TemplateBinary& getTemplateBinary() const;
 		const TemplateScoped& getTemplateScoped() const;
 		const TemplateStandard& getTemplateStandard() const;
-		const TemplateText& getTemplateText() const;
+		const TemplateStandard& getTemplateText() const;
 		const Namespace& getNamespace() const;
 		const Enum& getEnum() const;
 		const BlockHead& getBlockHead() const;
@@ -149,11 +146,9 @@ namespace webss
 		explicit operator const TemplateHeadBinary&() const { return getTemplateHeadBinary(); }
 		explicit operator const TemplateHeadScoped&() const { return getTemplateHeadScoped(); }
 		explicit operator const TemplateHeadStandard&() const { return getTemplateHeadStandard(); }
-		explicit operator const TemplateHeadText&() const { return getTemplateHeadText(); }
 		explicit operator const TemplateBinary&() const { return getTemplateBinary(); }
 		explicit operator const TemplateScoped&() const { return getTemplateScoped(); }
 		explicit operator const TemplateStandard&() const { return getTemplateStandard(); }
-		explicit operator const TemplateText&() const { return getTemplateText(); }
 		explicit operator const Namespace&() const { return getNamespace(); }
 		explicit operator const Enum&() const { return getEnum(); }
 		explicit operator const BlockHead&() const { return getBlockHead(); }
@@ -201,11 +196,9 @@ namespace webss
 			TemplateHeadBinary* theadBinary;
 			TemplateHeadScoped* theadScoped;
 			TemplateHeadStandard* theadStandard;
-			TemplateHeadText* theadText;
 			TemplateBinary* templBinary;
 			TemplateScoped* templScoped;
 			TemplateStandard* templStandard;
-			TemplateText* templText;
 			Namespace* nspace;
 			Enum* tEnum;
 			BlockHead* blockHead;

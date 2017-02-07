@@ -14,11 +14,3 @@ void webss::setDefaultValue(Webss& value, const ParamStandard& defaultValue)
 	else
 		value = Webss(defaultValue.getDefaultPointer());
 }
-
-void webss::setDefaultValue(Webss& value, const ParamText& defaultValue)
-{
-	if (!defaultValue.hasDefaultValue())
-		throw runtime_error(ERROR_NO_DEFAULT);
-	else
-		value = Webss(defaultValue.getDefaultPointer());
-}

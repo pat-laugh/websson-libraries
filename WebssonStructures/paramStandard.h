@@ -5,7 +5,6 @@
 #include "base.h"
 #include "templateHead.h"
 #include "paramBinary.h"
-#include "paramText.h"
 #include "templateScoped.h"
 #include "typeWebss.h"
 
@@ -16,18 +15,18 @@ namespace webss
 	class This
 	{
 	private:
-		using FheadBinary = BasicTemplateHead<BasicParamBinary<Webss>, Webss>;
-		using FheadScoped = BasicTemplateHeadScoped<Webss>;
-		using FheadStandard = BasicTemplateHead<This<Webss>, Webss>;
-		using FheadText = BasicTemplateHead<BasicParamText<Webss>, Webss>;
+		using TheadBinary = BasicTemplateHead<BasicParamBinary<Webss>, Webss>;
+		using TheadScoped = BasicTemplateHeadScoped<Webss>;
+		using TheadStandard = BasicTemplateHead<This<Webss>, Webss>;
+		using TheadText = TheadStandard;
 
-		WebssType typeFhead = WebssType::NONE;
+		WebssType typeThead = WebssType::NONE;
 		union
 		{
-			FheadBinary* theadBin;
-			FheadScoped* theadScoped;
-			FheadStandard* theadStd;
-			FheadText* theadText;
+			TheadBinary* theadBin;
+			TheadScoped* theadScoped;
+			TheadStandard* theadStd;
+			TheadText* theadText;
 		};
 
 		std::shared_ptr<Webss> defaultValue;
@@ -56,7 +55,7 @@ namespace webss
 		}
 
 		bool hasDefaultValue() const { return defaultValue.get() != nullptr; }
-		bool hasTemplateHead() const { return typeFhead != WebssType::NONE; }
+		bool hasTemplateHead() const { return typeThead != WebssType::NONE; }
 
 		const Webss& getDefaultValue() const
 		{
@@ -70,66 +69,66 @@ namespace webss
 		}
 
 		//returns WebssType::NONE if has no thead
-		WebssType getTypeFhead() const
+		WebssType getTypeThead() const
 		{
-			return typeFhead;
+			return typeThead;
 		}
 
-		const FheadBinary& getTemplateHeadBinary() const
+		const TheadBinary& getTemplateHeadBinary() const
 		{
-			assert(typeFhead == WebssType::TEMPLATE_HEAD_BINARY);
+			assert(typeThead == WebssType::TEMPLATE_HEAD_BINARY);
 			return *theadBin;
 		}
-		const FheadScoped& getTemplateHeadScoped() const
+		const TheadScoped& getTemplateHeadScoped() const
 		{
-			assert(typeFhead == WebssType::TEMPLATE_HEAD_SCOPED);
+			assert(typeThead == WebssType::TEMPLATE_HEAD_SCOPED);
 			return *theadScoped; 
 		}
-		const FheadStandard& getTemplateHeadStandard() const
+		const TheadStandard& getTemplateHeadStandard() const
 		{
-			assert(typeFhead == WebssType::TEMPLATE_HEAD_STANDARD); 
+			assert(typeThead == WebssType::TEMPLATE_HEAD_STANDARD); 
 			return *theadStd;
 		}
-		const FheadText& getTemplateHeadText() const
+		const TheadText& getTemplateHeadText() const
 		{
-			assert(typeFhead == WebssType::TEMPLATE_HEAD_TEXT);
+			assert(typeThead == WebssType::TEMPLATE_HEAD_TEXT);
 			return *theadText; 
 		}
 
 		void removeTemplateHead() { destroyUnion(); }
-		void setTemplateHead(FheadBinary&& o)
+		void setTemplateHead(TheadBinary&& o)
 		{
 			assert(!hasTemplateHead());
-			theadBin = new FheadBinary(std::move(o));
-			typeFhead = WebssType::TEMPLATE_HEAD_BINARY;
+			theadBin = new TheadBinary(std::move(o));
+			typeThead = WebssType::TEMPLATE_HEAD_BINARY;
 		}
-		void setTemplateHead(FheadScoped&& o)
+		void setTemplateHead(TheadScoped&& o)
 		{
 			assert(!hasTemplateHead());
-			theadScoped = new FheadScoped(std::move(o));
-			typeFhead = WebssType::TEMPLATE_HEAD_SCOPED;
+			theadScoped = new TheadScoped(std::move(o));
+			typeThead = WebssType::TEMPLATE_HEAD_SCOPED;
 		}
-		void setTemplateHead(FheadStandard&& o)
+		void setTemplateHead(TheadStandard&& o)
 		{
 			assert(!hasTemplateHead());
-			theadStd = new FheadStandard(std::move(o));
-			typeFhead = WebssType::TEMPLATE_HEAD_STANDARD;
+			theadStd = new TheadStandard(std::move(o));
+			typeThead = WebssType::TEMPLATE_HEAD_STANDARD;
 		}
-		void setTemplateHead(FheadText&& o)
+		void setTemplateHead(TheadStandard&& o, bool isText)
 		{
 			assert(!hasTemplateHead());
-			theadText = new FheadText(std::move(o));
-			typeFhead = WebssType::TEMPLATE_HEAD_TEXT;
+			theadText = new TheadText(std::move(o));
+			typeThead = WebssType::TEMPLATE_HEAD_TEXT;
 		}
 		void setTemplateHead(TemplateHeadSelf)
 		{
 			assert(!hasTemplateHead());
-			typeFhead = WebssType::TEMPLATE_HEAD_SELF;
+			typeThead = WebssType::TEMPLATE_HEAD_SELF;
 		}
 	private:
 		void destroyUnion()
 		{
-			switch (typeFhead)
+			switch (typeThead)
 			{
 			case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
 				break;
@@ -148,12 +147,12 @@ namespace webss
 			default:
 				assert(false); throw std::domain_error("");
 			}
-			typeFhead = WebssType::NONE;
+			typeThead = WebssType::NONE;
 		}
 
 		void copyUnion(This&& o)
 		{
-			switch (o.typeFhead)
+			switch (o.typeThead)
 			{
 			case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
 				break;
@@ -172,32 +171,32 @@ namespace webss
 			default:
 				assert(false); throw std::domain_error("");
 			}
-			typeFhead = o.typeFhead;
-			o.typeFhead = WebssType::NONE;
+			typeThead = o.typeThead;
+			o.typeThead = WebssType::NONE;
 			defaultValue = std::move(o.defaultValue);
 		}
 		void copyUnion(const This& o)
 		{
-			switch (o.typeFhead)
+			switch (o.typeThead)
 			{
 			case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
 				break;
 			case WebssType::TEMPLATE_HEAD_BINARY:
-				theadBin = new FheadBinary(*o.theadBin);
+				theadBin = new TheadBinary(*o.theadBin);
 				break;
 			case WebssType::TEMPLATE_HEAD_SCOPED:
-				theadScoped = new FheadScoped(*o.theadScoped);
+				theadScoped = new TheadScoped(*o.theadScoped);
 				break;
 			case WebssType::TEMPLATE_HEAD_STANDARD:
-				theadStd = new FheadStandard(*o.theadStd);
+				theadStd = new TheadStandard(*o.theadStd);
 				break;
 			case WebssType::TEMPLATE_HEAD_TEXT:
-				theadText = new FheadText(*o.theadText);
+				theadText = new TheadText(*o.theadText);
 				break;
 			default:
 				assert(false); throw std::domain_error("");
 			}
-			typeFhead = o.typeFhead;
+			typeThead = o.typeThead;
 			defaultValue = o.defaultValue;
 		}
 	};

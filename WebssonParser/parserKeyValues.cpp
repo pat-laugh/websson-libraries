@@ -144,7 +144,7 @@ Parser::OtherValue Parser::checkAbstractEntity(It& it, ConType con, const Entity
 	case WebssType::TEMPLATE_HEAD_STANDARD:
 		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyStandard(it, content.getTemplateHeadStandard().getParameters())) }, break)
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadText(ent), parseTemplateBodyText(it, content.getTemplateHeadText().getParameters())) }, break)
+		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyText(it, content.getTemplateHeadText().getParameters())) }, break)
 	default:
 		break;
 	}

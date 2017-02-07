@@ -39,7 +39,7 @@ namespace webss
 					throw std::runtime_error("invalid binary type: " + keyword.toString());
 				}
 			}
-			BasicSizeHead(const Entity& entFhead) : type(Type::ENTITY_TEMPLATE_HEAD), ent(entFhead) {}
+			BasicSizeHead(const Entity& entThead) : type(Type::ENTITY_TEMPLATE_HEAD), ent(entThead) {}
 			BasicSizeHead(const Entity& entNumber, bool number) : type(Type::ENTITY_NUMBER), ent(entNumber)
 			{
 				auto num = entNumber.getContent().getPrimitive<WebssBinarySize>();

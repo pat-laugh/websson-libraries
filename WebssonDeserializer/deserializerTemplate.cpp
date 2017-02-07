@@ -7,7 +7,7 @@ using namespace webss;
 
 void Deserializer::putFuncBinary(StringBuilder& out, const TemplateBinary& templ)
 {
-	putFheadBinary(out, templ);
+	putTheadBinary(out, templ);
 	switch (templ.getType())
 	{
 	case WebssType::DICTIONARY:
@@ -26,7 +26,7 @@ void Deserializer::putFuncBinary(StringBuilder& out, const TemplateBinary& templ
 
 void Deserializer::putFuncStandard(StringBuilder& out, const TemplateStandard& templ)
 {
-	putFheadStandard(out, templ);
+	putTheadStandard(out, templ);
 	switch (templ.getType())
 	{
 	case WebssType::DICTIONARY:
@@ -43,9 +43,9 @@ void Deserializer::putFuncStandard(StringBuilder& out, const TemplateStandard& t
 	}
 }
 
-void Deserializer::putFuncText(StringBuilder& out, const TemplateText& templ)
+void Deserializer::putFuncText(StringBuilder& out, const TemplateStandard& templ)
 {
-	putFheadText(out, templ);
+	putTheadText(out, templ);
 	switch (templ.getType())
 	{
 	case WebssType::DICTIONARY:

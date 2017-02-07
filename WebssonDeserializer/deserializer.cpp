@@ -78,22 +78,22 @@ public:
 		});
 	}
 
-	void putFheadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
+	void putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
 	{
-		putFhead<TemplateHeadBinary, TemplateHeadBinary::Param>(out, thead, [&](StringBuilder& out, const string& key, const TemplateHeadBinary::Param& param) { putParamBinary(out, key, param); });
+		putThead<TemplateHeadBinary, TemplateHeadBinary::Param>(out, thead, [&](StringBuilder& out, const string& key, const TemplateHeadBinary::Param& param) { putParamBinary(out, key, param); });
 	}
-	void putFheadStandard(StringBuilder& out, const TemplateHeadStandard& thead)
+	void putTheadStandard(StringBuilder& out, const TemplateHeadStandard& thead)
 	{
-		putFhead<TemplateHeadStandard, TemplateHeadStandard::Param>(out, thead, [&](StringBuilder& out, const string& key, const TemplateHeadStandard::Param& param) { putParamStandard(out, key, param); });
+		putThead<TemplateHeadStandard, TemplateHeadStandard::Param>(out, thead, [&](StringBuilder& out, const string& key, const TemplateHeadStandard::Param& param) { putParamStandard(out, key, param); });
 	}
-	void putFheadText(StringBuilder& out, const TemplateHeadText& thead)
+	void putTheadText(StringBuilder& out, const TemplateHeadStandard& thead)
 	{
 		out += ASSIGN_CONTAINER_STRING;
-		putFhead<TemplateHeadText, TemplateHeadText::Param>(out, thead, [&](StringBuilder& out, const string& key, const TemplateHeadText::Param& param) { putParamText(out, key, param); });
+		putThead<TemplateHeadStandard, TemplateHeadStandard::Param>(out, thead, [&](StringBuilder& out, const string& key, const TemplateHeadStandard::Param& param) { putParamText(out, key, param); });
 	}
 private:
 	template <class TemplateHead, class Param>
-	void putFhead(StringBuilder& out, const TemplateHead& thead, function<void(StringBuilder& out, const string& key, const Param& param)>&& putParam)
+	void putThead(StringBuilder& out, const TemplateHead& thead, function<void(StringBuilder& out, const string& key, const Param& param)>&& putParam)
 	{
 		static const auto CON = ConType::TEMPLATE_HEAD;
 		assert(!thead.empty() && "template head can't be empty");
@@ -131,13 +131,13 @@ private:
 				out += to_string(bhead.size());
 				break;
 			case Type::TEMPLATE_HEAD:
-				putFheadBinary(out, bhead.getTemplateHead());
+				putTheadBinary(out, bhead.getTemplateHead());
 				break;
 			case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD:
 				putEntityName(out, bhead.getEntity());
 				break;
 			case Type::SELF:
-				putFheadSelf(out);
+				putTheadSelf(out);
 				break;
 			default:
 				assert(false); throw domain_error("");
@@ -154,22 +154,22 @@ private:
 	void putParamStandard(StringBuilder& out, const string& key, const ParamStandard& param)
 	{
 		if (param.hasTemplateHead())
-			switch (param.getTypeFhead())
+			switch (param.getTypeThead())
 			{
 			case WebssType::TEMPLATE_HEAD_BINARY:
-				putFheadBinary(out, param.getTemplateHeadBinary());
+				putTheadBinary(out, param.getTemplateHeadBinary());
 				break;
 			case WebssType::TEMPLATE_HEAD_SCOPED:
-				putFheadScoped(out, param.getTemplateHeadScoped());
+				putTheadScoped(out, param.getTemplateHeadScoped());
 				break;
 			case WebssType::TEMPLATE_HEAD_SELF:
-				putFheadSelf(out);
+				putTheadSelf(out);
 				break;
 			case WebssType::TEMPLATE_HEAD_STANDARD:
-				putFheadStandard(out, param.getTemplateHeadStandard());
+				putTheadStandard(out, param.getTemplateHeadStandard());
 				break;
 			case WebssType::TEMPLATE_HEAD_TEXT:
-				putFheadText(out, param.getTemplateHeadText());
+				putTheadText(out, param.getTemplateHeadText());
 				break;
 			default:
 				break;
@@ -179,9 +179,9 @@ private:
 		if (param.hasDefaultValue())
 			putCharValue(out, param.getDefaultValue(), ConType::TEMPLATE_HEAD);
 		else
-			assert(param.getTypeFhead() != WebssType::TEMPLATE_HEAD_SELF);
+			assert(param.getTypeThead() != WebssType::TEMPLATE_HEAD_SELF);
 	}
-	void putParamText(StringBuilder& out, const string& key, const ParamText& param)
+	void putParamText(StringBuilder& out, const string& key, const ParamStandard& param)
 	{
 		out += key;
 		if (param.hasDefaultValue())
@@ -245,16 +245,16 @@ void Deserializer::putAbstractValue(StringBuilder& out, const Webss& webss, ConT
 	switch (webss.type)
 	{
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		putFheadBinary(out, *webss.theadBinary);
+		putTheadBinary(out, *webss.theadBinary);
 		break;
 	case WebssType::TEMPLATE_HEAD_SCOPED:
-		putFheadScoped(out, *webss.theadScoped);
+		putTheadScoped(out, *webss.theadScoped);
 		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD:
-		putFheadStandard(out, *webss.theadStandard);
+		putTheadStandard(out, *webss.theadStandard);
 		break;
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		putFheadText(out, *webss.theadText);
+		putTheadText(out, *webss.theadStandard);
 		break;
 	case WebssType::ENTITY:
 		assert(webss.ent.getContent().isAbstract());
@@ -313,7 +313,7 @@ void Deserializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConT
 		putFuncStandard(out, *webss.templStandard);
 		break;
 	case WebssType::TEMPLATE_TEXT:
-		putFuncText(out, *webss.templText);
+		putFuncText(out, *webss.templStandard);
 		break;
 	case WebssType::ENTITY:
 		assert(webss.ent.getContent().isConcrete());
@@ -485,7 +485,7 @@ void Deserializer::putImportedDocument(StringBuilder& out, const ImportedDocumen
 void Deserializer::putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc)
 {
 	out += CHAR_SCOPED_DOCUMENT;
-	putFheadScoped(out, scopedDoc.head);
+	putTheadScoped(out, scopedDoc.head);
 	NamespaceIncluder includer(currentNamespaces, scopedDoc.head.getParameters());
 	static_cast<DeserializerTemplate*>(this)->putDocumentHead<ConType::DICTIONARY>(out, scopedDoc.body);
 }
@@ -562,11 +562,11 @@ void Deserializer::putTuple(StringBuilder& out, const Tuple& tuple)
 	}
 }
 
-void Deserializer::putFheadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
+void Deserializer::putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
 {
-	static_cast<DeserializerTemplate*>(this)->putFheadBinary(out, thead);
+	static_cast<DeserializerTemplate*>(this)->putTheadBinary(out, thead);
 }
-void Deserializer::putFheadScoped(StringBuilder& out, const TemplateHeadScoped& thead)
+void Deserializer::putTheadScoped(StringBuilder& out, const TemplateHeadScoped& thead)
 {
 	out += OPEN_TEMPLATE;
 	if (thead.hasEntity())
@@ -596,18 +596,18 @@ void Deserializer::putFheadScoped(StringBuilder& out, const TemplateHeadScoped& 
 	}
 	out += CLOSE_TEMPLATE;
 }
-void Deserializer::putFheadSelf(StringBuilder& out)
+void Deserializer::putTheadSelf(StringBuilder& out)
 {
 	ContainerIncluder<ConType::TEMPLATE_HEAD> includer(out);
 	out += CHAR_SELF;
 }
-void Deserializer::putFheadStandard(StringBuilder& out, const TemplateHeadStandard& thead)
+void Deserializer::putTheadStandard(StringBuilder& out, const TemplateHeadStandard& thead)
 {
-	static_cast<DeserializerTemplate*>(this)->putFheadStandard(out, thead);
+	static_cast<DeserializerTemplate*>(this)->putTheadStandard(out, thead);
 }
-void Deserializer::putFheadText(StringBuilder& out, const TemplateHeadText& thead)
+void Deserializer::putTheadText(StringBuilder& out, const TemplateHeadStandard& thead)
 {
-	static_cast<DeserializerTemplate*>(this)->putFheadText(out, thead);
+	static_cast<DeserializerTemplate*>(this)->putTheadText(out, thead);
 }
 
 void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Dictionary& dict)
@@ -750,7 +750,7 @@ void Deserializer::putFuncStandardTupleText(StringBuilder& out, const TemplateHe
 #endif
 }
 
-void Deserializer::putFuncTextDictionary(StringBuilder& out, const TemplateHeadText::Parameters& params, const Dictionary& dict)
+void Deserializer::putFuncTextDictionary(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Dictionary& dict)
 {
 	static const auto CON = ConType::DICTIONARY;
 	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it)
@@ -766,7 +766,7 @@ void Deserializer::putFuncTextDictionary(StringBuilder& out, const TemplateHeadT
 	});
 }
 
-void Deserializer::putFuncTextList(StringBuilder& out, const TemplateHeadText::Parameters& params, const List& list)
+void Deserializer::putFuncTextList(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const List& list)
 {
 	static const auto CON = ConType::LIST;
 	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
@@ -776,7 +776,7 @@ void Deserializer::putFuncTextList(StringBuilder& out, const TemplateHeadText::P
 	});
 }
 
-void Deserializer::putFuncTextTuple(StringBuilder& out, const TemplateHeadText::Parameters& params, const Tuple& tuple)
+void Deserializer::putFuncTextTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
 	assert(tuple.size() <= params.size() && "too many elements in template tuple");
@@ -824,7 +824,7 @@ void Deserializer::putFuncScoped(StringBuilder& out, const TemplateScoped& templ
 	}
 	else
 	{
-		putFheadScoped(out, templ);
+		putTheadScoped(out, templ);
 		putConcreteValue(out, templ.getValue(), con);
 	}
 }
