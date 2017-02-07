@@ -20,7 +20,7 @@ string ConType::toString() const
 	case ConType::TEMPLATE_HEAD:
 		return "template head";
 	default:
-		return "unknown";
+		assert(false); throw domain_error("");
 	}
 }
 
