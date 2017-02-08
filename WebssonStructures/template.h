@@ -5,35 +5,42 @@
 #include "base.h"
 #include "templateHead.h"
 #include "templateBody.h"
+#include "templateScoped.h"
 
 namespace webss
 {
-#define ClassName BasicTemplate
+#define This BasicTemplate
 	template <class TemplateHead, class Webss>
-	class ClassName : public TemplateHead, public BasicTemplateBody<Webss>
+	class This : public TemplateHead, public BasicTemplateBody<Webss>
 	{
 	private:
 		using Head = TemplateHead;
 		using Body = BasicTemplateBody<Webss>;
 	public:
-#define BodyParameter typename Body::Dictionary
-#include "templatePattern.def"
-#undef BodyParameter
-#define BodyParameter typename Body::List
-#include "templatePattern.def"
-#undef BodyParameter
-#define BodyParameter typename Body::Tuple
-#include "templatePattern.def"
-#undef BodyParameter
-
-		ClassName(TemplateHead&& Head, typename Body::Tuple&& Body, bool isText) : Head(std::move(Head)), Body(std::move(Body), true) {}
-		ClassName(const TemplateHead& Head, const typename Body::Tuple& Body, bool isText) : Head(Head), Body(Body, true) {}
-		ClassName(typename Head::Parameters&& Head, typename Body::Tuple&& Body, bool isText) : Head(std::move(Head)), Body(std::move(Body), true) {}
-		ClassName(const typename Head::Parameters& Head, const typename Body::Tuple& Body, bool isText) : Head(Head), Body(Body, true) {}
-		ClassName(const typename Head::Pointer& Head, typename Body::Tuple&& Body, bool isText) : Head(Head), Body(std::move(Body), true) {}
-		ClassName(const typename Head::Pointer& Head, const typename Body::Tuple& Body, bool isText) : Head(Head), Body(Body, true) {}
-		ClassName(const typename Head::Entity& Head, typename Body::Tuple&& Body, bool isText) : Head(Head), Body(std::move(Body), true) {}
-		ClassName(const typename Head::Entity& Head, const typename Body::Tuple& Body, bool isText) : Head(Head), Body(Body, true) {}
+		This(Head&& head, typename Body::Dictionary&& Body) : Head(std::move(head)), Body(std::move(Body)) {}
+		This(const Head& head, const typename Body::Dictionary& Body) : Head(head), Body(Body) {}
+		This(Head&& head, typename Body::List&& Body) : Head(std::move(head)), Body(std::move(Body)) {}
+		This(const Head& head, const typename Body::List& Body) : Head(head), Body(Body) {}
+		This(Head&& head, typename Body::Tuple&& Body) : Head(std::move(head)), Body(std::move(Body)) {}
+		This(const Head& head, const typename Body::Tuple& Body) : Head(head), Body(Body) {}
+		This(Head&& head, typename Body::Tuple&& Body, bool isText) : Head(std::move(head)), Body(std::move(Body), true) {}
+		This(const Head& head, const typename Body::Tuple& Body, bool isText) : Head(head), Body(Body, true) {}
 	};
-#undef ClassName
+#undef This
+
+	#define This BasicTemplateScoped
+	template <class Webss>
+	class This : public BasicTemplateHeadScoped<Webss>
+	{
+	private:
+		Webss value;
+	public:
+		using Head = BasicTemplateHeadScoped<Webss>;
+
+		This(Head&& head, Webss&& value) : Head(std::move(head)), value(std::move(value)) {}
+		This(const Head& head, const Webss& value) : Head(head), value(value) {}
+
+		const Webss& getValue() const { return value; }
+	};
+#undef This
 }

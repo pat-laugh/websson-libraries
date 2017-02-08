@@ -29,64 +29,24 @@ namespace webss
 		This(const Tuple& tuple) : body(tuple) {}
 		This(const Tuple& tuple, bool isText) : body(tuple, true) {}
 
-		WebssType getType() const
-		{
-			return body.getType();
-		}
-
-		const Dictionary& getDictionary() const
-		{
-			return body.getDictionary();
-		}
-		const List& getList() const
-		{
-			return body.getList();
-		}
-		const Tuple& getTuple() const
-		{
-			return body.getTuple();
-		}
-		const Tuple& getTupleText() const
-		{
-			return body.getTupleText();
-		}
+		WebssType getType() const { return body.getType(); }
 
 		const Webss& getWebss() const { return body; }
+		const Dictionary& getDictionary() const { return body.getDictionary(); }
+		const List& getList() const { return body.getList(); }
+		const Tuple& getTuple() const { return body.getTuple(); }
+		const Tuple& getTupleText() const { return body.getTupleText(); }
 
-		bool isDictionary() const
-		{
-			return body.isDictionary();
-		}
-		bool isList() const
-		{
-			return body.isList();
-		}
-		bool isTuple() const
-		{
-			return body.isTuple();
-		}
-		bool isTupleText() const
-		{
-			return body.isTupleText();
-		}
+		bool isDictionary() const { return body.isDictionary(); }
+		bool isList() const { return body.isList(); }
+		bool isTuple() const { return body.isTuple(); }
+		bool isTupleText() const { return body.isTupleText(); }
 
-		const Webss& operator[](int index) const
-		{
-			return body[index];
-		}
-		const Webss& at(int index) const
-		{
-			return body.at(index);
-		}
+		const Webss& operator[](int index) const { return body[index]; }
+		const Webss& at(int index) const { return body.at(index); }
 
-		const Webss& operator[](const std::string& key) const
-		{
-			return body[key];
-		}
-		const Webss& at(const std::string& key) const
-		{
-			return body.at(key);
-		}
+		const Webss& operator[](const std::string& key) const { return body[key]; }
+		const Webss& at(const std::string& key) const { return body.at(key); }
 	private:
 		Webss body;
 	};

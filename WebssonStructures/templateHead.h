@@ -14,14 +14,12 @@ namespace webss
 	public:
 		using Param = Parameter;
 		using Parameters = BasicParameters<Param>;
-		using Pointer = std::shared_ptr<Webss>;
 		using Entity = BasicEntity<Webss>;
 		using size_type = typename Parameters::size_type;
 
 		This() : type(Type::PARAMS), params(new Parameters()) {}
 		This(Parameters&& params) : type(Type::PARAMS), params(new Parameters(std::move(params))) {}
 		This(const Parameters& params) : This(Parameters(params)) {}
-		This(const Pointer& pointer) : type(Type::POINTER), pointer(pointer) {}
 		This(const Entity& ent) : type(Type::ENTITY), ent(ent) {}
 		~This() { destroyUnion(); }
 
@@ -56,9 +54,6 @@ namespace webss
 				assert(false); throw std::domain_error("");
 			case Type::PARAMS:
 				break;
-			case Type::POINTER:
-				removePointer();
-				break;
 			case Type::ENTITY:
 				removeEntity();
 				break;
@@ -76,8 +71,6 @@ namespace webss
 				assert(false); throw std::domain_error("");
 			case Type::PARAMS:
 				return *params;
-			case Type::POINTER:
-				return pointer->getElement<This>().getParameters();
 			case Type::ENTITY:
 				return ent.getContent().getElement<This>().getParameters();
 			}
@@ -101,9 +94,6 @@ namespace webss
 			case Type::ENTITY:
 				removeEntity();
 				break;
-			case Type::POINTER:
-				removePointer();
-				break;
 			}
 
 			params->add(std::move(value));
@@ -126,9 +116,6 @@ namespace webss
 			case Type::ENTITY:
 				removeEntity();
 				break;
-			case Type::POINTER:
-				removePointer();
-				break;
 			}
 
 			params->addSafe(std::move(key), std::move(value));
@@ -146,9 +133,6 @@ namespace webss
 				type = Type::ENTITY;
 				return;
 			case Type::PARAMS:
-				break;
-			case Type::POINTER:
-				removePointer();
 				break;
 			case Type::ENTITY:
 				removeEntity();
@@ -174,9 +158,6 @@ namespace webss
 					break;
 				*params = valueTuple.makeCompleteCopy();
 				return;
-			case Type::POINTER:
-				removePointer();
-				break;
 			case Type::ENTITY:
 				removeEntity();
 				break;
@@ -185,13 +166,12 @@ namespace webss
 			params->merge(valueTuple);
 		}
 	private:
-		enum class Type { NONE, PARAMS, POINTER, ENTITY };
+		enum class Type { NONE, PARAMS, ENTITY };
 
 		Type type = Type::NONE;
 		union
 		{
 			Parameters* params;
-			Pointer pointer;
 			Entity ent;
 		};
 
@@ -199,14 +179,6 @@ namespace webss
 		{
 			auto newParameters = ent.getContent().getElement<This>().getParameters().makeCompleteCopy();
 			ent.~BasicEntity();
-			type = Type::NONE;
-			setParameters(std::move(newParameters));
-		}
-
-		void removePointer()
-		{
-			auto newParameters = pointer->getElement<This>().getParameters().makeCompleteCopy();
-			pointer.~shared_ptr();
 			type = Type::NONE;
 			setParameters(std::move(newParameters));
 		}
@@ -224,9 +196,6 @@ namespace webss
 			case Type::PARAMS:
 				delete params;
 				break;
-			case Type::POINTER:
-				pointer.~shared_ptr();
-				break;
 			case Type::ENTITY:
 				ent.~BasicEntity();
 				break;
@@ -242,10 +211,6 @@ namespace webss
 			{
 			case Type::PARAMS:
 				params = o.params;
-				break;
-			case Type::POINTER:
-				new (&pointer) Pointer(std::move(o.pointer));
-				o.pointer.~shared_ptr();
 				break;
 			case Type::ENTITY:
 				new (&ent) Entity(std::move(o.ent));
@@ -263,9 +228,6 @@ namespace webss
 			{
 			case Type::PARAMS:
 				params = new Parameters(*o.params);
-				break;
-			case Type::POINTER:
-				new (&pointer) Pointer(o.pointer);
 				break;
 			case Type::ENTITY:
 				new (&ent) Entity(o.ent);
