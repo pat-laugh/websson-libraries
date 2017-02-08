@@ -60,7 +60,7 @@ void writeBytes(StringBuilder& out, WebssBinarySize num, char* value)
 #endif
 }
 
-void putFuncBodyBinary2(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
+void putFuncBodyBinary(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
 {
 	assert(tuple.size() == params.size() && "size of binary tuple must match params");
 	decltype(params.size()) i = 0;
@@ -78,16 +78,11 @@ void putFuncBodyBinary2(StringBuilder& out, const TemplateHeadBinary::Parameters
 		{
 			out += CHAR_BINARY_DEFAULT_FALSE;
 			if (binary.getSizeHead().isSelf())
-				putFuncBodyBinary2(out, params, webss.getTupleSafe());
+				putFuncBodyBinary(out, params, webss.getTupleSafe());
 			else
 				putBinary(out, binary, webss);
 		}
 	}
-}
-
-void Deserializer::putFuncBodyBinary(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
-{
-	putFuncBodyBinary2(out, params, tuple);
 }
 
 void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data)
@@ -98,7 +93,7 @@ void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data)
 	else
 	{
 		auto&& params = sizeHead.getTemplateHead().getParameters();
-		putBinary(out, param, data, [&](const Webss& webss) { putFuncBodyBinary2(out, params, webss.getTupleSafe()); });
+		putBinary(out, param, data, [&](const Webss& webss) { putFuncBodyBinary(out, params, webss.getTupleSafe()); });
 	}
 }
 
