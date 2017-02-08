@@ -22,7 +22,7 @@ WebssBinarySize checkBinarySize(WebssInt sizeInt);
 
 void setDefaultValueBinary(Tuple& tuple, const TemplateHeadBinary::Parameters& params, TemplateHeadBinary::Parameters::size_type index)
 {
-	tuple[index] = Webss(params[index].sizeHead.getDefaultPointer());
+	tuple[index] = Webss(params[index].getSizeHead().getDefaultPointer());
 }
 
 void Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
@@ -156,10 +156,10 @@ char readByte(SmartIterator& it)
 #define GET_BINARY_LENGTH(x) x.isEmpty() ? readNumber(it) : x.size()
 Webss parseBinary(It& it, const ParamBinary& bhead)
 {
-	if (!bhead.sizeHead.isTemplateHead())
-		return parseBinary(it, bhead, [&]() { return parseBinaryElement(it, bhead.sizeHead); });
+	if (!bhead.getSizeHead().isTemplateHead())
+		return parseBinary(it, bhead, [&]() { return parseBinaryElement(it, bhead.getSizeHead()); });
 
-	const auto& params = bhead.sizeHead.getTemplateHead().getParameters();
+	const auto& params = bhead.getSizeHead().getTemplateHead().getParameters();
 	return parseBinary(it, bhead, [&]() { return parseBinaryTemplate(it, params); });
 }
 
@@ -183,12 +183,12 @@ void parseBitList(It& it, List& list, WebssBinarySize length)
 
 Webss parseBinary(It& it, const ParamBinary& bhead, function<Webss()> func)
 {
-	if (bhead.sizeList.isOne())
+	if (bhead.getSizeList().isOne())
 		return func();
 
 	List list;
-	auto length = GET_BINARY_LENGTH(bhead.sizeList);
-	if (bhead.sizeHead.isBool())
+	auto length = GET_BINARY_LENGTH(bhead.getSizeList());
+	if (bhead.getSizeHead().isBool())
 		parseBitList(it, list, length);
 	else
 		while (length-- > 0)
@@ -232,12 +232,12 @@ Tuple parseBinaryTemplate(It& it, const TemplateHeadBinary::Parameters& params)
 	for (Tuple::size_type i = 0; i < tuple.size(); ++i)
 	{
 		const auto& bhead = params[i];
-		if (!bhead.sizeHead.hasDefaultValue())
+		if (!bhead.getSizeHead().hasDefaultValue())
 			tuple[i] = parseBinary(it, bhead);
 		else if ((unsigned char)readByte(it) >= CHAR_BINARY_DEFAULT_TRUE)
 			setDefaultValueBinary(tuple, params, i);
 		else
-			tuple[i] = bhead.sizeHead.isSelf() ?  parseBinaryTemplate(it, params) : parseBinary(it, bhead);
+			tuple[i] = bhead.getSizeHead().isSelf() ?  parseBinaryTemplate(it, params) : parseBinary(it, bhead);
 	}
 	return tuple;
 }

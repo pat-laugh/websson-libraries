@@ -417,6 +417,9 @@ namespace webss
 			return *this;
 		}
 
+		const SizeHead& getSizeHead() const { return sizeHead; }
+		const SizeList& getSizeList() const { return sizeList; }
+	private:
 		SizeHead sizeHead;
 		SizeList sizeList;
 	};

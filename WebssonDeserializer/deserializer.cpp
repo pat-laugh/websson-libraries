@@ -116,7 +116,7 @@ private:
 
 	void putParamBinary(StringBuilder& out, const string& key, const ParamBinary& param)
 	{
-		auto&& bhead = param.sizeHead;
+		const auto& bhead = param.getSizeHead();
 		{
 			ContainerIncluder<ConType::TUPLE> includer(out);
 			using Type = ParamBinary::SizeHead::Type;
@@ -142,7 +142,7 @@ private:
 			default:
 				assert(false); throw domain_error("");
 			}
-			putBinarySizeList(out, param.sizeList);
+			putBinarySizeList(out, param.getSizeList());
 		}
 
 		out += key;

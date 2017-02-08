@@ -67,9 +67,9 @@ void putFuncBodyBinary2(StringBuilder& out, const TemplateHeadBinary::Parameters
 	for (auto&& webss : tuple)
 	{
 		auto&& binary = params[i++];
-		if (!binary.sizeHead.hasDefaultValue())
+		if (!binary.getSizeHead().hasDefaultValue())
 		{
-			assert(!binary.sizeHead.isSelf());
+			assert(!binary.getSizeHead().isSelf());
 			putBinary(out, binary, webss);
 		}
 		else if (webss.getType() == WebssType::DEFAULT || webss.getType() == WebssType::NONE)
@@ -77,7 +77,7 @@ void putFuncBodyBinary2(StringBuilder& out, const TemplateHeadBinary::Parameters
 		else
 		{
 			out += CHAR_BINARY_DEFAULT_FALSE;
-			if (binary.sizeHead.isSelf())
+			if (binary.getSizeHead().isSelf())
 				putFuncBodyBinary2(out, params, webss.getTupleSafe());
 			else
 				putBinary(out, binary, webss);
@@ -92,7 +92,7 @@ void Deserializer::putFuncBodyBinary(StringBuilder& out, const TemplateHeadBinar
 
 void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data)
 {
-	auto&& sizeHead = param.sizeHead;
+	auto&& sizeHead = param.getSizeHead();
 	if (!sizeHead.isTemplateHead())
 		putBinary(out, param, data, [&](const Webss& webss) { putBinaryElement(out, sizeHead, webss); });
 	else
@@ -122,17 +122,17 @@ void deserializeBitList(StringBuilder& out, const List& list)
 
 void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data, function<void(const Webss& webss)> func)
 {
-	if (param.sizeList.isOne())
+	if (param.getSizeList().isOne())
 	{
 		func(data);
 		return;
 	}
 
 	auto&& list = data.getListSafe();
-	if (param.sizeList.isEmpty())
+	if (param.getSizeList().isEmpty())
 		writeBinarySize(out, list.size());
 
-	if (param.sizeHead.isBool())
+	if (param.getSizeHead().isBool())
 		deserializeBitList(out, list);
 	else
 		for (auto&& webss : list)
