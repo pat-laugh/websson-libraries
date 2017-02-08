@@ -187,7 +187,7 @@ private:
 		if (param.hasDefaultValue())
 		{
 			auto&& webss = param.getDefaultValue();
-			assert(webss.getType() == WebssType::PRIMITIVE_STRING && "template head text parameters' values can only be of type string");
+			assert(webss.getTypeSafe() == WebssType::PRIMITIVE_STRING && "template head text parameters' values can only be of type string");
 			putCharValue(out, webss, ConType::TEMPLATE_HEAD);
 		}
 	}
@@ -242,32 +242,32 @@ void Deserializer::putEntityName(StringBuilder& out, const Entity& ent)
 
 void Deserializer::putAbstractValue(StringBuilder& out, const Webss& webss, ConType con)
 {
-	switch (webss.type)
+	switch (webss.getType())
 	{
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		putTheadBinary(out, *webss.theadBinary);
+		putTheadBinary(out, webss.getTemplateHeadBinary());
 		break;
 	case WebssType::TEMPLATE_HEAD_SCOPED:
-		putTheadScoped(out, *webss.theadScoped);
+		putTheadScoped(out, webss.getTemplateHeadScoped());
 		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD:
-		putTheadStandard(out, *webss.theadStandard);
+		putTheadStandard(out, webss.getTemplateHeadStandard());
 		break;
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		putTheadText(out, *webss.theadStandard);
+		putTheadText(out, webss.getTemplateHeadText());
 		break;
 	case WebssType::ENTITY:
-		assert(webss.ent.getContent().isAbstract());
-		putEntityName(out, webss.ent);
+		assert(webss.getEntity().getContent().isAbstract());
+		putEntityName(out, webss.getEntity());
 		break;
 	case WebssType::NAMESPACE:
-		putNamespace(out, *webss.nspace);
+		putNamespace(out, webss.getNamespace());
 		break;
 	case WebssType::ENUM:
-		putEnum(out, *webss.tEnum);
+		putEnum(out, webss.getEnum());
 		break;
 	case WebssType::BLOCK_HEAD:
-		putBlockHead(out, *webss.blockHead);
+		putBlockHead(out, webss.getBlockHead());
 		break;
 	default:
 		assert(false && "type is not an abstract value"); throw domain_error("");
@@ -276,57 +276,57 @@ void Deserializer::putAbstractValue(StringBuilder& out, const Webss& webss, ConT
 
 void Deserializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConType con)
 {
-	switch (webss.type)
+	switch (webss.getType())
 	{
 	case WebssType::PRIMITIVE_NULL:
 		out += 'N';
 		break;
 	case WebssType::PRIMITIVE_BOOL:
-		out += webss.tBool ? 'T' : 'F';
+		out += webss.getBool() ? 'T' : 'F';
 		break;
 	case WebssType::PRIMITIVE_INT:
-		out += to_string(webss.tInt);
+		out += to_string(webss.getInt());
 		break;
 	case WebssType::PRIMITIVE_DOUBLE:
-		out += to_string(webss.tDouble);
+		out += to_string(webss.getDouble());
 		break;
 	case WebssType::PRIMITIVE_STRING:
 		out += CHAR_COLON;
-		putLineString(out, *webss.tString, con);
+		putLineString(out, webss.getString(), con);
 		break;
 	case WebssType::DICTIONARY:
-		putDictionary(out, *webss.dict);
+		putDictionary(out, webss.getDictionary());
 		break;
 	case WebssType::LIST:
-		putList(out, *webss.list);
+		putList(out, webss.getList());
 		break;
 	case WebssType::LIST_TEXT:
-		putListText(out, *webss.list);
+		putListText(out, webss.getList());
 		break;
 	case WebssType::TUPLE:
-		putTuple(out, *webss.tuple);
+		putTuple(out, webss.getTuple());
 		break;
 	case WebssType::TUPLE_TEXT:
-		putTupleText(out, *webss.tuple);
+		putTupleText(out, webss.getTuple());
 		break;
 	case WebssType::TEMPLATE_BINARY:
-		putFuncBinary(out, *webss.templBinary);
+		putFuncBinary(out, webss.getTemplateBinary());
 		break;
 	case WebssType::TEMPLATE_SCOPED:
-		putFuncScoped(out, *webss.templScoped, con);
+		putFuncScoped(out, webss.getTemplateScoped(), con);
 		break;
 	case WebssType::TEMPLATE_STANDARD:
-		putFuncStandard(out, *webss.templStandard);
+		putFuncStandard(out, webss.getTemplateStandard());
 		break;
 	case WebssType::TEMPLATE_TEXT:
-		putFuncText(out, *webss.templStandard);
+		putFuncText(out, webss.getTemplateStandard());
 		break;
 	case WebssType::ENTITY:
-		assert(webss.ent.getContent().isConcrete());
-		putEntityName(out, webss.ent);
+		assert(webss.getEntity().getContent().isConcrete());
+		putEntityName(out, webss.getEntity());
 		break;
 	case WebssType::BLOCK:
-		putBlock(out, *webss.block, con);
+		putBlock(out, webss.getBlock(), con);
 		break;
 	default:
 		assert(false && "type is not a concrete value"); throw domain_error("");
@@ -335,7 +335,7 @@ void Deserializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConT
 
 void Deserializer::putCharValue(StringBuilder& out, const Webss& value, ConType con)
 {
-	switch (value.type)
+	switch (value.getType())
 	{
 	case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT:
 	case WebssType::PRIMITIVE_DOUBLE: case WebssType::ENTITY:
@@ -348,7 +348,7 @@ void Deserializer::putCharValue(StringBuilder& out, const Webss& value, ConType 
 
 void Deserializer::putKeyValue(StringBuilder& out, const string& key, const Webss& value, ConType con)
 {
-	assert(value.type != WebssType::DEFAULT && "can't deserialize this type with key");
+	assert(value.getType() != WebssType::DEFAULT && "can't deserialize this type with key");
 
 	out += key;
 	putCharValue(out, value, con);
@@ -482,8 +482,8 @@ void Deserializer::putImportedDocument(StringBuilder& out, const ImportedDocumen
 	auto&& name = importDoc.getName();
 	assert(name.isString());
 	out += CHAR_IMPORT;
-	if (name.type == WebssType::PRIMITIVE_STRING)
-		putCstring(out, *name.tString);
+	if (name.getType() == WebssType::PRIMITIVE_STRING)
+		putCstring(out, name.getString());
 	else
 		putConcreteValue(out, name, con);
 }
@@ -545,7 +545,7 @@ void Deserializer::putListText(StringBuilder& out, const List& list)
 {
 	static const auto CON = ConType::LIST;
 	out += ASSIGN_CONTAINER_STRING;
-	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it) { putLineString(out, it->getString(), CON); });
+	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it) { putLineString(out, it->getStringSafe(), CON); });
 }
 
 void Deserializer::putTuple(StringBuilder& out, const Tuple& tuple)
@@ -565,7 +565,7 @@ void Deserializer::putTupleText(StringBuilder& out, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
 	out += ASSIGN_CONTAINER_STRING;
-	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it) { putLineString(out, it->getString(), CON); });
+	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it) { putLineString(out, it->getStringSafe(), CON); });
 }
 
 void Deserializer::putTheadScoped(StringBuilder& out, const TemplateHeadScoped& thead)
@@ -622,11 +622,11 @@ void Deserializer::putFuncBinaryDictionary(StringBuilder& out, const TemplateHea
 	{
 		out += it->first;
 		if (it->second.isList())
-			putFuncBinaryList(out, params, it->second.getList());
+			putFuncBinaryList(out, params, it->second.getListSafe());
 		else
 		{
 			assert(it->second.isTuple());
-			putFuncBinaryTuple(out, params, it->second.getTuple());
+			putFuncBinaryTuple(out, params, it->second.getTupleSafe());
 		}
 	});
 }
@@ -637,11 +637,11 @@ void Deserializer::putFuncStandardDictionary(StringBuilder& out, const TemplateH
 	{
 		out += it->first;
 		if (it->second.isList())
-			putFuncStandardList(out, params, it->second.getList());
+			putFuncStandardList(out, params, it->second.getListSafe());
 		else
 		{
 			assert(it->second.isTuple());
-			putFuncStandardTuple(out, params, it->second.getTuple());
+			putFuncStandardTuple(out, params, it->second.getTupleSafe());
 		}
 	});
 }
@@ -652,11 +652,11 @@ void Deserializer::putFuncTextDictionary(StringBuilder& out, const TemplateHeadS
 	{
 		out += it->first;
 		if (it->second.isList())
-			putFuncTextList(out, params, it->second.getList());
+			putFuncTextList(out, params, it->second.getListSafe());
 		else
 		{
 			assert(it->second.isTuple());
-			putFuncTextTuple(out, params, it->second.getTuple());
+			putFuncTextTuple(out, params, it->second.getTupleSafe());
 		}
 	});
 }
@@ -668,7 +668,7 @@ void Deserializer::putFuncBinaryList(StringBuilder& out, const TemplateHeadBinar
 	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
 	{
 		assert(it->isTuple());
-		putFuncBinaryTuple(out, params, it->getTuple());
+		putFuncBinaryTuple(out, params, it->getTupleSafe());
 	});
 }
 void Deserializer::putFuncStandardList(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const List& list)
@@ -677,7 +677,7 @@ void Deserializer::putFuncStandardList(StringBuilder& out, const TemplateHeadSta
 	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
 	{
 		assert(it->isTuple());
-		putFuncStandardTuple(out, params, it->getTuple());
+		putFuncStandardTuple(out, params, it->getTupleSafe());
 	});
 }
 void Deserializer::putFuncTextList(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const List& list)
@@ -686,7 +686,7 @@ void Deserializer::putFuncTextList(StringBuilder& out, const TemplateHeadStandar
 	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
 	{
 		assert(it->isTuple());
-		putFuncTextTuple(out, params, it->getTuple());
+		putFuncTextTuple(out, params, it->getTupleSafe());
 	});
 }
 
@@ -714,7 +714,7 @@ void Deserializer::putFuncStandardTuple(StringBuilder& out, const TemplateHeadSt
 		auto&& param = params[i++];
 		if (!param.hasTemplateHead())
 		{
-			if (it->type == WebssType::NONE || it->type == WebssType::DEFAULT)
+			if (it->getType() == WebssType::NONE || it->getType() == WebssType::DEFAULT)
 				assert(param.hasDefaultValue());
 			else
 				putConcreteValue(out, *it, CON);
@@ -722,16 +722,16 @@ void Deserializer::putFuncStandardTuple(StringBuilder& out, const TemplateHeadSt
 		else
 		{
 			auto&& params2 = param.getTemplateHeadStandard().getParameters();
-			switch (it->getType())
+			switch (it->getTypeSafe())
 			{
 			case WebssType::DICTIONARY:
-				putFuncStandardDictionary(out, params2, it->getDictionary());
+				putFuncStandardDictionary(out, params2, it->getDictionarySafe());
 				break;
 			case WebssType::LIST:
-				putFuncStandardList(out, params2, it->getList());
+				putFuncStandardList(out, params2, it->getListSafe());
 				break;
 			case WebssType::TUPLE:
-				putFuncStandardTuple(out, params2, it->getTuple());
+				putFuncStandardTuple(out, params2, it->getTupleSafe());
 				break;
 			default:
 				assert(false && "template body must be dictionary, list or tuple"); throw domain_error("");
@@ -749,13 +749,13 @@ void Deserializer::putFuncStandardTupleText(StringBuilder& out, const TemplateHe
 	{
 		auto&& param = params[i++];
 		assert(!param.hasTemplateHead());
-		switch (it->type)
+		switch (it->getType())
 		{
 		case WebssType::NONE: case WebssType::DEFAULT:
 			assert(param.hasDefaultValue());
 			break;
 		case WebssType::PRIMITIVE_STRING:
-			putLineString(out, *it->tString, CON);
+			putLineString(out, it->getString(), CON);
 			break;
 		default:
 			assert(false); throw domain_error("");
@@ -775,13 +775,13 @@ void Deserializer::putFuncTextTuple(StringBuilder& out, const TemplateHeadStanda
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
 	{
 		auto&& param = params[i++];
-		switch (it->type)
+		switch (it->getType())
 		{
 		case WebssType::NONE: case WebssType::DEFAULT:
 			assert(param.hasDefaultValue());
 			break;
 		case WebssType::PRIMITIVE_STRING:
-			putLineString(out, *it->tString, CON);
+			putLineString(out, it->getString(), CON);
 			break;
 		default:
 			assert(false); throw domain_error("");

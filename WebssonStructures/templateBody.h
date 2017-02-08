@@ -46,6 +46,12 @@ namespace webss
 		{
 			return body.getTuple();
 		}
+		const Tuple& getTupleText() const
+		{
+			return body.getTupleText();
+		}
+
+		const Webss& getWebss() const { return body; }
 
 		bool isDictionary() const
 		{

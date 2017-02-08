@@ -211,8 +211,8 @@ const string& Parser::parseStringEntity(It& it)
 	{
 		const Webss* value = &ents.at(parseName(it)).getContent();
 		while (it == CHAR_SCOPE && it.peekGood() && isNameStart(it.peek()))
-			value = &value->getNamespace().at(parseName(++it)).getContent();
-		return value->getString();
+			value = &value->getNamespaceSafe().at(parseName(++it)).getContent();
+		return value->getStringSafe();
 	}
 	catch (exception e)
 	{

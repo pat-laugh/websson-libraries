@@ -272,5 +272,5 @@ const Namespace& Parser::parseUsingNamespaceStatic(It& it)
 	auto nameType = parseNameType(it);
 	if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isNamespace())
 		throw runtime_error("expected namespace");
-	return nameType.entity.getContent().getNamespace();
+	return nameType.entity.getContent().getNamespaceSafe();
 }

@@ -11,7 +11,7 @@ template <class Parameters>
 void checkDefaultValues(Tuple& tuple, const Parameters& params)
 {
 	for (Tuple::size_type index = 0; index < tuple.size(); ++index)
-		if (tuple.at(index).type == WebssType::NONE)
+		if (tuple.at(index).getType() == WebssType::NONE)
 			setDefaultValue(tuple[index], params[index]);
 }
 
@@ -174,19 +174,19 @@ private:
 Webss Parser::parseTemplate(It& it, ConType con)
 {
 	auto headWebss = parseTemplateHead(it);
-	switch (headWebss.type)
+	switch (headWebss.getType())
 	{
 	case WebssType::BLOCK_HEAD:
-		return Block(move(*headWebss.blockHead), parseValueOnly(it, con));
+		return Block(move(headWebss.getBlockHead()), parseValueOnly(it, con));
 	case WebssType::TEMPLATE_HEAD_BINARY:
 	{
-		auto head = move(*headWebss.theadBinary);
+		auto head = move(headWebss.getTemplateHeadBinary());
 		auto body = parseTemplateBodyBinary(it, head.getParameters());
 		return{ move(head), move(body) };
 	}
 	case WebssType::TEMPLATE_HEAD_SCOPED:
 	{
-		auto head = move(*headWebss.theadScoped);
+		auto head = move(headWebss.getTemplateHeadScoped());
 		auto body = parseTemplateBodyScoped(it, head.getParameters(), con);
 		return TemplateScoped(move(head), move(body));
 	}
@@ -194,13 +194,13 @@ Webss Parser::parseTemplate(It& it, ConType con)
 		throw runtime_error("self in a thead must be within a non-empty thead");
 	case WebssType::TEMPLATE_HEAD_STANDARD:
 	{
-		auto head = move(*headWebss.theadStandard);
+		auto head = move(headWebss.getTemplateHeadStandard());
 		auto body = parseTemplateBodyStandard(it, head.getParameters());
 		return{ move(head), move(body) };
 	}
 	case WebssType::TEMPLATE_HEAD_TEXT:
 	{
-		auto head = move(*headWebss.theadStandard);
+		auto head = move(headWebss.getTemplateHeadText());
 		auto body = parseTemplateBodyText(it, head.getParameters());
 		return{ move(head), move(body), true };
 	}

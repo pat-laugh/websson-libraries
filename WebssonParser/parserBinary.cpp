@@ -65,14 +65,14 @@ void Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
 			}
 		}
 		else if (isNumberStart(*it))
-			bhead = Bhead(checkBinarySize(parseNumber(it).getInt()));
+			bhead = Bhead(checkBinarySize(parseNumber(it).getIntSafe()));
 		else if (*it == OPEN_TEMPLATE)
 		{
 			auto headWebss = parseTemplateHead(++it);
-			switch (headWebss.type)
+			switch (headWebss.getType())
 			{
 			case WebssType::TEMPLATE_HEAD_BINARY:
-				bhead = Bhead(move(*headWebss.theadBinary));
+				bhead = Bhead(move(headWebss.getTemplateHeadBinary()));
 				break;
 			case WebssType::TEMPLATE_HEAD_SELF:
 				bhead = Bhead(TemplateHeadSelf());
@@ -259,7 +259,7 @@ ParamBinary::SizeList Parser::parseBinarySizeList(It& it)
 			blist = Blist(checkEntTypeBinarySize(nameType.entity));
 		}
 		else if (isNumberStart(*it))
-			blist = Blist(checkBinarySize(parseNumber(it).getInt()));
+			blist = Blist(checkBinarySize(parseNumber(it).getIntSafe()));
 		else
 			throw;
 	}
@@ -283,7 +283,7 @@ WebssBinarySize checkBinarySize(WebssInt sizeInt)
 
 const Entity& Parser::checkEntTypeBinarySize(const Entity& ent)
 {
-	try { checkBinarySize(ent.getContent().getInt()); }
+	try { checkBinarySize(ent.getContent().getIntSafe()); }
 	catch (exception e) { throw runtime_error(e.what()); }
 	return ent;
 }

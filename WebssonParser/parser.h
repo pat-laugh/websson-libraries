@@ -205,7 +205,7 @@ namespace webss
 				{
 					const auto& ent = ents[name];
 					const auto& content = ent.getContent();
-					if (content.isNamespace() && content.getNamespace() == nspace)
+					if (content.isNamespace() && content.getNamespaceSafe() == nspace)
 						remove(ent);
 				}
 				for (const auto& ent : nspace)
