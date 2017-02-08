@@ -80,7 +80,7 @@ Webss Parser::parseTemplateHead(It& it)
 
 TemplateHeadStandard Parser::parseTemplateHeadText(It& it)
 {
-	auto headWebss = parseTemplateHead(++it);
+	auto headWebss = parseTemplateHead(it);
 	if (headWebss.type == WebssType::TEMPLATE_HEAD_STANDARD || headWebss.type == WebssType::TEMPLATE_HEAD_TEXT)
 		return move(*headWebss.theadStandard);
 	else
@@ -145,7 +145,7 @@ TemplateHeadStandard Parser::parseTemplateHeadStandard(It& it, TemplateHeadStand
 				throw runtime_error(webss_ERROR_EXPECTED_CHAR(CHAR_COLON));
 			skipJunkToValidCondition(++it, [&]() { return *it == OPEN_TEMPLATE; });
 
-			auto head = parseTemplateHeadText(it);
+			auto head = parseTemplateHeadText(++it);
 			parseOtherValuesTheadStandardAfterThead(it, thead);
 			thead.back().setTemplateHead(move(head), true);
 		}
