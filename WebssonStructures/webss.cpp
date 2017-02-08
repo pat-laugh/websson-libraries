@@ -550,7 +550,7 @@ const List& Webss::getList() const
 		return ent.getContent().getList();
 	case WebssType::DEFAULT:
 		return tDefault->getList();
-	case WebssType::LIST:
+	case WebssType::LIST: case WebssType::LIST_TEXT:
 		return *list;
 	case WebssType::TEMPLATE_BINARY:
 		return templBinary->getList();
@@ -573,7 +573,7 @@ const Tuple& Webss::getTuple() const
 		return ent.getContent().getTuple();
 	case WebssType::DEFAULT:
 		return tDefault->getTuple();
-	case WebssType::TUPLE:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return *tuple;
 	case WebssType::TEMPLATE_BINARY:
 		return templBinary->getTuple();
@@ -649,7 +649,7 @@ bool Webss::isList() const
 		return ent.getContent().isList();
 	case WebssType::DEFAULT:
 		return tDefault->isList();
-	case WebssType::LIST:
+	case WebssType::LIST: case WebssType::LIST_TEXT:
 		return true;
 	case WebssType::TEMPLATE_BINARY:
 		return templBinary->isList();
@@ -671,7 +671,7 @@ bool Webss::isTuple() const
 		return ent.getContent().isTuple();
 	case WebssType::DEFAULT:
 		return tDefault->isTuple();
-	case WebssType::TUPLE:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return true;
 	case WebssType::TEMPLATE_BINARY:
 		return templBinary->isTuple();
