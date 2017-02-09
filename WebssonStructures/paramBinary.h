@@ -36,23 +36,18 @@ namespace webss
 					type = Type::EMPTY;
 					break;
 				default:
-					throw std::runtime_error("invalid binary type: " + keyword.toString());
+					assert(false); throw std::domain_error("invalid binary type: " + keyword.toString());
 				}
 			}
-			BasicSizeHead(const Entity& entThead) : type(Type::ENTITY_TEMPLATE_HEAD), ent(entThead) {}
+			BasicSizeHead(const Entity& entThead) : type(Type::ENTITY_TEMPLATE_HEAD), ent(entThead)
+			{
+				assert(entThead.getContent().isTemplateHeadBinary());
+			}
 			BasicSizeHead(const Entity& entNumber, bool number) : type(Type::ENTITY_NUMBER), ent(entNumber)
 			{
-				auto num = entNumber.getContent().getPrimitive<WebssBinarySize>();
-				if (num <= 0)
-				{
-					if (num == 0)
-						type = Type::EMPTY_ENTITY_NUMBER;
-					else
-					{
-						ent.~BasicEntity();
-						throw std::runtime_error(ERROR_BINARY_SIZE_HEAD);
-					}
-				}
+				auto num = entNumber.getContent().getPrimitive<WebssBinarySize>(); //asert for size in function
+				if (num == 0)
+					type = Type::EMPTY_ENTITY_NUMBER;
 			}
 			BasicSizeHead(WebssBinarySize number) : type(Type::NUMBER), number(number)
 			{

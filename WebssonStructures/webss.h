@@ -10,6 +10,8 @@
 #include "paramStandard.h"
 #include "document.h"
 
+#include <limits>
+
 namespace webss
 {
 	class Webss;
@@ -183,7 +185,12 @@ namespace webss
 
 		explicit operator bool() const { return getBoolSafe(); }
 		explicit operator WebssInt() const { return getIntSafe(); }
-		explicit operator WebssBinarySize() const { return static_cast<WebssBinarySize>(getIntSafe()); }
+		explicit operator WebssBinarySize() const
+		{
+			auto size = getIntSafe();
+			assert(size >= 0 && size <= numeric_limits<WebssBinarySize>::max());
+			return static_cast<WebssBinarySize>(size);
+		}
 		explicit operator double() const { return getDoubleSafe(); }
 		explicit operator const std::string&() const { return getStringSafe(); }
 		explicit operator const Document&() const { return getDocumentSafe(); }

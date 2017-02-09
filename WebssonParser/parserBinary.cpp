@@ -20,11 +20,6 @@ Tuple parseBinaryTemplate(It& it, const TemplateHeadBinary::Parameters& params);
 
 WebssBinarySize checkBinarySize(WebssInt sizeInt);
 
-void setDefaultValueBinary(Tuple& tuple, const TemplateHeadBinary::Parameters& params, TemplateHeadBinary::Parameters::size_type index)
-{
-	tuple[index] = Webss(params[index].getSizeHead().getDefaultPointer());
-}
-
 void Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
 {
 	using Bhead = ParamBinary::SizeHead;
@@ -50,7 +45,14 @@ void Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
 			switch (nameType.type)
 			{
 			case NameType::KEYWORD:
-				bhead = Bhead(nameType.keyword);
+				switch (nameType.keyword)
+				{
+				case Keyword::BOOL: case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8: case Keyword::DEC4: case Keyword::DEC8: case Keyword::STRING:
+					bhead = Bhead(nameType.keyword);
+					break;
+				default:
+					throw std::runtime_error("invalid binary type: " + nameType.keyword.toString());
+				}
 				break;
 			case NameType::ENTITY_ABSTRACT:
 				if (!nameType.entity.getContent().isTemplateHeadBinary())
@@ -105,6 +107,7 @@ void Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
 		ErrorAbstractEntity(ERROR_ANONYMOUS_KEY));
 }
 
+//entry point from parserTemplates
 Tuple Parser::parseTemplateTupleBinary(It& it, const TemplateHeadBinary::Parameters& params)
 {
 	auto tuple = parseBinaryTemplate(++it, params);
@@ -225,6 +228,11 @@ Webss parseBinaryElement(It& it, const ParamBinary::SizeHead& bhead)
 }
 #undef GET_BINARY_LENGTH
 
+void setDefaultValueBinary(Webss& value, const ParamBinary& param)
+{
+	value = Webss(param.getSizeHead().getDefaultPointer());
+}
+
 Tuple parseBinaryTemplate(It& it, const TemplateHeadBinary::Parameters& params)
 {
 	using Bhead = ParamBinary::SizeHead;
@@ -235,7 +243,7 @@ Tuple parseBinaryTemplate(It& it, const TemplateHeadBinary::Parameters& params)
 		if (!bhead.getSizeHead().hasDefaultValue())
 			tuple[i] = parseBinary(it, bhead);
 		else if ((unsigned char)readByte(it) >= CHAR_BINARY_DEFAULT_TRUE)
-			setDefaultValueBinary(tuple, params, i);
+			setDefaultValueBinary(tuple[i], params[i]);
 		else
 			tuple[i] = bhead.getSizeHead().isSelf() ?  parseBinaryTemplate(it, params) : parseBinary(it, bhead);
 	}
