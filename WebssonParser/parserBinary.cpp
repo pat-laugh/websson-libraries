@@ -45,14 +45,9 @@ void Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
 			switch (nameType.type)
 			{
 			case NameType::KEYWORD:
-				switch (nameType.keyword)
-				{
-				case Keyword::BOOL: case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8: case Keyword::DEC4: case Keyword::DEC8: case Keyword::STRING:
-					bhead = Bhead(nameType.keyword);
-					break;
-				default:
-					throw std::runtime_error("invalid binary type: " + nameType.keyword.toString());
-				}
+				if (!nameType.keyword.isType())
+					throw runtime_error("invalid binary type: " + nameType.keyword.toString());
+				bhead = Bhead(nameType.keyword);
 				break;
 			case NameType::ENTITY_ABSTRACT:
 				if (!nameType.entity.getContent().isTemplateHeadBinary())
@@ -120,17 +115,30 @@ Tuple Parser::parseTemplateTupleBinary(It& it, const TemplateHeadBinary::Paramet
 //reads a number following UTF-7 encoding thing
 WebssBinarySize readNumber(SmartIterator& it)
 {
+	const int fullShift = 7, maxFullShifts = sizeof(WebssBinarySize) / fullShift;
 	WebssBinarySize num = 0;
-	do
+	for (int numShifts = 0; ; ++it)
 	{
 		if (!it)
 			throw runtime_error(ERROR_EXPECTED);
-		num = (num << 7) | (0x7F & *it);
+		num = (num << fullShift) | (0x7F & *it);
 		if ((*it & 0x80) == 0)
 			break;
-	} while (true);
+		if (++numShifts == maxFullShifts)
+		{
+			const int partShift = sizeof(WebssBinarySize) % fullShift;
+			const int partMask = 0xFF >> (8 - partShift);
+			const int partEndMask = 0xFF ^ partMask;
+			if (!++it)
+				throw runtime_error(ERROR_EXPECTED);
+			if ((*it & partEndMask) != 0)
+				throw runtime_error("binary length is too great");
+			num = (num << partShift) | (partMask & *it);
+			break;
+		}
+	}
 	++it;
-	return num;
+	return checkBinarySize(num);
 }
 
 //reads num number of bytes and puts them in the char pointer passed as parameter
@@ -156,7 +164,6 @@ char readByte(SmartIterator& it)
 	return c;
 }
 
-#define GET_BINARY_LENGTH(x) x.isEmpty() ? readNumber(it) : x.size()
 Webss parseBinary(It& it, const ParamBinary& bhead)
 {
 	if (!bhead.getSizeHead().isTemplateHead())
@@ -184,14 +191,45 @@ void parseBitList(It& it, List& list, WebssBinarySize length)
 	}
 }
 
-Webss parseBinary(It& it, const ParamBinary& bhead, function<Webss()> func)
+Webss parseBinaryKeyword(It& it, Keyword keyword)
 {
-	if (bhead.getSizeList().isOne())
+	switch (keyword)
+	{
+	case Keyword::BOOL:
+		return Webss(readByte(it) != 0);
+	case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8:
+	{
+		WebssInt value = 0;
+		readBytes(it, keyword.getSize(), reinterpret_cast<char*>(&value));
+		return Webss(value);
+	}
+	case Keyword::DEC4:
+	{
+		float value;
+		readBytes(it, sizeof(float), reinterpret_cast<char*>(&value));
+		return Webss(value);
+	}
+	case Keyword::DEC8:
+	{
+		double value;
+		readBytes(it, sizeof(double), reinterpret_cast<char*>(&value));
+		return Webss(value);
+	}
+	default:
+		assert(false && "other keywords should've been parsed before"); throw domain_error("");
+	}
+}
+
+#define getBinaryLength(x) x.isEmpty() ? readNumber(it) : x.size()
+
+Webss parseBinary(It& it, const ParamBinary& param, function<Webss()> func)
+{
+	if (param.getSizeList().isOne())
 		return func();
 
 	List list;
-	auto length = GET_BINARY_LENGTH(bhead.getSizeList());
-	if (bhead.getSizeHead().isBool())
+	auto length = getBinaryLength(param.getSizeList());
+	if (param.getSizeHead().isBool())
 		parseBitList(it, list, length);
 	else
 		while (length-- > 0)
@@ -203,30 +241,15 @@ Webss parseBinary(It& it, const ParamBinary& bhead, function<Webss()> func)
 Webss parseBinaryElement(It& it, const ParamBinary::SizeHead& bhead)
 {
 	if (bhead.isKeyword())
-	{
-		WebssInt value = 0;
-		switch (bhead.getKeyword())
-		{
-		case Keyword::BOOL:
-			return Webss(readByte(it) != 0);
-		case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8:
-			readBytes(it, bhead.getKeyword().getSize(), reinterpret_cast<char*>(&value));
-			return Webss(value);
-		case Keyword::DEC4: case Keyword::DEC8:
-			readBytes(it, bhead.getKeyword().getSize(), reinterpret_cast<char*>(&value));
-			return Webss(static_cast<double>(value));
-		default:
-			assert(false && "other keywords should've been parsed before"); throw domain_error("");
-		}
-	}
+		return parseBinaryKeyword(bhead.getKeyword());
 
-	auto length = GET_BINARY_LENGTH(bhead);
-	string value;
-	value.resize(length);
+	auto length = getBinaryLength(bhead);
+	string value(length, 0);
 	readBytes(it, length, const_cast<char*>(value.data()));
 	return Webss(move(value));
 }
-#undef GET_BINARY_LENGTH
+
+#undef getBinaryLength
 
 void setDefaultValueBinary(Webss& value, const ParamBinary& param)
 {
@@ -262,9 +285,13 @@ ParamBinary::SizeList Parser::parseBinarySizeList(It& it)
 		if (isNameStart(*it))
 		{
 			auto nameType = parseNameType(it);
-			if (nameType.type != NameType::ENTITY_CONCRETE)
+			if (nameType.type == NameType::ENTITY_CONCRETE)
+				blist = Blist(checkEntTypeBinarySize(nameType.entity));
+			else if (nameType.type == NameType::KEYWORD && nameType.keyword.isType())
+				blist = Blist(nameType.keyword.getSize());
+			else
 				throw;
-			blist = Blist(checkEntTypeBinarySize(nameType.entity));
+			
 		}
 		else if (isNumberStart(*it))
 			blist = Blist(checkBinarySize(parseNumber(it).getIntSafe()));
