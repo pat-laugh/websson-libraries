@@ -10,8 +10,6 @@
 #include "paramStandard.h"
 #include "document.h"
 
-#include <limits>
-
 namespace webss
 {
 	class Webss;
@@ -143,8 +141,8 @@ namespace webss
 		const Block& getBlockSafe() const;
 
 		bool getBool() const { assert(getType() == WebssType::PRIMITIVE_BOOL); return tBool; }
-		WebssInt getInt() const { assert(getType() == WebssType::PRIMITIVE_INT); return tBool; }
-		double getDouble() const { assert(getType() == WebssType::PRIMITIVE_DOUBLE); return tBool; }
+		WebssInt getInt() const { assert(getType() == WebssType::PRIMITIVE_INT); return tInt; }
+		double getDouble() const { assert(getType() == WebssType::PRIMITIVE_DOUBLE); return tDouble; }
 
 		const std::string& getString() const { assert(getType() == WebssType::PRIMITIVE_STRING); return *tString; }
 		const Document& getDocument() const { assert(getType() == WebssType::DOCUMENT); return *document; }
@@ -185,12 +183,6 @@ namespace webss
 
 		explicit operator bool() const { return getBoolSafe(); }
 		explicit operator WebssInt() const { return getIntSafe(); }
-		explicit operator WebssBinarySize() const
-		{
-			auto size = getIntSafe();
-			assert(size >= 0 && size <= numeric_limits<WebssBinarySize>::max());
-			return static_cast<WebssBinarySize>(size);
-		}
 		explicit operator double() const { return getDoubleSafe(); }
 		explicit operator const std::string&() const { return getStringSafe(); }
 		explicit operator const Document&() const { return getDocumentSafe(); }
@@ -207,9 +199,6 @@ namespace webss
 		explicit operator const Enum&() const { return getEnumSafe(); }
 		explicit operator const BlockHead&() const { return getBlockHeadSafe(); }
 		explicit operator const Block&() const { return getBlockSafe(); }
-
-		template <class Element>
-		Element getPrimitive() const { return static_cast<Element>(*this); }
 
 		template <class Element>
 		const Element& getElement() const { return static_cast<const Element&>(*this); }

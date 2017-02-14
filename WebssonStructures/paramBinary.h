@@ -18,7 +18,7 @@ namespace webss
 	class BasicParamBinary
 	{
 	public:
-#define entNumInt = entNumber.getContent().getIntSafe()
+#define entNumInt entNumber.getContent().getIntSafe()
 		template <class Webss>
 		class BasicSizeHead
 		{

@@ -105,7 +105,7 @@ void Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
 //entry point from parserTemplates
 Tuple Parser::parseTemplateTupleBinary(It& it, const TemplateHeadBinary::Parameters& params)
 {
-	auto tuple = parseBinaryTemplate(++it, params);
+	auto tuple = parseBinaryTemplate(it, params);
 	if (it != CLOSE_TUPLE)
 		throw runtime_error(webss_ERROR_EXPECTED_CHAR(CLOSE_TUPLE));
 	++it;
@@ -241,7 +241,7 @@ Webss parseBinary(It& it, const ParamBinary& param, function<Webss()> func)
 Webss parseBinaryElement(It& it, const ParamBinary::SizeHead& bhead)
 {
 	if (bhead.isKeyword())
-		return parseBinaryKeyword(bhead.getKeyword());
+		return parseBinaryKeyword(it, bhead.getKeyword());
 
 	auto length = getBinaryLength(bhead);
 	string value(length, 0);
