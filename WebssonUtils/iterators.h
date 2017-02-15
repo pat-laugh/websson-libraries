@@ -116,3 +116,8 @@ namespace webss
 
 	using It = SmartIterator;
 }
+
+#ifdef GET_LINE
+#undef TAB_LENGTH
+#undef GET_LINE
+#endif

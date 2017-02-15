@@ -2,6 +2,8 @@
 //Copyright(c) 2016 Patrick Laughrea
 #include "utilsSweepers.h"
 
+#include "errors.h"
+
 using namespace std;
 using namespace webss;
 

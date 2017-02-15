@@ -1,6 +1,5 @@
 #pragma once
 
-#include "WebssonUtils/errors.h"
 #include "WebssonUtils/endOfLine.h"
 #include "WebssonUtils/utilsWebss.h"
 

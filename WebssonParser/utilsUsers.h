@@ -5,7 +5,6 @@
 //utils for users
 
 #include "utilsParser.h"
-#include "WebssonUtils/errors.h"
 #include "WebssonUtils/utilsWebss.h"
 
 namespace webss

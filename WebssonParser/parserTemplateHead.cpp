@@ -1,6 +1,8 @@
 //MIT License
 //Copyright(c) 2016 Patrick Laughrea
 #include "parser.h"
+
+#include "errors.h"
 #include "patternsContainers.h"
 
 using namespace std;

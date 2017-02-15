@@ -5,6 +5,8 @@
 using namespace std;
 using namespace webss;
 
+//#define REVERSE_ENDIANNESS_WRITE
+
 void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data);
 void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data, function<void(const Webss& webss)> func);
 void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss);

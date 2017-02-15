@@ -3,6 +3,8 @@
 #include "utilsUsers.h"
 #include "utilsParser.h"
 
+#include "errors.h"
+
 using namespace std;
 using namespace webss;
 

@@ -1,10 +1,13 @@
 //MIT License
 //Copyright(c) 2016 Patrick Laughrea
 #include "deserializer.h"
+
 #include <type_traits>
 
 using namespace std;
 using namespace webss;
+
+const char ERROR_ANONYMOUS_KEY[] = "can't have anonymous key in dictionary, template head or enum";
 
 template <ConType::Enum CON> void putContainerStart(StringBuilder& out) = delete;
 template <> void putContainerStart<ConType::DOCUMENT>(StringBuilder& out) {}

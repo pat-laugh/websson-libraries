@@ -4,7 +4,6 @@
 
 #include "WebssonUtils/iterators.h"
 #include "WebssonUtils/constants.h"
-#include "WebssonUtils/errors.h"
 #include "WebssonStructures/types.h"
 
 namespace webss

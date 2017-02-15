@@ -1,7 +1,9 @@
 //MIT License
 //Copyright(c) 2016 Patrick Laughrea
 #include "utilsNumbers.h"
+
 #include "utilsSweepers.h"
+#include "errors.h"
 
 #include <cassert>
 #include <cmath>

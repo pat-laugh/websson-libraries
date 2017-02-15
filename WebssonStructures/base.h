@@ -110,9 +110,6 @@ namespace webss
 	template <class Webss>
 	class BasicParamDocument;
 
-//	template <class Webss>
-//	using BasicDocumentHead = std::vector<BasicParamDocument<Webss>>;
-
 	template <class Webss>
 	class BasicScopedDocument;
 
@@ -138,12 +135,6 @@ namespace webss
 
 	template <class TemplateHead, class Webss>
 	class BasicTemplate;
-
-//	template <class Webss>
-//	class BasicParamScoped;
-
-//	template <class Webss>
-//	class BasicTemplateHeadScoped;
 
 	template <class Webss>
 	class BasicTemplateScoped;

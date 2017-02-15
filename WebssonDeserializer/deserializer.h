@@ -2,7 +2,6 @@
 //Copyright(c) 2016 Patrick Laughrea
 #pragma once
 
-#include "WebssonUtils/errors.h"
 #include "WebssonUtils/endOfLine.h"
 #include "WebssonUtils/utilsWebss.h"
 #include "WebssonUtils/stringBuilder.h"
@@ -10,8 +9,6 @@
 #include <functional>
 #include <set>
 #include <memory>
-
-//#define REVERSE_ENDIANNESS_WRITE
 
 namespace webss
 {
@@ -136,7 +133,3 @@ namespace webss
 		};
 	};
 }
-
-#ifdef REVERSE_ENDIANNESS_WRITE
-#undef REVERSE_ENDIANNESS_WRITE
-#endif

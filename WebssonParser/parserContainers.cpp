@@ -1,8 +1,11 @@
 //MIT License
 //Copyright(c) 2016 Patrick Laughrea
 #include "parser.h"
+
+#include "errors.h"
 #include "patternsContainers.h"
-#ifdef webss_ALLOW_IMPORT
+//#define DISABLE_IMPORT
+#ifndef DISABLE_IMPORT
 #include "curl.h"
 #endif
 
@@ -240,7 +243,7 @@ ScopedDocument Parser::parseScopedDocument(It& it)
 
 ImportedDocument Parser::parseImport(It& it, ConType con)
 {
-#ifndef webss_ALLOW_IMPORT
+#ifdef DISABLE_IMPORT
 	throw runtime_error("this parser cannot import documents");
 #else
 	auto importName = parseValueOnly(it, con);

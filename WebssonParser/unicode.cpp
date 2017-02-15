@@ -3,7 +3,7 @@
 #include "unicode.h"
 #include "utilsNumbers.h"
 #include "utilsSweepers.h"
-#include "WebssonUtils/errors.h"
+#include "errors.h"
 
 #include <cassert>
 
