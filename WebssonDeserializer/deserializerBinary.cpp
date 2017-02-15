@@ -49,7 +49,6 @@ void writeBinarySize(StringBuilder& out, WebssBinarySize num)
 #undef POWER
 }
 
-//returns a string containing the specified number of bytes from the number in little endian
 void writeBytes(StringBuilder& out, WebssBinarySize num, char* value)
 {
 #ifdef REVERSE_ENDIANNESS_WRITE
@@ -139,36 +138,43 @@ void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data, 
 void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss)
 {
 	if (bhead.isKeyword())
+	{
+		union
+		{
+			WebssInt tInt;
+			float tFloat;
+			double tDouble;
+		};
+
 		switch (bhead.getKeyword())
 		{
 		case Keyword::BOOL:
 			assert(webss.getType() == WebssType::PRIMITIVE_BOOL);
 			out += webss.getBool() ? 1 : 0;
 			break;
-		case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8:
-		{
+		case Keyword::INT1:
 			assert(webss.getType() == WebssType::PRIMITIVE_INT);
-			auto value = webss.getInt();
-			writeBytes(out, bhead.getKeyword().getSize(), reinterpret_cast<char*>(&value));
+			out += (char)webss.getInt();
 			break;
-		}
+		case Keyword::INT2: case Keyword::INT4: case Keyword::INT8:
+			assert(webss.getType() == WebssType::PRIMITIVE_INT);
+			tInt = webss.getInt();
+			writeBytes(out, bhead.getKeyword().getSize(), reinterpret_cast<char*>(&tInt));
+			break;
 		case Keyword::FLOAT:
-		{
 			assert(webss.getType() == WebssType::PRIMITIVE_DOUBLE);
-			float f = static_cast<float>(webss.getDouble());
-			writeBytes(out, sizeof(float), reinterpret_cast<char*>(&f));
+			tFloat = static_cast<float>(webss.getDouble());
+			writeBytes(out, sizeof(float), reinterpret_cast<char*>(&tFloat));
 			break;
-		}
 		case Keyword::DOUBLE:
-		{
 			assert(webss.getType() == WebssType::PRIMITIVE_DOUBLE);
-			auto value = webss.getDouble();
-			writeBytes(out, sizeof(double), reinterpret_cast<char*>(&value));
+			tDouble = webss.getDouble();
+			writeBytes(out, sizeof(double), reinterpret_cast<char*>(&tDouble));
 			break;
-		}
 		default:
 			assert(false); throw domain_error("");
 		}
+	}
 	else
 	{
 		assert(webss.getType() == WebssType::PRIMITIVE_STRING);

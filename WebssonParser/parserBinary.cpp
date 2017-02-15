@@ -195,28 +195,29 @@ void parseBitList(It& it, List& list, WebssBinarySize length)
 
 Webss parseBinaryKeyword(It& it, Keyword keyword)
 {
+	union
+	{
+		WebssInt tInt;
+		float tFloat;
+		double tDouble;
+	};
+
 	switch (keyword)
 	{
 	case Keyword::BOOL:
 		return Webss(readByte(it) != 0);
-	case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8:
-	{
-		WebssInt value = 0;
-		readBytes(it, keyword.getSize(), reinterpret_cast<char*>(&value));
-		return Webss(value);
-	}
+	case Keyword::INT1:
+		return Webss((WebssInt)readByte(it));
+	case Keyword::INT2: case Keyword::INT4: case Keyword::INT8:
+		tInt = 0;
+		readBytes(it, keyword.getSize(), reinterpret_cast<char*>(&tInt));
+		return Webss(tInt);
 	case Keyword::FLOAT:
-	{
-		float value;
-		readBytes(it, sizeof(float), reinterpret_cast<char*>(&value));
-		return Webss(value);
-	}
+		readBytes(it, sizeof(float), reinterpret_cast<char*>(&tFloat));
+		return Webss(tFloat);
 	case Keyword::DOUBLE:
-	{
-		double value;
-		readBytes(it, sizeof(double), reinterpret_cast<char*>(&value));
-		return Webss(value);
-	}
+		readBytes(it, sizeof(double), reinterpret_cast<char*>(&tDouble));
+		return Webss(tDouble);
 	default:
 		assert(false && "other keywords should've been parsed before"); throw domain_error("");
 	}
