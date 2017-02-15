@@ -7,7 +7,8 @@
 #include <set>
 
 #include "WebssonStructures/webss.h"
-#include "WebssonUtils/endOfLine.h"
+#include "WebssonUtils/constants.h"
+#include "WebssonUtils/typeContainers.h"
 #include "WebssonUtils/stringBuilder.h"
 #include "WebssonUtils/utilsWebss.h"
 

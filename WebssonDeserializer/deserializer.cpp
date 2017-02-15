@@ -426,6 +426,11 @@ void addCharEscape(StringBuilder& out, char c)
 	}
 }
 
+bool isLineEnd(char c, ConType con)
+{
+	return c == '\n' || c == CHAR_SEPARATOR || con.isEnd(c);
+}
+
 void Deserializer::putLineString(StringBuilder& out, const string& str, ConType con)
 {
 	if (str.empty())

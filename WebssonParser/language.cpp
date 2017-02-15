@@ -3,6 +3,9 @@
 #include "language.h"
 
 #include <cassert>
+#include <stdexcept>
+
+#include "WebssonUtils/constants.h"
 
 using namespace std;
 using namespace webss;

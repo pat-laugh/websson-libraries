@@ -2,7 +2,6 @@
 //Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include "WebssonUtils/endOfLine.h"
 #include "WebssonUtils/utilsWebss.h"
 
 namespace webss
