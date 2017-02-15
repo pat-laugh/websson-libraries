@@ -1,10 +1,10 @@
 //MIT License
-//Copyright(c) 2016 Patrick Laughrea
+//Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include "WebssonUtils/iterators.h"
-#include "WebssonUtils/constants.h"
 #include "WebssonStructures/types.h"
+#include "WebssonUtils/constants.h"
+#include "WebssonUtils/iterators.h"
 
 namespace webss
 {

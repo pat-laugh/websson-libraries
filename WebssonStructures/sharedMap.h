@@ -1,10 +1,11 @@
 //MIT License
-//Copyright(c) 2016 Patrick Laughrea
+//Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
 #include <memory>
 #include <string>
 #include <unordered_map>
+
 #include "base.h"
 
 namespace webss

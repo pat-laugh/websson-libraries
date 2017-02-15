@@ -1,6 +1,7 @@
 //MIT License
-//Copyright(c) 2016 Patrick Laughrea
+//Copyright(c) 2017 Patrick Laughrea
 #include "parser.h"
+
 #include "unicode.h"
 
 using namespace std;

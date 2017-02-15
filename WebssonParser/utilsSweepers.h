@@ -1,11 +1,11 @@
 //MIT License
-//Copyright(c) 2016 Patrick Laughrea
+//Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
 #include <functional>
 
-#include "WebssonUtils/iterators.h"
 #include "language.h"
+#include "WebssonUtils/iterators.h"
 
 namespace webss
 {

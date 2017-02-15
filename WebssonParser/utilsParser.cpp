@@ -1,5 +1,5 @@
 //MIT License
-//Copyright(c) 2016 Patrick Laughrea
+//Copyright(c) 2017 Patrick Laughrea
 #include "utilsParser.h"
 
 using namespace std;

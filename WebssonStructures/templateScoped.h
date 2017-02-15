@@ -1,11 +1,11 @@
 //MIT License
-//Copyright(c) 2016 Patrick Laughrea
+//Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
 #include "base.h"
 #include "entity.h"
-#include "templateHead.h"
 #include "namespace.h"
+#include "templateHead.h"
 
 namespace webss
 {

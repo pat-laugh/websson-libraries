@@ -1,13 +1,14 @@
 //MIT License
-//Copyright(c) 2016 Patrick Laughrea
+//Copyright(c) 2017 Patrick Laughrea
 #pragma once
+
+#include <cassert>
 
 #include "base.h"
 #include "dictionary.h"
 #include "list.h"
 #include "tuple.h"
 #include "typeWebss.h"
-#include <cassert>
 
 namespace webss
 {

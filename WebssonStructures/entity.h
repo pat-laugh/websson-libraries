@@ -1,9 +1,9 @@
 //MIT License
-//Copyright(c) 2016 Patrick Laughrea
+//Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "base.h"
 

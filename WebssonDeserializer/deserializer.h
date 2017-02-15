@@ -1,14 +1,15 @@
 //MIT License
-//Copyright(c) 2016 Patrick Laughrea
+//Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include "WebssonUtils/endOfLine.h"
-#include "WebssonUtils/utilsWebss.h"
-#include "WebssonUtils/stringBuilder.h"
-#include "WebssonStructures/webss.h"
 #include <functional>
-#include <set>
 #include <memory>
+#include <set>
+
+#include "WebssonStructures/webss.h"
+#include "WebssonUtils/endOfLine.h"
+#include "WebssonUtils/stringBuilder.h"
+#include "WebssonUtils/utilsWebss.h"
 
 namespace webss
 {

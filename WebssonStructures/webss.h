@@ -1,14 +1,14 @@
 //MIT License
-//Copyright(c) 2016 Patrick Laughrea
+//Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
 #include "base.h"
 #include "block.h"
-#include "template.h"
-#include "namespace.h"
-#include "enum.h"
-#include "paramStandard.h"
 #include "document.h"
+#include "enum.h"
+#include "namespace.h"
+#include "paramStandard.h"
+#include "template.h"
 
 namespace webss
 {

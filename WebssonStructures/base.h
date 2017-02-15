@@ -1,9 +1,9 @@
 //MIT License
-//Copyright(c) 2016 Patrick Laughrea
+//Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include <vector>
 #include <cassert>
+#include <vector>
 
 namespace webss
 {

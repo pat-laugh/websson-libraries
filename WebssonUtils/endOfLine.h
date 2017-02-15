@@ -1,7 +1,9 @@
+//MIT License
+//Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include "typeContainers.h"
 #include "constants.h"
+#include "typeContainers.h"
 
 namespace webss
 {

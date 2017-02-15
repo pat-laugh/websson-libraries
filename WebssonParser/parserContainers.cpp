@@ -1,13 +1,13 @@
 //MIT License
-//Copyright(c) 2016 Patrick Laughrea
+//Copyright(c) 2017 Patrick Laughrea
 #include "parser.h"
 
-#include "errors.h"
-#include "patternsContainers.h"
 //#define DISABLE_IMPORT
 #ifndef DISABLE_IMPORT
 #include "curl.h"
 #endif
+#include "errors.h"
+#include "patternsContainers.h"
 
 using namespace std;
 using namespace webss;

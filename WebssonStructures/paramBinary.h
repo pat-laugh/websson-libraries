@@ -1,16 +1,15 @@
 //MIT License
-//Copyright(c) 2016 Patrick Laughrea
+//Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
 #include <assert.h>
+#include <limits>
 #include <memory>
 
 #include "base.h"
 #include "keywords.h"
-#include "types.h"
 #include "templateHead.h"
-
-#include <limits>
+#include "types.h"
 
 namespace webss
 {

@@ -1,12 +1,12 @@
 //MIT License
-//Copyright(c) 2016 Patrick Laughrea
+//Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
 #include <memory>
 
 #include "base.h"
-#include "templateHead.h"
 #include "paramBinary.h"
+#include "templateHead.h"
 #include "templateScoped.h"
 #include "typeWebss.h"
 

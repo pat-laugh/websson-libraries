@@ -1,12 +1,12 @@
 //MIT License
-//Copyright(c) 2016 Patrick Laughrea
+//Copyright(c) 2017 Patrick Laughrea
 #include "parser.h"
+
+#include <limits>
 
 #include "errors.h"
 #include "patternsContainers.h"
 #include "utilsParser.h"
-
-#include <limits>
 
 using namespace std;
 using namespace webss;
