@@ -18,16 +18,17 @@ namespace webss
 	{
 	public:
 #define entNumInt entNumber.getContent().getIntSafe()
+#define This BasicSizeHead
 		template <class Webss>
-		class BasicSizeHead
+		class This
 		{
 		public:
 			using TemplateHead = BasicTemplateHead<BasicParamBinary, Webss>;
 			using Entity = BasicEntity<Webss>;
 			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, SELF, KEYWORD, NUMBER, TEMPLATE_HEAD, ENTITY_NUMBER, ENTITY_TEMPLATE_HEAD };
 
-			BasicSizeHead() {}
-			BasicSizeHead(Keyword keyword) : type(Type::KEYWORD)
+			This() {}
+			This(Keyword keyword) : type(Type::KEYWORD)
 			{
 				switch (keyword)
 				{
@@ -41,37 +42,32 @@ namespace webss
 					assert(false); throw std::domain_error("invalid binary type: " + keyword.toString());
 				}
 			}
-			BasicSizeHead(const Entity& entThead) : type(Type::ENTITY_TEMPLATE_HEAD), ent(entThead)
-			{
-				assert(entThead.getContent().isTemplateHeadBinary());
-			}
-			BasicSizeHead(const Entity& entNumber, bool isNumber)
-				: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
-			{
-				assert(entNumInt >= 0 && entNumInt <= numeric_limits<WebssBinarySize>::max());
-			}
-			BasicSizeHead(WebssBinarySize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
-			BasicSizeHead(TemplateHeadSelf) : type(Type::SELF) {}
-			BasicSizeHead(Type type) : type(type)
+
+			static This makeEntityThead(const Entity& entThead) { return This(entThead); }
+			static This makeEntityNumber(const Entity& entNumber) { return This(entNumber, true); }
+
+			This(WebssBinarySize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
+			This(TemplateHeadSelf) : type(Type::SELF) {}
+			This(Type type) : type(type)
 			{
 				assert(type == Type::NONE || type == Type::EMPTY || type == Type::SELF);
 			}
 
-			~BasicSizeHead() { destroyUnion(); }
+			~This() { destroyUnion(); }
 
-			BasicSizeHead(TemplateHead&& o) : type(Type::TEMPLATE_HEAD), thead(new TemplateHead(std::move(o))) {}
-			BasicSizeHead(const TemplateHead& o) : type(Type::TEMPLATE_HEAD), thead(new TemplateHead(o)) {}
+			This(TemplateHead&& o) : type(Type::TEMPLATE_HEAD), thead(new TemplateHead(std::move(o))) {}
+			This(const TemplateHead& o) : type(Type::TEMPLATE_HEAD), thead(new TemplateHead(o)) {}
 
-			BasicSizeHead(BasicSizeHead&& o) { copyUnion(std::move(o)); }
-			BasicSizeHead(const BasicSizeHead& o) { copyUnion(o); }
+			This(This&& o) { copyUnion(std::move(o)); }
+			This(const This& o) { copyUnion(o); }
 
-			BasicSizeHead& operator=(BasicSizeHead&& o)
+			This& operator=(This&& o)
 			{
 				destroyUnion();
 				copyUnion(std::move(o));
 				return *this;
 			}
-			BasicSizeHead& operator=(const BasicSizeHead& o)
+			This& operator=(const This& o)
 			{
 				if (this != &o)
 				{
@@ -149,6 +145,16 @@ namespace webss
 
 			std::shared_ptr<Webss> defaultValue;
 
+			This(const Entity& entThead) : type(Type::ENTITY_TEMPLATE_HEAD), ent(entThead)
+			{
+				assert(entThead.getContent().isTemplateHeadBinary());
+			}
+			This(const Entity& entNumber, bool isNumber)
+				: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
+			{
+				assert(entNumInt >= 0 && entNumInt <= numeric_limits<WebssBinarySize>::max());
+			}
+
 			void destroyUnion()
 			{
 				switch (type)
@@ -165,7 +171,7 @@ namespace webss
 				type = Type::NONE;
 			}
 
-			void copyUnion(BasicSizeHead&& o)
+			void copyUnion(This&& o)
 			{
 				switch (o.type)
 				{
@@ -193,7 +199,7 @@ namespace webss
 				if (o.hasDefaultValue())
 					defaultValue = std::move(o.defaultValue);
 			}
-			void copyUnion(const BasicSizeHead& o)
+			void copyUnion(const This& o)
 			{
 				switch (o.type)
 				{
@@ -220,6 +226,7 @@ namespace webss
 					defaultValue = o.defaultValue;
 			}
 		};
+#undef This
 
 		class BasicSizeList
 		{

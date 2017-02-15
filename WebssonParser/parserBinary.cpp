@@ -54,10 +54,10 @@ void Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
 			case NameType::ENTITY_ABSTRACT:
 				if (!nameType.entity.getContent().isTemplateHeadBinary())
 					throw runtime_error(ERROR_UNEXPECTED);
-				bhead = Bhead(nameType.entity);
+				bhead = Bhead::makeEntityThead(nameType.entity);
 				break;
 			case NameType::ENTITY_CONCRETE:
-				bhead = Bhead(checkEntTypeBinarySize(nameType.entity), true);
+				bhead = Bhead::makeEntityNumber(checkEntTypeBinarySize(nameType.entity));
 				break;
 			default:
 				throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(nameType.name));

@@ -60,8 +60,8 @@ namespace webss
 		enum class Type { NONE, ENTITY_ABSTRACT, ENTITY_CONCRETE, NAMESPACE, IMPORT, SCOPED_DOCUMENT };
 
 		This() {}
-		This(Entity entAbstract) : type(Type::ENTITY_ABSTRACT), entAbstract(std::move(entAbstract)) {}
-		This(Entity entConcrete, bool isConcrete) : type(Type::ENTITY_CONCRETE), entAbstract(std::move(entConcrete)) {}
+		static This makeEntityAbstract(Entity entAbstract) { return This(entAbstract); }
+		static This makeEntityConcrete(Entity entConcrete) { return This(entConcrete, true); }
 		This(Namespace nspace) : type(Type::NAMESPACE), nspace(new Namespace(std::move(nspace))) {}
 		This(Import import) : type(Type::IMPORT), import(new Import(std::move(import))) {}
 		This(ScopedDoc scopedDoc) : type(Type::SCOPED_DOCUMENT), scopedDoc(new ScopedDoc(std::move(scopedDoc))) {}
@@ -103,6 +103,9 @@ namespace webss
 			Import* import;
 			ScopedDoc* scopedDoc;
 		};
+
+		This(Entity entAbstract) : type(Type::ENTITY_ABSTRACT), entAbstract(std::move(entAbstract)) {}
+		This(Entity entConcrete, bool isConcrete) : type(Type::ENTITY_CONCRETE), entAbstract(std::move(entConcrete)) {}
 
 		void destroyUnion()
 		{
