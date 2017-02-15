@@ -180,7 +180,7 @@ bool Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType c
 			checkMultiContainer(++it, [&]() { auto ent = parseAbstractEntity(it, nspace); docHead.push_back(ParamDocument(ent)); ents.addLocalSafe(move(ent)); });
 			break;
 		case CHAR_CONCRETE_ENTITY:
-			checkMultiContainer(++it, [&]() { auto ent = parseConcreteEntity(it, con); docHead.push_back(ParamDocument(ent)); ents.addLocalSafe(move(ent)); });
+			checkMultiContainer(++it, [&]() { auto ent = parseConcreteEntity(it, con); docHead.push_back(ParamDocument(ent, true)); ents.addLocalSafe(move(ent)); });
 			break;
 		case CHAR_IMPORT:
 			checkMultiContainer(++it, [&]() { auto import = parseImport(it, con); docHead.push_back(move(import)); });
