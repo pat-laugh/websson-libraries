@@ -31,7 +31,7 @@ namespace webss
 			{
 				switch (keyword)
 				{
-				case Keyword::BOOL: case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8: case Keyword::DEC4: case Keyword::DEC8:
+				case Keyword::BOOL: case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8: case Keyword::FLOAT: case Keyword::DOUBLE:
 					this->keyword = keyword;
 					break;
 				case Keyword::STRING:

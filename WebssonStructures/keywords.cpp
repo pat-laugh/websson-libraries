@@ -32,10 +32,10 @@ const map<string, Keyword> KEYWORDS = {
 	{ "L", Keyword::INT8 },
 	{ "long", Keyword::INT8 },
 
-	{ "float", Keyword::DEC4 },
+	{ "float", Keyword::FLOAT },
 
-	{ "D", Keyword::DEC8 },
-	{ "double", Keyword::DEC8 },
+	{ "D", Keyword::DOUBLE },
+	{ "double", Keyword::DOUBLE },
 
 	{ "S", Keyword::STRING },
 	{ "string", Keyword::STRING }
@@ -68,9 +68,9 @@ string Keyword::toString() const
 		return "I";
 	case Keyword::INT8:
 		return "L";
-	case Keyword::DEC4:
+	case Keyword::FLOAT:
 		return "float";
-	case Keyword::DEC8:
+	case Keyword::DOUBLE:
 		return "D";
 	case Keyword::STRING:
 		return "S";
@@ -87,9 +87,9 @@ int Keyword::getSize() const
 		return 1;
 	case Keyword::INT2:
 		return 2;
-	case Keyword::INT4: case Keyword::DEC4:
+	case Keyword::INT4: case Keyword::FLOAT:
 		return 4;
-	case Keyword::INT8: case Keyword::DEC8:
+	case Keyword::INT8: case Keyword::DOUBLE:
 		return 8;
 	case Keyword::STRING:
 		return 0;
@@ -102,7 +102,7 @@ bool Keyword::isType() const
 {
 	switch (e)
 	{
-	case Keyword::BOOL: case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8: case Keyword::DEC4: case Keyword::DEC8: case Keyword::STRING:
+	case Keyword::BOOL: case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8: case Keyword::FLOAT: case Keyword::DOUBLE: case Keyword::STRING:
 		return true;
 	default:
 		return false;

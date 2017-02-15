@@ -205,13 +205,13 @@ Webss parseBinaryKeyword(It& it, Keyword keyword)
 		readBytes(it, keyword.getSize(), reinterpret_cast<char*>(&value));
 		return Webss(value);
 	}
-	case Keyword::DEC4:
+	case Keyword::FLOAT:
 	{
 		float value;
 		readBytes(it, sizeof(float), reinterpret_cast<char*>(&value));
 		return Webss(value);
 	}
-	case Keyword::DEC8:
+	case Keyword::DOUBLE:
 	{
 		double value;
 		readBytes(it, sizeof(double), reinterpret_cast<char*>(&value));

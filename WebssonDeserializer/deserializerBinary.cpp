@@ -152,14 +152,14 @@ void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, co
 			writeBytes(out, bhead.getKeyword().getSize(), reinterpret_cast<char*>(&value));
 			break;
 		}
-		case Keyword::DEC4:
+		case Keyword::FLOAT:
 		{
 			assert(webss.getType() == WebssType::PRIMITIVE_DOUBLE);
 			float f = static_cast<float>(webss.getDouble());
 			writeBytes(out, sizeof(float), reinterpret_cast<char*>(&f));
 			break;
 		}
-		case Keyword::DEC8:
+		case Keyword::DOUBLE:
 		{
 			assert(webss.getType() == WebssType::PRIMITIVE_DOUBLE);
 			auto value = webss.getDouble();
