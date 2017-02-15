@@ -7,6 +7,7 @@
 
 #include "errors.h"
 #include "utilsSweepers.h"
+#include "WebssonUtils/stringBuilder.h"
 
 using namespace std;
 using namespace webss;
@@ -17,23 +18,51 @@ using namespace webss;
 
 WebssInt getNumber(SmartIterator& it, NumberMagnitude mag, bool(*isDigit)(char c), int(*charToInt)(char c))
 {
-	WebssInt number = charToInt(*it);
-	while (skipLineJunk(++it) && isDigit(*it))
-		number = number * mag + charToInt(*it);
+	StringBuilder sb;
+	do
+		sb += *it;
+	while (skipLineJunk(++it) && isDigit(*it));
+
+	WebssInt number;
+	try
+	{
+		string s = sb.str();
+		number = std::stoll(s, nullptr, (int)mag);
+	}
+	catch (out_of_range e)
+	{
+		throw runtime_error("integer is outside bounds");
+	}
 	return number;
 }
 
 double checkDecimals(SmartIterator& it, NumberMagnitude mag, bool(*isDigit)(char c), int(*charToInt)(char c))
 {
-	double numDouble = 0;
-	int decimalMultiplier = 1;
 	if (!isDigit(*it))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
 
+	int numDigits = 0;
+	StringBuilder sb;
 	do
-		numDouble += (double)charToInt(*it) / (decimalMultiplier *= mag);
+	{
+		sb += *it;
+		if (++numDigits > 17) //magic number: http://stackoverflow.com/questions/17244898/maximum-number-of-decimal-digits-that-can-affect-a-double#17245451
+			throw runtime_error("too many decimals");
+	}
 	while (skipLineJunk(++it) && isDigit(*it));
-	return numDouble;
+
+	WebssInt dec;
+	try
+	{
+		string s = sb.str();
+		dec = std::stoll(s, nullptr, (int)mag);
+	}
+	catch (out_of_range e)
+	{
+		throw runtime_error("decimals are outside bounds");
+	}
+
+	return dec / std::pow((double)mag, (double)numDigits);
 }
 
 WebssInt webss::getNumberBin(SmartIterator& it) { return getNumber(it, MAGNITUDE_BIN, FUNCTIONS_BIN); }

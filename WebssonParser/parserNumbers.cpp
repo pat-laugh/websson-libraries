@@ -49,7 +49,7 @@ Webss Parser::parseNumber(It& it)
 
 pair<WebssInt, NumberMagnitude> parseInt(It& it)
 {
-#define CHECK_FIRST_DIGIT(x) if (!skipLineJunk(++it) || !x) throw runtime_error(ERROR_EXPECTED_NUMBER)
+#define CheckFirstDigit(IsGoodDigit) if (!skipLineJunk(++it) || !IsGoodDigit) throw runtime_error(ERROR_EXPECTED_NUMBER)
 	if (*it == '0')
 	{
 		if (!skipLineJunk(++it))
@@ -58,13 +58,13 @@ pair<WebssInt, NumberMagnitude> parseInt(It& it)
 		switch (*it)
 		{
 		case 'b': case 'B':
-			CHECK_FIRST_DIGIT(isDigitBin(*it));
+			CheckFirstDigit(isDigitBin(*it));
 			return{ getNumberBin(it), MAGNITUDE_BIN };
 		case 'x': case 'X':
-			CHECK_FIRST_DIGIT(isDigitHex(*it));
+			CheckFirstDigit(isDigitHex(*it));
 			return{ getNumberHex(it), MAGNITUDE_HEX };
 		case 'd': case 'D':
-			CHECK_FIRST_DIGIT(isDigit(*it));
+			CheckFirstDigit(isDigit(*it));
 			break;
 		default:
 			if (!isDigit(*it))
@@ -72,5 +72,5 @@ pair<WebssInt, NumberMagnitude> parseInt(It& it)
 		}
 	}
 	return{ getNumberDec(it), MAGNITUDE_DEC };
-#undef CHECK_FIRST_DIGIT
+#undef CheckFirstDigit
 }
