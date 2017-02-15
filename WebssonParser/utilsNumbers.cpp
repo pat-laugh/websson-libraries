@@ -91,10 +91,21 @@ double webss::addNumberMagnitude(SmartIterator& it, double num, NumberMagnitude 
 	return num *= pow((double)mag, (double)(negative ? -numMagnitude : numMagnitude));
 }
 
+bool checkDigit(SmartIterator& it)
+{
+	if (!it)
+		return false;
+	if (isDigit(*it))
+		return true;
+	if (isLineJunk(*it))
+		return checkDigit(skipLineJunk(++it));
+	return false;
+}
+
 bool webss::checkNumberStart(SmartIterator& it)
 {
 	bool negative = *it == '-';
-	if ((negative || *it == '+') && (!skipLineJunk(++it) || !isDigit(*it)))
+	if ((negative || *it == '+') && !checkDigit(++it))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
 	return negative;
 }
