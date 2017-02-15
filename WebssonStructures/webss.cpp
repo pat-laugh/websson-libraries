@@ -22,7 +22,9 @@ Webss::Webss(Keyword keyword) : type(WebssType::PRIMITIVE_BOOL)
 		tBool = true;
 		break;
 	default:
-		throw runtime_error("can't get keyword value: " + keyword.toString());
+		tInt = keyword.getSize();
+		type = WebssType::PRIMITIVE_INT;
+		break;
 	}
 }
 Webss::Webss(int tInt) : type(WebssType::PRIMITIVE_INT), tInt(tInt) {}
