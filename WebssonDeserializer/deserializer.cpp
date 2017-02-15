@@ -431,6 +431,13 @@ bool isLineEnd(char c, ConType con)
 	return c == '\n' || c == CHAR_SEPARATOR || con.isEnd(c);
 }
 
+//whether or not the char should always be escaped in a char
+//includes Ascii characers, '\\' and '?'
+bool isMustEscapeChar(char c)
+{
+	return c == '?' || c == '\\' || isControlAscii(c);
+}
+
 void Deserializer::putLineString(StringBuilder& out, const string& str, ConType con)
 {
 	if (str.empty())

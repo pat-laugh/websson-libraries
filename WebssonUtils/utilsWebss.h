@@ -24,12 +24,4 @@ namespace webss
 
 	//junk except newline
 	bool isLineJunk(char c);
-
-	//whether or not the char can be escaped
-	//CLARIFICATION: special escapes that require more than 1 char, like \x and \u ARE included
-	bool isEscapableChar(char c);
-
-	//whether or not the char should always be escaped in a char
-	//includes Ascii characers, '\\' and '?'
-	bool isMustEscapeChar(char c);
 };

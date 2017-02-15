@@ -178,6 +178,20 @@ void putEscapedChar(StringBuilder& str, char c)
 	}
 }
 
+//whether or not the char can be escaped
+//CLARIFICATION: special escapes that require more than 1 char, like \x and \u ARE included
+bool isEscapableChar(char c)
+{
+	switch (c)
+	{
+	case '0': case 'a': case 'b': case 'f': case 'n': case 'r': case 't': case 'v':
+	case 's': case 'e': case 'x': case 'X': case 'u': case 'U':
+		return true;
+	default:
+		return isSpecialAscii(c);
+	}
+}
+
 void Parser::checkEscapedChar(It& it, StringBuilder& line)
 {
 	if (checkLineEscape(it))

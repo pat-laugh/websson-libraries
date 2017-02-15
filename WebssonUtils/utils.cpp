@@ -42,7 +42,7 @@ char webss::hexToChar(int c)
 
 bool webss::isControlAscii(char c)
 {
-	return (c >= 0 && c < ' ') || c == 127;
+	return (unsigned char)c < ' ' || c == 127;
 }
 
 bool webss::isSpecialAscii(char c)
