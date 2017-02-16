@@ -8,7 +8,7 @@
 using namespace std;
 using namespace webss;
 
-std::pair<WebssInt, NumberMagnitude> parseInt(It& it);
+std::pair<WebssInt, NumberBase> parseInt(It& it);
 
 Webss Parser::parseNumber(It& it)
 {
@@ -38,39 +38,39 @@ Webss Parser::parseNumber(It& it)
 		if (!it || isNumberEnd(*it, language))
 			return numDouble;
 
-		if (!isMagnitudeSeparator(*it))
+		if (!isBaseSeparator(*it))
 			throw runtime_error("invalid number");
 	}
 
 	if (!skipLineJunk(++it) || !isNumberStart(*it))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
-	return addNumberMagnitude(it, numDouble, magnitude);
+	return addNumberBase(it, numDouble, magnitude);
 }
 
-pair<WebssInt, NumberMagnitude> parseInt(It& it)
+pair<WebssInt, NumberBase> parseInt(It& it)
 {
 #define CheckFirstDigit(IsGoodDigit) if (!skipLineJunk(++it) || !IsGoodDigit) throw runtime_error(ERROR_EXPECTED_NUMBER)
 	if (*it == '0')
 	{
 		if (!skipLineJunk(++it))
-			return{ 0, MAGNITUDE_DEC };
+			return{ 0, NumberBase::BaseDec };
 
 		switch (*it)
 		{
 		case 'b': case 'B':
 			CheckFirstDigit(isDigitBin(*it));
-			return{ getNumberBin(it), MAGNITUDE_BIN };
+			return{ getNumberBin(it), NumberBase::BaseBin };
 		case 'x': case 'X':
 			CheckFirstDigit(isDigitHex(*it));
-			return{ getNumberHex(it), MAGNITUDE_HEX };
+			return{ getNumberHex(it), NumberBase::BaseHex };
 		case 'd': case 'D':
 			CheckFirstDigit(isDigit(*it));
 			break;
 		default:
 			if (!isDigit(*it))
-				return{ 0, MAGNITUDE_DEC };
+				return{ 0, NumberBase::BaseDec };
 		}
 	}
-	return{ getNumberDec(it), MAGNITUDE_DEC };
+	return{ getNumberDec(it), NumberBase::BaseDec };
 #undef CheckFirstDigit
 }

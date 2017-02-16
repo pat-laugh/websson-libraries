@@ -22,9 +22,9 @@ bool webss::isNumberStart(char c)
 	return isDigit(c) || c == '-' || c == '+';
 }
 
-bool webss::isMagnitudeSeparator(char c)
+bool webss::isBaseSeparator(char c)
 {
-	return c == 'e' || c == 'E' || c == 'm' || c == 'M';
+	return c == 'e' || c == 'E' || c == 'p' || c == 'P';
 }
 
 bool webss::isJunk(char c)

@@ -12,7 +12,7 @@ using namespace webss;
 
 bool webss::isNumberEnd(char c, Language lang)
 {
-	return !isDecimalSeparator(c, lang) && !isMagnitudeSeparator(c);
+	return !isDecimalSeparator(c, lang) && !isBaseSeparator(c);
 }
 
 bool webss::isDecimalSeparator(char c, Language lang)
