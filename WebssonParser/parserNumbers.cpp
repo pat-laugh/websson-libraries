@@ -47,30 +47,32 @@ Webss Parser::parseNumber(It& it)
 	return addNumberBase(it, numDouble, magnitude);
 }
 
+/* To get rid of!
 pair<WebssInt, NumberBase> parseInt(It& it)
 {
 #define CheckFirstDigit(IsGoodDigit) if (!skipLineJunk(++it) || !IsGoodDigit) throw runtime_error(ERROR_EXPECTED_NUMBER)
 	if (*it == '0')
 	{
 		if (!skipLineJunk(++it))
-			return{ 0, NumberBase::BaseDec };
+			return{ 0, NumberBase::Dec };
 
 		switch (*it)
 		{
 		case 'b': case 'B':
 			CheckFirstDigit(isDigitBin(*it));
-			return{ getNumberBin(it), NumberBase::BaseBin };
+			return{ getNumberBin(it), NumberBase::Bin };
 		case 'x': case 'X':
 			CheckFirstDigit(isDigitHex(*it));
-			return{ getNumberHex(it), NumberBase::BaseHex };
+			return{ getNumberHex(it), NumberBase::Hex };
 		case 'd': case 'D':
 			CheckFirstDigit(isDigit(*it));
 			break;
 		default:
 			if (!isDigit(*it))
-				return{ 0, NumberBase::BaseDec };
+				return{ 0, NumberBase::Dec };
 		}
 	}
-	return{ getNumberDec(it), NumberBase::BaseDec };
+	return{ getNumberDec(it), NumberBase::Dec };
 #undef CheckFirstDigit
 }
+*/

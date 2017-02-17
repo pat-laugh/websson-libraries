@@ -8,7 +8,7 @@
 
 namespace webss
 {
-	enum class NumberBase : int { BaseBin = 2, BaseOct = 8, BaseDec = 10, BaseHex = 16 };
+	enum class NumberBase : int { Bin = 2, Oct = 8, Dec = 10, Hex = 16 };
 
 	WebssInt getNumberBin(SmartIterator& it); //parserNumbers
 	WebssInt getNumberDec(SmartIterator& it); //parserNumbers
@@ -25,7 +25,7 @@ namespace webss
 	//if not, throws error
 	bool checkNumberStart(SmartIterator& it); //parserNumbers
 
-
-	bool checkNumberSign(SmartIterator& it);
+	bool checkNumberPositive(SmartIterator& it);
+	
 	NumberBase checkNumberBase(SmartIterator& it);
 }

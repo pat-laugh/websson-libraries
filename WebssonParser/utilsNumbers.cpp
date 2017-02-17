@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <functional>
 
 #include "errors.h"
 #include "utilsSweepers.h"
@@ -65,19 +66,19 @@ double checkDecimals(SmartIterator& it, NumberBase base, bool(*isDigit)(char c),
 	return dec / std::pow((double)base, (double)numDigits);
 }
 
-WebssInt webss::getNumberBin(SmartIterator& it) { return getNumber(it, BaseBin, FUNCTIONS_BIN); }
-WebssInt webss::getNumberDec(SmartIterator& it) { return getNumber(it, BaseDec, FUNCTIONS_DEC); }
-WebssInt webss::getNumberHex(SmartIterator& it) { return getNumber(it, BaseHex, FUNCTIONS_HEX); }
+WebssInt webss::getNumberBin(SmartIterator& it) { return getNumber(it, NumberBase::Bin, FUNCTIONS_BIN); }
+WebssInt webss::getNumberDec(SmartIterator& it) { return getNumber(it, NumberBase::Dec, FUNCTIONS_DEC); }
+WebssInt webss::getNumberHex(SmartIterator& it) { return getNumber(it, NumberBase::Hex, FUNCTIONS_HEX); }
 
 double webss::getDecimals(SmartIterator& it, NumberBase base)
 {
 	switch (base)
 	{
-	case NumberBase::BaseBin:
+	case NumberBase::Bin:
 		return checkDecimals(it, base, FUNCTIONS_BIN);
-	case NumberBase::BaseDec:
+	case NumberBase::Dec:
 		return checkDecimals(it, base, FUNCTIONS_DEC);
-	case NumberBase::BaseHex:
+	case NumberBase::Hex:
 		return checkDecimals(it, base, FUNCTIONS_HEX);
 	default:
 		assert(false); throw domain_error("");
@@ -91,7 +92,7 @@ double webss::addNumberBase(SmartIterator& it, double num, NumberBase base)
 	return num *= pow((double)base, (double)(negative ? -numBase : numBase));
 }
 
-bool checkDigit(SmartIterator& it)
+bool checkDigit(SmartIterator& it, function<bool(char c)> isDigit)
 {
 	if (!it)
 		return false;
@@ -102,21 +103,39 @@ bool checkDigit(SmartIterator& it)
 	return false;
 }
 
-bool webss::checkNumberStart(SmartIterator& it)
+bool webss::checkNumberPositive(SmartIterator& it)
 {
-	bool negative = *it == '-';
-	if ((negative || *it == '+') && !checkDigit(++it))
+	bool positive = *it != '-';
+	if ((positive || *it == '-') && (!++it || !isDigit(*it))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
 	return negative;
 }
 
-bool webss::checkNumberSign(SmartIterator& it)
-{
-
-}
-
 NumberBase webss::checkNumberBase(SmartIterator& it)
 {
-
+	if (*it != '0' || it.peekEnd())
+		return NumberBase::Dec;
+	
+	switch (it.peek())
+	{
+	case 'b': case 'B':
+		if (!checkDigit(it.readTwo()))
+			throw runtime_error(ERROR_EXPECTED_NUMBER);
+		return NumberBase::Bin;
+	case 'c': case 'C':
+		if (!checkDigit(it.readTwo()))
+			throw runtime_error(ERROR_EXPECTED_NUMBER);
+		return NumberBase::Oct;
+	case 'd': case 'D':
+		if (!checkDigit(it.readTwo()))
+			throw runtime_error(ERROR_EXPECTED_NUMBER);
+		return NumberBase::Dec;
+	case 'x': case 'X':
+		if (!checkDigit(it.readTwo()))
+			throw runtime_error(ERROR_EXPECTED_NUMBER);
+		return NumberBase::Hex;
+	default:
+		return NumberBase::Dec;
+	}
 }
 
