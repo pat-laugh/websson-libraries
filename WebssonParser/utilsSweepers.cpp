@@ -193,3 +193,21 @@ TypeContainer webss::skipJunkToContainer(SmartIterator& it)
 	}
 }
 #undef CSCase
+
+string webss::parseName(SmartIterator& it)
+{
+	assert(it && isNameStart(*it));
+	string name;
+	name += *it;
+	while (++it)
+		if (isNameBody(*it))
+			name += *it;
+		else if (isNameSeparator(*it) && it.peekGood() && isNameBody(it.peek()))
+		{
+			name += *it;
+			name += *++it;
+		}
+		else
+			break;
+	return name;
+}

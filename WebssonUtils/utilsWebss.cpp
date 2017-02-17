@@ -9,12 +9,17 @@ using namespace webss;
 
 bool webss::isNameStart(char c)
 {
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || (unsigned char)c > 127;
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (unsigned char)c > 127;
 }
 
 bool webss::isNameBody(char c)
 {
 	return isNameStart(c) || isDigit(c);
+}
+
+bool webss::isNameSeparator(char c)
+{
+	return c == '_' || c == '-';
 }
 
 bool webss::isNumberStart(char c)

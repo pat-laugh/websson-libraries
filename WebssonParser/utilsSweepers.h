@@ -40,4 +40,6 @@ namespace webss
 
 	enum class TypeContainer { DICTIONARY, LIST, TUPLE, TEMPLATE_HEAD, LINE_STRING, EQUAL, CSTRING, MULTILINE_STRING, TEXT_LIST, TEXT_TUPLE, TEXT_TEMPLATE_HEAD };
 	TypeContainer skipJunkToContainer(SmartIterator& it);
+	
+	std::string parseName(SmartIterator& it);
 }

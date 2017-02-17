@@ -41,15 +41,6 @@ Entity Parser::parseAbstractEntity(It& it, const Namespace& currentNamespace)
 	}
 }
 
-string Parser::parseName(It& it)
-{
-	string name;
-	do
-		name += *it;
-	while (++it && isNameBody(*it));
-	return name;
-}
-
 string Parser::parseNameSafe(It& it)
 {
 	skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
