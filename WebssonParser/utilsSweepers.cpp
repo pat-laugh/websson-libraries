@@ -3,6 +3,7 @@
 #include "utilsSweepers.h"
 
 #include "errors.h"
+#include <assert.h>
 
 using namespace std;
 using namespace webss;
