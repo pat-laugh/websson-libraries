@@ -23,10 +23,7 @@ Webss Parser::parseNumber(It& it)
 
 	if (isDecimalSeparator(*it, language))
 	{
-		if (!skipLineJunk(++it))
-			throw runtime_error(ERROR_EXPECTED_NUMBER);
-
-		auto decimals = getDecimals(it, base);
+		auto decimals = parseDecimals(++it, base);
 		if (negative)
 			decimals = -decimals;
 

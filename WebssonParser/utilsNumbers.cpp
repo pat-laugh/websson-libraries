@@ -31,43 +31,30 @@ WebssInt getNumber(SmartIterator& it, NumberBase base, const function<bool(char 
 		sb += *it;
 	while (checkDigit(++it, isDigit));
 
-	WebssInt number;
 	try
 	{
 		string s = sb.str();
-		number = std::stoll(s, nullptr, (int)base);
+		return std::stoll(s, nullptr, (int)base);
 	}
 	catch (out_of_range e)
 	{
 		throw runtime_error("integer is outside bounds");
 	}
-	return number;
 }
 
-double checkDecimals(SmartIterator& it, NumberBase base, bool(*isDigit)(char c), int(*charToInt)(char c))
+double checkDecimals(SmartIterator& it, NumberBase base, int maxDigits, const function<bool(char c)>& isDigit, const function<int(char c)>& charToInt)
 {
-	if (!isDigit(*it))
+	if (!checkDigit(it, isDigit))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
 
-	int numDigits = 0;
-	StringBuilder sb;
-	do
-	{
-		sb += *it;
-		if (++numDigits > 17) //magic number: http://stackoverflow.com/questions/17244898/maximum-number-of-decimal-digits-that-can-affect-a-double#17245451
-			throw runtime_error("too many decimals");
-	} while (skipLineJunk(++it) && isDigit(*it));
-
-	WebssInt dec;
-	try
-	{
-		string s = sb.str();
-		dec = std::stoll(s, nullptr, (int)base);
-	}
-	catch (out_of_range e)
-	{
-		throw runtime_error("decimals are outside bounds");
-	}
+	int numDigits = 1;
+	WebssInt dec = charToInt(*it);
+	while (checkDigit(++it, isDigit))
+		if (numDigits < maxDigits)
+		{
+			dec = dec * (int)base + charToInt(*it);
+			++numDigits;
+		}
 
 	return dec / std::pow((double)base, (double)numDigits);
 }
@@ -94,18 +81,20 @@ WebssInt webss::parseInt(SmartIterator& it, NumberBase base)
 	}
 }
 
-double webss::getDecimals(SmartIterator& it, NumberBase base)
+double webss::parseDecimals(SmartIterator& it, NumberBase base)
 {
+	//max digit numbers: http://stackoverflow.com/questions/17244898/maximum-number-of-decimal-digits-that-can-affect-a-double#17245451
+	//floor(<MantissaDouble(52)> * log 2 / log <base>) + 2
 	switch (base)
 	{
 	case NumberBase::Bin:
-		return checkDecimals(it, base, isDigitBin, binToInt);
+		return checkDecimals(it, base, 54, isDigitBin, binToInt);
 	case NumberBase::Oct:
-		return checkDecimals(it, base, isDigitOct, octToInt);
+		return checkDecimals(it, base, 19, isDigitOct, octToInt);
 	case NumberBase::Dec:
-		return checkDecimals(it, base, isDigitDec, decToInt);
+		return checkDecimals(it, base, 17, isDigitDec, decToInt);
 	case NumberBase::Hex:
-		return checkDecimals(it, base, isDigitHex, hexToInt);
+		return checkDecimals(it, base, 15, isDigitHex, hexToInt);
 	default:
 		assert(false); throw domain_error("");
 	}
@@ -123,7 +112,7 @@ bool webss::checkNumberNegative(SmartIterator& it)
 	bool negative = *it == '-';
 	if ((negative || *it == '+') && (!++it || !isDigitDec(*it)))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
-	return !negative;
+	return negative;
 }
 
 NumberBase checkDigitWrapper(SmartIterator& it, const function<bool(char c)>& isDigit, NumberBase base)
