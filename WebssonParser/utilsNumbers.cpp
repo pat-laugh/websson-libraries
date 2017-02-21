@@ -13,16 +13,23 @@
 using namespace std;
 using namespace webss;
 
-#define FUNCTIONS_BIN isDigitBin, binToInt
-#define FUNCTIONS_DEC isDigitDec, decToInt
-#define FUNCTIONS_HEX isDigitHex, hexToInt
+bool checkDigit(SmartIterator& it, const function<bool(char c)>& isDigit)
+{
+	if (!it)
+		return false;
+	if (isDigit(*it))
+		return true;
+	if (isLineJunk(*it))
+		return checkDigit(skipLineJunk(++it), isDigit);
+	return false;
+}
 
-WebssInt getNumber(SmartIterator& it, NumberBase base, bool(*isDigit)(char c), int(*charToInt)(char c))
+WebssInt getNumber(SmartIterator& it, NumberBase base, const function<bool(char c)>& isDigit, const function<int(char c)>& charToInt)
 {
 	StringBuilder sb;
 	do
 		sb += *it;
-	while (skipLineJunk(++it) && isDigit(*it));
+	while (checkDigit(++it, isDigit));
 
 	WebssInt number;
 	try
@@ -49,8 +56,7 @@ double checkDecimals(SmartIterator& it, NumberBase base, bool(*isDigit)(char c),
 		sb += *it;
 		if (++numDigits > 17) //magic number: http://stackoverflow.com/questions/17244898/maximum-number-of-decimal-digits-that-can-affect-a-double#17245451
 			throw runtime_error("too many decimals");
-	}
-	while (skipLineJunk(++it) && isDigit(*it));
+	} while (skipLineJunk(++it) && isDigit(*it));
 
 	WebssInt dec;
 	try
@@ -66,20 +72,40 @@ double checkDecimals(SmartIterator& it, NumberBase base, bool(*isDigit)(char c),
 	return dec / std::pow((double)base, (double)numDigits);
 }
 
-WebssInt webss::getNumberBin(SmartIterator& it) { return getNumber(it, NumberBase::Bin, FUNCTIONS_BIN); }
-WebssInt webss::getNumberDec(SmartIterator& it) { return getNumber(it, NumberBase::Dec, FUNCTIONS_DEC); }
-WebssInt webss::getNumberHex(SmartIterator& it) { return getNumber(it, NumberBase::Hex, FUNCTIONS_HEX); }
+WebssInt webss::parseIntBin(SmartIterator& it) { return getNumber(it, NumberBase::Bin, isDigitBin, binToInt); }
+WebssInt webss::parseIntOct(SmartIterator& it) { return getNumber(it, NumberBase::Oct, isDigitOct, octToInt); }
+WebssInt webss::parseIntDec(SmartIterator& it) { return getNumber(it, NumberBase::Dec, isDigitDec, decToInt); }
+WebssInt webss::parseIntHex(SmartIterator& it) { return getNumber(it, NumberBase::Hex, isDigitHex, hexToInt); }
+
+WebssInt webss::parseInt(SmartIterator& it, NumberBase base)
+{
+	switch (base)
+	{
+	case NumberBase::Bin:
+		return parseIntBin(it);
+	case NumberBase::Oct:
+		return parseIntOct(it);
+	case NumberBase::Dec:
+		return parseIntDec(it);
+	case NumberBase::Hex:
+		return parseIntHex(it);
+	default:
+		assert(false); throw domain_error("");
+	}
+}
 
 double webss::getDecimals(SmartIterator& it, NumberBase base)
 {
 	switch (base)
 	{
 	case NumberBase::Bin:
-		return checkDecimals(it, base, FUNCTIONS_BIN);
+		return checkDecimals(it, base, isDigitBin, binToInt);
+	case NumberBase::Oct:
+		return checkDecimals(it, base, isDigitOct, octToInt);
 	case NumberBase::Dec:
-		return checkDecimals(it, base, FUNCTIONS_DEC);
+		return checkDecimals(it, base, isDigitDec, decToInt);
 	case NumberBase::Hex:
-		return checkDecimals(it, base, FUNCTIONS_HEX);
+		return checkDecimals(it, base, isDigitHex, hexToInt);
 	default:
 		assert(false); throw domain_error("");
 	}
@@ -87,20 +113,9 @@ double webss::getDecimals(SmartIterator& it, NumberBase base)
 
 double webss::addNumberBase(SmartIterator& it, double num, NumberBase base)
 {
-	bool negative = checkNumberStart(it);
-	auto numBase = getNumberDec(it);
+	bool negative = checkNumberNegative(it);
+	auto numBase = parseIntDec(it);
 	return num *= pow((double)base, (double)(negative ? -numBase : numBase));
-}
-
-bool checkDigit(SmartIterator& it, const function<bool(char c)>& isDigit)
-{
-	if (!it)
-		return false;
-	if (isDigit(*it))
-		return true;
-	if (isLineJunk(*it))
-		return checkDigit(skipLineJunk(++it), isDigit);
-	return false;
 }
 
 bool webss::checkNumberNegative(SmartIterator& it)

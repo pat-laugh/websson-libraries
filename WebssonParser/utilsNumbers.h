@@ -10,9 +10,12 @@ namespace webss
 {
 	enum class NumberBase : int { Bin = 2, Oct = 8, Dec = 10, Hex = 16 };
 
-	WebssInt getNumberBin(SmartIterator& it); //parserNumbers
-	WebssInt getNumberDec(SmartIterator& it); //parserNumbers
-	WebssInt getNumberHex(SmartIterator& it); //parserNumbers, unicode
+	WebssInt parseInt(SmartIterator& it, NumberBase base);
+
+	WebssInt parseIntBin(SmartIterator& it);
+	WebssInt parseIntOct(SmartIterator& it);
+	WebssInt parseIntDec(SmartIterator& it);
+	WebssInt parseIntHex(SmartIterator& it);
 
 	//gets a decimal number (0 <= x < 1) based on base
 	double getDecimals(SmartIterator& it, NumberBase base); //parserNumbers
