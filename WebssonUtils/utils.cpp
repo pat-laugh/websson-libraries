@@ -10,14 +10,19 @@ bool webss::isDigitBin(char c)
 	return c == '0' || c == '1';
 }
 
-bool webss::isDigit(char c)
+bool webss::isDigitOct(char c)
+{
+	return c >= '0' && c <= '7';
+}
+
+bool webss::isDigitDec(char c)
 {
 	return c >= '0' && c <= '9';
 }
 
 bool webss::isDigitHex(char c)
 {
-	return isDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+	return isDigitDec(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
 int webss::binToInt(char c)
@@ -25,7 +30,12 @@ int webss::binToInt(char c)
 	return c - '0';
 }
 
-int webss::charToInt(char c)
+int webss::octToInt(char c)
+{
+	return c - '0';
+}
+
+int webss::decToInt(char c)
 {
 	return c - '0';
 }

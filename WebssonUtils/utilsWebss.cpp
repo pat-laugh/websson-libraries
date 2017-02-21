@@ -14,12 +14,12 @@ bool webss::isNameStart(char c)
 
 bool webss::isNameBody(char c)
 {
-	return isNameStart(c) || isDigit(c);
+	return isNameStart(c) || isDigitDec(c);
 }
 
 bool webss::isNumberStart(char c)
 {
-	return isDigit(c) || c == '-' || c == '+';
+	return isDigitDec(c) || c == '-' || c == '+';
 }
 
 bool webss::isBaseSeparator(char c)
