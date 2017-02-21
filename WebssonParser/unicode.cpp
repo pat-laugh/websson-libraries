@@ -65,7 +65,7 @@ unsigned int readHex(SmartIterator& it, unsigned int numDigits)
 	{
 		if (!(++it) || !isDigitHex(*it))
 			throw runtime_error(ERROR_EXPECTED_HEX);
-		hex = hex * MAGNITUDE_HEX + hexToInt(*it);
+		hex = hex * (int)NumberBase::Hex + hexToInt(*it);
 	}
 	++it;
 	return hex;

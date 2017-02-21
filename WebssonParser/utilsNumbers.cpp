@@ -14,7 +14,7 @@ using namespace std;
 using namespace webss;
 
 #define FUNCTIONS_BIN isDigitBin, binToInt
-#define FUNCTIONS_DEC isDigit, charToInt
+#define FUNCTIONS_DEC isDigitDec, decToInt
 #define FUNCTIONS_HEX isDigitHex, hexToInt
 
 WebssInt getNumber(SmartIterator& it, NumberBase base, bool(*isDigit)(char c), int(*charToInt)(char c))
@@ -99,16 +99,16 @@ bool checkDigit(SmartIterator& it, function<bool(char c)> isDigit)
 	if (isDigit(*it))
 		return true;
 	if (isLineJunk(*it))
-		return checkDigit(skipLineJunk(++it));
+		return checkDigit(skipLineJunk(++it), move(isDigit));
 	return false;
 }
 
 bool webss::checkNumberPositive(SmartIterator& it)
 {
 	bool positive = *it != '-';
-	if ((positive || *it == '-') && (!++it || !isDigit(*it))
+	if ((positive || *it == '-') && (!++it || !isDigitDec(*it)))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
-	return negative;
+	return positive;
 }
 
 NumberBase webss::checkNumberBase(SmartIterator& it)
@@ -119,19 +119,19 @@ NumberBase webss::checkNumberBase(SmartIterator& it)
 	switch (it.peek())
 	{
 	case 'b': case 'B':
-		if (!checkDigit(it.readTwo()))
+		if (!checkDigit(it.readTwo(), isDigitBin))
 			throw runtime_error(ERROR_EXPECTED_NUMBER);
 		return NumberBase::Bin;
 	case 'c': case 'C':
-		if (!checkDigit(it.readTwo()))
+		if (!checkDigit(it.readTwo(), isDigitOct))
 			throw runtime_error(ERROR_EXPECTED_NUMBER);
 		return NumberBase::Oct;
 	case 'd': case 'D':
-		if (!checkDigit(it.readTwo()))
+		if (!checkDigit(it.readTwo(), isDigitHex))
 			throw runtime_error(ERROR_EXPECTED_NUMBER);
 		return NumberBase::Dec;
 	case 'x': case 'X':
-		if (!checkDigit(it.readTwo()))
+		if (!checkDigit(it.readTwo(), isDigitDec))
 			throw runtime_error(ERROR_EXPECTED_NUMBER);
 		return NumberBase::Hex;
 	default:

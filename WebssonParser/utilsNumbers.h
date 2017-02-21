@@ -23,7 +23,7 @@ namespace webss
 	//return true if number is positive, else if negative
 	//if started with '-' or '+', checks if next non-whitespace character is a digit
 	//if not, throws error
-	bool checkNumberStart(SmartIterator& it); //parserNumbers
+//	bool checkNumberStart(SmartIterator& it); //parserNumbers
 
 	bool checkNumberPositive(SmartIterator& it);
 	
