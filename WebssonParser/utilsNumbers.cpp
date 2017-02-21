@@ -92,23 +92,30 @@ double webss::addNumberBase(SmartIterator& it, double num, NumberBase base)
 	return num *= pow((double)base, (double)(negative ? -numBase : numBase));
 }
 
-bool checkDigit(SmartIterator& it, function<bool(char c)> isDigit)
+bool checkDigit(SmartIterator& it, const function<bool(char c)>& isDigit)
 {
 	if (!it)
 		return false;
 	if (isDigit(*it))
 		return true;
 	if (isLineJunk(*it))
-		return checkDigit(skipLineJunk(++it), move(isDigit));
+		return checkDigit(skipLineJunk(++it), isDigit);
 	return false;
 }
 
-bool webss::checkNumberPositive(SmartIterator& it)
+bool webss::checkNumberNegative(SmartIterator& it)
 {
-	bool positive = *it != '-';
-	if ((positive || *it == '-') && (!++it || !isDigitDec(*it)))
+	bool negative = *it == '-';
+	if ((negative || *it == '+') && (!++it || !isDigitDec(*it)))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
-	return positive;
+	return !negative;
+}
+
+NumberBase checkDigitWrapper(SmartIterator& it, const function<bool(char c)>& isDigit, NumberBase base)
+{
+	if (!checkDigit(it.readTwo(), isDigit))
+		throw runtime_error(ERROR_EXPECTED_NUMBER);
+	return base;
 }
 
 NumberBase webss::checkNumberBase(SmartIterator& it)
@@ -119,21 +126,13 @@ NumberBase webss::checkNumberBase(SmartIterator& it)
 	switch (it.peek())
 	{
 	case 'b': case 'B':
-		if (!checkDigit(it.readTwo(), isDigitBin))
-			throw runtime_error(ERROR_EXPECTED_NUMBER);
-		return NumberBase::Bin;
+		return checkDigitWrapper(it, isDigitBin, NumberBase::Bin);
 	case 'c': case 'C':
-		if (!checkDigit(it.readTwo(), isDigitOct))
-			throw runtime_error(ERROR_EXPECTED_NUMBER);
-		return NumberBase::Oct;
+		return checkDigitWrapper(it, isDigitOct, NumberBase::Oct);
 	case 'd': case 'D':
-		if (!checkDigit(it.readTwo(), isDigitHex))
-			throw runtime_error(ERROR_EXPECTED_NUMBER);
-		return NumberBase::Dec;
+		return checkDigitWrapper(it, isDigitDec, NumberBase::Dec);
 	case 'x': case 'X':
-		if (!checkDigit(it.readTwo(), isDigitDec))
-			throw runtime_error(ERROR_EXPECTED_NUMBER);
-		return NumberBase::Hex;
+		return checkDigitWrapper(it, isDigitHex, NumberBase::Hex);
 	default:
 		return NumberBase::Dec;
 	}

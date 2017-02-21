@@ -25,7 +25,7 @@ namespace webss
 	//if not, throws error
 //	bool checkNumberStart(SmartIterator& it); //parserNumbers
 
-	bool checkNumberPositive(SmartIterator& it);
+	bool checkNumberNegative(SmartIterator& it);
 	
 	NumberBase checkNumberBase(SmartIterator& it);
 }

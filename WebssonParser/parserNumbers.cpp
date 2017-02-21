@@ -12,7 +12,11 @@ std::pair<WebssInt, NumberBase> parseInt(It& it);
 
 Webss Parser::parseNumber(It& it)
 {
-	bool negative = checkNumberStart(it);
+	bool negative = checkNumberNegative(it);
+	auto base = checkNumberBase(it);
+
+
+
 	auto parsedPair = parseInt(it);
 	auto num = parsedPair.first;
 	if (negative)
