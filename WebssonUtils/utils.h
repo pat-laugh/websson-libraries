@@ -7,8 +7,11 @@ namespace webss
 	//char is '0' or '1'
 	bool isDigitBin(char c);
 
+	//char between '0' and '7'
+	bool isDigitOct(char c);
+
 	//char between '0' and '9'
-	bool isDigit(char c);
+	bool isDigitDec(char c);
 
 	//returns true if char is a hexadecimal digit, else false
 	bool isDigitHex(char c);
@@ -17,9 +20,13 @@ namespace webss
 	//REQUIREMENT: c must be a binary digit
 	int binToInt(char c);
 
+	//returns a decimal version of the octal digit
+	//REQUIREMENT: c must be a octal digit
+	int octToInt(char c);
+
 	//returns an int version of the char digit
-	//REQUIREMENT: c must be a char digit
-	int charToInt(char c);
+	//REQUIREMENT: c must be a decimal digit
+	int decToInt(char c);
 
 	//returns a decimal version of the hexadecimal digit
 	//REQUIREMENT: c must be a hexadecimal digit

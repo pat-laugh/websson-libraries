@@ -14,7 +14,7 @@ bool webss::isNameStart(char c)
 
 bool webss::isNameBody(char c)
 {
-	return isNameStart(c) || isDigit(c);
+	return isNameStart(c) || isDigitDec(c);
 }
 
 bool webss::isNameSeparator(char c)
@@ -24,12 +24,12 @@ bool webss::isNameSeparator(char c)
 
 bool webss::isNumberStart(char c)
 {
-	return isDigit(c) || c == '-' || c == '+';
+	return isDigitDec(c) || c == '-' || c == '+';
 }
 
-bool webss::isMagnitudeSeparator(char c)
+bool webss::isBaseSeparator(char c)
 {
-	return c == 'e' || c == 'E' || c == 'm' || c == 'M';
+	return c == 'e' || c == 'E' || c == 'p' || c == 'P';
 }
 
 bool webss::isJunk(char c)

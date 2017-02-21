@@ -8,20 +8,22 @@
 
 namespace webss
 {
-	enum NumberMagnitude { MAGNITUDE_BIN = 2, MAGNITUDE_DEC = 10, MAGNITUDE_HEX = 16 };
+	enum class NumberBase : int { Bin = 2, Oct = 8, Dec = 10, Hex = 16 };
 
-	WebssInt getNumberBin(SmartIterator& it); //parserNumbers
-	WebssInt getNumberDec(SmartIterator& it); //parserNumbers
-	WebssInt getNumberHex(SmartIterator& it); //parserNumbers, unicode
+	WebssInt parseInt(SmartIterator& it, NumberBase base);
 
-	//gets a decimal number (0 <= x < 1) based on mag
-	double getDecimals(SmartIterator& it, NumberMagnitude mag); //parserNumbers
+	WebssInt parseIntBin(SmartIterator& it);
+	WebssInt parseIntOct(SmartIterator& it);
+	WebssInt parseIntDec(SmartIterator& it);
+	WebssInt parseIntHex(SmartIterator& it);
 
-	//adds magnitude to num
-	double addNumberMagnitude(SmartIterator& it, double num, NumberMagnitude mag); //parserNumbers
+	//gets a decimal number (0 <= x < 1) based on base
+	double parseDecimals(SmartIterator& it, NumberBase base); //parserNumbers
 
-	//return true if number is positive, else if negative
-	//if started with '-' or '+', checks if next non-whitespace character is a digit
-	//if not, throws error
-	bool checkNumberStart(SmartIterator& it); //parserNumbers
+	//adds base to num
+	double addNumberBase(SmartIterator& it, double num, NumberBase base); //parserNumbers
+
+	bool checkNumberNegative(SmartIterator& it);
+	
+	NumberBase checkNumberBase(SmartIterator& it);
 }

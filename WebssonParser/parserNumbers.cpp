@@ -8,13 +8,11 @@
 using namespace std;
 using namespace webss;
 
-std::pair<WebssInt, NumberMagnitude> parseInt(It& it);
-
 Webss Parser::parseNumber(It& it)
 {
-	bool negative = checkNumberStart(it);
-	auto parsedPair = parseInt(it);
-	auto num = parsedPair.first;
+	bool negative = checkNumberNegative(it);
+	auto base = checkNumberBase(it);
+	auto num = parseInt(it, base);
 	if (negative)
 		num = -num;
 
@@ -22,14 +20,10 @@ Webss Parser::parseNumber(It& it)
 		return num;
 
 	double numDouble = (double)num;
-	auto magnitude = parsedPair.second;
 
 	if (isDecimalSeparator(*it, language))
 	{
-		if (!skipLineJunk(++it))
-			throw runtime_error(ERROR_EXPECTED_NUMBER);
-
-		auto decimals = getDecimals(it, magnitude);
+		auto decimals = parseDecimals(++it, base);
 		if (negative)
 			decimals = -decimals;
 
@@ -38,39 +32,11 @@ Webss Parser::parseNumber(It& it)
 		if (!it || isNumberEnd(*it, language))
 			return numDouble;
 
-		if (!isMagnitudeSeparator(*it))
+		if (!isBaseSeparator(*it))
 			throw runtime_error("invalid number");
 	}
 
 	if (!skipLineJunk(++it) || !isNumberStart(*it))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
-	return addNumberMagnitude(it, numDouble, magnitude);
-}
-
-pair<WebssInt, NumberMagnitude> parseInt(It& it)
-{
-#define CheckFirstDigit(IsGoodDigit) if (!skipLineJunk(++it) || !IsGoodDigit) throw runtime_error(ERROR_EXPECTED_NUMBER)
-	if (*it == '0')
-	{
-		if (!skipLineJunk(++it))
-			return{ 0, MAGNITUDE_DEC };
-
-		switch (*it)
-		{
-		case 'b': case 'B':
-			CheckFirstDigit(isDigitBin(*it));
-			return{ getNumberBin(it), MAGNITUDE_BIN };
-		case 'x': case 'X':
-			CheckFirstDigit(isDigitHex(*it));
-			return{ getNumberHex(it), MAGNITUDE_HEX };
-		case 'd': case 'D':
-			CheckFirstDigit(isDigit(*it));
-			break;
-		default:
-			if (!isDigit(*it))
-				return{ 0, MAGNITUDE_DEC };
-		}
-	}
-	return{ getNumberDec(it), MAGNITUDE_DEC };
-#undef CheckFirstDigit
+	return addNumberBase(it, numDouble, base);
 }

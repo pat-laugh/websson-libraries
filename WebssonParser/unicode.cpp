@@ -65,7 +65,7 @@ unsigned int readHex(SmartIterator& it, unsigned int numDigits)
 	{
 		if (!(++it) || !isDigitHex(*it))
 			throw runtime_error(ERROR_EXPECTED_HEX);
-		hex = hex * MAGNITUDE_HEX + hexToInt(*it);
+		hex = hex * (int)NumberBase::Hex + hexToInt(*it);
 	}
 	++it;
 	return hex;
@@ -79,7 +79,7 @@ void putContainedEscapedHex(SmartIterator& it, StringBuilder& str, char separato
 loopStart:
 	if (isDigitHex(*skipJunkToValid(++it)))
 	{
-		putUnicode(str, static_cast<unsigned int>(getNumberHex(it)));
+		putUnicode(str, static_cast<unsigned int>(parseIntHex(it)));
 		if (!it)
 			throw runtime_error(webss_ERROR_EXPECTED_CHAR('}'));
 	}
