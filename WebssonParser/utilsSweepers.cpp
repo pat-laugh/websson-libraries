@@ -106,9 +106,9 @@ bool webss::checkComment(SmartIterator& it)
 	
 	char c = it.peek();
 	if (c == CHAR_COMMENT)
-		skipLineComment(it.readTwo());
+		skipLineComment(it.incTwo());
 	else if (c == '*')
-		skipMultilineComment(it.readTwo());
+		skipMultilineComment(it.incTwo());
 	else
 		return false;
 	return true;
@@ -156,7 +156,7 @@ TypeContainer webss::skipJunkToContainer(SmartIterator& it)
 	CSCase(CHAR_COLON):
 		if (it.peekEnd() || it.peek() != CHAR_COLON)
 			return TypeContainer::LINE_STRING;
-		switch (*skipJunkToValid(it.readTwo()))
+		switch (*skipJunkToValid(it.incTwo()))
 		{
 		case OPEN_DICTIONARY:
 			return TypeContainer::MULTILINE_STRING;

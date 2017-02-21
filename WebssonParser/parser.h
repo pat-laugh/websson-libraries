@@ -29,6 +29,8 @@ namespace webss
 		char separator;
 		bool lineGreed = false;
 
+		using It = SmartIterator;
+
 		class OtherValue
 		{
 		public:

@@ -117,7 +117,7 @@ bool webss::checkNumberNegative(SmartIterator& it)
 
 NumberBase checkDigitWrapper(SmartIterator& it, const function<bool(char c)>& isDigit, NumberBase base)
 {
-	if (!checkDigit(it.readTwo(), isDigit))
+	if (!checkDigit(it.incTwo(), isDigit))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
 	return base;
 }

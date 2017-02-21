@@ -47,7 +47,7 @@ namespace webss
 				isValid = false;
 			return *this;
 		}
-		This& readTwo()
+		This& incTwo()
 		{
 #ifdef GET_LINE
 			checkChar(c1);
