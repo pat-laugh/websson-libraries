@@ -2,6 +2,7 @@
 //Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
+#include "language.h"
 #include "WebssonStructures/types.h"
 #include "WebssonUtils/constants.h"
 #include "WebssonUtils/iterators.h"
@@ -18,12 +19,21 @@ namespace webss
 	WebssInt parseIntHex(SmartIterator& it);
 
 	//gets a decimal number (0 <= x < 1) based on base
-	double parseDecimals(SmartIterator& it, NumberBase base); //parserNumbers
+	double parseDecimals(SmartIterator& it, NumberBase base);
 
 	//adds base to num
-	double addNumberBase(SmartIterator& it, double num, NumberBase base); //parserNumbers
+	double addExponent(SmartIterator& it, double num, NumberBase base);
 
 	bool checkNumberNegative(SmartIterator& it);
 	
 	NumberBase checkNumberBase(SmartIterator& it);
+
+	//'.' or ','
+	bool isDecimalSeparator(char c, Language lang);
+
+	//anything other than a decimal or magnitude separator can end a number
+	bool isNumberEnd(char c, Language lang, NumberBase base);
+
+	//'e' or 'E' for base dec; 'p' or 'P' for other bases
+	bool isBaseSeparator(char c, NumberBase base);
 }

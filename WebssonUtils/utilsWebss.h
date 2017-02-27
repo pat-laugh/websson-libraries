@@ -19,9 +19,6 @@ namespace webss
 	//returns whether or not c is a digit or equal to '-' or '+'
 	bool isNumberStart(char c);
 
-	//'e', 'E', 'p' or 'P'
-	bool isBaseSeparator(char c);
-
 	//any ascii control char or space
 	bool isJunk(char c);
 

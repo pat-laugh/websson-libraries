@@ -100,11 +100,26 @@ double webss::parseDecimals(SmartIterator& it, NumberBase base)
 	}
 }
 
-double webss::addNumberBase(SmartIterator& it, double num, NumberBase base)
+double webss::addExponent(SmartIterator& it, double num, NumberBase base)
 {
 	bool negative = checkNumberNegative(it);
 	auto numBase = parseIntDec(it);
-	return num *= pow((double)base, (double)(negative ? -numBase : numBase));
+	double exp = negative ? -numBase : numBase;
+	switch (base)
+	{
+	case NumberBase::Dec:
+		num *= pow((double)NumberBase::Dec, exp);
+		break;
+	case NumberBase::Bin: case NumberBase::Oct: case NumberBase::Hex:
+		num *= pow((double)NumberBase::Bin, exp);
+		break;
+	default:
+		assert(false); throw domain_error("");
+	}
+
+	if (!std::isfinite(num))
+		throw runtime_error("invalid number, either infinite or NaN");
+	return num;
 }
 
 bool webss::checkNumberNegative(SmartIterator& it)
@@ -142,3 +157,35 @@ NumberBase webss::checkNumberBase(SmartIterator& it)
 	}
 }
 
+bool webss::isDecimalSeparator(char c, Language lang)
+{
+	switch (lang)
+	{
+	case DEFAULT: case EN:
+		return c == '.';
+	case FR:
+		return c == ',';
+	case INTL:
+		return c == '.' || c == ',';
+	default:
+		assert(false); throw domain_error("");
+	}
+}
+
+bool webss::isNumberEnd(char c, Language lang, NumberBase base)
+{
+	return !isDecimalSeparator(c, lang) && !isBaseSeparator(c, base);
+}
+
+bool webss::isBaseSeparator(char c, NumberBase base)
+{
+	switch (base)
+	{
+	case NumberBase::Dec:
+		return c == 'e' || c == 'E';
+	case NumberBase::Bin: case NumberBase::Oct: case NumberBase::Hex:
+		return c == 'p' || c == 'P';
+	default:
+		assert(false); throw domain_error("");
+	}
+}

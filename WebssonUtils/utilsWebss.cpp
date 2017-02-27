@@ -27,11 +27,6 @@ bool webss::isNumberStart(char c)
 	return isDigitDec(c) || c == '-' || c == '+';
 }
 
-bool webss::isBaseSeparator(char c)
-{
-	return c == 'e' || c == 'E' || c == 'p' || c == 'P';
-}
-
 bool webss::isJunk(char c)
 {
 	return c == ' ' || isControlAscii(c);

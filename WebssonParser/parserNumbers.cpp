@@ -16,7 +16,7 @@ Webss Parser::parseNumber(It& it)
 	if (negative)
 		num = -num;
 
-	if (!it || isNumberEnd(*it, language))
+	if (!it || isNumberEnd(*it, language, base))
 		return num;
 
 	double numDouble = (double)num;
@@ -29,14 +29,14 @@ Webss Parser::parseNumber(It& it)
 
 		numDouble += decimals;
 
-		if (!it || isNumberEnd(*it, language))
+		if (!it || isNumberEnd(*it, language, base))
 			return numDouble;
 
-		if (!isBaseSeparator(*it))
+		if (!isBaseSeparator(*it, base))
 			throw runtime_error("invalid number");
 	}
 
 	if (!skipLineJunk(++it) || !isNumberStart(*it))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
-	return addNumberBase(it, numDouble, base);
+	return addExponent(it, numDouble, base);
 }

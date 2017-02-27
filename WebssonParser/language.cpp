@@ -10,26 +10,6 @@
 using namespace std;
 using namespace webss;
 
-bool webss::isNumberEnd(char c, Language lang)
-{
-	return !isDecimalSeparator(c, lang) && !isBaseSeparator(c);
-}
-
-bool webss::isDecimalSeparator(char c, Language lang)
-{
-	switch (lang)
-	{
-	case DEFAULT: case EN:
-		return c == '.';
-	case FR:
-		return c == ',';
-	case INTL:
-		return c == '.' || c == ',';
-	default:
-		assert(false); throw domain_error("");
-	}
-}
-
 char webss::getLanguageSeparator(Language lang)
 {
 	switch (lang)
