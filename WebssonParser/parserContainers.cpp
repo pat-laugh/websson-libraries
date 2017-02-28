@@ -162,7 +162,7 @@ Document Parser::parseDocument(It&& it)
 		return doc;
 #ifdef webss_GET_LINE
 	}
-	catch (exception e)
+	catch (const exception& e)
 	{
 		throw runtime_error(string(getItPosition(it) + ' ' + e.what() + getItCurrentChar(it)).c_str());
 	}
@@ -262,7 +262,7 @@ ImportedDocument Parser::parseImport(It& it, ConType con)
 			if (!checkEmptyContainer(itImported, CON) && !parseDocumentHead(itImported, docHead, CON, Namespace::getEmptyInstance()))
 				throw runtime_error(ERROR_UNEXPECTED);
 		}
-		catch (exception e)
+		catch (const exception& e)
 			{ throw runtime_error(string("while parsing import, ") + e.what()); }
 	}
 	return import;

@@ -301,7 +301,7 @@ ParamBinary::SizeList Parser::parseBinarySizeList(It& it)
 		else
 			throw;
 	}
-	catch (exception)
+	catch (const exception&)
 	{
 		throw runtime_error("value in binary list must be void or a positive integer");
 	}
@@ -322,6 +322,6 @@ WebssBinarySize checkBinarySize(WebssInt sizeInt)
 const Entity& Parser::checkEntTypeBinarySize(const Entity& ent)
 {
 	try { checkBinarySize(ent.getContent().getIntSafe()); }
-	catch (exception e) { throw runtime_error(e.what()); }
+	catch (const exception& e) { throw runtime_error(e.what()); }
 	return ent;
 }

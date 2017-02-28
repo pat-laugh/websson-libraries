@@ -229,7 +229,7 @@ const string& Parser::parseStringEntity(It& it)
 			value = &value->getNamespaceSafe().at(parseName(++it)).getContent();
 		return value->getStringSafe();
 	}
-	catch (exception e)
+	catch (const exception& e)
 	{
 		throw runtime_error("could not get string entity");
 	}

@@ -36,7 +36,7 @@ WebssInt getNumber(SmartIterator& it, NumberBase base, const function<bool(char 
 		string s = sb.str();
 		return std::stoll(s, nullptr, (int)base);
 	}
-	catch (out_of_range e)
+	catch (const out_of_range& e)
 	{
 		throw overflow_error("integer is outside bounds");
 	}
