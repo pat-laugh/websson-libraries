@@ -9,7 +9,7 @@ using namespace webss;
 
 const char* ERROR_VOID = "can't have void element";
 
-bool checkContainerEnd(It& it, ConType con)
+bool checkContainerEnd(SmartIterator& it, ConType con)
 {
 	if (!skipJunk(it))
 	{

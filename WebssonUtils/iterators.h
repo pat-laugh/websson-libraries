@@ -113,8 +113,6 @@ namespace webss
 		}
 	};
 #undef This
-
-	using It = SmartIterator;
 }
 
 #ifdef GET_LINE

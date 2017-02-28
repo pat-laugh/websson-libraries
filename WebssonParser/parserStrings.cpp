@@ -7,18 +7,18 @@
 using namespace std;
 using namespace webss;
 
-inline void putChar(It& it, StringBuilder& s)
+inline void putChar(SmartIterator& it, StringBuilder& s)
 {
 	s += *it;
 	++it;
 }
 
-bool isEnd(It& it, function<bool()> endCondition)
+bool isEnd(SmartIterator& it, function<bool()> endCondition)
 {
 	return !it || *it == '\n' || endCondition();
 }
 
-bool hasNextChar(It& it, StringBuilder& line, function<bool()> endCondition = []() {})
+bool hasNextChar(SmartIterator& it, StringBuilder& line, function<bool()> endCondition = []() {})
 {
 	if (isEnd(it, endCondition))
 		return false;

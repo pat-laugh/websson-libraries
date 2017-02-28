@@ -19,12 +19,12 @@ const char ERROR_INPUT_NAMESPACE[] = "namespace can only have entity definitions
 const char ERROR_INPUT_ENUM[] = "enum can only have key-onlys";
 const char ERROR_INPUT_DOCUMENT[] = "document can only have concrete value-onlys or key-values";
 
-string getItPosition(It& it)
+string getItPosition(SmartIterator& it)
 {
 	return "[ln " + to_string(it.getLine()) + ", col " + to_string(it.getCol()) + "]";
 }
 
-string getItCurrentChar(It& it)
+string getItCurrentChar(SmartIterator& it)
 {
 	if (!it)
 		return string("");

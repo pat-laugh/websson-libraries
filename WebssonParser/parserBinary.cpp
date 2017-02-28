@@ -14,11 +14,11 @@ using namespace webss;
 const char ERROR_BINARY_SIZE_HEAD[] = "size of binary head must be a positive integer, binary template head or equivalent entity";
 const char ERROR_BINARY_SIZE_LIST[] = "size of binary list must be a positive integer or equivalent entity";
 
-Webss parseBinary(It& it, const ParamBinary& bhead);
-void parseBitList(It& it, List& list, WebssBinarySize length);
-Webss parseBinary(It& it, const ParamBinary& bhead, function<Webss()> func);
-Webss parseBinaryElement(It& it, const ParamBinary::SizeHead& bhead);
-Tuple parseBinaryTemplate(It& it, const TemplateHeadBinary::Parameters& params);
+Webss parseBinary(SmartIterator& it, const ParamBinary& bhead);
+void parseBitList(SmartIterator& it, List& list, WebssBinarySize length);
+Webss parseBinary(SmartIterator& it, const ParamBinary& bhead, function<Webss()> func);
+Webss parseBinaryElement(SmartIterator& it, const ParamBinary::SizeHead& bhead);
+Tuple parseBinaryTemplate(SmartIterator& it, const TemplateHeadBinary::Parameters& params);
 
 WebssBinarySize checkBinarySize(WebssInt sizeInt);
 
@@ -166,7 +166,7 @@ char readByte(SmartIterator& it)
 	return c;
 }
 
-Webss parseBinary(It& it, const ParamBinary& bhead)
+Webss parseBinary(SmartIterator& it, const ParamBinary& bhead)
 {
 	if (!bhead.getSizeHead().isTemplateHead())
 		return parseBinary(it, bhead, [&]() { return parseBinaryElement(it, bhead.getSizeHead()); });
@@ -175,7 +175,7 @@ Webss parseBinary(It& it, const ParamBinary& bhead)
 	return parseBinary(it, bhead, [&]() { return parseBinaryTemplate(it, params); });
 }
 
-void parseBitList(It& it, List& list, WebssBinarySize length)
+void parseBitList(SmartIterator& it, List& list, WebssBinarySize length)
 {
 	char c;
 	int shift = 0;
@@ -193,7 +193,7 @@ void parseBitList(It& it, List& list, WebssBinarySize length)
 	}
 }
 
-Webss parseBinaryKeyword(It& it, Keyword keyword)
+Webss parseBinaryKeyword(SmartIterator& it, Keyword keyword)
 {
 	union
 	{
@@ -225,7 +225,7 @@ Webss parseBinaryKeyword(It& it, Keyword keyword)
 
 #define getBinaryLength(x) x.isEmpty() ? readNumber(it) : x.size()
 
-Webss parseBinary(It& it, const ParamBinary& param, function<Webss()> func)
+Webss parseBinary(SmartIterator& it, const ParamBinary& param, function<Webss()> func)
 {
 	if (param.getSizeList().isOne())
 		return func();
@@ -241,7 +241,7 @@ Webss parseBinary(It& it, const ParamBinary& param, function<Webss()> func)
 	return list;
 }
 
-Webss parseBinaryElement(It& it, const ParamBinary::SizeHead& bhead)
+Webss parseBinaryElement(SmartIterator& it, const ParamBinary::SizeHead& bhead)
 {
 	if (bhead.isKeyword())
 		return parseBinaryKeyword(it, bhead.getKeyword());
@@ -259,7 +259,7 @@ void setDefaultValueBinary(Webss& value, const ParamBinary& param)
 	value = Webss(param.getSizeHead().getDefaultPointer());
 }
 
-Tuple parseBinaryTemplate(It& it, const TemplateHeadBinary::Parameters& params)
+Tuple parseBinaryTemplate(SmartIterator& it, const TemplateHeadBinary::Parameters& params)
 {
 	using Bhead = ParamBinary::SizeHead;
 	Tuple tuple(params.getSharedKeys());
