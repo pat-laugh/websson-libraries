@@ -157,58 +157,30 @@ string Parser::parseCString(It& it)
 	throw runtime_error("cstring is not closed");
 }
 
-void putEscapedChar(StringBuilder& str, char c)
-{
-	switch (c)
-	{
-	case '0': str += '\0'; break;
-	case 'a': str += '\a'; break;
-	case 'b': str += '\b'; break;
-	case 'f': str += '\f'; break;
-	case 'n': str += '\n'; break;
-	case 'r': str += '\r'; break;
-	case 't': str += '\t'; break;
-	case 'v': str += '\v'; break;
-
-	case 's': str += ' '; //no need for break
-	case 'e': break; //empty
-
-	default: //isSpecialAscii, else undefined behavior
-		str += c;
-	}
-}
-
-//whether or not the char can be escaped
-//CLARIFICATION: special escapes that require more than 1 char, like \x and \u ARE included
-bool isEscapableChar(char c)
-{
-	switch (c)
-	{
-	case '0': case 'a': case 'b': case 'f': case 'n': case 'r': case 't': case 'v':
-	case 's': case 'e': case 'x': case 'X': case 'u': case 'U':
-		return true;
-	default:
-		return isSpecialAscii(c);
-	}
-}
-
 void Parser::checkEscapedChar(It& it, StringBuilder& line)
 {
-	if (checkLineEscape(it))
+	if (!checkLineEscape(it))
 		return;
-	if (!isEscapableChar(*(++it))) //no need to check it is valid since if not valid, would've been a line escape
-		throw runtime_error("invalid char escape");
 
-	switch (*it)
+	switch (*(++it)) //no need to check it is valid since if not valid, would've been a line escape
 	{
 	case 'x': case 'X': case 'u': case 'U':
 		putEscapedHex(it, line, separator);
-		break;
+		return;
+
+	case '0': line += '\0'; break;
+	case 'e': /* empty */ break;
+	case 'n': line += '\n'; break;
+	case 'r': line += '\r'; break;
+	case 's': line += ' '; break;
+	case 't': line += '\t'; break;
 	default:
-		putEscapedChar(line, *it);
-		++it;
+		if (!isSpecialAscii(*it))
+			throw runtime_error("invalid char escape");
+		line += *it;
 		break;
 	}
+	++it;
 }
 
 bool Parser::checkStringEntity(It& it, StringBuilder& line)
