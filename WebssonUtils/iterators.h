@@ -75,7 +75,7 @@ namespace webss
 	private:
 		std::stringstream in;
 		char c1, c2;
-		bool isValid, hasPeek;
+		bool isValid = true, hasPeek = true;
 #ifdef webss_GET_LINE
 		int line = 1, charCount = 1;
 
@@ -97,14 +97,26 @@ namespace webss
 		void readStart()
 		{
 			c1 = in.get();
-			isValid = in.rdstate() == 0;
-			getPeek();
+			if (in.good())
+				getPeek();
+			else
+			{
+				isValid = false;
+				hasPeek = false;
+				if (!in.eof())
+					throw std::ios_base::failure("io error");
+			}
 		}
 
 		void getPeek()
 		{
 			c2 = in.get();
-			hasPeek = in.rdstate() == 0;
+			if (!in.good())
+			{
+				hasPeek = false;
+				if (!in.eof())
+					throw std::ios_base::failure("io error");
+			}
 		}
 	};
 #undef This
