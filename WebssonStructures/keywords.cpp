@@ -3,41 +3,53 @@
 #include "keywords.h"
 
 #include <cassert>
-#include <map>
+#include <unordered_map>
 
 using namespace std;
 using namespace webss;
 
-const map<string, Keyword> KEYWORDS = {
+const unordered_map<string, Keyword> KEYWORDS = {
 	{ "N", Keyword::KEY_NULL },
-	{ "null", Keyword::KEY_NULL },
+	{ "Nil", Keyword::KEY_NULL },
+	{ "Null", Keyword::KEY_NULL },
 	{ "nil", Keyword::KEY_NULL },
+	{ "null", Keyword::KEY_NULL },
 
 	{ "F", Keyword::KEY_FALSE },
+	{ "False", Keyword::KEY_FALSE },
 	{ "false", Keyword::KEY_FALSE },
 
 	{ "T", Keyword::KEY_TRUE },
+	{ "True", Keyword::KEY_TRUE },
 	{ "true", Keyword::KEY_TRUE },
 
 	{ "B", Keyword::BOOL },
+	{ "Bool", Keyword::BOOL },
 	{ "bool", Keyword::BOOL },
 
+	{ "Byte", Keyword::INT1 },
 	{ "byte", Keyword::INT1 },
 
+	{ "Short", Keyword::INT2 },
 	{ "short", Keyword::INT2 },
 
 	{ "I", Keyword::INT4 },
+	{ "Int", Keyword::INT4 },
 	{ "int", Keyword::INT4 },
 
 	{ "L", Keyword::INT8 },
+	{ "Long", Keyword::INT8 },
 	{ "long", Keyword::INT8 },
 
+	{ "Float", Keyword::FLOAT },
 	{ "float", Keyword::FLOAT },
 
 	{ "D", Keyword::DOUBLE },
+	{ "Double", Keyword::DOUBLE },
 	{ "double", Keyword::DOUBLE },
 
 	{ "S", Keyword::STRING },
+	{ "String", Keyword::STRING },
 	{ "string", Keyword::STRING }
 };
 
