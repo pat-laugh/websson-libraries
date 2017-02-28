@@ -42,7 +42,7 @@ scopeLoop:
 		ent = &ent->getContent().getNamespaceSafe().at(parseName(it));
 		goto scopeLoop;
 	}
-	catch (const exception& e) { throw runtime_error("could not get scoped value"); }
+	catch (const exception&) { throw runtime_error("could not get scoped value"); }
 }
 
 Webss Parser::parseCharValue(It& it, ConType con)
@@ -77,7 +77,7 @@ void Parser::addJsonKeyvalue(It& it, Dictionary& dict)
 		skipJunkToValidCondition(++it, [&]() { return *it == CHAR_COLON; });
 		dict.addSafe(move(name), parseValueEqual(++it, ConType::DICTIONARY));
 	}
-	catch (const exception& e)
+	catch (const exception&)
 	{
 		throw runtime_error("could not parse supposed Json key-value");
 	}

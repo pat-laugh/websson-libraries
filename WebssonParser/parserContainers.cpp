@@ -186,7 +186,7 @@ bool Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType c
 			checkMultiContainer(++it, [&]() { auto import = parseImport(it, con); docHead.push_back(move(import)); });
 			break;
 		case CHAR_SCOPED_DOCUMENT:
-			checkMultiContainer(++it, [&]() { docHead.push_back(parseScopedDocument(it)); });
+			checkMultiContainer(++it, [&]() { parseScopedDocument(it, docHead); });
 			break;
 		default:
 			return false;
@@ -224,21 +224,35 @@ Webss Parser::parseContainerText(It& it)
 	}
 }
 
-ScopedDocument Parser::parseScopedDocument(It& it)
+void Parser::parseScopedDocument(It& it, vector<ParamDocument>& docHead)
 {
 	static const ConType CON = ConType::DICTIONARY;
-	skipJunkToValidCondition(it, [&]() { return *it == OPEN_TEMPLATE; });
-	auto head = parseTemplateHeadScoped(++it);
-
-	skipJunkToValidCondition(it, [&]() { return *it == OPEN_DICTIONARY; });
-	DocumentHead body;
-	if (!checkEmptyContainer(++it, CON))
+	if (*skipJunkToValid(it) == OPEN_TEMPLATE)
 	{
-		ParamDocumentIncluder includer(ents, head.getParameters());
-		if (!parseDocumentHead(it, body, CON, Namespace::getEmptyInstance()))
-			throw runtime_error(ERROR_UNEXPECTED);
+		auto head = parseTemplateHeadScoped(++it);
+
+		skipJunkToValidCondition(it, [&]() { return *it == OPEN_DICTIONARY; });
+		DocumentHead body;
+		if (!checkEmptyContainer(++it, CON))
+		{
+			ParamDocumentIncluder includer(ents, head.getParameters());
+			if (!parseDocumentHead(it, body, CON, Namespace::getEmptyInstance()))
+				throw runtime_error(ERROR_UNEXPECTED);
+		}
+		docHead.push_back(ScopedDocument{ move(head), move(body) });
 	}
-	return{ move(head), move(body) };
+	else
+	{
+		const auto& nspace = parseUsingNamespaceStatic(it);
+
+		//first check the namespace entity is accessible; if so it has to be removed since
+		//it'll no longer be necessary and an entity with the same name could be inside
+		if (ParamDocumentIncluder::namespacePresentScope(ents, nspace))
+			ents.removeLocal(ents[nspace.getName()]);
+
+		for (const auto& ent : nspace)
+			ents.addLocalSafe(ent);
+	}
 }
 
 ImportedDocument Parser::parseImport(It& it, ConType con)

@@ -88,7 +88,7 @@ namespace webss
 		Namespace parseNamespace(It& it, const std::string& name, const Namespace& previousNamespace);
 		Enum parseEnum(It& it, const std::string& name);
 		Webss parseContainerText(It& it);
-		ScopedDocument parseScopedDocument(It& it);
+		void parseScopedDocument(It& it, std::vector<ParamDocument>& docHead);
 		ImportedDocument parseImport(It& it, ConType con);
 		const Namespace& Parser::parseUsingNamespaceStatic(It& it);
 
@@ -182,6 +182,7 @@ namespace webss
 			for (const auto& ent : entitiesToReAdd)
 				ents.addLocal(ent);
 		}
+
 		void includeEntities(const ParamDocument& paramDoc)
 		{
 			using Type = ParamDocument::Type;
@@ -197,16 +198,11 @@ namespace webss
 			{
 				const auto& nspace = paramDoc.getNamespace();
 
-				//first check the namespace entity is accessible; if so it has to be removed since it'll no longer be necessary
-				//and an entity with the same name could be inside.
-				const auto& name = nspace.getName();
-				if (ents.hasEntity(name))
-				{
-					const auto& ent = ents[name];
-					const auto& content = ent.getContent();
-					if (content.isNamespace() && content.getNamespaceSafe() == nspace)
-						remove(ent);
-				}
+				//first check the namespace entity is accessible; if so it has to be removed since
+				//it'll no longer be necessary and an entity with the same name could be inside
+				if (namespacePresentScope(ents, nspace))
+					remove(ents[nspace.getName()]);
+
 				for (const auto& ent : nspace)
 					include(ent);
 				break;
@@ -214,6 +210,17 @@ namespace webss
 			default:
 				assert(false); throw std::domain_error("");
 			}
+		}
+
+		static bool namespacePresentScope(const BasicEntityManager<Webss>& ents, const Namespace& nspace)
+		{
+			const auto& name = nspace.getName();
+			if (!ents.hasEntity(name))
+				return false;
+			
+			//make sure they're the exact same entity, not just two different entities with the same name
+			const auto& content = ents[name].getContent();
+			return content.isNamespace() && content.getNamespaceSafe() == nspace;
 		}
 	};
 }
