@@ -3,6 +3,7 @@
 #include "unicode.h"
 
 #include <cassert>
+#include <limits>
 
 #include "errors.h"
 #include "utilsNumbers.h"
@@ -11,9 +12,11 @@
 using namespace std;
 using namespace webss;
 
+const char* ERROR_EXPECTED_HEX = "expected hexadecimal digit";
+
 //adds a unicode char to the StringBuilder
 //REQUIREMENT: num must be a valid unicode character
-void putUnicode(StringBuilder& str, unsigned int num)
+void putUnicode(StringBuilder& str, int num)
 {
 	if (num < power2<7>::value)
 	{
@@ -53,15 +56,13 @@ void putUnicode(StringBuilder& str, unsigned int num)
 }
 
 //reads a hex number with numDigits digits
-unsigned int readHex(SmartIterator& it, unsigned int numDigits)
+int readHex(SmartIterator& it, int numDigits)
 {
-	static const char ERROR_EXPECTED_HEX[] = "expected hexadecimal digit";
-
 	if (!it || !isDigitHex(*it))
 		throw runtime_error(ERROR_EXPECTED_HEX);
 
-	unsigned int hex = hexToInt(*it);
-	for (unsigned int i = 1; i < numDigits; ++i)
+	int hex = hexToInt(*it);
+	for (int i = 1; i < numDigits; ++i)
 	{
 		if (!(++it) || !isDigitHex(*it))
 			throw runtime_error(ERROR_EXPECTED_HEX);
@@ -79,7 +80,10 @@ void putContainedEscapedHex(SmartIterator& it, StringBuilder& str, char separato
 loopStart:
 	if (isDigitHex(*skipJunkToValid(++it)))
 	{
-		putUnicode(str, static_cast<unsigned int>(parseIntHex(it)));
+		WebssInt hex = parseIntHex(it);
+		if (hex > numeric_limits<signed int>::max())
+			throw overflow_error("escaped char value too high");
+		putUnicode(str, (int)hex);
 		if (!it)
 			throw runtime_error(webss_ERROR_EXPECTED_CHAR('}'));
 	}
@@ -95,21 +99,19 @@ loopStart:
 
 void webss::putEscapedHex(SmartIterator& it, StringBuilder& str, char separator)
 {
-	switch (*it)
-	{
-	case 'x':
+	if (*it == 'x')
 		putUnicode(str, readHex(++it, 2));
-		return;
-	case 'u':
+	else if (*it == 'u')
 		putUnicode(str, readHex(++it, 4));
-		return;
-	case 'U':
+	else if (*it == 'U')
+	{
+		if (it.peekEnd() || !isDigitHex(it.peek()))
+			throw runtime_error(ERROR_EXPECTED_HEX);
+		else if (it.peek() > '7')
+			throw overflow_error("escaped char value too high");
+
 		putUnicode(str, readHex(++it, 8));
-		return;
-	case 'X':
-		putContainedEscapedHex(++it, str, separator);
-		return;
-	default:
-		assert(false); throw std::domain_error("");
 	}
+	else
+		putContainedEscapedHex(++it, str, separator);
 }
