@@ -19,9 +19,10 @@ const char ERROR_INPUT_NAMESPACE[] = "namespace can only have entity definitions
 const char ERROR_INPUT_ENUM[] = "enum can only have key-onlys";
 const char ERROR_INPUT_DOCUMENT[] = "document can only have concrete value-onlys or key-values";
 
+#ifdef webss_GET_LINE
 string getItPosition(SmartIterator& it)
 {
-	return "[ln " + to_string(it.getLine()) + ", col " + to_string(it.getCol()) + "]";
+	return "[ln " + to_string(it.getLine()) + ", ch " + to_string(it.getCharCount()) + "]";
 }
 
 string getItCurrentChar(SmartIterator& it)
@@ -55,8 +56,7 @@ string getItCurrentChar(SmartIterator& it)
 	}
 	return out;
 }
-
-//#define parseContainer static_cast<ParserContainers*>(this)->parseContainer
+#endif //webss_GET_LINE
 
 Dictionary Parser::parseDictionary(It& it)
 {
@@ -144,7 +144,7 @@ Enum Parser::parseEnum(It& it, const string& name)
 Document Parser::parseDocument(It&& it)
 {
 	static const ConType CON = ConType::DOCUMENT;
-#ifdef GET_LINE
+#ifdef webss_GET_LINE
 	try
 	{
 #endif
@@ -160,7 +160,7 @@ Document Parser::parseDocument(It&& it)
 			while (checkNextElementContainer(it, CON));
 		}
 		return doc;
-#ifdef GET_LINE
+#ifdef webss_GET_LINE
 	}
 	catch (exception e)
 	{

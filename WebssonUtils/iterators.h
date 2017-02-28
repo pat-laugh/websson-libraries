@@ -6,10 +6,7 @@
 #include <sstream>
 #include <string>
 
-#define GET_LINE
-#ifdef GET_LINE
-#define TAB_LENGTH 4
-#endif
+#define webss_GET_LINE
 
 namespace webss
 {
@@ -35,7 +32,7 @@ namespace webss
 
 		This& operator++() //prefix
 		{
-#ifdef GET_LINE
+#ifdef webss_GET_LINE
 			checkChar(c1);
 #endif
 			if (hasPeek)
@@ -49,7 +46,7 @@ namespace webss
 		}
 		This& incTwo()
 		{
-#ifdef GET_LINE
+#ifdef webss_GET_LINE
 			checkChar(c1);
 			checkChar(c2);
 #endif
@@ -71,31 +68,29 @@ namespace webss
 		bool peekGood() { return hasPeek; }
 		bool peekEnd() { return !peekGood(); }
 
-#ifdef GET_LINE
+#ifdef webss_GET_LINE
 		int getLine() { return line; }
-		int getCol() { return col; }
+		int getCharCount() { return charCount; }
 #endif
 	private:
 		std::stringstream in;
 		char c1, c2;
 		bool isValid, hasPeek;
-#ifdef GET_LINE
-		int line = 1, col = 1;
+#ifdef webss_GET_LINE
+		int line = 1, charCount = 1;
 
 		void addLine()
 		{
 			++line;
-			col = 1;
+			charCount = 1;
 		}
 
 		void checkChar(char c)
 		{
 			if (c == '\n')
 				addLine();
-			else if (c == '\t')
-				col += TAB_LENGTH;
 			else
-				++col;
+				++charCount;
 		}
 #endif
 
@@ -114,8 +109,3 @@ namespace webss
 	};
 #undef This
 }
-
-#ifdef GET_LINE
-#undef TAB_LENGTH
-#undef GET_LINE
-#endif
