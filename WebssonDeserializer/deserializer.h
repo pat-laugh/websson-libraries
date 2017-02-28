@@ -42,12 +42,13 @@ namespace webss
 		}
 
 	protected:
-		std::set<Namespace*> currentNamespaces;
+		std::set<void*> currentNamespaces;
 
 		Deserializer() {}
 
 
-		void putNamespaceName(StringBuilder& out, const Namespace& nspace);
+		void putPreviousNamespaceNames(StringBuilder& out, const Namespace& nspace);
+		bool namespaceCurrentScope(const Namespace& nspace);
 		void putEntityName(StringBuilder& out, const Entity& ent);
 
 		void putAbstractValue(StringBuilder& out, const Webss& webss, ConType con);
@@ -105,26 +106,30 @@ namespace webss
 		class NamespaceIncluder
 		{
 		private:
-			std::set<Namespace*>& currentNamespaces;
-			std::set<Namespace*> toRemove;
+			std::set<void*>& currentNamespaces;
+			std::set<void*> toRemove;
 
-			void include(const Namespace& nspace)
+			void include(void* ptr)
 			{
-				auto ptr = nspace.getPointer().get();
 				currentNamespaces.insert(ptr);
 				toRemove.insert(ptr);
 			}
 		public:
-			NamespaceIncluder(std::set<Namespace*>& currentNamespaces, const TemplateHeadScoped::Parameters& params) : currentNamespaces(currentNamespaces)
+			NamespaceIncluder(std::set<void*>& currentNamespaces, const TemplateHeadScoped::Parameters& params) : currentNamespaces(currentNamespaces)
 			{
 				for (const auto& param : params)
 					if (param.hasNamespace())
-						include(param.getNamespace());
+						include(param.getNamespace().getPointer().get());
 			}
 
-			NamespaceIncluder(std::set<Namespace*>& currentNamespaces, const Namespace& nspace) : currentNamespaces(currentNamespaces)
+			NamespaceIncluder(std::set<void*>& currentNamespaces, const Namespace& nspace) : currentNamespaces(currentNamespaces)
 			{
-				include(nspace);
+				include(nspace.getPointer().get());
+			}
+
+			NamespaceIncluder(std::set<void*>& currentNamespaces, const Enum& tEnum) : currentNamespaces(currentNamespaces)
+			{
+				include(tEnum.getPointer().get());
 			}
 
 			~NamespaceIncluder()

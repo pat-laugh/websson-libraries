@@ -174,8 +174,8 @@ private:
 				putTheadBinary(out, bhead.getTemplateHead());
 				break;
 			case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD:
-				putEntityName(out, bhead.getEntity());
-				break;
+putEntityName(out, bhead.getEntity());
+break;
 			case Type::SELF:
 				putTheadSelf(out);
 				break;
@@ -226,7 +226,7 @@ private:
 		out += key;
 		if (param.hasDefaultValue())
 		{
-			auto&& webss = param.getDefaultValue();
+			const auto& webss = param.getDefaultValue();
 			assert(webss.getTypeSafe() == WebssType::PRIMITIVE_STRING && "template head text parameters' values can only be of type string");
 			putCharValue(out, webss, ConType::TEMPLATE_HEAD);
 		}
@@ -255,27 +255,40 @@ private:
 	}
 };
 
-void Deserializer::putNamespaceName(StringBuilder& out, const Namespace& nspace)
+void Deserializer::putPreviousNamespaceNames(StringBuilder& out, const Namespace& nspace)
 {
-	auto&& nspaces = nspace.getNamespaces();
+	const auto& nspaces = nspace.getNamespaces();
 	if (!nspaces.empty())
-		for (auto it = nspaces.begin(); it != nspaces.end(); ++it)
-			if (currentNamespaces.find(it->get()) == currentNamespaces.end())
-			{
-				do
-					out += (*it)->getName() + CHAR_SCOPE;
-				while (++it != nspaces.end());
-				break;
-			}
-	out += nspace.getName();
+	{
+		//check the list of namespaces that the entity has in a reverse order until
+		//there is an namespace that is in the current scope
+		//then precede the entity's name with all the namespaces that were not in the current scope
+
+		int i = nspaces.size();
+		while (--i >= 0 && !namespaceCurrentScope(*nspaces[i]))
+			;
+
+		while (++i < nspaces.size())
+			out += nspaces[i]->getName() + CHAR_SCOPE;
+	}
+}
+
+bool Deserializer::namespaceCurrentScope(const Namespace& nspace)
+{
+	return currentNamespaces.find(nspace.getPointer().get()) != currentNamespaces.end();
 }
 
 void Deserializer::putEntityName(StringBuilder& out, const Entity& ent)
 {
 	if (ent.hasNamespace())
 	{
-		putNamespaceName(out, ent.getNamespace());
-		out += CHAR_SCOPE;
+		const auto& nspace = ent.getNamespace();
+		if (!namespaceCurrentScope(nspace))
+		{
+			putPreviousNamespaceNames(out, nspace);
+			out += nspace.getName();
+			out += CHAR_SCOPE;
+		}
 	}
 	out += ent.getName();
 }
@@ -509,7 +522,7 @@ void Deserializer::putDocumentHead(StringBuilder& out, const DocumentHead& docHe
 
 void Deserializer::putAbstractEntity(StringBuilder& out, const Entity& ent, ConType con)
 {
-	auto&& content = ent.getContent();
+	const auto& content = ent.getContent();
 	assert(content.isAbstract());
 	out += CHAR_ABSTRACT_ENTITY;
 	putEntityName(out, ent);
@@ -518,7 +531,7 @@ void Deserializer::putAbstractEntity(StringBuilder& out, const Entity& ent, ConT
 
 void Deserializer::putConcreteEntity(StringBuilder& out, const Entity& ent, ConType con)
 {
-	auto&& content = ent.getContent();
+	const auto& content = ent.getContent();
 	assert(content.isConcrete());
 	out += CHAR_CONCRETE_ENTITY;
 	putEntityName(out, ent);
@@ -527,7 +540,7 @@ void Deserializer::putConcreteEntity(StringBuilder& out, const Entity& ent, ConT
 
 void Deserializer::putImportedDocument(StringBuilder& out, const ImportedDocument& importDoc, ConType con)
 {
-	auto&& name = importDoc.getName();
+	const auto& name = importDoc.getName();
 	assert(name.isString());
 	out += CHAR_IMPORT;
 	if (name.getType() == WebssType::PRIMITIVE_STRING)
@@ -547,7 +560,8 @@ void Deserializer::putScopedDocument(StringBuilder& out, const ScopedDocument& s
 void Deserializer::putUsingNamespace(StringBuilder& out, const Namespace& nspace)
 {
 	out += CHAR_USING_NAMESPACE;
-	putNamespaceName(out, nspace);
+	putPreviousNamespaceNames(out, nspace);
+	out += nspace.getName();
 }
 
 void Deserializer::putNamespace(StringBuilder& out, const Namespace& nspace)
@@ -566,6 +580,7 @@ void Deserializer::putNamespace(StringBuilder& out, const Namespace& nspace)
 void Deserializer::putEnum(StringBuilder& out, const Enum& tEnum)
 {
 	static const auto CON = ConType::LIST;
+	NamespaceIncluder includer(currentNamespaces, tEnum);
 	putSeparatedValues<Enum, CON>(out, tEnum, [&](Enum::const_iterator it) { putEntityName(out, *it); });
 }
 
@@ -752,7 +767,7 @@ void Deserializer::putFuncStandardTuple(StringBuilder& out, const TemplateHeadSt
 	decltype(params.size()) i = 0;
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
 	{
-		auto&& param = params[i++];
+		const auto& param = params[i++];
 		if (param.hasTemplateHead())
 			putFuncStandardBody(out, param.getTemplateHeadStandard().getParameters(), *it);
 		else
@@ -773,7 +788,7 @@ void Deserializer::putFuncStandardTupleText(StringBuilder& out, const TemplateHe
 	decltype(params.size()) i = 0;
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
 	{
-		auto&& param = params[i++];
+		const auto& param = params[i++];
 		assert(!param.hasTemplateHead());
 		switch (it->getType())
 		{
@@ -800,7 +815,7 @@ void Deserializer::putFuncTextTuple(StringBuilder& out, const TemplateHeadStanda
 	decltype(params.size()) i = 0;
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
 	{
-		auto&& param = params[i++];
+		const auto& param = params[i++];
 		switch (it->getType())
 		{
 		case WebssType::NONE: case WebssType::DEFAULT:
