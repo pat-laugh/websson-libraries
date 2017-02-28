@@ -39,7 +39,10 @@ scopeLoop:
 	try
 	{
 		skipJunkToValidCondition(++it, [&]() { return isNameStart(*it); });
-		ent = &ent->getContent().getNamespaceSafe().at(parseName(it));
+		const auto& content = ent->getContent();
+		if (content.isEnum())
+			return content.getEnumSafe().at(parseName(it));
+		ent = &content.getNamespaceSafe().at(parseName(it));
 		goto scopeLoop;
 	}
 	catch (const exception&) { throw runtime_error("could not get scoped value"); }
