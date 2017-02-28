@@ -3,6 +3,7 @@
 #include "deserializer.h"
 
 #include <type_traits>
+#include <limits>
 
 using namespace std;
 using namespace webss;
@@ -338,10 +339,10 @@ void Deserializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConT
 		out += webss.getBool() ? 'T' : 'F';
 		break;
 	case WebssType::PRIMITIVE_INT:
-		out += to_string(webss.getInt());
+		putInt(out, webss.getInt());
 		break;
 	case WebssType::PRIMITIVE_DOUBLE:
-		out += to_string(webss.getDouble());
+		putDouble(out, webss.getDouble());
 		break;
 	case WebssType::PRIMITIVE_STRING:
 		out += CHAR_COLON;
@@ -405,6 +406,19 @@ void Deserializer::putKeyValue(StringBuilder& out, const string& key, const Webs
 
 	out += key;
 	putCharValue(out, value, con);
+}
+
+void Deserializer::putInt(StringBuilder& out, WebssInt i)
+{
+	assert(i != numeric_limits<signed int>::min());
+	out += to_string(i);
+}
+
+void Deserializer::putDouble(StringBuilder& out, double d)
+{
+	assert(std::isfinite(d));
+	//TODO: proper deserialization
+	out += to_string(d);
 }
 
 void addCharEscape(StringBuilder& out, char c)

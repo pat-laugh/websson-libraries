@@ -59,6 +59,8 @@ namespace webss
 
 		void putKeyValue(StringBuilder& out, const std::string& key, const Webss& value, ConType con);
 
+		void putInt(StringBuilder& out, WebssInt i);
+		void putDouble(StringBuilder& out, double d);
 		void putLineString(StringBuilder& out, const std::string& str, ConType con);
 		void putCstring(StringBuilder& out, const std::string& str);
 		void putDictionary(StringBuilder& out, const Dictionary& dict);
