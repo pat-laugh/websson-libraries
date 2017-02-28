@@ -169,11 +169,15 @@ void Parser::checkEscapedChar(It& it, StringBuilder& line)
 		return;
 
 	case '0': line += '\0'; break;
+    case 'a': line += '\a'; break;
+    case 'b': line += '\b'; break;
 	case 'e': /* empty */ break;
+    case 'f': line += '\f'; break;
 	case 'n': line += '\n'; break;
 	case 'r': line += '\r'; break;
 	case 's': line += ' '; break;
 	case 't': line += '\t'; break;
+    case 'v': line += '\v'; break;
 	default:
 		if (!isSpecialAscii(*it))
 			throw runtime_error("invalid char escape");
