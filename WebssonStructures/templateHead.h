@@ -48,32 +48,17 @@ namespace webss
 
 		Param& back()
 		{
-			switch (type)
-			{
-			case Type::NONE:
-				assert(false); throw std::domain_error("");
-			case Type::PARAMS:
-				break;
-			case Type::ENTITY:
+			assert(type != Type::NONE);
+			if (type == Type::ENTITY)
 				removeEntity();
-				break;
-			}
-
 			return params->back();
 		}
 		const Param& back() const { return getParameters().back(); }
 
 		const Parameters& getParameters() const
 		{
-			switch (type)
-			{
-			case Type::NONE: default:
-				assert(false); throw std::domain_error("");
-			case Type::PARAMS:
-				return *params;
-			case Type::ENTITY:
-				return ent.getContent().getElement<This>().getParameters();
-			}
+			assert(type != Type::NONE);
+			return type == Type::ENTITY ? ent.getContent().getElement<This>().getParameters() : *params;
 		}
 
 		const Entity& getEntity() const
@@ -84,17 +69,13 @@ namespace webss
 
 		void attach(Param&& value)
 		{
-			switch (type)
+			if (type == Type::NONE)
 			{
-			case Type::NONE:
 				params = new Parameters();
 				type = Type::PARAMS;
-			case Type::PARAMS:
-				break;
-			case Type::ENTITY:
-				removeEntity();
-				break;
 			}
+			else if (type == Type::ENTITY)
+				removeEntity();
 
 			params->add(std::move(value));
 		}
@@ -106,17 +87,13 @@ namespace webss
 
 		void attach(std::string&& key, Param&& value)
 		{
-			switch (type)
+			if (type == Type::NONE)
 			{
-			case Type::NONE:
 				params = new Parameters();
 				type = Type::PARAMS;
-			case Type::PARAMS:
-				break;
-			case Type::ENTITY:
-				removeEntity();
-				break;
 			}
+			else if (type == Type::ENTITY)
+				removeEntity();
 
 			params->addSafe(std::move(key), std::move(value));
 		}
@@ -126,18 +103,14 @@ namespace webss
 			if (ent2.getContent().getElement<This>().empty())
 				return;
 
-			switch (type)
+			if (type == Type::NONE)
 			{
-			case Type::NONE:
 				new (&ent) Entity(ent2);
 				type = Type::ENTITY;
 				return;
-			case Type::PARAMS:
-				break;
-			case Type::ENTITY:
-				removeEntity();
-				break;
 			}
+			else if (type == Type::ENTITY)
+				removeEntity();
 
 			params->merge(ent2.getContent().getElement<This>().getParameters());
 		}
@@ -148,19 +121,20 @@ namespace webss
 				return;
 
 			const auto& valueTuple = value.getParameters();
-			switch (type)
+			if (type == Type::NONE)
 			{
-			case Type::NONE:
 				setParameters(valueTuple.makeCompleteCopy());
 				return;
-			case Type::PARAMS:
-				if (!params->empty())
-					break;
-				*params = valueTuple.makeCompleteCopy();
-				return;
-			case Type::ENTITY:
+			}
+			else if (type == Type::ENTITY)
 				removeEntity();
-				break;
+			else
+			{
+				if (params->empty())
+				{
+					*params = valueTuple.makeCompleteCopy();
+					return;
+				}
 			}
 
 			params->merge(valueTuple);
@@ -191,50 +165,31 @@ namespace webss
 
 		void destroyUnion()
 		{
-			switch (type)
-			{
-			case Type::PARAMS:
+			if (type == Type::PARAMS)
 				delete params;
-				break;
-			case Type::ENTITY:
+			else if (type == Type::ENTITY)
 				ent.~BasicEntity();
-				break;
-			default:
-				break;
-			}
 			type = Type::NONE;
 		}
 
 		void copyUnion(This&& o)
 		{
-			switch (o.type)
-			{
-			case Type::PARAMS:
+			if (o.type == Type::PARAMS)
 				params = o.params;
-				break;
-			case Type::ENTITY:
+			else if (o.type == Type::ENTITY)
+			{
 				new (&ent) Entity(std::move(o.ent));
 				o.ent.~BasicEntity();
-				break;
-			default:
-				break;
 			}
 			type = o.type;
 			o.type = Type::NONE;
 		}
 		void copyUnion(const This& o)
 		{
-			switch (o.type)
-			{
-			case Type::PARAMS:
+			if (o.type == Type::PARAMS)
 				params = new Parameters(*o.params);
-				break;
-			case Type::ENTITY:
+			else if (o.type == Type::ENTITY)
 				new (&ent) Entity(o.ent);
-				break;
-			default:
-				break;
-			}
 			type = o.type;
 		}
 	};
