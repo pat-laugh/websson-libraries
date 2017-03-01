@@ -3,9 +3,10 @@
 #pragma once
 
 #include <string>
+#include <cstdint>
 
 namespace webss
 {
-	using WebssInt = long long int;
+	using WebssInt = int64_t;
 	using WebssBinarySize = std::string::size_type;
 }

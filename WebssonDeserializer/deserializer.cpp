@@ -415,7 +415,7 @@ void Deserializer::putKeyValue(StringBuilder& out, const string& key, const Webs
 
 void Deserializer::putInt(StringBuilder& out, WebssInt i)
 {
-	assert(i != numeric_limits<signed int>::min());
+	assert(i != numeric_limits<WebssInt>::min());
 	out += to_string(i);
 }
 
