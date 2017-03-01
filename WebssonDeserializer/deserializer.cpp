@@ -429,9 +429,13 @@ void addCharEscape(StringBuilder& out, char c)
 	switch (c)
 	{
 	case '\0': out += '0'; break;
+	case '\a': out += 'a'; break;
+	case '\b': out += 'b'; break;
+	case '\f': out += 'f'; break;
 	case '\n': out += 'n'; break;
 	case '\r': out += 'r'; break;
 	case '\t': out += 't'; break;
+	case '\v': out += 'v'; break;
 
 	case ' ': out += 's'; break;
 		//no empty char ('\e')!
