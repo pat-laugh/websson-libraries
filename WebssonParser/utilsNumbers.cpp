@@ -44,9 +44,30 @@ WebssInt getNumber(SmartIterator& it, NumberBase base, const function<bool(char 
 
 double checkDecimals(SmartIterator& it, NumberBase base, int maxDigits, const function<bool(char c)>& isDigit, const function<int(char c)>& charToInt)
 {
+	static const int MAX_LEADING_ZEROS = 23; //1 yocto smallest unit
+	static const function<bool(char c)> isZero = [](char c) { return c == '0'; };
+
 	if (!checkDigit(it, isDigit))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);
 
+	//skim through leading zeros
+	int power = 1;
+	if (*it == '0')
+	{
+		do
+			if (++power > MAX_LEADING_ZEROS + 1)
+			{
+				while (checkDigit(++it, isDigit))
+					;
+				return 0;
+			}
+		while (checkDigit(++it, isZero));
+
+		if (!checkDigit(it, isDigit))
+			return 0;
+	}
+
+	//parse significant digits
 	int numDigits = 1;
 	WebssInt dec = charToInt(*it);
 	while (checkDigit(++it, isDigit))
@@ -54,9 +75,10 @@ double checkDecimals(SmartIterator& it, NumberBase base, int maxDigits, const fu
 		{
 			dec = dec * (int)base + charToInt(*it);
 			++numDigits;
+			++power;
 		}
 
-	return dec / std::pow((double)base, (double)numDigits);
+	return dec / std::pow((double)base, (double)power);
 }
 
 WebssInt webss::parseIntBin(SmartIterator& it) { return getNumber(it, NumberBase::Bin, isDigitBin, binToInt); }
