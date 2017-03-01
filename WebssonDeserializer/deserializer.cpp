@@ -215,7 +215,7 @@ break;
 				putTheadStandard(out, param.getTemplateHeadStandard());
 				break;
 			case WebssType::TEMPLATE_HEAD_TEXT:
-				putTheadText(out, param.getTemplateHeadText());
+				putTheadText(out, param.getTemplateHeadStandard());
 				break;
 			default:
 				break;
@@ -313,7 +313,7 @@ void Deserializer::putAbstractValue(StringBuilder& out, const Webss& webss, ConT
 		putTheadStandard(out, webss.getTemplateHeadStandard());
 		break;
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		putTheadText(out, webss.getTemplateHeadText());
+		putTheadText(out, webss.getTemplateHeadStandard());
 		break;
 	case WebssType::ENTITY:
 		assert(webss.getEntity().getContent().isAbstract());

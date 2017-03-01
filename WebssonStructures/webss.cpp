@@ -508,8 +508,6 @@ const Document& Webss::getDocumentSafe() const { PATTERN_GET_CONST_SAFE(WebssTyp
 const Dictionary& Webss::getDictionarySafe() const { PATTERN_GET_CONST_SAFE(WebssType::DICTIONARY, getDictionary); }
 const TemplateHeadBinary& Webss::getTemplateHeadBinarySafe() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_HEAD_BINARY, getTemplateHeadBinary); }
 const TemplateHeadScoped& Webss::getTemplateHeadScopedSafe() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_HEAD_SCOPED, getTemplateHeadScoped); }
-const TemplateHeadStandard& Webss::getTemplateHeadStandardSafe() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_HEAD_STANDARD, getTemplateHeadStandard); }
-const TemplateHeadStandard& Webss::getTemplateHeadTextSafe() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_HEAD_TEXT, getTemplateHeadText); }
 const TemplateBinary& Webss::getTemplateBinarySafe() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_BINARY, getTemplateBinary); }
 const TemplateScoped& Webss::getTemplateScopedSafe() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_SCOPED, getTemplateScoped); }
 const TemplateStandard& Webss::getTemplateStandardSafe() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_STANDARD, getTemplateStandard); }
@@ -537,6 +535,16 @@ const Tuple& Webss::getTupleSafe() const
 		throw runtime_error("could not get " + WebssType(WebssType::TUPLE).toString() + "; instead webss type was " + WebssType(type).toString());
 }
 
+const TemplateHeadStandard& Webss::getTemplateHeadStandardSafe() const
+{
+	const auto& webss = getWebssLast();
+	const auto type = webss.getType();
+	if (type == WebssType::TEMPLATE_HEAD_STANDARD || type == WebssType::TEMPLATE_HEAD_TEXT)
+		return webss.getTemplateHeadStandard();
+	else
+		throw runtime_error("could not get " + WebssType(WebssType::TEMPLATE_HEAD_STANDARD).toString() + "; instead webss type was " + WebssType(type).toString());
+}
+
 bool Webss::isNone() const { return getTypeSafe() == WebssType::NONE; }
 bool Webss::isNull() const { return getTypeSafe() == WebssType::PRIMITIVE_NULL; }
 bool Webss::isBool() const { return getTypeSafe() == WebssType::PRIMITIVE_BOOL; }
@@ -547,14 +555,14 @@ bool Webss::isDocument() const { return getTypeSafe() == WebssType::DOCUMENT; }
 bool Webss::isDictionary() const { return getTypeSafe() == WebssType::DICTIONARY; }
 bool Webss::isTemplateHeadBinary() const { return getTypeSafe() == WebssType::TEMPLATE_HEAD_BINARY; }
 bool Webss::isTemplateHeadScoped() const { return getTypeSafe() == WebssType::TEMPLATE_HEAD_SCOPED; }
-bool Webss::isTemplateHeadStandard() const { return getTypeSafe() == WebssType::TEMPLATE_HEAD_STANDARD; }
-bool Webss::isTemplateHeadText() const { return getTypeSafe() == WebssType::TEMPLATE_HEAD_TEXT; }
 bool Webss::isNamespace() const { return getTypeSafe() == WebssType::NAMESPACE; }
 bool Webss::isEnum() const { return getTypeSafe() == WebssType::ENUM; }
 bool Webss::isBlockHead() const { return getTypeSafe() == WebssType::BLOCK_HEAD; }
 bool Webss::isBlock() const { return getTypeSafe() == WebssType::BLOCK; }
+
 bool Webss::isListText() const { return getTypeSafe() == WebssType::LIST_TEXT; }
 bool Webss::isTupleText() const { return getTypeSafe() == WebssType::TUPLE_TEXT; }
+bool Webss::isTemplateHeadText() const { return getTypeSafe() == WebssType::TEMPLATE_HEAD_TEXT; }
 
 bool Webss::isList() const
 {
@@ -565,6 +573,12 @@ bool Webss::isTuple() const
 {
 	const auto type = getTypeSafe();
 	return type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT;
+}
+
+bool Webss::isTemplateHeadStandard() const
+{
+	const auto type = getTypeSafe();
+	return type == WebssType::TEMPLATE_HEAD_STANDARD || type == WebssType::TEMPLATE_HEAD_TEXT;
 }
 
 bool Webss::isAbstract() const

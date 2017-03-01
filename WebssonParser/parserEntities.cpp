@@ -37,7 +37,7 @@ Entity Parser::parseAbstractEntity(It& it, const Namespace& currentNamespace)
 	case CHAR_COLON:
 		if (++it != CHAR_COLON || skipJunk(++it) != OPEN_TEMPLATE)
 			throw runtime_error("expected text template head");
-		return Entity(move(name), parseTemplateHeadText(++it));
+		return Entity(move(name), Webss(parseTemplateHeadText(++it), true));
 	default:
 		throw runtime_error(ERROR_UNEXPECTED);
 	}

@@ -104,7 +104,7 @@ private:
 		case WebssType::TEMPLATE_HEAD_STANDARD:
 			return parseTemplateBodyStandard(it, defaultValue.getTemplateHeadStandard().getParameters());
 		case WebssType::TEMPLATE_HEAD_TEXT:
-			return parseTemplateBodyText(it, defaultValue.getTemplateHeadText().getParameters());
+			return parseTemplateBodyText(it, defaultValue.getTemplateHeadStandard().getParameters());
 		default:
 			return parseValueOnly(it, CON);
 		}
@@ -203,7 +203,7 @@ Webss Parser::parseTemplate(It& it, ConType con)
 	}
 	case WebssType::TEMPLATE_HEAD_TEXT:
 	{
-		auto head = move(headWebss.getTemplateHeadText());
+		auto head = move(headWebss.getTemplateHeadStandard());
 		auto body = parseTemplateBodyText(it, head.getParameters());
 		return{ move(head), move(body), true };
 	}

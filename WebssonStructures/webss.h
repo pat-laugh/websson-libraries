@@ -131,7 +131,6 @@ namespace webss
 		const TemplateHeadBinary& getTemplateHeadBinarySafe() const;
 		const TemplateHeadScoped& getTemplateHeadScopedSafe() const;
 		const TemplateHeadStandard& getTemplateHeadStandardSafe() const;
-		const TemplateHeadStandard& getTemplateHeadTextSafe() const;
 		const TemplateBinary& getTemplateBinarySafe() const;
 		const TemplateScoped& getTemplateScopedSafe() const;
 		const TemplateStandard& getTemplateStandardSafe() const;
@@ -151,8 +150,7 @@ namespace webss
 		const Tuple& getTuple() const { assert(getType() == WebssType::TUPLE || getType() == WebssType::TUPLE_TEXT); return *tuple; }
 		const TemplateHeadBinary& getTemplateHeadBinary() const { assert(getType() == WebssType::TEMPLATE_HEAD_BINARY); return *theadBinary; }
 		const TemplateHeadScoped& getTemplateHeadScoped() const { assert(getType() == WebssType::TEMPLATE_HEAD_SCOPED); return *theadScoped; }
-		const TemplateHeadStandard& getTemplateHeadStandard() const { assert(getType() == WebssType::TEMPLATE_HEAD_STANDARD); return *theadStandard; }
-		const TemplateHeadStandard& getTemplateHeadText() const { assert(getType() == WebssType::TEMPLATE_HEAD_TEXT); return *theadStandard; }
+		const TemplateHeadStandard& getTemplateHeadStandard() const { assert(getType() == WebssType::TEMPLATE_HEAD_STANDARD || getType() == WebssType::TEMPLATE_HEAD_TEXT); return *theadStandard; }
 		const TemplateBinary& getTemplateBinary() const { assert(getType() == WebssType::TEMPLATE_BINARY); return *templBinary; }
 		const TemplateScoped& getTemplateScoped() const { assert(getType() == WebssType::TEMPLATE_SCOPED); return *templScoped; }
 		const TemplateStandard& getTemplateStandard() const { assert(getType() == WebssType::TEMPLATE_STANDARD || getType() == WebssType::TEMPLATE_TEXT); return *templStandard; }
@@ -171,8 +169,7 @@ namespace webss
 		Tuple& getTuple() { assert(getType() == WebssType::TUPLE || getType() == WebssType::TUPLE_TEXT); return *tuple; }
 		TemplateHeadBinary& getTemplateHeadBinary() { assert(getType() == WebssType::TEMPLATE_HEAD_BINARY); return *theadBinary; }
 		TemplateHeadScoped& getTemplateHeadScoped() { assert(getType() == WebssType::TEMPLATE_HEAD_SCOPED); return *theadScoped; }
-		TemplateHeadStandard& getTemplateHeadStandard() { assert(getType() == WebssType::TEMPLATE_HEAD_STANDARD); return *theadStandard; }
-		TemplateHeadStandard& getTemplateHeadText() { assert(getType() == WebssType::TEMPLATE_HEAD_TEXT); return *theadStandard; }
+		TemplateHeadStandard& getTemplateHeadStandard() { assert(getType() == WebssType::TEMPLATE_HEAD_STANDARD || getType() == WebssType::TEMPLATE_HEAD_TEXT); return *theadStandard; }
 		TemplateBinary& getTemplateBinary() { assert(getType() == WebssType::TEMPLATE_BINARY); return *templBinary; }
 		TemplateScoped& getTemplateScoped() { assert(getType() == WebssType::TEMPLATE_SCOPED); return *templScoped; }
 		TemplateStandard& getTemplateStandard() { assert(getType() == WebssType::TEMPLATE_STANDARD || getType() == WebssType::TEMPLATE_TEXT); return *templStandard; }

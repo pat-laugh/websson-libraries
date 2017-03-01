@@ -162,7 +162,7 @@ string Parser::parseCString(It& it)
 
 void Parser::checkEscapedChar(It& it, StringBuilder& line)
 {
-	if (!checkLineEscape(it))
+	if (checkLineEscape(it))
 		return;
 
 	switch (*(++it)) //no need to check it is valid since if not valid, would've been a line escape

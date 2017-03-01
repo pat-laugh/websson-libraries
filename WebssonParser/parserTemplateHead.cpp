@@ -191,7 +191,7 @@ void Parser::parseStandardParameterTemplateHead(It& it, TemplateHeadStandard& th
 		lastParam.setTemplateHead(move(headWebss.getTemplateHeadStandard()));
 		break;
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		lastParam.setTemplateHead(move(headWebss.getTemplateHeadText()), true);
+		lastParam.setTemplateHead(move(headWebss.getTemplateHeadStandard()), true);
 		break;
 	default:
 		throw logic_error("");

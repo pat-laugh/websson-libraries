@@ -20,7 +20,6 @@ namespace webss
 		using TheadBinary = BasicTemplateHead<BasicParamBinary<Webss>, Webss>;
 		using TheadScoped = BasicTemplateHeadScoped<Webss>;
 		using TheadStandard = BasicTemplateHead<This<Webss>, Webss>;
-		using TheadText = TheadStandard;
 
 		WebssType typeThead = WebssType::NONE;
 		union
@@ -28,7 +27,6 @@ namespace webss
 			TheadBinary* theadBin;
 			TheadScoped* theadScoped;
 			TheadStandard* theadStd;
-			TheadText* theadText;
 		};
 
 		std::shared_ptr<Webss> defaultValue;
@@ -88,13 +86,8 @@ namespace webss
 		}
 		const TheadStandard& getTemplateHeadStandard() const
 		{
-			assert(typeThead == WebssType::TEMPLATE_HEAD_STANDARD); 
+			assert(typeThead == WebssType::TEMPLATE_HEAD_STANDARD || typeThead == WebssType::TEMPLATE_HEAD_TEXT);
 			return *theadStd;
-		}
-		const TheadText& getTemplateHeadText() const
-		{
-			assert(typeThead == WebssType::TEMPLATE_HEAD_TEXT);
-			return *theadText; 
 		}
 
 		void removeTemplateHead() { destroyUnion(); }
@@ -119,7 +112,7 @@ namespace webss
 		void setTemplateHead(TheadStandard&& o, bool isText)
 		{
 			assert(!hasTemplateHead());
-			theadText = new TheadText(std::move(o));
+			theadStd = new TheadStandard(std::move(o));
 			typeThead = WebssType::TEMPLATE_HEAD_TEXT;
 		}
 		void setTemplateHead(TemplateHeadSelf)
@@ -140,11 +133,8 @@ namespace webss
 			case WebssType::TEMPLATE_HEAD_SCOPED:
 				delete theadScoped;
 				break;
-			case WebssType::TEMPLATE_HEAD_STANDARD:
+			case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
 				delete theadStd;
-				break;
-			case WebssType::TEMPLATE_HEAD_TEXT:
-				delete theadText;
 				break;
 			default:
 				assert(false); throw std::domain_error("");
@@ -164,11 +154,8 @@ namespace webss
 			case WebssType::TEMPLATE_HEAD_SCOPED:
 				theadScoped = o.theadScoped;
 				break;
-			case WebssType::TEMPLATE_HEAD_STANDARD:
+			case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
 				theadStd = o.theadStd;
-				break;
-			case WebssType::TEMPLATE_HEAD_TEXT:
-				theadText = o.theadText;
 				break;
 			default:
 				assert(false); throw std::domain_error("");
@@ -189,11 +176,8 @@ namespace webss
 			case WebssType::TEMPLATE_HEAD_SCOPED:
 				theadScoped = new TheadScoped(*o.theadScoped);
 				break;
-			case WebssType::TEMPLATE_HEAD_STANDARD:
+			case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
 				theadStd = new TheadStandard(*o.theadStd);
-				break;
-			case WebssType::TEMPLATE_HEAD_TEXT:
-				theadText = new TheadText(*o.theadText);
 				break;
 			default:
 				assert(false); throw std::domain_error("");
