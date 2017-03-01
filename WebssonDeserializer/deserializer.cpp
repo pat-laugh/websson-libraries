@@ -2,8 +2,9 @@
 //Copyright(c) 2017 Patrick Laughrea
 #include "deserializer.h"
 
-#include <type_traits>
+#include <cstdio>
 #include <limits>
+#include <type_traits>
 
 using namespace std;
 using namespace webss;
@@ -265,7 +266,7 @@ void Deserializer::putPreviousNamespaceNames(StringBuilder& out, const Namespace
 		//there is an namespace that is in the current scope
 		//then precede the entity's name with all the namespaces that were not in the current scope
 
-		int i = nspaces.size();
+		auto i = nspaces.size();
 		while (--i >= 0 && !namespaceCurrentScope(*nspaces[i]))
 			;
 
@@ -417,8 +418,9 @@ void Deserializer::putInt(StringBuilder& out, WebssInt i)
 void Deserializer::putDouble(StringBuilder& out, double d)
 {
 	assert(std::isfinite(d));
-	//TODO: proper deserialization
-	out += to_string(d);
+	char buffer[32];
+	snprintf(buffer, 32, "%.17g", d);
+	out += buffer;
 }
 
 void addCharEscape(StringBuilder& out, char c)
