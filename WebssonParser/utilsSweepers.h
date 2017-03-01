@@ -4,7 +4,6 @@
 
 #include <functional>
 
-#include "language.h"
 #include "WebssonUtils/typeContainers.h"
 #include "WebssonUtils/iterators.h"
 

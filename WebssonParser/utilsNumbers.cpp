@@ -8,7 +8,10 @@
 
 #include "errors.h"
 #include "utilsSweepers.h"
+#include "WebssonUtils/constants.h"
 #include "WebssonUtils/stringBuilder.h"
+#include "WebssonUtils/utils.h"
+#include "WebssonUtils/utilsWebss.h"
 
 using namespace std;
 using namespace webss;
@@ -36,7 +39,7 @@ WebssInt getNumber(SmartIterator& it, NumberBase base, const function<bool(char 
 		string s = sb.str();
 		return std::stoll(s, nullptr, (int)base);
 	}
-	catch (const out_of_range& e)
+	catch (const out_of_range&)
 	{
 		throw overflow_error("integer is outside bounds");
 	}
@@ -81,20 +84,20 @@ double checkDecimals(SmartIterator& it, NumberBase base, int maxDigits, const fu
 	return dec / std::pow((double)base, (double)power);
 }
 
-WebssInt webss::parseIntBin(SmartIterator& it) { return getNumber(it, NumberBase::Bin, isDigitBin, binToInt); }
-WebssInt webss::parseIntOct(SmartIterator& it) { return getNumber(it, NumberBase::Oct, isDigitOct, octToInt); }
-WebssInt webss::parseIntDec(SmartIterator& it) { return getNumber(it, NumberBase::Dec, isDigitDec, decToInt); }
-WebssInt webss::parseIntHex(SmartIterator& it) { return getNumber(it, NumberBase::Hex, isDigitHex, hexToInt); }
+WebssInt webss::parseIntBin(SmartIterator& it) { return getNumber(it, NumberBase::BIN, isDigitBin, binToInt); }
+WebssInt webss::parseIntOct(SmartIterator& it) { return getNumber(it, NumberBase::OCT, isDigitOct, octToInt); }
+WebssInt webss::parseIntDec(SmartIterator& it) { return getNumber(it, NumberBase::DEC, isDigitDec, decToInt); }
+WebssInt webss::parseIntHex(SmartIterator& it) { return getNumber(it, NumberBase::HEX, isDigitHex, hexToInt); }
 
 WebssInt webss::parseInt(SmartIterator& it, NumberBase base)
 {
-	if (base == NumberBase::Dec)
+	if (base == NumberBase::DEC)
 		return parseIntDec(it);
-	else if (base == NumberBase::Hex)
+	else if (base == NumberBase::HEX)
 		return parseIntHex(it);
-	else if (base == NumberBase::Bin)
+	else if (base == NumberBase::BIN)
 		return parseIntBin(it);
-	assert(base == NumberBase::Oct);
+	assert(base == NumberBase::OCT);
 	return parseIntOct(it);
 }
 
@@ -102,23 +105,23 @@ double webss::parseDecimals(SmartIterator& it, NumberBase base)
 {
 	//max digit numbers: http://stackoverflow.com/questions/17244898/maximum-number-of-decimal-digits-that-can-affect-a-double#17245451
 	//floor(<MantissaDouble(52)> * log 2 / log <base>) + 2
-	if (base == NumberBase::Dec)
+	if (base == NumberBase::DEC)
 		return checkDecimals(it, base, 17, isDigitDec, decToInt);
-	else if (base == NumberBase::Hex)
+	else if (base == NumberBase::HEX)
 		return checkDecimals(it, base, 15, isDigitHex, hexToInt);
-	else if (base == NumberBase::Bin)
+	else if (base == NumberBase::BIN)
 		return checkDecimals(it, base, 54, isDigitBin, binToInt);
-	assert(base == NumberBase::Oct);
+	assert(base == NumberBase::OCT);
 	return checkDecimals(it, base, 19, isDigitOct, octToInt);
 }
 
 double webss::addExponent(SmartIterator& it, double num, NumberBase base)
 {
-	assert(base == NumberBase::Dec || base == NumberBase::Hex || base == NumberBase::Bin || base == NumberBase::Oct);
+	assert(base == NumberBase::DEC || base == NumberBase::HEX || base == NumberBase::BIN || base == NumberBase::OCT);
 	bool negative = checkNumberNegative(it);
 	auto numBase = parseIntDec(it);
-	double exp = negative ? -numBase : numBase;
-	num *= pow((double)(base == NumberBase::Dec ? base : NumberBase::Bin), exp);
+	double exp = (double)(negative ? -numBase : numBase);
+	num *= pow((double)(base == NumberBase::DEC ? base : NumberBase::BIN), exp);
 	if (!std::isfinite(num))
 		throw runtime_error("invalid number, either infinite or NaN");
 	return num;
@@ -142,20 +145,20 @@ NumberBase checkDigitWrapper(SmartIterator& it, const function<bool(char c)>& is
 NumberBase webss::checkNumberBase(SmartIterator& it)
 {
 	if (*it != '0' || it.peekEnd())
-		return NumberBase::Dec;
+		return NumberBase::DEC;
 	
 	switch (it.peek())
 	{
 	case 'b': case 'B':
-		return checkDigitWrapper(it, isDigitBin, NumberBase::Bin);
+		return checkDigitWrapper(it, isDigitBin, NumberBase::BIN);
 	case 'c': case 'C':
-		return checkDigitWrapper(it, isDigitOct, NumberBase::Oct);
+		return checkDigitWrapper(it, isDigitOct, NumberBase::OCT);
 	case 'd': case 'D':
-		return checkDigitWrapper(it, isDigitDec, NumberBase::Dec);
+		return checkDigitWrapper(it, isDigitDec, NumberBase::DEC);
 	case 'x': case 'X':
-		return checkDigitWrapper(it, isDigitHex, NumberBase::Hex);
+		return checkDigitWrapper(it, isDigitHex, NumberBase::HEX);
 	default:
-		return NumberBase::Dec;
+		return NumberBase::DEC;
 	}
 }
 
@@ -166,16 +169,16 @@ bool webss::isNumberEnd(char c, Language lang, NumberBase base)
 
 bool webss::isDecimalSeparator(char c, Language lang)
 {
-	assert(lang == DEFAULT || lang == INTL || lang == EN || lang == FR);
+	assert(lang == Language::DEFAULT || lang == Language::INTL || lang == Language::EN || lang == Language::FR);
 	if (c == '.')
-		return lang == DEFAULT || lang == INTL || lang == EN;
-	return c == ',' && (lang == INTL || lang == FR);
+		return lang == Language::DEFAULT || lang == Language::INTL || lang == Language::EN;
+	return c == ',' && (lang == Language::INTL || lang == Language::FR);
 }
 
 bool webss::isBaseSeparator(char c, NumberBase base)
 {
-	if (base == NumberBase::Dec)
+	if (base == NumberBase::DEC)
 		return c == 'e' || c == 'E';
-	assert(base == NumberBase::Hex || base == NumberBase::Bin || base == NumberBase::Oct);
+	assert(base == NumberBase::HEX || base == NumberBase::BIN || base == NumberBase::OCT);
 	return c == 'p' || c == 'P';
 }

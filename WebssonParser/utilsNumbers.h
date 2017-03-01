@@ -4,12 +4,11 @@
 
 #include "language.h"
 #include "WebssonStructures/types.h"
-#include "WebssonUtils/constants.h"
 #include "WebssonUtils/iterators.h"
 
 namespace webss
 {
-	enum class NumberBase : int { Bin = 2, Oct = 8, Dec = 10, Hex = 16 };
+	enum class NumberBase : int { BIN = 2, OCT = 8, DEC = 10, HEX = 16 };
 
 	WebssInt parseInt(SmartIterator& it, NumberBase base);
 

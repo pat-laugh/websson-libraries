@@ -4,6 +4,7 @@
 
 #include "errors.h"
 #include "patternsContainers.h"
+#include "WebssonUtils/constants.h"
 
 using namespace std;
 using namespace webss;

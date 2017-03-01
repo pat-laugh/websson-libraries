@@ -2,9 +2,6 @@
 //Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include "constants.h"
-#include "utils.h"
-
 namespace webss
 {
 	//returns whether or not c is a char between 'a' and 'z', between 'A' and 'Z' or non-ascii (unicode > 127)

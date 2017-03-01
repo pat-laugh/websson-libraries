@@ -4,6 +4,7 @@
 
 #include "errors.h"
 #include "utilsParser.h"
+#include "WebssonUtils/utils.h"
 
 using namespace std;
 using namespace webss;

@@ -8,6 +8,8 @@
 #endif
 #include "errors.h"
 #include "patternsContainers.h"
+#include "WebssonUtils/constants.h"
+#include "WebssonUtils/utilsWebss.h"
 
 using namespace std;
 using namespace webss;
@@ -19,7 +21,6 @@ const char ERROR_INPUT_NAMESPACE[] = "namespace can only have entity definitions
 const char ERROR_INPUT_ENUM[] = "enum can only have key-onlys";
 const char ERROR_INPUT_DOCUMENT[] = "document can only have concrete value-onlys or key-values";
 
-#ifdef webss_GET_LINE
 string getItPosition(SmartIterator& it)
 {
 	return "[ln " + to_string(it.getLine()) + ", ch " + to_string(it.getCharCount()) + "]";
@@ -56,7 +57,6 @@ string getItCurrentChar(SmartIterator& it)
 	}
 	return out;
 }
-#endif //webss_GET_LINE
 
 Dictionary Parser::parseDictionary(It& it)
 {
@@ -144,10 +144,8 @@ Enum Parser::parseEnum(It& it, const string& name)
 Document Parser::parseDocument(It&& it)
 {
 	static const ConType CON = ConType::DOCUMENT;
-#ifdef webss_GET_LINE
 	try
 	{
-#endif
 		Document doc;
 		if (!checkEmptyContainer(it, CON) && !parseDocumentHead(it, doc.getHead(), CON, Namespace::getEmptyInstance()))
 		{
@@ -160,13 +158,11 @@ Document Parser::parseDocument(It&& it)
 			while (checkNextElementContainer(it, CON));
 		}
 		return doc;
-#ifdef webss_GET_LINE
 	}
 	catch (const exception& e)
 	{
 		throw runtime_error(string(getItPosition(it) + ' ' + e.what() + getItCurrentChar(it)).c_str());
 	}
-#endif
 }
 
 bool Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType con, const Namespace& nspace)

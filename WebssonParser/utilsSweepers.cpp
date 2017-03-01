@@ -2,8 +2,11 @@
 //Copyright(c) 2017 Patrick Laughrea
 #include "utilsSweepers.h"
 
-#include "errors.h"
 #include <assert.h>
+
+#include "errors.h"
+#include "WebssonUtils/constants.h"
+#include "WebssonUtils/utilsWebss.h"
 
 using namespace std;
 using namespace webss;

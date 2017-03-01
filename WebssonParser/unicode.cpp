@@ -8,6 +8,7 @@
 #include "errors.h"
 #include "utilsNumbers.h"
 #include "utilsSweepers.h"
+#include "WebssonUtils/utils.h"
 
 using namespace std;
 using namespace webss;
@@ -66,7 +67,7 @@ int readHex(SmartIterator& it, int numDigits)
 	{
 		if (!(++it) || !isDigitHex(*it))
 			throw runtime_error(ERROR_EXPECTED_HEX);
-		hex = hex * (int)NumberBase::Hex + hexToInt(*it);
+		hex = hex * (int)NumberBase::HEX + hexToInt(*it);
 	}
 	++it;
 	return hex;

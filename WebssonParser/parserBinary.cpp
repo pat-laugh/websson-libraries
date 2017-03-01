@@ -7,6 +7,8 @@
 #include "errors.h"
 #include "patternsContainers.h"
 #include "utilsParser.h"
+#include "WebssonUtils/constants.h"
+#include "WebssonUtils/utilsWebss.h"
 
 using namespace std;
 using namespace webss;

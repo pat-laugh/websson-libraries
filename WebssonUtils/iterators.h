@@ -6,8 +6,6 @@
 #include <sstream>
 #include <string>
 
-#define webss_GET_LINE
-
 namespace webss
 {
 #define This SmartIterator
@@ -32,9 +30,7 @@ namespace webss
 
 		This& operator++() //prefix
 		{
-#ifdef webss_GET_LINE
 			checkChar(c1);
-#endif
 			if (hasPeek)
 			{
 				c1 = c2;
@@ -46,10 +42,8 @@ namespace webss
 		}
 		This& incTwo()
 		{
-#ifdef webss_GET_LINE
 			checkChar(c1);
 			checkChar(c2);
-#endif
 			readStart();
 			return *this;
 		}
@@ -68,15 +62,12 @@ namespace webss
 		bool peekGood() { return hasPeek; }
 		bool peekEnd() { return !peekGood(); }
 
-#ifdef webss_GET_LINE
 		int getLine() { return line; }
 		int getCharCount() { return charCount; }
-#endif
 	private:
 		std::stringstream in;
 		char c1, c2;
 		bool isValid = true, hasPeek = true;
-#ifdef webss_GET_LINE
 		int line = 1, charCount = 1;
 
 		void addLine()
@@ -92,7 +83,6 @@ namespace webss
 			else
 				++charCount;
 		}
-#endif
 
 		void readStart()
 		{
