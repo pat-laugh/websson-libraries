@@ -61,6 +61,20 @@ Tag webss::getTag(SmartIterator& it)
 	return Tag::UNKNOWN;
 }
 
+SmartIterator& webss::skipJunkToTag(SmartIterator& it, Tag tag)
+{
+	if (getTag(it) == tag)
+		return it;
+	throw runtime_error(it ? ERROR_UNEXPECTED : ERROR_EXPECTED);
+}
+
+SmartIterator& webss::skipJunkToAnyTag(SmartIterator& it, set<Tag> tags)
+{
+	if (tags.find(getTag(it)) != tags.end())
+		return it;
+	throw runtime_error(it ? ERROR_UNEXPECTED : ERROR_EXPECTED);
+}
+
 SmartIterator& webss::skipJunk(SmartIterator& it)
 {
 	while (it)

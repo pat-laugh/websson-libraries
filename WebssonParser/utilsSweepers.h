@@ -3,6 +3,7 @@
 #pragma once
 
 #include <functional>
+#include <set>
 
 #include "WebssonUtils/typeContainers.h"
 #include "WebssonUtils/iterators.h"
@@ -20,6 +21,12 @@ namespace webss
 
 	//skips junk until it finds a Tag
 	Tag getTag(SmartIterator& it);
+
+	//skips junk until tag is found; if not, throws error
+	SmartIterator& skipJunkToTag(SmartIterator& it, Tag tag);
+
+	//skips junk until any tag in tags is found; if not, throws error
+	SmartIterator& skipJunkToAnyTag(SmartIterator& it, std::set<Tag> tags);
 
 	//skips junk and valid junk operators (line escape and comments)
 	SmartIterator& skipJunk(SmartIterator& it);
