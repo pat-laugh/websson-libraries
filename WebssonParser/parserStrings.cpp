@@ -56,10 +56,6 @@ string Parser::parseLineString(It& it, ConType con)
 	{
 		switch (*it)
 		{
-		case CHAR_COMMENT:
-			if (checkComment(it))
-				continue;
-			break;
 		case CHAR_CONCRETE_ENTITY:
 			if (checkStringEntity(it, line))
 				continue;
@@ -78,7 +74,7 @@ string Parser::parseLineString(It& it, ConType con)
 string Parser::parseMultilineString(It& it)
 {
 	StringBuilder text;
-	if (*skipJunkToValid(++it) == CLOSE_DICTIONARY)
+	if (*skipJunkToValid(it) == CLOSE_DICTIONARY)
 		return text;
 
 	int countStartEnd = 1;
@@ -88,10 +84,6 @@ loopStart:
 	{
 		switch (*it)
 		{
-		case CHAR_COMMENT:
-			if (checkComment(it))
-				continue;
-			break;
 		case CHAR_CONCRETE_ENTITY:
 			if (checkStringEntity(it, text))
 			{
