@@ -148,8 +148,8 @@ void Parser::checkEscapedChar(It& it, StringBuilder& line)
 
 	switch (*(++it)) //no need to check it is valid since if not valid, would've been a line escape
 	{
-	case 'x': case 'X': case 'u': case 'U':
-		putEscapedHex(it, line, separator);
+	case 'x': case 'u': case 'U':
+		putEscapedHex(it, line);
 		return;
 
 	case '0': line += '\0'; break;

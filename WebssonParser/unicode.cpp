@@ -73,38 +73,13 @@ int readHex(SmartIterator& it, int numDigits)
 	return hex;
 }
 
-void putContainedEscapedHex(SmartIterator& it, StringBuilder& str, char separator)
-{
-	if (skipJunk(it) != '{')
-		throw runtime_error(webss_ERROR_EXPECTED_CHAR('{'));
-
-loopStart:
-	if (isDigitHex(*skipJunkToValid(++it)))
-	{
-		WebssInt hex = parseIntHex(it);
-		if (hex > numeric_limits<signed int>::max())
-			throw overflow_error("escaped char value too high");
-		putUnicode(str, (int)hex);
-		if (!it)
-			throw runtime_error(webss_ERROR_EXPECTED_CHAR('}'));
-	}
-
-	if (*it == separator || *it == '\n')
-		goto loopStart;
-
-	if (*it != '}')
-		throw runtime_error(webss_ERROR_EXPECTED_CHAR('}'));
-	++it;
-	return;
-}
-
-void webss::putEscapedHex(SmartIterator& it, StringBuilder& str, char separator)
+void webss::putEscapedHex(SmartIterator& it, StringBuilder& str)
 {
 	if (*it == 'x')
 		putUnicode(str, readHex(++it, 2));
 	else if (*it == 'u')
 		putUnicode(str, readHex(++it, 4));
-	else if (*it == 'U')
+	else
 	{
 		if (it.peekEnd() || !isDigitHex(it.peek()))
 			throw runtime_error(ERROR_EXPECTED_HEX);
@@ -113,6 +88,4 @@ void webss::putEscapedHex(SmartIterator& it, StringBuilder& str, char separator)
 
 		putUnicode(str, readHex(++it, 8));
 	}
-	else
-		putContainedEscapedHex(++it, str, separator);
 }
