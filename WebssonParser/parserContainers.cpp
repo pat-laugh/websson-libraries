@@ -121,7 +121,7 @@ Namespace Parser::parseNamespace(It& it, const string& name, const Namespace& pr
 			checkMultiContainer(++it, [&]() { nspace.addSafe(parseConcreteEntity(it, con)); });
 			break;
 		case CHAR_SELF:
-			skipJunkToValidCondition(++it, [&]() { return *it == OPEN_TEMPLATE; });
+			skipJunkToTag(++it, Tag::START_TEMPLATE);
 			nspace.addSafe(Entity(string(name), parseTemplateHead(++it)));
 			break;
 		default:
@@ -227,7 +227,7 @@ void Parser::parseScopedDocument(It& it, vector<ParamDocument>& docHead)
 	{
 		auto head = parseTemplateHeadScoped(++it);
 
-		skipJunkToValidCondition(it, [&]() { return *it == OPEN_DICTIONARY; });
+		skipJunkToTag(it, Tag::START_DICTIONARY);
 		DocumentHead body;
 		if (!checkEmptyContainer(++it, CON))
 		{
@@ -281,8 +281,7 @@ ImportedDocument Parser::parseImport(It& it, ConType con)
 
 const Namespace& Parser::parseUsingNamespaceStatic(It& it)
 {
-	skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
-	auto nameType = parseNameType(it);
+	auto nameType = parseNameType(skipJunkToTag(it, Tag::NAME_START));
 	if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isNamespace())
 		throw runtime_error("expected namespace");
 	return nameType.entity.getContent().getNamespaceSafe();

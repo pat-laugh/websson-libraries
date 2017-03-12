@@ -29,7 +29,7 @@ Webss Parser::parseTemplateHead(It& it)
 	case OPEN_DICTIONARY:
 		throw runtime_error("this parser cannot parse mandatory templates");
 	case CHAR_SELF:
-		skipJunkToValidCondition(++it, [&]() { return *it == CLOSE_TEMPLATE; });
+		skipJunkToTag(++it, Tag::END_TEMPLATE);
 		++it;
 		return TemplateHeadSelf();
 	default:
@@ -146,7 +146,7 @@ TemplateHeadStandard Parser::parseTemplateHeadStandard(It& it, TemplateHeadStand
 		{
 			if (++it != CHAR_COLON)
 				throw runtime_error(webss_ERROR_EXPECTED_CHAR(CHAR_COLON));
-			skipJunkToValidCondition(++it, [&]() { return *it == OPEN_TEMPLATE; });
+			skipJunkToTag(++it, Tag::START_TEMPLATE)
 
 			auto head = parseTemplateHeadText(++it);
 			parseOtherValuesTheadStandardAfterThead(it, thead);

@@ -12,7 +12,7 @@ using namespace webss;
 
 Entity Parser::parseConcreteEntity(It& it, ConType con)
 {
-	skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
+	skipJunkToTag(it, Tag::NAME_START);
 	Entity ent;
 	parseOtherValue(it, con,
 		CaseKeyValue{ ent = Entity(move(key), move(value)); },
@@ -24,19 +24,16 @@ Entity Parser::parseConcreteEntity(It& it, ConType con)
 
 Entity Parser::parseAbstractEntity(It& it, const Namespace& currentNamespace)
 {
-	skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
-	auto name = parseNameSafe(it);
-	switch (*skipJunkToValid(it))
+	auto name = parseNameSafe(skipJunkToTag(it, Tag::NAME_START));
+	switch (getTag(it))
 	{
-	case OPEN_DICTIONARY:
+	case Tag::START_DICTIONARY:
 		return Entity(move(name), parseNamespace(++it, name, currentNamespace));
-	case OPEN_LIST:
+	case Tag::START_LIST:
 		return Entity(move(name), parseEnum(++it, name));
-	case OPEN_TEMPLATE:
+	case Tag::START_TEMPLATE:
 		return Entity(move(name), parseTemplateHead(++it));
-	case CHAR_COLON:
-		if (++it != CHAR_COLON || skipJunk(++it) != OPEN_TEMPLATE)
-			throw runtime_error("expected text template head");
+	case Tag::TEXT_TEMPLATE:
 		return Entity(move(name), Webss(parseTemplateHeadText(++it), true));
 	default:
 		throw runtime_error(ERROR_UNEXPECTED);
@@ -45,8 +42,7 @@ Entity Parser::parseAbstractEntity(It& it, const Namespace& currentNamespace)
 
 string Parser::parseNameSafe(It& it)
 {
-	skipJunkToValidCondition(it, [&]() { return isNameStart(*it); });
-	auto nameType = parseNameType(it);
+	auto nameType = parseNameType(skipJunkToTag(it, Tag::NAME_START));
 	if (nameType.type != NameType::NAME)
 		throw runtime_error("expected name that is neither an entity nor a keyword");
 	return move(nameType.name);

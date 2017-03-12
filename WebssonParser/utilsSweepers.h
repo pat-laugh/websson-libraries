@@ -13,7 +13,8 @@ namespace webss
 	enum class Tag {
 		NONE, UNKNOWN,
 		NAME_START, NUMBER_START, C_STRING, LINE_STRING, EQUAL,
-		DICTIONARY, LIST, TUPLE, TEMPLATE,
+		START_DICTIONARY, START_LIST, START_TUPLE, START_TEMPLATE,
+		END_DICTIONARY, END_LIST, END_TUPLE, END_TEMPLATE,
 		TEXT_DICTIONARY, TEXT_LIST, TEXT_TUPLE, TEXT_TEMPLATE,
 		ENTITY_ABSTRACT, ENTITY_CONCRETE,
 		USING_NAMESPACE, IMPORT, OPTION, SELF
@@ -45,19 +46,12 @@ namespace webss
 	//throws an error if eof is met
 	SmartIterator& skipJunkToValid(SmartIterator& it);
 
-	//skips junk and valid junk operators (line escape and comments) until valid non-junk char is met and then tests the condition
-	//throws an error if eof is met or if the condition fails
-	SmartIterator& skipJunkToValidCondition(SmartIterator& it, std::function<bool()> condition);
-
 	//calls skipLineJunk, then checks the char pointed by it
 	//if it is not a separator nor an end of container, an error is thrown
 	void cleanLine(SmartIterator& it, ConType con, char separator);
 
 	//return true if c is end of line, separator or end of container, else false
 	bool isLineEnd(char c, ConType con, char separator);
-
-	enum class TypeContainer { DICTIONARY, LIST, TUPLE, TEMPLATE_HEAD, LINE_STRING, EQUAL, CSTRING, MULTILINE_STRING, TEXT_LIST, TEXT_TUPLE, TEXT_TEMPLATE_HEAD };
-	TypeContainer skipJunkToContainer(SmartIterator& it);
 	
 	std::string parseName(SmartIterator& it);
 }

@@ -40,7 +40,7 @@ scopeLoop:
 	PatternLineGreed(*it == CHAR_SCOPE, /* continue below */, return{ *ent })
 	try
 	{
-		skipJunkToValidCondition(++it, [&]() { return isNameStart(*it); });
+		skipJunkToTag(++it, Tag::NAME_START);
 		const auto& content = ent->getContent();
 		if (content.isEnum())
 			return content.getEnumSafe().at(parseName(it));
@@ -77,12 +77,13 @@ void Parser::addJsonKeyvalue(It& it, Dictionary& dict)
 {
 	try
 	{
-		auto name = parseNameSafe(skipJunkToValidCondition(it, [&]() { return isNameStart(*it); }));
-		skipJunkToValidCondition(it, [&]() { return *it == CHAR_CSTRING; });
-		skipJunkToValidCondition(++it, [&]() { return *it == CHAR_COLON; });
+		auto name = parseNameSafe(skipJunkToTag(it, Tag::NAME_START));
+		skipJunkToTag(it, Tag::C_STRING);
+		if (*skipJunkToValid(++it) != CHAR_COLON)
+			throw runtime_error("");
 		dict.addSafe(move(name), parseValueEqual(++it, ConType::DICTIONARY));
 	}
-	catch (const exception&)
+	catch (const runtime_error&)
 	{
 		throw runtime_error("could not parse supposed Json key-value");
 	}

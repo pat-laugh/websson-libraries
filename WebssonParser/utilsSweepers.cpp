@@ -43,10 +43,14 @@ Tag webss::getTag(SmartIterator& it)
 	case CHAR_CSTRING: return Tag::C_STRING;
 	case CHAR_COLON: return getTagColon(it);
 	case CHAR_EQUAL: return Tag::EQUAL;
-	case OPEN_DICTIONARY: return Tag::DICTIONARY;
-	case OPEN_LIST: return Tag::LIST;
-	case OPEN_TUPLE: return Tag::TUPLE;
-	case OPEN_TEMPLATE: return Tag::TEMPLATE;
+	case OPEN_DICTIONARY: return Tag::START_DICTIONARY;
+	case OPEN_LIST: return Tag::START_LIST;
+	case OPEN_TUPLE: return Tag::START_TUPLE;
+	case OPEN_TEMPLATE: return Tag::START_TEMPLATE;
+	case CLOSE_DICTIONARY: return Tag::END_DICTIONARY;
+	case CLOSE_LIST: return Tag::END_LIST;
+	case CLOSE_TUPLE: return Tag::END_TUPLE;
+	case CLOSE_TEMPLATE: return Tag::END_TEMPLATE;
 	case CHAR_ABSTRACT_ENTITY: return Tag::ENTITY_ABSTRACT;
 	case CHAR_CONCRETE_ENTITY: return Tag::ENTITY_CONCRETE;
 	case CHAR_USING_NAMESPACE: return Tag::USING_NAMESPACE;
@@ -184,14 +188,6 @@ SmartIterator& webss::skipJunkToValid(SmartIterator& it)
 	return it;
 }
 
-SmartIterator& webss::skipJunkToValidCondition(SmartIterator& it, function<bool()> condition)
-{
-	skipJunkToValid(it);
-	if (!condition())
-		throw runtime_error(ERROR_UNEXPECTED);
-	return it;
-}
-
 void webss::cleanLine(SmartIterator& it, ConType con, char separator)
 {
 	if (skipLineJunk(it) && !isLineEnd(*it, con, separator))
@@ -202,61 +198,6 @@ bool webss::isLineEnd(char c, ConType con, char separator)
 {
 	return c == '\n' || c == separator || con.isEnd(c);
 }
-
-#define CSCase(x) case_##x: case x
-TypeContainer webss::skipJunkToContainer(SmartIterator& it)
-{
-	switch (*skipJunkToValid(it))
-	{
-	CSCase(OPEN_DICTIONARY):
-		return TypeContainer::DICTIONARY;
-	CSCase(OPEN_LIST):
-		return TypeContainer::LIST;
-	CSCase(OPEN_TUPLE):
-		return TypeContainer::TUPLE;
-	CSCase(OPEN_TEMPLATE):
-		return TypeContainer::TEMPLATE_HEAD;
-	CSCase(CHAR_COLON):
-		if (it.peekEnd() || it.peek() != CHAR_COLON)
-			return TypeContainer::LINE_STRING;
-		switch (*skipJunkToValid(it.incTwo()))
-		{
-		case OPEN_DICTIONARY:
-			return TypeContainer::MULTILINE_STRING;
-		case OPEN_LIST:
-			return TypeContainer::TEXT_LIST;
-		case OPEN_TUPLE:
-			return TypeContainer::TEXT_TUPLE;
-		case OPEN_TEMPLATE:
-			return TypeContainer::TEXT_TEMPLATE_HEAD;
-		default:
-			throw runtime_error(ERROR_UNEXPECTED);
-		}
-	case CHAR_EQUAL:
-		switch (*skipJunkToValid(++it))
-		{
-		case OPEN_DICTIONARY:
-			goto case_OPEN_DICTIONARY;
-		case OPEN_LIST:
-			goto case_OPEN_LIST;
-		case OPEN_TUPLE:
-			goto case_OPEN_TUPLE;
-		case OPEN_TEMPLATE:
-			goto case_OPEN_TEMPLATE;
-		case CHAR_COLON:
-			goto case_CHAR_COLON;
-		case CHAR_CSTRING:
-			goto case_CHAR_CSTRING;
-		default:
-			throw runtime_error(ERROR_UNEXPECTED);
-		}
-	CSCase(CHAR_CSTRING):
-		return TypeContainer::CSTRING;
-	default:
-		throw runtime_error(ERROR_UNEXPECTED);
-	}
-}
-#undef CSCase
 
 string webss::parseName(SmartIterator& it)
 {

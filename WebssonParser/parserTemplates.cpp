@@ -34,15 +34,15 @@ public:
 	template <class Parameters>
 	Webss parseTemplateBody(It& it, const Parameters& params, function<Webss(It& it, const Parameters& params)>&& funcTemplTupleRegular, function<Webss(It& it, const Parameters& params)>&& funcTemplTupleText)
 	{
-		switch (skipJunkToContainer(it))
+		switch (getTag(it))
 		{
-		case TypeContainer::DICTIONARY:
+		case Tag::START_DICTIONARY:
 			return parseTemplateDictionary<Parameters>(++it, params, move(funcTemplTupleRegular), move(funcTemplTupleText));
-		case TypeContainer::LIST:
+		case Tag::START_LIST:
 			return parseTemplateList<Parameters>(++it, params, move(funcTemplTupleRegular), move(funcTemplTupleText));
-		case TypeContainer::TUPLE:
+		case Tag::START_TUPLE:
 			return funcTemplTupleRegular(++it, params);
-		case TypeContainer::TEXT_TUPLE:
+		case Tag::TEXT_TUPLE:
 			return funcTemplTupleText(++it, params);
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
@@ -58,15 +58,15 @@ private:
 			if (!isNameStart(*it))
 				throw runtime_error(ERROR_UNEXPECTED);
 			auto name = parseNameSafe(it);
-			switch (skipJunkToContainer(it))
+			switch (getTag(it))
 			{
-			case TypeContainer::LIST:
+			case Tag::START_LIST:
 				dict.addSafe(move(name), parseTemplateList<Parameters>(++it, params, move(funcTemplTupleRegular), move(funcTemplTupleText)));
 				break;
-			case TypeContainer::TUPLE:
+			case Tag::START_TUPLE:
 				dict.addSafe(move(name), funcTemplTupleRegular(++it, params));
 				break;
-			case TypeContainer::TEXT_TUPLE:
+			case Tag::TEXT_TUPLE:
 				dict.addSafe(move(name), funcTemplTupleText(++it, params));
 				break;
 			default:
@@ -80,10 +80,10 @@ private:
 	{
 		return parseContainer<List, ConType::LIST>(it, List(), [&](List& list, ConType con)
 		{
-			auto nextCont = skipJunkToContainer(it);
-			if (nextCont == TypeContainer::TUPLE)
+			auto tag = getTag(it);
+			if (tag == Tag::START_TUPLE)
 				list.add(funcTemplTupleRegular(++it, params));
-			else if (nextCont == TypeContainer::TEXT_TUPLE)
+			else if (tag == Tag::TEXT_TUPLE)
 				list.add(funcTemplTupleText(++it, params));
 			else
 				throw runtime_error(ERROR_UNEXPECTED);

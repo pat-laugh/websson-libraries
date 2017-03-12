@@ -89,7 +89,7 @@ void Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
 			blist = Blist(parseBinarySizeList(++it));
 	}
 
-	skipJunkToValidCondition(it, [&]() { return *it == CLOSE_TUPLE; });
+	skipJunkToTag(it, Tag::END_TUPLE);
 	parseOtherValue(skipJunkToValid(++it), ConType::TEMPLATE_HEAD,
 		CaseKeyValue
 		{
@@ -307,8 +307,7 @@ ParamBinary::SizeList Parser::parseBinarySizeList(It& it)
 	{
 		throw runtime_error("value in binary list must be void or a positive integer");
 	}
-	skipJunkToValidCondition(it, [&]() { return *it == CLOSE_LIST; });
-	++it;
+	++skipJunkToTag(it, Tag::END_LIST);
 	return blist;
 }
 
