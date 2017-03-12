@@ -54,18 +54,13 @@ string Parser::parseLineString(It& it, ConType con)
 	StringBuilder line;
 	while (hasNextChar(it, line, [&]() { return *it == separator || con.isEnd(*it); }))
 	{
-		switch (*it)
+		if (*it == CHAR_ESCAPE)
 		{
-		case CHAR_CONCRETE_ENTITY:
-			if (checkStringEntity(it, line))
-				continue;
-			break;
-		case CHAR_ESCAPE:
 			checkEscapedChar(it, line);
 			continue;
-		default:
-			break;
 		}
+		else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(it, line))
+			continue;
 		putChar(it, line);
 	}
 	return line;
@@ -82,24 +77,18 @@ string Parser::parseMultilineString(It& it)
 loopStart:
 	while (hasNextChar(it, text, [&]() { return *it == CLOSE_DICTIONARY && --countStartEnd == 0; }))
 	{
-		switch (*it)
+		if (*it == CHAR_ESCAPE)
 		{
-		case CHAR_CONCRETE_ENTITY:
-			if (checkStringEntity(it, text))
-			{
-				addSpace = true;
-				continue;
-			}
-			break;
-		case CHAR_ESCAPE:
 			checkEscapedChar(it, text);
 			addSpace = false;
 			continue;
-		case OPEN_DICTIONARY:
+		}
+		else if (*it == OPEN_DICTIONARY)
 			++countStartEnd;
-			break;
-		default:
-			break;
+		else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(it, text))
+		{
+			addSpace = true;
+			continue;
 		}
 		addSpace = true;
 		putChar(it, text);
