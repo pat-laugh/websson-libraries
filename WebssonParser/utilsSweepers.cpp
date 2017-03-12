@@ -15,6 +15,52 @@ bool checkOperators(SmartIterator& it);
 void skipLineComment(SmartIterator& it);
 void skipMultilineComment(SmartIterator& it);
 
+Tag getTagColon(SmartIterator& it)
+{
+	if (it.peekEnd() || it.peek() != CHAR_COLON)
+		return Tag::LINE_STRING;
+	switch (*skipJunkToValid(it.incTwo()))
+	{
+	case OPEN_DICTIONARY:
+		return Tag::TEXT_DICTIONARY;
+	case OPEN_LIST:
+		return Tag::TEXT_LIST;
+	case OPEN_TUPLE:
+		return Tag::TEXT_TUPLE;
+	case OPEN_TEMPLATE:
+		return Tag::TEXT_TEMPLATE;
+	default:
+		throw runtime_error(ERROR_UNEXPECTED);
+	}
+}
+
+Tag webss::getTag(SmartIterator& it)
+{
+	if (!skipJunk(it))
+		return Tag::NONE;
+	switch (*it)
+	{
+	case CHAR_CSTRING: return Tag::C_STRING;
+	case CHAR_COLON: return getTagColon(it);
+	case CHAR_EQUAL: return Tag::EQUAL;
+	case OPEN_DICTIONARY: return Tag::DICTIONARY;
+	case OPEN_LIST: return Tag::LIST;
+	case OPEN_TUPLE: return Tag::TUPLE;
+	case OPEN_TEMPLATE: return Tag::TEMPLATE;
+	case CHAR_ABSTRACT_ENTITY: return Tag::ENTITY_ABSTRACT;
+	case CHAR_CONCRETE_ENTITY: return Tag::ENTITY_CONCRETE;
+	case CHAR_USING_NAMESPACE: return Tag::USING_NAMESPACE;
+	case CHAR_IMPORT: return Tag::IMPORT;
+	case CHAR_OPTION: return Tag::OPTION;
+	case CHAR_SELF: return Tag::SELF;
+	}
+	if (isNameStart(*it))
+		return Tag::NAME_START;
+	if (isNumberStart(*it))
+		return Tag::NUMBER_START;
+	return Tag::UNKNOWN;
+}
+
 SmartIterator& webss::skipJunk(SmartIterator& it)
 {
 	while (it)

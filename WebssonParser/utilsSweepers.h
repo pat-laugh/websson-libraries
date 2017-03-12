@@ -9,6 +9,18 @@
 
 namespace webss
 {
+	enum class Tag {
+		NONE, UNKNOWN,
+		NAME_START, NUMBER_START, C_STRING, LINE_STRING, EQUAL,
+		DICTIONARY, LIST, TUPLE, TEMPLATE,
+		TEXT_DICTIONARY, TEXT_LIST, TEXT_TUPLE, TEXT_TEMPLATE,
+		ENTITY_ABSTRACT, ENTITY_CONCRETE,
+		USING_NAMESPACE, IMPORT, OPTION, SELF
+	};
+
+	//skips junk until it finds a Tag
+	Tag getTag(SmartIterator& it);
+
 	//skips junk and valid junk operators (line escape and comments)
 	SmartIterator& skipJunk(SmartIterator& it);
 
