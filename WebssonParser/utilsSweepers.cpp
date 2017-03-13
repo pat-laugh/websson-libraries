@@ -199,6 +199,20 @@ bool webss::isLineEnd(char c, ConType con, char separator)
 	return c == '\n' || c == separator || con.isEnd(c);
 }
 
+bool webss::isLineEmpty(SmartIterator& it)
+{
+	if (!it)
+		return true;
+	if (!isLineJunk(*it))
+	{
+		if (*it != '\n')
+			return false;
+		++it;
+		return true;
+	}
+	return isLineEmpty(skipLineJunk(++it));
+}
+
 string webss::parseName(SmartIterator& it)
 {
 	assert(it && isNameStart(*it));

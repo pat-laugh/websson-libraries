@@ -52,6 +52,9 @@ namespace webss
 
 	//return true if c is end of line, separator or end of container, else false
 	bool isLineEnd(char c, ConType con, char separator);
+
+	//skips line-junk, then returns true if it is at the end or equals newline, else false
+	bool checkLineEmpty(SmartIterator& it);
 	
 	std::string parseName(SmartIterator& it);
 }
