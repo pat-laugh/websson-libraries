@@ -116,11 +116,11 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(It& it, TemplateHeadScoped&& 
 	assert(it);
 	do
 		if (*it == CHAR_ABSTRACT_ENTITY)
-			checkMultiContainer(++it, [&]() { thead.attach(ParamScoped::makeEntityAbstract(parseAbstractEntity(it, Namespace::getEmptyInstance()))); });
+			thead.attach(ParamScoped::makeEntityAbstract(parseAbstractEntity(++it, Namespace::getEmptyInstance())));
 		else if (*it == CHAR_CONCRETE_ENTITY)
-			checkMultiContainer(++it, [&]() { thead.attach(ParamScoped::makeEntityConcrete(parseConcreteEntity(it, CON))); });
+			thead.attach(ParamScoped::makeEntityConcrete(parseConcreteEntity(++it, CON)));
 		else if (*it == CHAR_USING_NAMESPACE)
-			checkMultiContainer(++it, [&]() { thead.attach(ParamScoped(parseUsingNamespaceStatic(it))); });
+			thead.attach(ParamScoped(parseUsingNamespaceStatic(++it)));
 		else
 			parseOtherValue(it, CON,
 				CaseKeyValue{ throw runtime_error(ERROR_UNEXPECTED); },

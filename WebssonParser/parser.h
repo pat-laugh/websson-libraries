@@ -68,7 +68,6 @@ namespace webss
 
 		//returns true if end of container is met, else false
 		bool parseDocumentHead(It& it, std::vector<ParamDocument>& docHead, ConType con, const Namespace& nspace);
-		void checkMultiContainer(It& it, std::function<void()> func);
 
 		template <class Container, ConType::Enum CON>
 		Container parseContainer(It& it, Container&& cont, std::function<void(Container& cont, ConType con)> func)

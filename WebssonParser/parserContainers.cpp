@@ -115,10 +115,10 @@ Namespace Parser::parseNamespace(It& it, const string& name, const Namespace& pr
 		switch (*it)
 		{
 		case CHAR_ABSTRACT_ENTITY:
-			checkMultiContainer(++it, [&]() { nspace.addSafe(parseAbstractEntity(it, nspace)); });
+			nspace.addSafe(parseAbstractEntity(++it, nspace));
 			break;
 		case CHAR_CONCRETE_ENTITY:
-			checkMultiContainer(++it, [&]() { nspace.addSafe(parseConcreteEntity(it, con)); });
+			nspace.addSafe(parseConcreteEntity(++it, con));
 			break;
 		case CHAR_SELF:
 			skipJunkToTag(++it, Tag::START_TEMPLATE);
@@ -173,34 +173,31 @@ bool Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType c
 		switch (*it)
 		{
 		case CHAR_ABSTRACT_ENTITY:
-			checkMultiContainer(++it, [&]() { auto ent = parseAbstractEntity(it, nspace); docHead.push_back(ParamDocument::makeEntityAbstract(ent)); ents.addLocalSafe(move(ent)); });
+		{
+			auto ent = parseAbstractEntity(++it, nspace);
+			docHead.push_back(ParamDocument::makeEntityAbstract(ent)); ents.addLocalSafe(move(ent));
 			break;
+		}
 		case CHAR_CONCRETE_ENTITY:
-			checkMultiContainer(++it, [&]() { auto ent = parseConcreteEntity(it, con); docHead.push_back(ParamDocument::makeEntityConcrete(ent)); ents.addLocalSafe(move(ent)); });
+		{
+			auto ent = parseConcreteEntity(++it, con);
+			docHead.push_back(ParamDocument::makeEntityConcrete(ent)); ents.addLocalSafe(move(ent));
 			break;
+		}
 		case CHAR_IMPORT:
-			checkMultiContainer(++it, [&]() { auto import = parseImport(it, con); docHead.push_back(move(import)); });
+		{
+			auto import = parseImport(++it, con);
+			docHead.push_back(move(import));
 			break;
+		}
 		case CHAR_SCOPED_DOCUMENT:
-			checkMultiContainer(++it, [&]() { parseScopedDocument(it, docHead); });
+			parseScopedDocument(++it, docHead);
 			break;
 		default:
 			return false;
 		}
 	} while (checkNextElementContainer(it, con));
 	return true;
-}
-
-
-void Parser::checkMultiContainer(It& it, function<void()> func)
-{
-	static const ConType CON = ConType::DICTIONARY;
-	if (*skipJunkToValid(it) != OPEN_DICTIONARY)
-		func();
-	else if (!checkEmptyContainer(++it, CON))
-		do
-			func();
-		while (checkNextElementContainer(it, CON));
 }
 
 void Parser::parseScopedDocument(It& it, vector<ParamDocument>& docHead)
