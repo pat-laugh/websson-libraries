@@ -52,24 +52,20 @@ scopeLoop:
 
 Webss Parser::parseCharValue(It& it, ConType con)
 {
-	switch (*it)
+	switch (getTag(it))
 	{
-	case OPEN_DICTIONARY:
-		return parseDictionary(++it);
-	case OPEN_LIST:
-		return parseList(++it);
-	case OPEN_TUPLE:
-		return parseTuple(++it);
-	case OPEN_TEMPLATE:
-		return parseTemplate(++it, con);
-	case CHAR_COLON:
-		return parseValueColon(++it, con);
-	case CHAR_EQUAL:
-		return parseValueEqual(++it, con);
-	case CHAR_CSTRING:
-		return parseCString(++it);
-	default:
-		throw runtime_error(ERROR_UNEXPECTED);
+	case Tag::START_DICTIONARY: return parseDictionary(++it);
+	case Tag::START_LIST: return parseList(++it);
+	case Tag::START_TUPLE: return parseTuple(++it);
+	case Tag::START_TEMPLATE: return parseTemplate(++it, con);
+	case Tag::LINE_STRING: return parseLineString(++it, con);
+	case Tag::EQUAL: return parseValueEqual(++it, con);
+	case Tag::C_STRING: return parseCString(++it);
+	case Tag::TEXT_DICTIONARY: return parseMultilineString(++it);
+	case Tag::TEXT_LIST: return{ parseListText(++it), true };
+	case Tag::TEXT_TUPLE: return{ parseTupleText(++it), true };
+	case Tag::TEXT_TEMPLATE: return parseTemplateText(++it);
+	default: throw runtime_error(ERROR_UNEXPECTED);
 	}
 }
 
@@ -87,11 +83,6 @@ void Parser::addJsonKeyvalue(It& it, Dictionary& dict)
 	{
 		throw runtime_error("could not parse supposed Json key-value");
 	}
-}
-
-Webss Parser::parseValueColon(It& it, ConType con)
-{
-	return it != CHAR_COLON ? parseLineString(it, con) : parseContainerText(skipJunkToValid(++it));
 }
 
 Webss Parser::parseValueEqual(It& it, ConType con)
@@ -122,7 +113,7 @@ Parser::OtherValue Parser::parseOtherValue(It& it, ConType con)
 		switch (nameType.type)
 		{
 		case NameType::NAME:
-			PatternLineGreed(isKeyChar(*it), return OtherValue(move(nameType.name), parseCharValue(it, con)), return{ move(nameType.name) })
+			PatternLineGreed(it && isKeyChar(*it), return OtherValue(move(nameType.name), parseCharValue(it, con)), return{ move(nameType.name) })
 		case NameType::KEYWORD:
 			return{ nameType.keyword };
 		case NameType::ENTITY_ABSTRACT:

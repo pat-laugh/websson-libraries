@@ -203,23 +203,6 @@ void Parser::checkMultiContainer(It& it, function<void()> func)
 		while (checkNextElementContainer(it, CON));
 }
 
-Webss Parser::parseContainerText(It& it)
-{
-	switch (*it)
-	{
-	case OPEN_DICTIONARY:
-		return parseMultilineString(++it);
-	case OPEN_LIST:
-		return{ parseListText(++it), true };
-	case OPEN_TUPLE:
-		return{ parseTupleText(++it), true };
-	case OPEN_TEMPLATE:
-		return parseTemplateText(++it);
-	default:
-		throw runtime_error(ERROR_UNEXPECTED);
-	}
-}
-
 void Parser::parseScopedDocument(It& it, vector<ParamDocument>& docHead)
 {
 	static const ConType CON = ConType::DICTIONARY;

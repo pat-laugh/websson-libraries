@@ -146,7 +146,7 @@ TemplateHeadStandard Parser::parseTemplateHeadStandard(It& it, TemplateHeadStand
 		{
 			if (++it != CHAR_COLON)
 				throw runtime_error(webss_ERROR_EXPECTED_CHAR(CHAR_COLON));
-			skipJunkToTag(++it, Tag::START_TEMPLATE)
+			skipJunkToTag(++it, Tag::START_TEMPLATE);
 
 			auto head = parseTemplateHeadText(++it);
 			parseOtherValuesTheadStandardAfterThead(it, thead);

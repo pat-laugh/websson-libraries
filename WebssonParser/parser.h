@@ -87,7 +87,6 @@ namespace webss
 		Dictionary parseDictionary(It& it);
 		Namespace parseNamespace(It& it, const std::string& name, const Namespace& previousNamespace);
 		Enum parseEnum(It& it, const std::string& name);
-		Webss parseContainerText(It& it);
 		void parseScopedDocument(It& it, std::vector<ParamDocument>& docHead);
 		ImportedDocument parseImport(It& it, ConType con);
 		const Namespace& Parser::parseUsingNamespaceStatic(It& it);
@@ -96,7 +95,6 @@ namespace webss
 		Parser::NameType parseNameType(It& it);
 		Webss parseCharValue(It& it, ConType con);
 		void addJsonKeyvalue(It& it, Dictionary& dict);
-		Webss parseValueColon(It& it, ConType con);
 		Webss parseValueEqual(It& it, ConType con);
 		OtherValue parseOtherValue(It& it, ConType con);
 		OtherValue checkAbstractEntity(It& it, ConType con, const Entity& ent);
