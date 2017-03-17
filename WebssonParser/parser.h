@@ -10,21 +10,35 @@
 
 namespace webss
 {
+	class ParserBuilder
+	{
+		ParserBuilder();
+		void setLanguage(Language lang);
+		void addGlobalEntity(std::string&& name, Webss&& value);
+		Document parse(SmartIterator it)
+		{
+			return Parser::parse(it, ents, importedDocuments, language, separator);
+		}
+	private:
+		BasicEntityManager<Webss> ents;
+		BasicEntityManager<void*> importedDocuments;
+		Language language;
+		char separator;
+	};
+
 	class Parser
 	{
 	public:
-		BasicEntityManager<Webss> ents;
-
-		Parser();
-		Parser(Language lang);
-
-		Document parse(const std::istream& in);
-		Document parse(const std::stringstream& in);
-		Document parse(const std::string& in);
-
-		void setLanguage(Language lang);
-		void addGlobalEntity(std::string&& name, Webss&& value);
+		static Document parse(SmartIterator& it, BasicEntityManager<Webss>& ents, BasicEntityManager<void*>& importedDocuments, Language language, char separator)
+		{
+			return Parser(ents, importedDocuments, language, separator).parseDocument(it);
+		}
 	protected:
+		Parser(BasicEntityManager<Webss>& ents, BasicEntityManager<void*>& importedDocuments, Language language, char separator)
+			: ents(ents), importedDocuments(importedDocuments), language(language), separator(separator) {}
+
+		BasicEntityManager<Webss>& ents;
+		BasicEntityManager<void*>& importedDocuments;
 		Language language;
 		char separator;
 		bool lineGreed = false;
@@ -62,9 +76,8 @@ namespace webss
 			Entity entity;
 		};
 
-		BasicEntityManager<void*> importedDocuments;
 
-		Document parseDocument(It&& it);
+		Document parseDocument(It& it);
 
 		//returns true if end of container is met, else false
 		bool parseDocumentHead(It& it, std::vector<ParamDocument>& docHead, ConType con, const Namespace& nspace);

@@ -17,20 +17,13 @@ char getLanguageSeparator(Language lang)
 	return ';';
 }
 
-Parser::Parser() : language(Language::DEFAULT), separator(CHAR_SEPARATOR) {}
-Parser::Parser(Language lang) : language(lang), separator(getLanguageSeparator(lang)) {}
-
-Document Parser::parse(const istream& in) { return parseDocument(in); }
-Document Parser::parse(const stringstream& in) { return parseDocument(in); }
-Document Parser::parse(const string& in) { return parseDocument(in); }
-
-void Parser::setLanguage(Language lang)
+void ParserBuilder::setLanguage(Language lang)
 {
 	language = lang;
 	separator = getLanguageSeparator(lang);
 }
 
-void Parser::addGlobalEntity(string&& name, Webss&& value)
+void ParserBuilder::addGlobalEntity(string&& name, Webss&& value)
 {
 	ents.addGlobal(move(name), move(value));
 }

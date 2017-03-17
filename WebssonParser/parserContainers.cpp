@@ -141,7 +141,7 @@ Enum Parser::parseEnum(It& it, const string& name)
 	});
 }
 
-Document Parser::parseDocument(It&& it)
+Document Parser::parseDocument(It& it)
 {
 	static const ConType CON = ConType::DOCUMENT;
 	try
