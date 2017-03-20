@@ -18,19 +18,16 @@ char getLanguageSeparator(Language lang)
 }
 
 GlobalParser::GlobalParser() : it(SmartIterator(string(""))) {}
-
-//GlobalParser::GlobalParser(const SmartIterator& it) : it(it) {}
-
+GlobalParser::GlobalParser(SmartIterator&& it) : it(move(it)) {}
 GlobalParser::GlobalParser(const std::istream& in) : it(SmartIterator(in)) {}
 GlobalParser::GlobalParser(const std::stringstream& in) : it(SmartIterator(in)) {}
 GlobalParser::GlobalParser(const std::string& in) : it(SmartIterator(in)) {}
 
-/*
-GlobalParser& GlobalParser::setIterator(const SmartIterator& it)
+GlobalParser& GlobalParser::setIterator(SmartIterator&& it)
 {
-this->it = it;
-return *this;
-}*/
+	this->it = move(it);
+	return *this;
+}
 
 GlobalParser& GlobalParser::setLanguage(Language lang)
 {

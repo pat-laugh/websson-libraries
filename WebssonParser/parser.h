@@ -15,11 +15,11 @@ namespace webss
 	{
 	public:
 		GlobalParser();
-	//	GlobalParser(const SmartIterator& it);
+		GlobalParser(SmartIterator&& it);
 		GlobalParser(const std::istream& in);
 		GlobalParser(const std::stringstream& in);
 		GlobalParser(const std::string& in);
-	//	GlobalParser& setIterator(const SmartIterator& it);
+		GlobalParser& setIterator(SmartIterator&& it);
 		GlobalParser& setLanguage(Language lang);
 		GlobalParser& addEntity(std::string&& name, Webss&& value);
 		Document parse();
