@@ -12,9 +12,24 @@ namespace webss
 	class This
 	{
 	public:
+		This(This&& it) : in(std::move(it.in)), c1(it.c1), c2(it.c2), isValid(it.isValid), hasPeek(it.hasPeek), line(it.line), charCount(it.charCount) {}
+		This(const This& it)
+		{
+			this->in << it.in.rdbuf();
+			readStart();
+		}
+		This(std::istream&& in)
+		{
+			this->in << in.rdbuf();
+			readStart();
+		}
 		This(const std::istream& in)
 		{
 			this->in << in.rdbuf();
+			readStart();
+		}
+		This(std::stringstream&& in) : in(std::move(in))
+		{
 			readStart();
 		}
 		This(const std::stringstream& in)
@@ -22,11 +37,37 @@ namespace webss
 			this->in << in.rdbuf();
 			readStart();
 		}
+
+		This(std::string&& in) : in(std::move(in))
+		{
+			readStart();
+		}
 		This(const std::string& in) : in(in)
 		{
 			readStart();
 		}
 		~This() {}
+
+		This& operator=(This&& o)
+		{
+			in = std::move(o.in);
+			c1 = o.c1;
+			c2 = o.c2;
+			isValid = o.isValid;
+			hasPeek = o.hasPeek;
+			line = o.line;
+			charCount = o.charCount;
+			return *this;
+		}
+		This& operator=(const This& o)
+		{
+			if (this != &o)
+			{
+				in << o.in.rdbuf();
+				readStart();
+			}
+			return *this;
+		}
 
 		This& operator++() //prefix
 		{
