@@ -17,6 +17,7 @@ char getLanguageSeparator(Language lang)
 	return ';';
 }
 
+GlobalParser::GlobalParser() : it(SmartIterator(string(""))) {}
 
 //GlobalParser::GlobalParser(const SmartIterator& it) : it(it) {}
 
@@ -44,4 +45,4 @@ GlobalParser& GlobalParser::addEntity(string&& name, Webss&& value)
 	return *this;
 }
 
-Document GlobalParser::parse() { return Parser::parseDocument(*this); }
+Document GlobalParser::parse() { return GlobalParser::Parser::parseDocument(*this); }

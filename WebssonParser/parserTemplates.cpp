@@ -18,7 +18,7 @@ void checkDefaultValues(Tuple& tuple, const Parameters& params)
 			setDefaultValue(tuple[index], params[index]);
 }
 
-class ParserTemplates : public Parser
+class ParserTemplates : public GlobalParser::Parser
 {
 public:
 	Webss parseTemplateBodyStandard(It& it, const TemplateHeadStandard::Parameters& params)
@@ -174,7 +174,7 @@ private:
 	}
 };
 
-Webss Parser::parseTemplate(It& it, ConType con)
+Webss GlobalParser::Parser::parseTemplate(It& it, ConType con)
 {
 	auto headWebss = parseTemplateHead(it);
 	switch (headWebss.getType())
@@ -212,30 +212,30 @@ Webss Parser::parseTemplate(It& it, ConType con)
 	}
 }
 
-Webss Parser::parseTemplateText(It& it)
+Webss GlobalParser::Parser::parseTemplateText(It& it)
 {
 	auto head = parseTemplateHeadText(it);
 	auto body = parseTemplateBodyText(it, head.getParameters());
 	return{ move(head), move(body), true };
 }
 
-Webss Parser::parseTemplateBodyBinary(It& it, const TemplateHeadBinary::Parameters& params)
+Webss GlobalParser::Parser::parseTemplateBodyBinary(It& it, const TemplateHeadBinary::Parameters& params)
 {
 	return static_cast<ParserTemplates*>(this)->parseTemplateBody<TemplateHeadBinary::Parameters>(it, params, [&](It& it, const TemplateHeadBinary::Parameters& params) { return parseTemplateTupleBinary(it, params); }, [&](It& it, const TemplateHeadBinary::Parameters& params) -> Webss { throw runtime_error(ERROR_UNEXPECTED); });
 }
 
-Webss Parser::parseTemplateBodyScoped(It& it, const TemplateHeadScoped::Parameters& params, ConType con)
+Webss GlobalParser::Parser::parseTemplateBodyScoped(It& it, const TemplateHeadScoped::Parameters& params, ConType con)
 {
 	ParamDocumentIncluder includer(ents, params);
 	return parseValueOnly(it, con);
 }
 
-Webss Parser::parseTemplateBodyStandard(It& it, const TemplateHeadStandard::Parameters& params)
+Webss GlobalParser::Parser::parseTemplateBodyStandard(It& it, const TemplateHeadStandard::Parameters& params)
 {
 	return static_cast<ParserTemplates*>(this)->parseTemplateBodyStandard(it, params);
 }
 
-Webss Parser::parseTemplateBodyText(It& it, const TemplateHeadStandard::Parameters& params)
+Webss GlobalParser::Parser::parseTemplateBodyText(It& it, const TemplateHeadStandard::Parameters& params)
 {
 	return static_cast<ParserTemplates*>(this)->parseTemplateBodyText(it, params);
 }

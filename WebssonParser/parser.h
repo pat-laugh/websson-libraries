@@ -13,6 +13,8 @@ namespace webss
 {
 	class GlobalParser
 	{
+	public:
+		GlobalParser();
 	//	GlobalParser(const SmartIterator& it);
 		GlobalParser(const std::istream& in);
 		GlobalParser(const std::stringstream& in);
@@ -27,7 +29,7 @@ namespace webss
 		SmartIterator it;
 		Language language = Language::DEFAULT;
 		char separator = CHAR_SEPARATOR;
-
+	public:
 		class Parser
 		{
 		public:
@@ -110,10 +112,10 @@ namespace webss
 			Enum parseEnum(It& it, const std::string& name);
 			void parseScopedDocument(It& it, std::vector<ParamDocument>& docHead);
 			ImportedDocument parseImport(It& it, ConType con);
-			const Namespace& Parser::parseUsingNamespaceStatic(It& it);
+			const Namespace& GlobalParser::Parser::parseUsingNamespaceStatic(It& it);
 
 			//parserKeyValues.cpp
-			Parser::NameType parseNameType(It& it);
+			GlobalParser::Parser::NameType parseNameType(It& it);
 			Webss parseCharValue(It& it, ConType con);
 			void addJsonKeyvalue(It& it, Dictionary& dict);
 			Webss parseValueEqual(It& it, ConType con);

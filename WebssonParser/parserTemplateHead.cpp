@@ -13,7 +13,7 @@ const char ERROR_BINARY_TEMPLATE[] = "all values in a binary template must be bi
 
 const ConType CON = ConType::TEMPLATE_HEAD;
 
-Webss Parser::parseTemplateHead(It& it)
+Webss GlobalParser::Parser::parseTemplateHead(It& it)
 {
 	if (checkEmptyContainer(it, CON))
 		return BlockHead();
@@ -81,7 +81,7 @@ Webss Parser::parseTemplateHead(It& it)
 	}
 }
 
-TemplateHeadStandard Parser::parseTemplateHeadText(It& it)
+TemplateHeadStandard GlobalParser::Parser::parseTemplateHeadText(It& it)
 {
 	auto headWebss = parseTemplateHead(it);
 	if (headWebss.getType() == WebssType::TEMPLATE_HEAD_STANDARD || headWebss.getType() == WebssType::TEMPLATE_HEAD_TEXT)
@@ -90,7 +90,7 @@ TemplateHeadStandard Parser::parseTemplateHeadText(It& it)
 		throw runtime_error("expected standard template head");
 }
 
-TemplateHeadBinary Parser::parseTemplateHeadBinary(It& it, TemplateHeadBinary&& thead)
+TemplateHeadBinary GlobalParser::Parser::parseTemplateHeadBinary(It& it, TemplateHeadBinary&& thead)
 {
 	assert(it);
 	do
@@ -111,7 +111,7 @@ TemplateHeadBinary Parser::parseTemplateHeadBinary(It& it, TemplateHeadBinary&& 
 	return move(thead);
 }
 
-TemplateHeadScoped Parser::parseTemplateHeadScoped(It& it, TemplateHeadScoped&& thead)
+TemplateHeadScoped GlobalParser::Parser::parseTemplateHeadScoped(It& it, TemplateHeadScoped&& thead)
 {
 	assert(it);
 	do
@@ -136,7 +136,7 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(It& it, TemplateHeadScoped&& 
 	return move(thead);
 }
 
-TemplateHeadStandard Parser::parseTemplateHeadStandard(It& it, TemplateHeadStandard&& thead)
+TemplateHeadStandard GlobalParser::Parser::parseTemplateHeadStandard(It& it, TemplateHeadStandard&& thead)
 {
 	assert(it);
 	do
@@ -169,7 +169,7 @@ TemplateHeadStandard Parser::parseTemplateHeadStandard(It& it, TemplateHeadStand
 	return move(thead);
 }
 
-void Parser::parseStandardParameterTemplateHead(It& it, TemplateHeadStandard& thead)
+void GlobalParser::Parser::parseStandardParameterTemplateHead(It& it, TemplateHeadStandard& thead)
 {
 	auto headWebss = parseTemplateHead(++it);
 	parseOtherValuesTheadStandardAfterThead(it, thead);
@@ -198,7 +198,7 @@ void Parser::parseStandardParameterTemplateHead(It& it, TemplateHeadStandard& th
 	}
 }
 
-void Parser::parseOtherValuesTheadStandardAfterThead(It& it, TemplateHeadStandard& thead)
+void GlobalParser::Parser::parseOtherValuesTheadStandardAfterThead(It& it, TemplateHeadStandard& thead)
 {
 	parseOtherValue(it, CON,
 		CaseKeyValue{ thead.attach(move(key), move(value)); },

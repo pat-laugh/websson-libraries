@@ -25,7 +25,7 @@ bool checkContainerEnd(SmartIterator& it, ConType con)
 	return false;
 }
 
-bool Parser::checkEmptyContainer(It& it, ConType con)
+bool GlobalParser::Parser::checkEmptyContainer(It& it, ConType con)
 {
 	if (checkContainerEnd(it, con))
 		return true;
@@ -34,7 +34,7 @@ bool Parser::checkEmptyContainer(It& it, ConType con)
 	return false;
 }
 
-bool Parser::checkNextElementContainer(It& it, ConType con)
+bool GlobalParser::Parser::checkNextElementContainer(It& it, ConType con)
 {
 	if (!lineGreed)
 		cleanLine(it, con, separator);
@@ -48,7 +48,7 @@ bool Parser::checkNextElementContainer(It& it, ConType con)
 	return true;
 }
 
-bool Parser::checkEmptyContainerVoid(It& it, ConType con, function<void()> funcIsVoid)
+bool GlobalParser::Parser::checkEmptyContainerVoid(It& it, ConType con, function<void()> funcIsVoid)
 {
 	if (checkContainerEnd(it, con))
 		return true;
@@ -70,7 +70,7 @@ bool Parser::checkEmptyContainerVoid(It& it, ConType con, function<void()> funcI
 	return false;
 }
 
-bool Parser::checkNextElementContainerVoid(It& it, ConType con, function<void()> funcIsVoid)
+bool GlobalParser::Parser::checkNextElementContainerVoid(It& it, ConType con, function<void()> funcIsVoid)
 {
 	if (!lineGreed)
 		cleanLine(it, con, separator);

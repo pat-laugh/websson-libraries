@@ -58,7 +58,7 @@ string getItCurrentChar(SmartIterator& it)
 	return out;
 }
 
-Dictionary Parser::parseDictionary(It& it)
+Dictionary GlobalParser::Parser::parseDictionary(It& it)
 {
 	return parseContainer<Dictionary, ConType::DICTIONARY>(it, Dictionary(), [&](Dictionary& dict, ConType con)
 	{
@@ -73,7 +73,7 @@ Dictionary Parser::parseDictionary(It& it)
 	});
 }
 
-List Parser::parseList(It& it)
+List GlobalParser::Parser::parseList(It& it)
 {
 	return parseContainer<List, ConType::LIST>(it, List(), [&](List& list, ConType con)
 	{
@@ -81,7 +81,7 @@ List Parser::parseList(It& it)
 	});
 }
 
-Tuple Parser::parseTuple(It& it)
+Tuple GlobalParser::Parser::parseTuple(It& it)
 {
 	return parseContainer<Tuple, ConType::TUPLE>(it, Tuple(), [&](Tuple& tuple, ConType con)
 	{
@@ -93,14 +93,14 @@ Tuple Parser::parseTuple(It& it)
 	});
 }
 
-List Parser::parseListText(It& it)
+List GlobalParser::Parser::parseListText(It& it)
 {
 	return parseContainer<List, ConType::LIST>(it, List(), [&](List& list, ConType con)
 	{
 		list.add(parseLineString(it, con));
 	});
 }
-Tuple Parser::parseTupleText(It& it)
+Tuple GlobalParser::Parser::parseTupleText(It& it)
 {
 	return parseContainer<Tuple, ConType::TUPLE>(it, Tuple(), [&](Tuple& tuple, ConType con)
 	{
@@ -108,7 +108,7 @@ Tuple Parser::parseTupleText(It& it)
 	});
 }
 
-Namespace Parser::parseNamespace(It& it, const string& name, const Namespace& previousNamespace)
+Namespace GlobalParser::Parser::parseNamespace(It& it, const string& name, const Namespace& previousNamespace)
 {
 	return parseContainer<Namespace, ConType::DICTIONARY>(it, Namespace(name, previousNamespace), [&](Namespace& nspace, ConType con)
 	{
@@ -129,7 +129,7 @@ Namespace Parser::parseNamespace(It& it, const string& name, const Namespace& pr
 		}
 	});
 }
-Enum Parser::parseEnum(It& it, const string& name)
+Enum GlobalParser::Parser::parseEnum(It& it, const string& name)
 {
 	return parseContainer<Enum, ConType::LIST>(it, Enum(name), [&](Enum& tEnum, ConType con)
 	{
@@ -141,7 +141,7 @@ Enum Parser::parseEnum(It& it, const string& name)
 	});
 }
 
-Document Parser::parseDocument(It& it)
+Document GlobalParser::Parser::parseDocument(It& it)
 {
 	static const ConType CON = ConType::DOCUMENT;
 	try
@@ -165,7 +165,7 @@ Document Parser::parseDocument(It& it)
 	}
 }
 
-bool Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType con, const Namespace& nspace)
+bool GlobalParser::Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType con, const Namespace& nspace)
 {
 	assert(it);
 	do
@@ -200,7 +200,7 @@ bool Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType c
 	return true;
 }
 
-void Parser::parseScopedDocument(It& it, vector<ParamDocument>& docHead)
+void GlobalParser::Parser::parseScopedDocument(It& it, vector<ParamDocument>& docHead)
 {
 	static const ConType CON = ConType::DICTIONARY;
 	if (*skipJunkToValid(it) == OPEN_TEMPLATE)
@@ -231,7 +231,7 @@ void Parser::parseScopedDocument(It& it, vector<ParamDocument>& docHead)
 	}
 }
 
-ImportedDocument Parser::parseImport(It& it, ConType con)
+ImportedDocument GlobalParser::Parser::parseImport(It& it, ConType con)
 {
 #ifdef DISABLE_IMPORT
 	throw runtime_error("this parser cannot import documents");
@@ -259,7 +259,7 @@ ImportedDocument Parser::parseImport(It& it, ConType con)
 #endif
 }
 
-const Namespace& Parser::parseUsingNamespaceStatic(It& it)
+const Namespace& GlobalParser::Parser::parseUsingNamespaceStatic(It& it)
 {
 	auto nameType = parseNameType(skipJunkToTag(it, Tag::NAME_START));
 	if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isNamespace())

@@ -47,7 +47,7 @@ bool hasNextChar(SmartIterator& it, StringBuilder& line, function<bool()> endCon
 	return true;
 }
 
-string Parser::parseLineString(It& it, ConType con)
+string GlobalParser::Parser::parseLineString(It& it, ConType con)
 {
 	skipLineJunk(it);
 
@@ -66,7 +66,7 @@ string Parser::parseLineString(It& it, ConType con)
 	return line;
 }
 
-string Parser::parseMultilineString(It& it)
+string GlobalParser::Parser::parseMultilineString(It& it)
 {
 	StringBuilder text;
 	if (*skipJunkToValid(it) == CLOSE_DICTIONARY)
@@ -112,7 +112,7 @@ loopStart:
 	goto loopStart;
 }
 
-string Parser::parseCString(It& it)
+string GlobalParser::Parser::parseCString(It& it)
 {
 	StringBuilder cstr;
 	while (it)
@@ -141,7 +141,7 @@ string Parser::parseCString(It& it)
 	throw runtime_error("cstring is not closed");
 }
 
-void Parser::checkEscapedChar(It& it, StringBuilder& line)
+void GlobalParser::Parser::checkEscapedChar(It& it, StringBuilder& line)
 {
 	if (checkLineEscape(it))
 		return;
@@ -171,7 +171,7 @@ void Parser::checkEscapedChar(It& it, StringBuilder& line)
 	++it;
 }
 
-bool Parser::checkStringEntity(It& it, StringBuilder& line)
+bool GlobalParser::Parser::checkStringEntity(It& it, StringBuilder& line)
 {
 	if (it.peekEnd() || !isNameStart(it.peek()))
 		return false;
@@ -180,7 +180,7 @@ bool Parser::checkStringEntity(It& it, StringBuilder& line)
 	return true;
 }
 
-const string& Parser::parseStringEntity(It& it)
+const string& GlobalParser::Parser::parseStringEntity(It& it)
 {
 	try
 	{

@@ -27,7 +27,7 @@ else if (!skipJunk(++it) || !(ConditionSuccess)) \
 else \
 	{ Success; } }
 
-Parser::NameType Parser::parseNameType(It& it)
+GlobalParser::Parser::NameType GlobalParser::Parser::parseNameType(It& it)
 {
 	string name = parseName(it);
 	if (isKeyword(name))
@@ -50,7 +50,7 @@ scopeLoop:
 	catch (const exception&) { throw runtime_error("could not get scoped value"); }
 }
 
-Webss Parser::parseCharValue(It& it, ConType con)
+Webss GlobalParser::Parser::parseCharValue(It& it, ConType con)
 {
 	switch (getTag(it))
 	{
@@ -69,7 +69,7 @@ Webss Parser::parseCharValue(It& it, ConType con)
 	}
 }
 
-void Parser::addJsonKeyvalue(It& it, Dictionary& dict)
+void GlobalParser::Parser::addJsonKeyvalue(It& it, Dictionary& dict)
 {
 	try
 	{
@@ -85,7 +85,7 @@ void Parser::addJsonKeyvalue(It& it, Dictionary& dict)
 	}
 }
 
-Webss Parser::parseValueEqual(It& it, ConType con)
+Webss GlobalParser::Parser::parseValueEqual(It& it, ConType con)
 {
 	if (*skipJunkToValid(it) != CHAR_EQUAL)
 		return parseValueOnly(it, con);
@@ -103,7 +103,7 @@ bool isKeyChar(char c)
 	}
 }
 
-Parser::OtherValue Parser::parseOtherValue(It& it, ConType con)
+GlobalParser::Parser::OtherValue GlobalParser::Parser::parseOtherValue(It& it, ConType con)
 {
 	if (isKeyChar(*it))
 		return parseCharValue(it, con);
@@ -129,7 +129,7 @@ Parser::OtherValue Parser::parseOtherValue(It& it, ConType con)
 	throw runtime_error(ERROR_UNEXPECTED);
 }
 
-Parser::OtherValue Parser::checkAbstractEntity(It& it, ConType con, const Entity& ent)
+GlobalParser::Parser::OtherValue GlobalParser::Parser::checkAbstractEntity(It& it, ConType con, const Entity& ent)
 {
 	const auto& content = ent.getContent();
 	switch (content.getTypeSafe())
@@ -150,7 +150,7 @@ Parser::OtherValue Parser::checkAbstractEntity(It& it, ConType con, const Entity
 	return{ ent };
 }
 
-void Parser::parseOtherValue(It& it, ConType con, std::function<void(string&& key, Webss&& value)> funcKeyValue, function<void(string&& key)> funcKeyOnly, function<void(Webss&& value)> funcValueOnly, function<void(const Entity& abstractEntity)> funcAbstractEntity)
+void GlobalParser::Parser::parseOtherValue(It& it, ConType con, std::function<void(string&& key, Webss&& value)> funcKeyValue, function<void(string&& key)> funcKeyOnly, function<void(Webss&& value)> funcValueOnly, function<void(const Entity& abstractEntity)> funcAbstractEntity)
 {
 	auto other = parseOtherValue(it, con);
 	switch (other.type)
@@ -172,7 +172,7 @@ void Parser::parseOtherValue(It& it, ConType con, std::function<void(string&& ke
 	}
 }
 
-Webss Parser::parseValueOnly(It& it, ConType con)
+Webss GlobalParser::Parser::parseValueOnly(It& it, ConType con)
 {
 	auto otherValue = parseOtherValue(skipJunkToValid(it), con);
 	if (otherValue.type != OtherValue::VALUE_ONLY)

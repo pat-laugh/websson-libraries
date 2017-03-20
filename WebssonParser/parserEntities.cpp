@@ -10,7 +10,7 @@
 using namespace std;
 using namespace webss;
 
-Entity Parser::parseConcreteEntity(It& it, ConType con)
+Entity GlobalParser::Parser::parseConcreteEntity(It& it, ConType con)
 {
 	skipJunkToTag(it, Tag::NAME_START);
 	Entity ent;
@@ -22,7 +22,7 @@ Entity Parser::parseConcreteEntity(It& it, ConType con)
 	return ent;
 }
 
-Entity Parser::parseAbstractEntity(It& it, const Namespace& currentNamespace)
+Entity GlobalParser::Parser::parseAbstractEntity(It& it, const Namespace& currentNamespace)
 {
 	auto name = parseNameSafe(skipJunkToTag(it, Tag::NAME_START));
 	switch (getTag(it))
@@ -40,7 +40,7 @@ Entity Parser::parseAbstractEntity(It& it, const Namespace& currentNamespace)
 	}
 }
 
-string Parser::parseNameSafe(It& it)
+string GlobalParser::Parser::parseNameSafe(It& it)
 {
 	auto nameType = parseNameType(skipJunkToTag(it, Tag::NAME_START));
 	if (nameType.type != NameType::NAME)

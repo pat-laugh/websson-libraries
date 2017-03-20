@@ -208,7 +208,7 @@ bool webss::checkLineEmpty(SmartIterator& it)
 		++it;
 		return true;
 	}
-	return isJunk(*it) ? isLineEmpty(skipLineJunk(++it)) : false; //optimization: isLineJunk checks for '\n' and isJunk
+	return isJunk(*it) ? checkLineEmpty(skipLineJunk(++it)) : false; //optimization: isLineJunk checks for '\n' and isJunk
 }
 
 string webss::parseName(SmartIterator& it)

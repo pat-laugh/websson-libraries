@@ -24,7 +24,7 @@ Tuple parseBinaryTemplate(SmartIterator& it, const TemplateHeadBinary::Parameter
 
 WebssBinarySize checkBinarySize(WebssInt sizeInt);
 
-void Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
+void GlobalParser::Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
 {
 	using Bhead = ParamBinary::SizeHead;
 	using Blist = ParamBinary::SizeList;
@@ -107,7 +107,7 @@ void Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
 }
 
 //entry point from parserTemplates
-Tuple Parser::parseTemplateTupleBinary(It& it, const TemplateHeadBinary::Parameters& params)
+Tuple GlobalParser::Parser::parseTemplateTupleBinary(It& it, const TemplateHeadBinary::Parameters& params)
 {
 	auto tuple = parseBinaryTemplate(it, params);
 	if (it != CLOSE_TUPLE)
@@ -278,7 +278,7 @@ Tuple parseBinaryTemplate(SmartIterator& it, const TemplateHeadBinary::Parameter
 	return tuple;
 }
 
-ParamBinary::SizeList Parser::parseBinarySizeList(It& it)
+ParamBinary::SizeList GlobalParser::Parser::parseBinarySizeList(It& it)
 {
 	using Blist = ParamBinary::SizeList;
 	if (checkEmptyContainer(it, ConType::LIST))
@@ -320,7 +320,7 @@ WebssBinarySize checkBinarySize(WebssInt sizeInt)
 	return static_cast<WebssBinarySize>(sizeInt);
 }
 
-const Entity& Parser::checkEntTypeBinarySize(const Entity& ent)
+const Entity& GlobalParser::Parser::checkEntTypeBinarySize(const Entity& ent)
 {
 	try { checkBinarySize(ent.getContent().getIntSafe()); }
 	catch (const exception& e) { throw runtime_error(e.what()); }
