@@ -17,14 +17,31 @@ char getLanguageSeparator(Language lang)
 	return ';';
 }
 
-void ParserBuilder::setLanguage(Language lang)
+
+//GlobalParser::GlobalParser(const SmartIterator& it) : it(it) {}
+
+GlobalParser::GlobalParser(const std::istream& in) : it(SmartIterator(in)) {}
+GlobalParser::GlobalParser(const std::stringstream& in) : it(SmartIterator(in)) {}
+GlobalParser::GlobalParser(const std::string& in) : it(SmartIterator(in)) {}
+
+/*
+GlobalParser& GlobalParser::setIterator(const SmartIterator& it)
+{
+this->it = it;
+return *this;
+}*/
+
+GlobalParser& GlobalParser::setLanguage(Language lang)
 {
 	language = lang;
 	separator = getLanguageSeparator(lang);
+	return *this;
 }
 
-void ParserBuilder::addGlobalEntity(string&& name, Webss&& value)
+GlobalParser& GlobalParser::addEntity(string&& name, Webss&& value)
 {
 	ents.addGlobal(move(name), move(value));
+	return *this;
 }
 
+Document GlobalParser::parse() { return Parser::parseDocument(*this); }
