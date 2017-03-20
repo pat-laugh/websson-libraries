@@ -50,7 +50,11 @@ namespace webss
 
 			Parser(GlobalParser& globalParser, ConType con)
 				: ents(globalParser.ents), importedDocuments(globalParser.importedDocuments), it(globalParser.it)
-				, language(globalParser.language), separator(globalParser.separator) {}
+				, con(con), language(globalParser.language), separator(globalParser.separator) {}
+
+			Parser(Parser& parser, ConType con)
+				: ents(parser.ents), importedDocuments(parser.importedDocuments), it(parser.it)
+				, con(con), language(parser.language), separator(parser.separator) {}
 
 
 			using It = SmartIterator;
