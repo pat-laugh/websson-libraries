@@ -52,10 +52,8 @@ namespace webss
 			char separator;
 			bool lineGreed = false;
 			bool multiLineContainer;
-			bool empty;
 			bool allowVoid;
 			Tag nextElem;
-
 
 			Parser(Parser& parser, ConType con, bool allowVoid);
 
