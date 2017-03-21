@@ -5,7 +5,7 @@
 #include <cassert>
 
 #include "WebssonUtils/constants.h"
-#include "utilsParser.h"
+#include "errors.h"
 
 using namespace std;
 using namespace webss;
@@ -45,11 +45,90 @@ GlobalParser& GlobalParser::addEntity(string&& name, Webss&& value)
 
 Document GlobalParser::parse() { return GlobalParser::Parser::parseDocument(*this); }
 
-GlobalParser::Parser::Parser(Parser& parser, ConType con)
+GlobalParser::Parser::Parser(Parser& parser, ConType con, bool allowVoid)
 	: ents(parser.ents), importedDocuments(parser.importedDocuments), it(parser.it)
-	, con(con), language(parser.language), separator(parser.separator)
+	, con(con), language(parser.language), separator(parser.separator), allowVoid(allowVoid)
 {
 	multiLineContainer = checkLineEmpty(it);
-	empty = checkContainerEnd(it, con);
-	nextElem = getTag(it);
+}
+
+const char* ERROR_VOID_2 = "can't have void element"; //to avoid linker error
+
+bool GlobalParser::Parser::parserContainerEmpty()
+{
+	switch (nextElem = getTag(it))
+	{
+	case Tag::NONE:
+		if (con.hasEndChar())
+			throw runtime_error(ERROR_EXPECTED);
+		return true;
+	case Tag::UNKNOWN:
+		if (*it != separator)
+			throw runtime_error(ERROR_UNEXPECTED);
+		if (!allowVoid)
+			throw runtime_error(ERROR_VOID_2);
+		break;
+	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
+		if (con.isEnd(*it))
+		{
+			++it;
+			return true;
+		}
+		break;
+	default:
+		break;
+	}
+	return false;
+}
+
+bool GlobalParser::Parser::parserCheckNextElement()
+{
+	if (!lineGreed)
+		cleanLine(it, con, separator);
+	else
+		lineGreed = false;
+
+	switch (nextElem = getTag(it))
+	{
+	case Tag::NONE:
+		if (con.hasEndChar())
+			throw runtime_error(ERROR_EXPECTED);
+		return false;
+	case Tag::UNKNOWN:
+		if (*it != separator)
+			throw runtime_error(ERROR_UNEXPECTED);
+		switch (nextElem = getTag(++it))
+		{
+		case Tag::NONE:
+			if (con.hasEndChar())
+				throw runtime_error(ERROR_EXPECTED);
+			return false;
+		case Tag::UNKNOWN:
+			if (*it != separator)
+				throw runtime_error(ERROR_UNEXPECTED);
+			if (!allowVoid)
+				throw runtime_error(ERROR_VOID_2);
+			break;
+		case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
+			if (con.isEnd(*it))
+			{
+				++it;
+				return false;
+			}
+			break;
+		default:
+			break;
+		}
+		break;
+	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
+		if (con.isEnd(*it))
+		{
+			++it;
+			return false;
+		}
+		break;
+	default:
+		break;
+	}
+	return true;
 }

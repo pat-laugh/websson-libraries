@@ -3,27 +3,12 @@
 #include "parser.h"
 
 #include "errors.h"
+#include "utilsParser.h"
 
 using namespace std;
 using namespace webss;
 
 const char* ERROR_VOID = "can't have void element";
-
-bool checkContainerEnd(SmartIterator& it, ConType con)
-{
-	if (!skipJunk(it))
-	{
-		if (con.hasEndChar())
-			throw runtime_error(ERROR_EXPECTED);
-		return true;
-	}
-	if (con.isEnd(*it))
-	{
-		++it;
-		return true;
-	}
-	return false;
-}
 
 bool GlobalParser::Parser::checkEmptyContainer(ConType con)
 {

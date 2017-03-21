@@ -53,10 +53,17 @@ namespace webss
 			bool lineGreed = false;
 			bool multiLineContainer;
 			bool empty;
+			bool allowVoid;
 			Tag nextElem;
 
 
-			Parser(Parser& parser, ConType con);
+			Parser(Parser& parser, ConType con, bool allowVoid);
+
+			//returns true if container is empty, else false
+			bool parserContainerEmpty();
+
+			//returns true if has next element, else false
+			bool parserCheckNextElement();
 
 			Parser makeImportParser(SmartIterator& newIt)
 			{
