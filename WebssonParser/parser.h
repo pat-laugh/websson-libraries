@@ -36,7 +36,7 @@ namespace webss
 			static Document parseDocument(GlobalParser& globalParser)
 			{
 				Parser parser(globalParser, ConType::DOCUMENT);
-				return parser.parseDocument(parser.it);
+				return parser.parseDocument();
 			}
 		protected:
 			BasicEntityManager<Webss>& ents;
@@ -56,10 +56,14 @@ namespace webss
 				: ents(parser.ents), importedDocuments(parser.importedDocuments), it(parser.it)
 				, con(con), language(parser.language), separator(parser.separator) {}
 
+			Parser makeImportParser(SmartIterator& newIt)
+			{
+				return Parser(ents, importedDocuments, newIt);
+			}
+			Parser(BasicEntityManager<Webss>& ents, BasicEntityManager<void*>& importedDocuments, SmartIterator& it)
+				: ents(ents), importedDocuments(importedDocuments), it(it), con(ConType::DOCUMENT), language(Language::DEFAULT), separator(CHAR_SEPARATOR) {}
 
-			using It = SmartIterator;
-
-			Document parseDocument(It& it);
+			Document parseDocument();
 
 			class OtherValue
 			{
@@ -92,85 +96,83 @@ namespace webss
 				Entity entity;
 			};
 
-
-
 			//returns true if end of container is met, else false
-			bool parseDocumentHead(It& it, std::vector<ParamDocument>& docHead, ConType con, const Namespace& nspace);
+			bool parseDocumentHead(std::vector<ParamDocument>& docHead, ConType con, const Namespace& nspace);
 
 			template <class Container, ConType::Enum CON>
-			Container parseContainer(It& it, Container&& cont, std::function<void(Container& cont, ConType con)> func)
+			Container parseContainer(Container&& cont, std::function<void(Container& cont, ConType con)> func)
 			{
-				if (!checkEmptyContainer(it, CON))
+				if (!checkEmptyContainer(CON))
 					do
 						func(cont, CON);
-				while (checkNextElementContainer(it, CON));
+				while (checkNextElementContainer(CON));
 				return move(cont);
 			}
 
-			Tuple parseTuple(It& it);
-			List parseList(It& it);
-			Tuple parseTupleText(It& it);
-			List parseListText(It& it);
-			Dictionary parseDictionary(It& it);
-			Namespace parseNamespace(It& it, const std::string& name, const Namespace& previousNamespace);
-			Enum parseEnum(It& it, const std::string& name);
-			void parseScopedDocument(It& it, std::vector<ParamDocument>& docHead);
-			ImportedDocument parseImport(It& it, ConType con);
-			const Namespace& GlobalParser::Parser::parseUsingNamespaceStatic(It& it);
+			Tuple parseTuple();
+			List parseList();
+			Tuple parseTupleText();
+			List parseListText();
+			Dictionary parseDictionary();
+			Namespace parseNamespace(const std::string& name, const Namespace& previousNamespace);
+			Enum parseEnum(const std::string& name);
+			void parseScopedDocument(std::vector<ParamDocument>& docHead);
+			ImportedDocument parseImport(ConType con);
+			const Namespace& GlobalParser::Parser::parseUsingNamespaceStatic();
 
 			//parserKeyValues.cpp
-			GlobalParser::Parser::NameType parseNameType(It& it);
-			Webss parseCharValue(It& it, ConType con);
-			void addJsonKeyvalue(It& it, Dictionary& dict);
-			Webss parseValueEqual(It& it, ConType con);
-			OtherValue parseOtherValue(It& it, ConType con);
-			OtherValue checkAbstractEntity(It& it, ConType con, const Entity& ent);
-			void parseOtherValue(It& it, ConType con, std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Entity& abstractEntity)> funcAbstractEntity);
-			Webss parseValueOnly(It& it, ConType con);
+			GlobalParser::Parser::NameType parseNameType();
+			Webss parseCharValue(ConType con);
+			void addJsonKeyvalue(Dictionary& dict);
+			Webss parseValueEqual(ConType con);
+			OtherValue parseOtherValue(ConType con);
+			OtherValue checkAbstractEntity(ConType con, const Entity& ent);
+			void parseOtherValue(ConType con, std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Entity& abstractEntity)> funcAbstractEntity);
+			Webss parseValueOnly(ConType con);
 
 			//parserNumbers.cpp
-			Webss parseNumber(It& it);
+			Webss parseNumber();
 
 			//parserStrings.cpp
-			std::string parseLineString(It& it, ConType con);
-			std::string parseMultilineString(It& it);
-			std::string parseCString(It& it);
-			void checkEscapedChar(It& it, StringBuilder& line);
-			bool checkStringEntity(It& it, StringBuilder& line);
-			const std::string& parseStringEntity(It& it);
+			std::string parseLineString(ConType con);
+			std::string parseMultilineString();
+			std::string parseCString();
+			void checkEscapedChar(StringBuilder& line);
+			bool checkStringEntity(StringBuilder& line);
+			const std::string& parseStringEntity();
 
 			//parserEntities.cpp
-			Entity parseConcreteEntity(It& it, ConType con);
-			Entity parseAbstractEntity(It& it, const Namespace& currentNamespace);
-			std::string parseNameSafe(It& it);
+			Entity parseConcreteEntity(ConType con);
+			Entity parseAbstractEntity(const Namespace& currentNamespace);
+			std::string parseNameSafe();
 
 			//parserTemplates.cpp
-			Webss parseTemplateHead(It& it);
-			TemplateHeadStandard parseTemplateHeadText(It& it);
-			TemplateHeadStandard parseTemplateHeadStandard(It& it, TemplateHeadStandard&& thead = TemplateHeadStandard());
-			TemplateHeadBinary parseTemplateHeadBinary(It& it, TemplateHeadBinary&& thead = TemplateHeadBinary());
-			TemplateHeadScoped parseTemplateHeadScoped(It& it, TemplateHeadScoped&& thead = TemplateHeadScoped());
-			void parseStandardParameterTemplateHead(It& it, TemplateHeadStandard& thead);
-			void parseOtherValuesTheadStandardAfterThead(It& it, TemplateHeadStandard& thead);
+			Webss parseTemplateHead();
+			TemplateHeadStandard parseTemplateHeadText();
+			TemplateHeadStandard parseTemplateHeadStandard(TemplateHeadStandard&& thead = TemplateHeadStandard());
+			TemplateHeadBinary parseTemplateHeadBinary(TemplateHeadBinary&& thead = TemplateHeadBinary());
+			TemplateHeadScoped parseTemplateHeadScoped(TemplateHeadScoped&& thead = TemplateHeadScoped());
+			void parseStandardParameterTemplateHead(TemplateHeadStandard& thead);
+			void parseOtherValuesTheadStandardAfterThead(TemplateHeadStandard& thead);
 
-			Webss parseTemplate(It& it, ConType con);
-			Webss parseTemplateText(It& it);
-			Webss parseTemplateBodyBinary(It& it, const TemplateHeadBinary::Parameters& params);
-			Webss parseTemplateBodyScoped(It& it, const TemplateHeadScoped::Parameters& params, ConType con);
-			Webss parseTemplateBodyStandard(It& it, const TemplateHeadStandard::Parameters& params);
-			Webss parseTemplateBodyText(It& it, const TemplateHeadStandard::Parameters& params);
+			Webss parseTemplate(ConType con);
+			Webss parseTemplateText();
+			Webss parseTemplateBodyBinary(const TemplateHeadBinary::Parameters& params);
+			Webss parseTemplateBodyScoped(const TemplateHeadScoped::Parameters& params, ConType con);
+			Webss parseTemplateBodyStandard(const TemplateHeadStandard::Parameters& params);
+			Webss parseTemplateBodyText(const TemplateHeadStandard::Parameters& params);
 
 			//parserBinary.cpp
-			void parseBinaryHead(It& it, TemplateHeadBinary& thead);
-			Tuple parseTemplateTupleBinary(It& it, const TemplateHeadBinary::Parameters& params);
-			ParamBinary::SizeList parseBinarySizeList(It& it);
+			void parseBinaryHead(TemplateHeadBinary& thead);
+			Tuple parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params);
+			ParamBinary::SizeList parseBinarySizeList();
 			const Entity& checkEntTypeBinarySize(const Entity& ent);
 
 			//parserUtils.cpp
-			bool checkEmptyContainer(It& it, ConType con);
-			bool checkNextElementContainer(It & it, ConType con);
-			bool checkEmptyContainerVoid(It& it, ConType con, std::function<void()> funcIsVoid);
-			bool checkNextElementContainerVoid(It & it, ConType con, std::function<void()> funcIsVoid);
+			bool checkEmptyContainer(ConType con);
+			bool checkNextElementContainer(ConType con);
+			bool checkEmptyContainerVoid(ConType con, std::function<void()> funcIsVoid);
+			bool checkNextElementContainerVoid(ConType con, std::function<void()> funcIsVoid);
 		};
 	};
 

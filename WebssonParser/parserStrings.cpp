@@ -47,7 +47,7 @@ bool hasNextChar(SmartIterator& it, StringBuilder& line, function<bool()> endCon
 	return true;
 }
 
-string GlobalParser::Parser::parseLineString(It& it, ConType con)
+string GlobalParser::Parser::parseLineString(ConType con)
 {
 	skipLineJunk(it);
 
@@ -56,17 +56,17 @@ string GlobalParser::Parser::parseLineString(It& it, ConType con)
 	{
 		if (*it == CHAR_ESCAPE)
 		{
-			checkEscapedChar(it, line);
+			checkEscapedChar(line);
 			continue;
 		}
-		else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(it, line))
+		else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(line))
 			continue;
 		putChar(it, line);
 	}
 	return line;
 }
 
-string GlobalParser::Parser::parseMultilineString(It& it)
+string GlobalParser::Parser::parseMultilineString()
 {
 	StringBuilder text;
 	if (*skipJunkToValid(it) == CLOSE_DICTIONARY)
@@ -79,13 +79,13 @@ loopStart:
 	{
 		if (*it == CHAR_ESCAPE)
 		{
-			checkEscapedChar(it, text);
+			checkEscapedChar(text);
 			addSpace = false;
 			continue;
 		}
 		else if (*it == OPEN_DICTIONARY)
 			++countStartEnd;
-		else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(it, text))
+		else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(text))
 		{
 			addSpace = true;
 			continue;
@@ -112,7 +112,7 @@ loopStart:
 	goto loopStart;
 }
 
-string GlobalParser::Parser::parseCString(It& it)
+string GlobalParser::Parser::parseCString()
 {
 	StringBuilder cstr;
 	while (it)
@@ -125,11 +125,11 @@ string GlobalParser::Parser::parseCString(It& it)
 			++it;
 			return cstr;
 		case CHAR_CONCRETE_ENTITY:
-			if (checkStringEntity(it, cstr))
+			if (checkStringEntity(cstr))
 				continue;
 			break;
 		case CHAR_ESCAPE:
-			checkEscapedChar(it, cstr);
+			checkEscapedChar(cstr);
 			continue;
 		default:
 			break;
@@ -141,7 +141,7 @@ string GlobalParser::Parser::parseCString(It& it)
 	throw runtime_error("cstring is not closed");
 }
 
-void GlobalParser::Parser::checkEscapedChar(It& it, StringBuilder& line)
+void GlobalParser::Parser::checkEscapedChar(StringBuilder& line)
 {
 	if (checkLineEscape(it))
 		return;
@@ -171,16 +171,17 @@ void GlobalParser::Parser::checkEscapedChar(It& it, StringBuilder& line)
 	++it;
 }
 
-bool GlobalParser::Parser::checkStringEntity(It& it, StringBuilder& line)
+bool GlobalParser::Parser::checkStringEntity(StringBuilder& line)
 {
 	if (it.peekEnd() || !isNameStart(it.peek()))
 		return false;
 
-	line += parseStringEntity(++it);
+	++it;
+	line += parseStringEntity();
 	return true;
 }
 
-const string& GlobalParser::Parser::parseStringEntity(It& it)
+const string& GlobalParser::Parser::parseStringEntity()
 {
 	try
 	{

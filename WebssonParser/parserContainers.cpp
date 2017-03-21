@@ -58,14 +58,17 @@ string getItCurrentChar(SmartIterator& it)
 	return out;
 }
 
-Dictionary GlobalParser::Parser::parseDictionary(It& it)
+Dictionary GlobalParser::Parser::parseDictionary()
 {
-	return parseContainer<Dictionary, ConType::DICTIONARY>(it, Dictionary(), [&](Dictionary& dict, ConType con)
+	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict, ConType con)
 	{
 		if (*it == CHAR_CSTRING)
-			addJsonKeyvalue(++it, dict);
+		{
+			++it;
+			addJsonKeyvalue(dict);
+		}
 		else
-			parseOtherValue(it, con,
+			parseOtherValue(con,
 				CaseKeyValue{ dict.addSafe(move(key), move(value)); },
 				ErrorKeyOnly(ERROR_INPUT_DICTIONARY),
 				ErrorValueOnly(ERROR_INPUT_DICTIONARY),
@@ -73,19 +76,19 @@ Dictionary GlobalParser::Parser::parseDictionary(It& it)
 	});
 }
 
-List GlobalParser::Parser::parseList(It& it)
+List GlobalParser::Parser::parseList()
 {
-	return parseContainer<List, ConType::LIST>(it, List(), [&](List& list, ConType con)
+	return parseContainer<List, ConType::LIST>(List(), [&](List& list, ConType con)
 	{
-		list.add(parseValueOnly(it, con));
+		list.add(parseValueOnly(con));
 	});
 }
 
-Tuple GlobalParser::Parser::parseTuple(It& it)
+Tuple GlobalParser::Parser::parseTuple()
 {
-	return parseContainer<Tuple, ConType::TUPLE>(it, Tuple(), [&](Tuple& tuple, ConType con)
+	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple, ConType con)
 	{
-		parseOtherValue(it, con,
+		parseOtherValue(con,
 			CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
 			ErrorKeyOnly(ERROR_INPUT_TUPLE),
 			CaseValueOnly{ tuple.add(move(value)); },
@@ -93,47 +96,50 @@ Tuple GlobalParser::Parser::parseTuple(It& it)
 	});
 }
 
-List GlobalParser::Parser::parseListText(It& it)
+List GlobalParser::Parser::parseListText()
 {
-	return parseContainer<List, ConType::LIST>(it, List(), [&](List& list, ConType con)
+	return parseContainer<List, ConType::LIST>(List(), [&](List& list, ConType con)
 	{
-		list.add(parseLineString(it, con));
+		list.add(parseLineString(con));
 	});
 }
-Tuple GlobalParser::Parser::parseTupleText(It& it)
+Tuple GlobalParser::Parser::parseTupleText()
 {
-	return parseContainer<Tuple, ConType::TUPLE>(it, Tuple(), [&](Tuple& tuple, ConType con)
+	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple, ConType con)
 	{
-		tuple.add(parseLineString(it, con));
+		tuple.add(parseLineString(con));
 	});
 }
 
-Namespace GlobalParser::Parser::parseNamespace(It& it, const string& name, const Namespace& previousNamespace)
+Namespace GlobalParser::Parser::parseNamespace(const string& name, const Namespace& previousNamespace)
 {
-	return parseContainer<Namespace, ConType::DICTIONARY>(it, Namespace(name, previousNamespace), [&](Namespace& nspace, ConType con)
+	return parseContainer<Namespace, ConType::DICTIONARY>(Namespace(name, previousNamespace), [&](Namespace& nspace, ConType con)
 	{
 		switch (*it)
 		{
 		case CHAR_ABSTRACT_ENTITY:
-			nspace.addSafe(parseAbstractEntity(++it, nspace));
+			++it;
+			nspace.addSafe(parseAbstractEntity(nspace));
 			break;
 		case CHAR_CONCRETE_ENTITY:
-			nspace.addSafe(parseConcreteEntity(++it, con));
+			++it;
+			nspace.addSafe(parseConcreteEntity(con));
 			break;
 		case CHAR_SELF:
 			skipJunkToTag(++it, Tag::START_TEMPLATE);
-			nspace.addSafe(Entity(string(name), parseTemplateHead(++it)));
+			++it;
+			nspace.addSafe(Entity(string(name), parseTemplateHead()));
 			break;
 		default:
 			throw runtime_error(ERROR_INPUT_NAMESPACE);
 		}
 	});
 }
-Enum GlobalParser::Parser::parseEnum(It& it, const string& name)
+Enum GlobalParser::Parser::parseEnum(const string& name)
 {
-	return parseContainer<Enum, ConType::LIST>(it, Enum(name), [&](Enum& tEnum, ConType con)
+	return parseContainer<Enum, ConType::LIST>(Enum(name), [&](Enum& tEnum, ConType con)
 	{
-		parseOtherValue(it, con,
+		parseOtherValue(con,
 			ErrorKeyValue(ERROR_INPUT_ENUM),
 			CaseKeyOnly{ tEnum.add(move(key)); },
 			ErrorValueOnly(ERROR_INPUT_ENUM),
@@ -141,21 +147,21 @@ Enum GlobalParser::Parser::parseEnum(It& it, const string& name)
 	});
 }
 
-Document GlobalParser::Parser::parseDocument(It& it)
+Document GlobalParser::Parser::parseDocument()
 {
 	static const ConType CON = ConType::DOCUMENT;
 	try
 	{
 		Document doc;
-		if (!checkEmptyContainer(it, CON) && !parseDocumentHead(it, doc.getHead(), CON, Namespace::getEmptyInstance()))
+		if (!checkEmptyContainer(CON) && !parseDocumentHead(doc.getHead(), CON, Namespace::getEmptyInstance()))
 		{
 			do
-				parseOtherValue(it, CON,
+				parseOtherValue(CON,
 					CaseKeyValue{ doc.addSafe(move(key), move(value)); },
 					ErrorKeyOnly(ERROR_INPUT_DOCUMENT),
 					CaseValueOnly{ doc.add(move(value)); },
 					ErrorAbstractEntity(ERROR_INPUT_DOCUMENT));
-			while (checkNextElementContainer(it, CON));
+			while (checkNextElementContainer(CON));
 		}
 		return doc;
 	}
@@ -165,7 +171,7 @@ Document GlobalParser::Parser::parseDocument(It& it)
 	}
 }
 
-bool GlobalParser::Parser::parseDocumentHead(It& it, vector<ParamDocument>& docHead, ConType con, const Namespace& nspace)
+bool GlobalParser::Parser::parseDocumentHead(vector<ParamDocument>& docHead, ConType con, const Namespace& nspace)
 {
 	assert(it);
 	do
@@ -174,52 +180,58 @@ bool GlobalParser::Parser::parseDocumentHead(It& it, vector<ParamDocument>& docH
 		{
 		case CHAR_ABSTRACT_ENTITY:
 		{
-			auto ent = parseAbstractEntity(++it, nspace);
+			++it;
+			auto ent = parseAbstractEntity(nspace);
 			docHead.push_back(ParamDocument::makeEntityAbstract(ent)); ents.addLocalSafe(move(ent));
 			break;
 		}
 		case CHAR_CONCRETE_ENTITY:
 		{
-			auto ent = parseConcreteEntity(++it, con);
+			++it;
+			auto ent = parseConcreteEntity(con);
 			docHead.push_back(ParamDocument::makeEntityConcrete(ent)); ents.addLocalSafe(move(ent));
 			break;
 		}
 		case CHAR_IMPORT:
 		{
-			auto import = parseImport(++it, con);
+			++it;
+			auto import = parseImport(con);
 			docHead.push_back(move(import));
 			break;
 		}
 		case CHAR_SCOPED_DOCUMENT:
-			parseScopedDocument(++it, docHead);
+			++it;
+			parseScopedDocument(docHead);
 			break;
 		default:
 			return false;
 		}
-	} while (checkNextElementContainer(it, con));
+	} while (checkNextElementContainer(con));
 	return true;
 }
 
-void GlobalParser::Parser::parseScopedDocument(It& it, vector<ParamDocument>& docHead)
+void GlobalParser::Parser::parseScopedDocument(vector<ParamDocument>& docHead)
 {
 	static const ConType CON = ConType::DICTIONARY;
 	if (*skipJunkToValid(it) == OPEN_TEMPLATE)
 	{
-		auto head = parseTemplateHeadScoped(++it);
+		++it;
+		auto head = parseTemplateHeadScoped();
 
 		skipJunkToTag(it, Tag::START_DICTIONARY);
 		DocumentHead body;
-		if (!checkEmptyContainer(++it, CON))
+		++it;
+		if (!checkEmptyContainer(CON))
 		{
 			ParamDocumentIncluder includer(ents, head.getParameters());
-			if (!parseDocumentHead(it, body, CON, Namespace::getEmptyInstance()))
+			if (!parseDocumentHead(body, CON, Namespace::getEmptyInstance()))
 				throw runtime_error(ERROR_UNEXPECTED);
 		}
 		docHead.push_back(ScopedDocument{ move(head), move(body) });
 	}
 	else
 	{
-		const auto& nspace = parseUsingNamespaceStatic(it);
+		const auto& nspace = parseUsingNamespaceStatic();
 
 		//first check the namespace entity is accessible; if so it has to be removed since
 		//it'll no longer be necessary and an entity with the same name could be inside
@@ -231,12 +243,12 @@ void GlobalParser::Parser::parseScopedDocument(It& it, vector<ParamDocument>& do
 	}
 }
 
-ImportedDocument GlobalParser::Parser::parseImport(It& it, ConType con)
+ImportedDocument GlobalParser::Parser::parseImport(ConType con)
 {
 #ifdef DISABLE_IMPORT
 	throw runtime_error("this parser cannot import documents");
 #else
-	auto importName = parseValueOnly(it, con);
+	auto importName = parseValueOnly(con);
 	if (!importName.isString())
 		throw runtime_error("import must reference a string");
 	ImportedDocument import(move(importName));
@@ -247,9 +259,10 @@ ImportedDocument GlobalParser::Parser::parseImport(It& it, ConType con)
 		{
 			importedDocuments.addLocalSafe(link, 0);
 			static const ConType CON = ConType::DOCUMENT;
-			It itImported(Curl().readWebDocument(link));
+			SmartIterator itImported(Curl().readWebDocument(link));
+			auto parserImported = makeImportParser(itImported);
 			DocumentHead docHead;
-			if (!checkEmptyContainer(itImported, CON) && !parseDocumentHead(itImported, docHead, CON, Namespace::getEmptyInstance()))
+			if (!parserImported.checkEmptyContainer(CON) && !parserImported.parseDocumentHead(docHead, CON, Namespace::getEmptyInstance()))
 				throw runtime_error(ERROR_UNEXPECTED);
 		}
 		catch (const exception& e)
@@ -259,9 +272,10 @@ ImportedDocument GlobalParser::Parser::parseImport(It& it, ConType con)
 #endif
 }
 
-const Namespace& GlobalParser::Parser::parseUsingNamespaceStatic(It& it)
+const Namespace& GlobalParser::Parser::parseUsingNamespaceStatic()
 {
-	auto nameType = parseNameType(skipJunkToTag(it, Tag::NAME_START));
+	skipJunkToTag(it, Tag::NAME_START);
+	auto nameType = parseNameType();
 	if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isNamespace())
 		throw runtime_error("expected namespace");
 	return nameType.entity.getContent().getNamespaceSafe();

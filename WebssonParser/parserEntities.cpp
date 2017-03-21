@@ -10,11 +10,11 @@
 using namespace std;
 using namespace webss;
 
-Entity GlobalParser::Parser::parseConcreteEntity(It& it, ConType con)
+Entity GlobalParser::Parser::parseConcreteEntity(ConType con)
 {
 	skipJunkToTag(it, Tag::NAME_START);
 	Entity ent;
-	parseOtherValue(it, con,
+	parseOtherValue(con,
 		CaseKeyValue{ ent = Entity(move(key), move(value)); },
 		CaseKeyOnly{ throw runtime_error(ERROR_EXPECTED); },
 		CaseValueOnly{ throw runtime_error(ERROR_UNEXPECTED); },
@@ -22,27 +22,33 @@ Entity GlobalParser::Parser::parseConcreteEntity(It& it, ConType con)
 	return ent;
 }
 
-Entity GlobalParser::Parser::parseAbstractEntity(It& it, const Namespace& currentNamespace)
+Entity GlobalParser::Parser::parseAbstractEntity(const Namespace& currentNamespace)
 {
-	auto name = parseNameSafe(skipJunkToTag(it, Tag::NAME_START));
+	skipJunkToTag(it, Tag::NAME_START);
+	auto name = parseNameSafe();
 	switch (getTag(it))
 	{
 	case Tag::START_DICTIONARY:
-		return Entity(move(name), parseNamespace(++it, name, currentNamespace));
+		++it;
+		return Entity(move(name), parseNamespace(name, currentNamespace));
 	case Tag::START_LIST:
-		return Entity(move(name), parseEnum(++it, name));
+		++it;
+		return Entity(move(name), parseEnum(name));
 	case Tag::START_TEMPLATE:
-		return Entity(move(name), parseTemplateHead(++it));
+		++it;
+		return Entity(move(name), parseTemplateHead());
 	case Tag::TEXT_TEMPLATE:
-		return Entity(move(name), Webss(parseTemplateHeadText(++it), true));
+		++it;
+		return Entity(move(name), Webss(parseTemplateHeadText(), true));
 	default:
 		throw runtime_error(ERROR_UNEXPECTED);
 	}
 }
 
-string GlobalParser::Parser::parseNameSafe(It& it)
+string GlobalParser::Parser::parseNameSafe()
 {
-	auto nameType = parseNameType(skipJunkToTag(it, Tag::NAME_START));
+	skipJunkToTag(it, Tag::NAME_START);
+	auto nameType = parseNameType();
 	if (nameType.type != NameType::NAME)
 		throw runtime_error("expected name that is neither an entity nor a keyword");
 	return move(nameType.name);

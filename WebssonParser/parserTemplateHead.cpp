@@ -13,19 +13,19 @@ const char ERROR_BINARY_TEMPLATE[] = "all values in a binary template must be bi
 
 const ConType CON = ConType::TEMPLATE_HEAD;
 
-Webss GlobalParser::Parser::parseTemplateHead(It& it)
+Webss GlobalParser::Parser::parseTemplateHead()
 {
-	if (checkEmptyContainer(it, CON))
+	if (checkEmptyContainer(CON))
 		return BlockHead();
 
 	switch (*it)
 	{
 	case OPEN_TEMPLATE: case CHAR_COLON:
-		return parseTemplateHeadStandard(it);
+		return parseTemplateHeadStandard();
 	case OPEN_TUPLE:
-		return parseTemplateHeadBinary(it);
+		return parseTemplateHeadBinary();
 	case CHAR_CONCRETE_ENTITY: case CHAR_ABSTRACT_ENTITY: case CHAR_USING_NAMESPACE:
-		return parseTemplateHeadScoped(it);
+		return parseTemplateHeadScoped();
 	case OPEN_DICTIONARY:
 		throw runtime_error("this parser cannot parse mandatory templates");
 	case CHAR_SELF:
@@ -40,16 +40,16 @@ Webss GlobalParser::Parser::parseTemplateHead(It& it)
 	//if not, then the thead is a standard thead
 
 	TemplateHeadStandard thead;
-	auto other = parseOtherValue(it, CON);
-	bool isEnd = !checkNextElementContainer(it, CON);
+	auto other = parseOtherValue(CON);
+	bool isEnd = !checkNextElementContainer(CON);
 	switch (other.type)
 	{
 	case OtherValue::Type::KEY_VALUE:
 		thead.attach(move(other.key), move(other.value));
-		return isEnd ? move(thead) : parseTemplateHeadStandard(it, move(thead));
+		return isEnd ? move(thead) : parseTemplateHeadStandard(move(thead));
 	case OtherValue::Type::KEY_ONLY:
 		thead.attachEmpty(move(other.key));
-		return isEnd ? move(thead) : parseTemplateHeadStandard(it, move(thead));
+		return isEnd ? move(thead) : parseTemplateHeadStandard(move(thead));
 	case OtherValue::Type::ABSTRACT_ENTITY:
 		switch (other.abstractEntity.getContent().getTypeSafe())
 		{
@@ -60,19 +60,19 @@ Webss GlobalParser::Parser::parseTemplateHead(It& it)
 		case WebssType::TEMPLATE_HEAD_BINARY:
 		{
 			TemplateHeadBinary theadBinary(other.abstractEntity);
-			return isEnd ? move(theadBinary) : parseTemplateHeadBinary(it, move(theadBinary));
+			return isEnd ? move(theadBinary) : parseTemplateHeadBinary(move(theadBinary));
 		}
 		case WebssType::TEMPLATE_HEAD_SCOPED:
 		{
 			TemplateHeadScoped theadScoped(other.abstractEntity);
-			return isEnd ? move(theadScoped) : parseTemplateHeadScoped(it, move(theadScoped));
+			return isEnd ? move(theadScoped) : parseTemplateHeadScoped(move(theadScoped));
 		}
 		case WebssType::TEMPLATE_HEAD_STANDARD:
 			thead = TemplateHeadStandard(other.abstractEntity);
-			return isEnd ? move(thead) : parseTemplateHeadStandard(it, move(thead));
+			return isEnd ? move(thead) : parseTemplateHeadStandard(move(thead));
 		case WebssType::TEMPLATE_HEAD_TEXT:
 			thead = TemplateHeadStandard(other.abstractEntity);
-			return isEnd ? Webss(move(thead), true) : Webss(parseTemplateHeadStandard(it, move(thead)), true);
+			return isEnd ? Webss(move(thead), true) : Webss(parseTemplateHeadStandard(move(thead)), true);
 		default:
 			throw runtime_error("unexpected entity type within thead: " + other.abstractEntity.getContent().getTypeSafe().toString());
 		}
@@ -81,23 +81,26 @@ Webss GlobalParser::Parser::parseTemplateHead(It& it)
 	}
 }
 
-TemplateHeadStandard GlobalParser::Parser::parseTemplateHeadText(It& it)
+TemplateHeadStandard GlobalParser::Parser::parseTemplateHeadText()
 {
-	auto headWebss = parseTemplateHead(it);
+	auto headWebss = parseTemplateHead();
 	if (headWebss.getType() == WebssType::TEMPLATE_HEAD_STANDARD || headWebss.getType() == WebssType::TEMPLATE_HEAD_TEXT)
 		return move(headWebss.getTemplateHeadStandard());
 	else
 		throw runtime_error("expected standard template head");
 }
 
-TemplateHeadBinary GlobalParser::Parser::parseTemplateHeadBinary(It& it, TemplateHeadBinary&& thead)
+TemplateHeadBinary GlobalParser::Parser::parseTemplateHeadBinary(TemplateHeadBinary&& thead)
 {
 	assert(it);
 	do
 		if (*it == OPEN_TUPLE)
-			parseBinaryHead(++it, thead);
+		{
+			++it;
+			parseBinaryHead(thead);
+		}
 		else
-			parseOtherValue(it, CON,
+			parseOtherValue(CON,
 				CaseKeyValue{ throw runtime_error(ERROR_BINARY_TEMPLATE); },
 				CaseKeyOnly{ throw runtime_error(ERROR_BINARY_TEMPLATE); },
 				CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
@@ -107,22 +110,32 @@ TemplateHeadBinary GlobalParser::Parser::parseTemplateHeadBinary(It& it, Templat
 						throw runtime_error(ERROR_BINARY_TEMPLATE);
 					thead.attach(abstractEntity);
 				});
-	while (checkNextElementContainer(it, CON));
+	while (checkNextElementContainer(CON));
 	return move(thead);
 }
 
-TemplateHeadScoped GlobalParser::Parser::parseTemplateHeadScoped(It& it, TemplateHeadScoped&& thead)
+TemplateHeadScoped GlobalParser::Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 {
 	assert(it);
 	do
 		if (*it == CHAR_ABSTRACT_ENTITY)
-			thead.attach(ParamScoped::makeEntityAbstract(parseAbstractEntity(++it, Namespace::getEmptyInstance())));
+		{
+			++it;
+			thead.attach(ParamScoped::makeEntityAbstract(parseAbstractEntity(Namespace::getEmptyInstance())));
+		}
+			
 		else if (*it == CHAR_CONCRETE_ENTITY)
-			thead.attach(ParamScoped::makeEntityConcrete(parseConcreteEntity(++it, CON)));
+		{
+			++it;
+			thead.attach(ParamScoped::makeEntityConcrete(parseConcreteEntity(CON)));
+		}
 		else if (*it == CHAR_USING_NAMESPACE)
-			thead.attach(ParamScoped(parseUsingNamespaceStatic(++it)));
+		{
+			++it;
+			thead.attach(ParamScoped(parseUsingNamespaceStatic()));
+		}
 		else
-			parseOtherValue(it, CON,
+			parseOtherValue(CON,
 				CaseKeyValue{ throw runtime_error(ERROR_UNEXPECTED); },
 				CaseKeyOnly{ throw runtime_error(ERROR_UNEXPECTED); },
 				CaseValueOnly{ throw runtime_error(ERROR_UNEXPECTED); },
@@ -132,29 +145,30 @@ TemplateHeadScoped GlobalParser::Parser::parseTemplateHeadScoped(It& it, Templat
 						throw runtime_error(ERROR_BINARY_TEMPLATE);
 					thead.attach(abstractEntity);
 				});
-	while (checkNextElementContainer(it, CON));
+	while (checkNextElementContainer(CON));
 	return move(thead);
 }
 
-TemplateHeadStandard GlobalParser::Parser::parseTemplateHeadStandard(It& it, TemplateHeadStandard&& thead)
+TemplateHeadStandard GlobalParser::Parser::parseTemplateHeadStandard(TemplateHeadStandard&& thead)
 {
 	assert(it);
 	do
 		if (*it == OPEN_TEMPLATE)
-			parseStandardParameterTemplateHead(it, thead);
+			parseStandardParameterTemplateHead(thead);
 		else if (*it == CHAR_COLON)
 		{
 			if (++it != CHAR_COLON)
 				throw runtime_error(webss_ERROR_EXPECTED_CHAR(CHAR_COLON));
 			skipJunkToTag(++it, Tag::START_TEMPLATE);
 
-			auto head = parseTemplateHeadText(++it);
-			parseOtherValuesTheadStandardAfterThead(it, thead);
+			++it;
+			auto head = parseTemplateHeadText();
+			parseOtherValuesTheadStandardAfterThead(thead);
 			thead.back().setTemplateHead(move(head), true);
 		}
 		else
 		{
-			parseOtherValue(it, CON,
+			parseOtherValue(CON,
 				CaseKeyValue{ thead.attach(move(key), move(value)); },
 				CaseKeyOnly{ thead.attachEmpty(move(key)); },
 				CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
@@ -165,14 +179,15 @@ TemplateHeadStandard GlobalParser::Parser::parseTemplateHeadStandard(It& it, Tem
 					thead.attach(abstractEntity);
 				});
 		}
-	while (checkNextElementContainer(it, CON));
+	while (checkNextElementContainer(CON));
 	return move(thead);
 }
 
-void GlobalParser::Parser::parseStandardParameterTemplateHead(It& it, TemplateHeadStandard& thead)
+void GlobalParser::Parser::parseStandardParameterTemplateHead(TemplateHeadStandard& thead)
 {
-	auto headWebss = parseTemplateHead(++it);
-	parseOtherValuesTheadStandardAfterThead(it, thead);
+	++it;
+	auto headWebss = parseTemplateHead();
+	parseOtherValuesTheadStandardAfterThead(thead);
 	auto& lastParam = thead.back();
 	switch (headWebss.getType())
 	{
@@ -198,9 +213,9 @@ void GlobalParser::Parser::parseStandardParameterTemplateHead(It& it, TemplateHe
 	}
 }
 
-void GlobalParser::Parser::parseOtherValuesTheadStandardAfterThead(It& it, TemplateHeadStandard& thead)
+void GlobalParser::Parser::parseOtherValuesTheadStandardAfterThead(TemplateHeadStandard& thead)
 {
-	parseOtherValue(it, CON,
+	parseOtherValue(CON,
 		CaseKeyValue{ thead.attach(move(key), move(value)); },
 		CaseKeyOnly{ thead.attachEmpty(move(key)); },
 		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },

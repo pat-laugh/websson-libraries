@@ -27,7 +27,7 @@ else if (!skipJunk(++it) || !(ConditionSuccess)) \
 else \
 	{ Success; } }
 
-GlobalParser::Parser::NameType GlobalParser::Parser::parseNameType(It& it)
+GlobalParser::Parser::NameType GlobalParser::Parser::parseNameType()
 {
 	string name = parseName(it);
 	if (isKeyword(name))
@@ -50,34 +50,37 @@ scopeLoop:
 	catch (const exception&) { throw runtime_error("could not get scoped value"); }
 }
 
-Webss GlobalParser::Parser::parseCharValue(It& it, ConType con)
+Webss GlobalParser::Parser::parseCharValue(ConType con)
 {
 	switch (getTag(it))
 	{
-	case Tag::START_DICTIONARY: return parseDictionary(++it);
-	case Tag::START_LIST: return parseList(++it);
-	case Tag::START_TUPLE: return parseTuple(++it);
-	case Tag::START_TEMPLATE: return parseTemplate(++it, con);
-	case Tag::LINE_STRING: return parseLineString(++it, con);
-	case Tag::EQUAL: return parseValueEqual(++it, con);
-	case Tag::C_STRING: return parseCString(++it);
-	case Tag::TEXT_DICTIONARY: return parseMultilineString(++it);
-	case Tag::TEXT_LIST: return{ parseListText(++it), true };
-	case Tag::TEXT_TUPLE: return{ parseTupleText(++it), true };
-	case Tag::TEXT_TEMPLATE: return parseTemplateText(++it);
+	case Tag::START_DICTIONARY: ++it; return parseDictionary();
+	case Tag::START_LIST: ++it; return parseList();
+	case Tag::START_TUPLE: ++it; return parseTuple();
+	case Tag::START_TEMPLATE: ++it; return parseTemplate(con);
+	case Tag::LINE_STRING: ++it; return parseLineString(con);
+	case Tag::EQUAL: ++it; return parseValueEqual(con);
+	case Tag::C_STRING: ++it; return parseCString();
+	case Tag::TEXT_DICTIONARY: ++it; return parseMultilineString();
+	case Tag::TEXT_LIST: ++it; return{ parseListText(), true };
+	case Tag::TEXT_TUPLE: ++it; return{ parseTupleText(), true };
+	case Tag::TEXT_TEMPLATE: ++it; return parseTemplateText();
 	default: throw runtime_error(ERROR_UNEXPECTED);
 	}
 }
 
-void GlobalParser::Parser::addJsonKeyvalue(It& it, Dictionary& dict)
+void GlobalParser::Parser::addJsonKeyvalue(Dictionary& dict)
 {
 	try
 	{
-		auto name = parseNameSafe(skipJunkToTag(it, Tag::NAME_START));
+		\
+			skipJunkToTag(it, Tag::NAME_START);
+		auto name = parseNameSafe();
 		skipJunkToTag(it, Tag::C_STRING);
 		if (*skipJunkToValid(++it) != CHAR_COLON)
 			throw runtime_error("");
-		dict.addSafe(move(name), parseValueEqual(++it, ConType::DICTIONARY));
+		++it;
+		dict.addSafe(move(name), parseValueEqual(ConType::DICTIONARY));
 	}
 	catch (const runtime_error&)
 	{
@@ -85,10 +88,10 @@ void GlobalParser::Parser::addJsonKeyvalue(It& it, Dictionary& dict)
 	}
 }
 
-Webss GlobalParser::Parser::parseValueEqual(It& it, ConType con)
+Webss GlobalParser::Parser::parseValueEqual(ConType con)
 {
 	if (*skipJunkToValid(it) != CHAR_EQUAL)
-		return parseValueOnly(it, con);
+		return parseValueOnly(con);
 	throw runtime_error("expected value-only not starting with an equal sign");
 }
 
@@ -103,21 +106,21 @@ bool isKeyChar(char c)
 	}
 }
 
-GlobalParser::Parser::OtherValue GlobalParser::Parser::parseOtherValue(It& it, ConType con)
+GlobalParser::Parser::OtherValue GlobalParser::Parser::parseOtherValue(ConType con)
 {
 	if (isKeyChar(*it))
-		return parseCharValue(it, con);
+		return parseCharValue(con);
 	else if (isNameStart(*it))
 	{
-		auto nameType = parseNameType(it);
+		auto nameType = parseNameType();
 		switch (nameType.type)
 		{
 		case NameType::NAME:
-			PatternLineGreed(it && isKeyChar(*it), return OtherValue(move(nameType.name), parseCharValue(it, con)), return{ move(nameType.name) })
+			PatternLineGreed(it && isKeyChar(*it), return OtherValue(move(nameType.name), parseCharValue(con)), return{ move(nameType.name) })
 		case NameType::KEYWORD:
 			return{ nameType.keyword };
 		case NameType::ENTITY_ABSTRACT:
-			return checkAbstractEntity(it, con, nameType.entity);
+			return checkAbstractEntity(con, nameType.entity);
 		case NameType::ENTITY_CONCRETE:
 			return{ Webss(move(nameType.entity)) };
 		default:
@@ -125,34 +128,34 @@ GlobalParser::Parser::OtherValue GlobalParser::Parser::parseOtherValue(It& it, C
 		}
 	}
 	else if (isNumberStart(*it))
-		return{ parseNumber(it) };
+		return{ parseNumber() };
 	throw runtime_error(ERROR_UNEXPECTED);
 }
 
-GlobalParser::Parser::OtherValue GlobalParser::Parser::checkAbstractEntity(It& it, ConType con, const Entity& ent)
+GlobalParser::Parser::OtherValue GlobalParser::Parser::checkAbstractEntity(ConType con, const Entity& ent)
 {
 	const auto& content = ent.getContent();
 	switch (content.getTypeSafe())
 	{
 	case WebssType::BLOCK_HEAD:
-		return{ Block(ent, parseValueOnly(it, con)) };
+		return{ Block(ent, parseValueOnly(con)) };
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadBinary(ent), parseTemplateBodyBinary(it, content.getTemplateHeadBinarySafe().getParameters())) }, break)
+		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadBinary(ent), parseTemplateBodyBinary(content.getTemplateHeadBinarySafe().getParameters())) }, break)
 	case WebssType::TEMPLATE_HEAD_SCOPED:
-		PatternLineGreed(isKeyChar(*it) || isNameStart(*it) || isNumberStart(*it), return{ TemplateScoped(ent, parseTemplateBodyScoped(it, ent.getContent().getTemplateHeadScopedSafe().getParameters(), con)) }, break)
+		PatternLineGreed(isKeyChar(*it) || isNameStart(*it) || isNumberStart(*it), return{ TemplateScoped(ent, parseTemplateBodyScoped(ent.getContent().getTemplateHeadScopedSafe().getParameters(), con)) }, break)
 	case WebssType::TEMPLATE_HEAD_STANDARD:
-		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyStandard(it, content.getTemplateHeadStandardSafe().getParameters())) }, break)
+		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyStandard(content.getTemplateHeadStandardSafe().getParameters())) }, break)
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyText(it, content.getTemplateHeadStandardSafe().getParameters())) }, break)
+		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyText(content.getTemplateHeadStandardSafe().getParameters())) }, break)
 	default:
 		break;
 	}
 	return{ ent };
 }
 
-void GlobalParser::Parser::parseOtherValue(It& it, ConType con, std::function<void(string&& key, Webss&& value)> funcKeyValue, function<void(string&& key)> funcKeyOnly, function<void(Webss&& value)> funcValueOnly, function<void(const Entity& abstractEntity)> funcAbstractEntity)
+void GlobalParser::Parser::parseOtherValue(ConType con, std::function<void(string&& key, Webss&& value)> funcKeyValue, function<void(string&& key)> funcKeyOnly, function<void(Webss&& value)> funcValueOnly, function<void(const Entity& abstractEntity)> funcAbstractEntity)
 {
-	auto other = parseOtherValue(it, con);
+	auto other = parseOtherValue(con);
 	switch (other.type)
 	{
 	case OtherValue::Type::KEY_VALUE:
@@ -172,9 +175,10 @@ void GlobalParser::Parser::parseOtherValue(It& it, ConType con, std::function<vo
 	}
 }
 
-Webss GlobalParser::Parser::parseValueOnly(It& it, ConType con)
+Webss GlobalParser::Parser::parseValueOnly(ConType con)
 {
-	auto otherValue = parseOtherValue(skipJunkToValid(it), con);
+	skipJunkToValid(it);
+	auto otherValue = parseOtherValue(con);
 	if (otherValue.type != OtherValue::VALUE_ONLY)
 		throw runtime_error("expected value-only");
 	return move(otherValue.value);

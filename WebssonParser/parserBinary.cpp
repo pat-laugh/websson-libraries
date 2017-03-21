@@ -24,7 +24,7 @@ Tuple parseBinaryTemplate(SmartIterator& it, const TemplateHeadBinary::Parameter
 
 WebssBinarySize checkBinarySize(WebssInt sizeInt);
 
-void GlobalParser::Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
+void GlobalParser::Parser::parseBinaryHead(TemplateHeadBinary& thead)
 {
 	using Bhead = ParamBinary::SizeHead;
 	using Blist = ParamBinary::SizeList;
@@ -39,13 +39,14 @@ void GlobalParser::Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
 	else if (*it == OPEN_LIST)
 	{
 		bhead = Bhead(Bhead::Type::EMPTY);
-		blist = Blist(parseBinarySizeList(++it));
+		++it;
+		blist = Blist(parseBinarySizeList());
 	}
 	else
 	{
 		if (isNameStart(*it))
 		{
-			auto nameType = parseNameType(it);
+			auto nameType = parseNameType();
 			switch (nameType.type)
 			{
 			case NameType::KEYWORD:
@@ -66,10 +67,11 @@ void GlobalParser::Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
 			}
 		}
 		else if (isNumberStart(*it))
-			bhead = Bhead(checkBinarySize(parseNumber(it).getIntSafe()));
+			bhead = Bhead(checkBinarySize(parseNumber().getIntSafe()));
 		else if (*it == OPEN_TEMPLATE)
 		{
-			auto headWebss = parseTemplateHead(++it);
+			++it;
+			auto headWebss = parseTemplateHead();
 			switch (headWebss.getType())
 			{
 			case WebssType::TEMPLATE_HEAD_BINARY:
@@ -86,11 +88,15 @@ void GlobalParser::Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
 		if (*skipJunkToValid(it) != OPEN_LIST)
 			blist = Blist(Blist::Type::ONE);
 		else
-			blist = Blist(parseBinarySizeList(++it));
+		{
+			++it;
+			blist = Blist(parseBinarySizeList());
+		}
 	}
 
 	skipJunkToTag(it, Tag::END_TUPLE);
-	parseOtherValue(skipJunkToValid(++it), ConType::TEMPLATE_HEAD,
+	skipJunkToValid(++it);
+	parseOtherValue(ConType::TEMPLATE_HEAD,
 		CaseKeyValue
 		{
 			bhead.setDefaultValue(move(value));
@@ -107,7 +113,7 @@ void GlobalParser::Parser::parseBinaryHead(It& it, TemplateHeadBinary& thead)
 }
 
 //entry point from parserTemplates
-Tuple GlobalParser::Parser::parseTemplateTupleBinary(It& it, const TemplateHeadBinary::Parameters& params)
+Tuple GlobalParser::Parser::parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params)
 {
 	auto tuple = parseBinaryTemplate(it, params);
 	if (it != CLOSE_TUPLE)
@@ -278,10 +284,10 @@ Tuple parseBinaryTemplate(SmartIterator& it, const TemplateHeadBinary::Parameter
 	return tuple;
 }
 
-ParamBinary::SizeList GlobalParser::Parser::parseBinarySizeList(It& it)
+ParamBinary::SizeList GlobalParser::Parser::parseBinarySizeList()
 {
 	using Blist = ParamBinary::SizeList;
-	if (checkEmptyContainer(it, ConType::LIST))
+	if (checkEmptyContainer(ConType::LIST))
 		return Blist(Blist::Type::EMPTY);
 
 	Blist blist;
@@ -289,7 +295,7 @@ ParamBinary::SizeList GlobalParser::Parser::parseBinarySizeList(It& it)
 	{
 		if (isNameStart(*it))
 		{
-			auto nameType = parseNameType(it);
+			auto nameType = parseNameType();
 			if (nameType.type == NameType::ENTITY_CONCRETE)
 				blist = Blist(checkEntTypeBinarySize(nameType.entity));
 			else if (nameType.type == NameType::KEYWORD && nameType.keyword.isType())
@@ -299,7 +305,7 @@ ParamBinary::SizeList GlobalParser::Parser::parseBinarySizeList(It& it)
 			
 		}
 		else if (isNumberStart(*it))
-			blist = Blist(checkBinarySize(parseNumber(it).getIntSafe()));
+			blist = Blist(checkBinarySize(parseNumber().getIntSafe()));
 		else
 			throw;
 	}
