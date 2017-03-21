@@ -57,11 +57,11 @@ private:
 	template <class Parameters>
 	Dictionary parseTemplateDictionary(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
-		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict, ConType con)
+		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict, Parser& parser)
 		{
 			if (!isNameStart(*it))
 				throw runtime_error(ERROR_UNEXPECTED);
-			auto name = parseNameSafe();
+			auto name = parser.parseNameSafe();
 			switch (getTag(it))
 			{
 			case Tag::START_LIST:
@@ -85,7 +85,7 @@ private:
 	template <class Parameters>
 	List parseTemplateList(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
-		return parseContainer<List, ConType::LIST>(List(), [&](List& list, ConType con)
+		return parseContainer<List, ConType::LIST>(List(), [&](List& list, Parser& parser)
 		{
 			auto tag = getTag(it);
 			if (tag == Tag::START_TUPLE)

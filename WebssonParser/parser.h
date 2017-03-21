@@ -39,7 +39,7 @@ namespace webss
 				parser.multiLineContainer = true;
 				return parser.parseDocument();
 			}
-		protected:
+		public:
 			Parser(GlobalParser& globalParser, ConType con)
 				: ents(globalParser.ents), importedDocuments(globalParser.importedDocuments), it(globalParser.it)
 				, con(con), language(globalParser.language), separator(globalParser.separator) {}
@@ -109,12 +109,13 @@ namespace webss
 			bool parseDocumentHead(std::vector<ParamDocument>& docHead, ConType con, const Namespace& nspace);
 
 			template <class Container, ConType::Enum CON>
-			Container parseContainer(Container&& cont, std::function<void(Container& cont, ConType con)> func)
+			Container parseContainer(Container&& cont, std::function<void(Container& cont, Parser& parser)> func)
 			{
-				if (!checkEmptyContainer(CON))
+				Parser parser(*this, CON, false);
+				if (!parser.parserContainerEmpty())
 					do
-						func(cont, CON);
-				while (checkNextElementContainer(CON));
+						func(cont, parser);
+				while (parser.parserCheckNextElement());
 				return move(cont);
 			}
 

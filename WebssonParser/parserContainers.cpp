@@ -60,15 +60,15 @@ string getItCurrentChar(SmartIterator& it)
 
 Dictionary GlobalParser::Parser::parseDictionary()
 {
-	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict, ConType con)
+	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict, Parser& parser)
 	{
 		if (*it == CHAR_CSTRING)
 		{
 			++it;
-			addJsonKeyvalue(dict);
+			parser.addJsonKeyvalue(dict);
 		}
 		else
-			parseOtherValue(con,
+			parser.parseOtherValue(parser.con,
 				CaseKeyValue{ dict.addSafe(move(key), move(value)); },
 				ErrorKeyOnly(ERROR_INPUT_DICTIONARY),
 				ErrorValueOnly(ERROR_INPUT_DICTIONARY),
@@ -78,17 +78,20 @@ Dictionary GlobalParser::Parser::parseDictionary()
 
 List GlobalParser::Parser::parseList()
 {
-	return parseContainer<List, ConType::LIST>(List(), [&](List& list, ConType con)
-	{
-		list.add(parseValueOnly(con));
-	});
+	Parser parser(*this, ConType::LIST, false);
+	List cont;
+	if (!parser.parserContainerEmpty())
+		do
+			cont.add(parseValueOnly(parser.con));
+		while (parser.parserCheckNextElement());
+	return cont;
 }
 
 Tuple GlobalParser::Parser::parseTuple()
 {
-	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple, ConType con)
+	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple, Parser& parser)
 	{
-		parseOtherValue(con,
+		parser.parseOtherValue(parser.con,
 			CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
 			ErrorKeyOnly(ERROR_INPUT_TUPLE),
 			CaseValueOnly{ tuple.add(move(value)); },
@@ -98,37 +101,37 @@ Tuple GlobalParser::Parser::parseTuple()
 
 List GlobalParser::Parser::parseListText()
 {
-	return parseContainer<List, ConType::LIST>(List(), [&](List& list, ConType con)
+	return parseContainer<List, ConType::LIST>(List(), [&](List& list, Parser& parser)
 	{
-		list.add(parseLineString(con));
+		list.add(parser.parseLineString(parser.con));
 	});
 }
 Tuple GlobalParser::Parser::parseTupleText()
 {
-	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple, ConType con)
+	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple, Parser& parser)
 	{
-		tuple.add(parseLineString(con));
+		tuple.add(parser.parseLineString(parser.con));
 	});
 }
 
 Namespace GlobalParser::Parser::parseNamespace(const string& name, const Namespace& previousNamespace)
 {
-	return parseContainer<Namespace, ConType::DICTIONARY>(Namespace(name, previousNamespace), [&](Namespace& nspace, ConType con)
+	return parseContainer<Namespace, ConType::DICTIONARY>(Namespace(name, previousNamespace), [&](Namespace& nspace, Parser& parser)
 	{
 		switch (*it)
 		{
 		case CHAR_ABSTRACT_ENTITY:
 			++it;
-			nspace.addSafe(parseAbstractEntity(nspace));
+			nspace.addSafe(parser.parseAbstractEntity(nspace));
 			break;
 		case CHAR_CONCRETE_ENTITY:
 			++it;
-			nspace.addSafe(parseConcreteEntity(con));
+			nspace.addSafe(parser.parseConcreteEntity(parser.con));
 			break;
 		case CHAR_SELF:
 			skipJunkToTag(++it, Tag::START_TEMPLATE);
 			++it;
-			nspace.addSafe(Entity(string(name), parseTemplateHead()));
+			nspace.addSafe(Entity(string(name), parser.parseTemplateHead()));
 			break;
 		default:
 			throw runtime_error(ERROR_INPUT_NAMESPACE);
@@ -137,9 +140,9 @@ Namespace GlobalParser::Parser::parseNamespace(const string& name, const Namespa
 }
 Enum GlobalParser::Parser::parseEnum(const string& name)
 {
-	return parseContainer<Enum, ConType::LIST>(Enum(name), [&](Enum& tEnum, ConType con)
+	return parseContainer<Enum, ConType::LIST>(Enum(name), [&](Enum& tEnum, Parser& parser)
 	{
-		parseOtherValue(con,
+		parser.parseOtherValue(parser.con,
 			ErrorKeyValue(ERROR_INPUT_ENUM),
 			CaseKeyOnly{ tEnum.add(move(key)); },
 			ErrorValueOnly(ERROR_INPUT_ENUM),
