@@ -72,13 +72,6 @@ SmartIterator& webss::skipJunkToTag(SmartIterator& it, Tag tag)
 	throw runtime_error(it ? ERROR_UNEXPECTED : ERROR_EXPECTED);
 }
 
-SmartIterator& webss::skipJunkToAnyTag(SmartIterator& it, set<Tag> tags)
-{
-	if (tags.find(getTag(it)) != tags.end())
-		return it;
-	throw runtime_error(it ? ERROR_UNEXPECTED : ERROR_EXPECTED);
-}
-
 SmartIterator& webss::skipJunk(SmartIterator& it)
 {
 	while (it)

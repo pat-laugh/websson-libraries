@@ -3,6 +3,8 @@
 #pragma once
 
 #include "WebssonStructures/webss.h"
+#include "WebssonUtils/typeContainers.h"
+#include "WebssonUtils/iterators.h"
 
 namespace webss
 {
@@ -18,4 +20,6 @@ namespace webss
 			setDefaultValue(tuple[i], params[i]);
 		return tuple;
 	}
+
+	bool checkContainerEnd(SmartIterator& it, ConType con);
 }

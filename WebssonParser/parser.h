@@ -36,9 +36,14 @@ namespace webss
 			static Document parseDocument(GlobalParser& globalParser)
 			{
 				Parser parser(globalParser, ConType::DOCUMENT);
+				parser.multiLineContainer = true;
 				return parser.parseDocument();
 			}
 		protected:
+			Parser(GlobalParser& globalParser, ConType con)
+				: ents(globalParser.ents), importedDocuments(globalParser.importedDocuments), it(globalParser.it)
+				, con(con), language(globalParser.language), separator(globalParser.separator) {}
+
 			BasicEntityManager<Webss>& ents;
 			BasicEntityManager<void*>& importedDocuments;
 			SmartIterator& it;
@@ -46,15 +51,12 @@ namespace webss
 			Language language;
 			char separator;
 			bool lineGreed = false;
-			bool lineContainer;
+			bool multiLineContainer;
+			bool empty;
+			Tag nextElem;
 
-			Parser(GlobalParser& globalParser, ConType con)
-				: ents(globalParser.ents), importedDocuments(globalParser.importedDocuments), it(globalParser.it)
-				, con(con), language(globalParser.language), separator(globalParser.separator) {}
 
-			Parser(Parser& parser, ConType con)
-				: ents(parser.ents), importedDocuments(parser.importedDocuments), it(parser.it)
-				, con(con), language(parser.language), separator(parser.separator) {}
+			Parser(Parser& parser, ConType con);
 
 			Parser makeImportParser(SmartIterator& newIt)
 			{

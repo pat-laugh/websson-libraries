@@ -5,6 +5,7 @@
 #include <cassert>
 
 #include "WebssonUtils/constants.h"
+#include "utilsParser.h"
 
 using namespace std;
 using namespace webss;
@@ -43,3 +44,12 @@ GlobalParser& GlobalParser::addEntity(string&& name, Webss&& value)
 }
 
 Document GlobalParser::parse() { return GlobalParser::Parser::parseDocument(*this); }
+
+GlobalParser::Parser::Parser(Parser& parser, ConType con)
+	: ents(parser.ents), importedDocuments(parser.importedDocuments), it(parser.it)
+	, con(con), language(parser.language), separator(parser.separator)
+{
+	multiLineContainer = checkLineEmpty(it);
+	empty = checkContainerEnd(it, con);
+	nextElem = getTag(it);
+}

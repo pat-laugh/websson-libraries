@@ -73,8 +73,7 @@ void GlobalParser::Parser::addJsonKeyvalue(Dictionary& dict)
 {
 	try
 	{
-		\
-			skipJunkToTag(it, Tag::NAME_START);
+		skipJunkToTag(it, Tag::NAME_START);
 		auto name = parseNameSafe();
 		skipJunkToTag(it, Tag::C_STRING);
 		if (*skipJunkToValid(++it) != CHAR_COLON)

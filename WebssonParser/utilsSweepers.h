@@ -17,7 +17,7 @@ namespace webss
 		END_DICTIONARY, END_LIST, END_TUPLE, END_TEMPLATE,
 		TEXT_DICTIONARY, TEXT_LIST, TEXT_TUPLE, TEXT_TEMPLATE,
 		ENTITY_ABSTRACT, ENTITY_CONCRETE,
-		USING_NAMESPACE, IMPORT, OPTION, SELF
+		USING_NAMESPACE, IMPORT, OPTION, SELF, SEPARATOR
 	};
 
 	//skips junk until it finds a Tag
@@ -25,9 +25,6 @@ namespace webss
 
 	//skips junk until tag is found; if not, throws error
 	SmartIterator& skipJunkToTag(SmartIterator& it, Tag tag);
-
-	//skips junk until any tag in tags is found; if not, throws error
-	SmartIterator& skipJunkToAnyTag(SmartIterator& it, std::set<Tag> tags);
 
 	//skips junk and valid junk operators (line escape and comments)
 	SmartIterator& skipJunk(SmartIterator& it);
