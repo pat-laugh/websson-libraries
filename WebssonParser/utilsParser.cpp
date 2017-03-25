@@ -17,19 +17,3 @@ void webss::setDefaultValue(Webss& value, const ParamStandard& defaultValue)
 	else
 		value = Webss(defaultValue.getDefaultPointer());
 }
-
-bool webss::checkContainerEnd(SmartIterator& it, ConType con)
-{
-	if (!skipJunk(it))
-	{
-		if (con.hasEndChar())
-			throw runtime_error(ERROR_EXPECTED);
-		return true;
-	}
-	if (con.isEnd(*it))
-	{
-		++it;
-		return true;
-	}
-	return false;
-}

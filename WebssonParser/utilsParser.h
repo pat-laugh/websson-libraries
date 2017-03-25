@@ -20,6 +20,4 @@ namespace webss
 			setDefaultValue(tuple[i], params[i]);
 		return tuple;
 	}
-
-	bool checkContainerEnd(SmartIterator& it, ConType con);
 }

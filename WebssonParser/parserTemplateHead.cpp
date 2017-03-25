@@ -27,7 +27,7 @@ Webss GlobalParser::Parser::parseTemplateHead()
 	case CHAR_CONCRETE_ENTITY: case CHAR_ABSTRACT_ENTITY: case CHAR_USING_NAMESPACE:
 		return parseTemplateHeadScoped();
 	case OPEN_DICTIONARY:
-		throw runtime_error("this parser cannot parse mandatory templates");
+		throw runtime_error(ERROR_UNEXPECTED);
 	case CHAR_SELF:
 		skipJunkToTag(++it, Tag::END_TEMPLATE);
 		++it;
