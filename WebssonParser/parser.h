@@ -3,7 +3,6 @@
 #pragma once
 
 #include "entityManager.h"
-#include "language.h"
 #include "utilsSweepers.h"
 #include "WebssonStructures/webss.h"
 #include "WebssonUtils/stringBuilder.h"
@@ -20,14 +19,12 @@ namespace webss
 		GlobalParser(const std::stringstream& in);
 		GlobalParser(const std::string& in);
 		GlobalParser& setIterator(SmartIterator&& it);
-		GlobalParser& setLanguage(Language lang);
 		GlobalParser& addEntity(std::string&& name, Webss&& value);
 		Document parse();
 	private:
 		BasicEntityManager<Webss> ents;
 		BasicEntityManager<void*> importedDocuments;
 		SmartIterator it;
-		Language language = Language::DEFAULT;
 		char separator = CHAR_SEPARATOR;
 	public:
 		class Parser
@@ -42,13 +39,12 @@ namespace webss
 		public:
 			Parser(GlobalParser& globalParser, ConType con)
 				: ents(globalParser.ents), importedDocuments(globalParser.importedDocuments), it(globalParser.it)
-				, con(con), language(globalParser.language), separator(globalParser.separator) {}
+				, con(con), separator(globalParser.separator) {}
 
 			BasicEntityManager<Webss>& ents;
 			BasicEntityManager<void*>& importedDocuments;
 			SmartIterator& it;
 			ConType con;
-			Language language;
 			char separator;
 			bool lineGreed = false;
 			bool multiLineContainer;
@@ -68,7 +64,7 @@ namespace webss
 				return Parser(ents, importedDocuments, newIt);
 			}
 			Parser(BasicEntityManager<Webss>& ents, BasicEntityManager<void*>& importedDocuments, SmartIterator& it)
-				: ents(ents), importedDocuments(importedDocuments), it(it), con(ConType::DOCUMENT), language(Language::DEFAULT), separator(CHAR_SEPARATOR) {}
+				: ents(ents), importedDocuments(importedDocuments), it(it), con(ConType::DOCUMENT), separator(CHAR_SEPARATOR) {}
 
 			Document parseDocument();
 

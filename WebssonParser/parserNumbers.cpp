@@ -17,12 +17,12 @@ Webss GlobalParser::Parser::parseNumber()
 	if (negative)
 		num = -num;
 
-	if (!it || isNumberEnd(*it, language, base))
+	if (!it || isNumberEnd(*it, base))
 		return num;
 
 	double numDouble = (double)num;
 
-	if (isDecimalSeparator(*it, language))
+	if (*it == CHAR_DECIMAL_SEPARATOR)
 	{
 		auto decimals = parseDecimals(++it, base);
 		if (negative)
@@ -30,7 +30,7 @@ Webss GlobalParser::Parser::parseNumber()
 
 		numDouble += decimals;
 
-		if (!it || isNumberEnd(*it, language, base))
+		if (!it || isNumberEnd(*it, base))
 			return numDouble;
 
 		if (!isBaseSeparator(*it, base))

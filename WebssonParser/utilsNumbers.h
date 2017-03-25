@@ -2,7 +2,6 @@
 //Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include "language.h"
 #include "WebssonStructures/types.h"
 #include "WebssonUtils/iterators.h"
 
@@ -27,11 +26,8 @@ namespace webss
 	
 	NumberBase checkNumberBase(SmartIterator& it);
 
-	//'.' or ','
-	bool isDecimalSeparator(char c, Language lang);
-
 	//anything other than a decimal or magnitude separator can end a number
-	bool isNumberEnd(char c, Language lang, NumberBase base);
+	bool isNumberEnd(char c, NumberBase base);
 
 	//'e' or 'E' for base dec; 'p' or 'P' for other bases
 	bool isBaseSeparator(char c, NumberBase base);

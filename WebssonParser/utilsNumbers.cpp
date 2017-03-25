@@ -162,17 +162,9 @@ NumberBase webss::checkNumberBase(SmartIterator& it)
 	}
 }
 
-bool webss::isNumberEnd(char c, Language lang, NumberBase base)
+bool webss::isNumberEnd(char c, NumberBase base)
 {
-	return !isDecimalSeparator(c, lang) && !isBaseSeparator(c, base);
-}
-
-bool webss::isDecimalSeparator(char c, Language lang)
-{
-	assert(lang == Language::DEFAULT || lang == Language::INTL || lang == Language::EN || lang == Language::FR);
-	if (c == '.')
-		return lang == Language::DEFAULT || lang == Language::INTL || lang == Language::EN;
-	return c == ',' && (lang == Language::INTL || lang == Language::FR);
+	return c != CHAR_DECIMAL_SEPARATOR && !isBaseSeparator(c, base);
 }
 
 bool webss::isBaseSeparator(char c, NumberBase base)
