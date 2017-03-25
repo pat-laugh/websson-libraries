@@ -25,7 +25,6 @@ namespace webss
 		BasicEntityManager<Webss> ents;
 		BasicEntityManager<void*> importedDocuments;
 		SmartIterator it;
-		char separator = CHAR_SEPARATOR;
 	public:
 		class Parser
 		{
@@ -38,14 +37,12 @@ namespace webss
 			}
 		public:
 			Parser(GlobalParser& globalParser, ConType con)
-				: ents(globalParser.ents), importedDocuments(globalParser.importedDocuments), it(globalParser.it)
-				, con(con), separator(globalParser.separator) {}
+				: ents(globalParser.ents), importedDocuments(globalParser.importedDocuments), it(globalParser.it), con(con) {}
 
 			BasicEntityManager<Webss>& ents;
 			BasicEntityManager<void*>& importedDocuments;
 			SmartIterator& it;
 			ConType con;
-			char separator;
 			bool lineGreed = false;
 			bool multiLineContainer;
 			bool allowVoid;
@@ -64,7 +61,7 @@ namespace webss
 				return Parser(ents, importedDocuments, newIt);
 			}
 			Parser(BasicEntityManager<Webss>& ents, BasicEntityManager<void*>& importedDocuments, SmartIterator& it)
-				: ents(ents), importedDocuments(importedDocuments), it(it), con(ConType::DOCUMENT), separator(CHAR_SEPARATOR) {}
+				: ents(ents), importedDocuments(importedDocuments), it(it), con(ConType::DOCUMENT) {}
 
 			Document parseDocument();
 

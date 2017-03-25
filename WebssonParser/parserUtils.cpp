@@ -14,7 +14,7 @@ bool GlobalParser::Parser::checkEmptyContainer(ConType con)
 {
 	if (checkContainerEnd(it, con))
 		return true;
-	if (*it == separator)
+	if (*it == CHAR_SEPARATOR)
 		throw runtime_error(ERROR_VOID);
 	return false;
 }
@@ -22,13 +22,13 @@ bool GlobalParser::Parser::checkEmptyContainer(ConType con)
 bool GlobalParser::Parser::checkNextElementContainer(ConType con)
 {
 	if (!lineGreed)
-		cleanLine(it, con, separator);
+		cleanLine(it, con);
 	else
 		lineGreed = false;
 
 	if (checkContainerEnd(it, con))
 		return false;
-	if (*it == separator && (checkContainerEnd(++it, con) || *it == separator))
+	if (*it == CHAR_SEPARATOR && (checkContainerEnd(++it, con) || *it == CHAR_SEPARATOR))
 		throw runtime_error(ERROR_VOID);
 	return true;
 }
@@ -37,7 +37,7 @@ bool GlobalParser::Parser::checkEmptyContainerVoid(ConType con, function<void()>
 {
 	if (checkContainerEnd(it, con))
 		return true;
-	if (*it == separator)
+	if (*it == CHAR_SEPARATOR)
 	{
 		funcIsVoid();
 	loopStart:
@@ -46,7 +46,7 @@ bool GlobalParser::Parser::checkEmptyContainerVoid(ConType con, function<void()>
 			funcIsVoid();
 			return true;
 		}
-		if (*it == separator)
+		if (*it == CHAR_SEPARATOR)
 		{
 			funcIsVoid();
 			goto loopStart;
@@ -58,13 +58,13 @@ bool GlobalParser::Parser::checkEmptyContainerVoid(ConType con, function<void()>
 bool GlobalParser::Parser::checkNextElementContainerVoid(ConType con, function<void()> funcIsVoid)
 {
 	if (!lineGreed)
-		cleanLine(it, con, separator);
+		cleanLine(it, con);
 	else
 		lineGreed = false;
 
 	if (checkContainerEnd(it, con))
 		return false;
-	if (*it == separator)
+	if (*it == CHAR_SEPARATOR)
 	{
 	loopStart:
 		if (checkContainerEnd(++it, con))
@@ -72,7 +72,7 @@ bool GlobalParser::Parser::checkNextElementContainerVoid(ConType con, function<v
 			funcIsVoid();
 			return false;
 		}
-		if (*it == separator)
+		if (*it == CHAR_SEPARATOR)
 		{
 			funcIsVoid();
 			goto loopStart;

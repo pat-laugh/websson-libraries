@@ -181,15 +181,15 @@ SmartIterator& webss::skipJunkToValid(SmartIterator& it)
 	return it;
 }
 
-void webss::cleanLine(SmartIterator& it, ConType con, char separator)
+void webss::cleanLine(SmartIterator& it, ConType con)
 {
-	if (skipLineJunk(it) && !isLineEnd(*it, con, separator))
+	if (skipLineJunk(it) && !isLineEnd(*it, con))
 		throw runtime_error(ERROR_UNEXPECTED);
 }
 
-bool webss::isLineEnd(char c, ConType con, char separator)
+bool webss::isLineEnd(char c, ConType con)
 {
-	return c == '\n' || c == separator || con.isEnd(c);
+	return c == '\n' || c == CHAR_SEPARATOR || con.isEnd(c);
 }
 
 bool webss::checkLineEmpty(SmartIterator& it)

@@ -52,7 +52,7 @@ string GlobalParser::Parser::parseLineString(ConType con)
 	skipLineJunk(it);
 
 	StringBuilder line;
-	while (hasNextChar(it, line, [&]() { return *it == separator || con.isEnd(*it); }))
+	while (hasNextChar(it, line, [&]() { return *it == CHAR_SEPARATOR || con.isEnd(*it); }))
 	{
 		if (*it == CHAR_ESCAPE)
 		{

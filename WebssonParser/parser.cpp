@@ -32,7 +32,7 @@ Document GlobalParser::parse() { return GlobalParser::Parser::parseDocument(*thi
 
 GlobalParser::Parser::Parser(Parser& parser, ConType con, bool allowVoid)
 	: ents(parser.ents), importedDocuments(parser.importedDocuments), it(parser.it)
-	, con(con), separator(parser.separator), allowVoid(allowVoid)
+	, con(con), allowVoid(allowVoid)
 {
 	multiLineContainer = checkLineEmpty(it);
 }
@@ -48,7 +48,7 @@ bool GlobalParser::Parser::parserContainerEmpty()
 			throw runtime_error(ERROR_EXPECTED);
 		return true;
 	case Tag::UNKNOWN:
-		if (*it != separator)
+		if (*it != CHAR_SEPARATOR)
 			throw runtime_error(ERROR_UNEXPECTED);
 		if (!allowVoid)
 			throw runtime_error(ERROR_VOID_2);
@@ -69,7 +69,7 @@ bool GlobalParser::Parser::parserContainerEmpty()
 bool GlobalParser::Parser::parserCheckNextElement()
 {
 	if (!lineGreed)
-		cleanLine(it, con, separator);
+		cleanLine(it, con);
 	else
 		lineGreed = false;
 
@@ -80,7 +80,7 @@ bool GlobalParser::Parser::parserCheckNextElement()
 			throw runtime_error(ERROR_EXPECTED);
 		return false;
 	case Tag::UNKNOWN:
-		if (*it != separator)
+		if (*it != CHAR_SEPARATOR)
 			throw runtime_error(ERROR_UNEXPECTED);
 		switch (nextElem = getTag(++it))
 		{
@@ -89,7 +89,7 @@ bool GlobalParser::Parser::parserCheckNextElement()
 				throw runtime_error(ERROR_EXPECTED);
 			return false;
 		case Tag::UNKNOWN:
-			if (*it != separator)
+			if (*it != CHAR_SEPARATOR)
 				throw runtime_error(ERROR_UNEXPECTED);
 			if (!allowVoid)
 				throw runtime_error(ERROR_VOID_2);

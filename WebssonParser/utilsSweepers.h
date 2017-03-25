@@ -45,10 +45,10 @@ namespace webss
 
 	//calls skipLineJunk, then checks the char pointed by it
 	//if it is not a separator nor an end of container, an error is thrown
-	void cleanLine(SmartIterator& it, ConType con, char separator);
+	void cleanLine(SmartIterator& it, ConType con);
 
 	//return true if c is end of line, separator or end of container, else false
-	bool isLineEnd(char c, ConType con, char separator);
+	bool isLineEnd(char c, ConType con);
 
 	//skips line-junk, then returns true if it is at the end or equals newline, else false
 	bool checkLineEmpty(SmartIterator& it);
