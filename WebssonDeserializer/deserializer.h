@@ -7,7 +7,7 @@
 #include <set>
 
 #include "WebssonStructures/webss.h"
-#include "WebssonUtils/typeContainers.h"
+#include "WebssonUtils/conType.h"
 #include "WebssonUtils/stringBuilder.h"
 
 namespace webss

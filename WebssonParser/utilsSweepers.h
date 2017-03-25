@@ -5,7 +5,7 @@
 #include <functional>
 #include <set>
 
-#include "WebssonUtils/typeContainers.h"
+#include "WebssonUtils/conType.h"
 #include "WebssonUtils/iterators.h"
 
 namespace webss

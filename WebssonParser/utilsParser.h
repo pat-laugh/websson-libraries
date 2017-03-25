@@ -3,7 +3,7 @@
 #pragma once
 
 #include "WebssonStructures/webss.h"
-#include "WebssonUtils/typeContainers.h"
+#include "WebssonUtils/conType.h"
 #include "WebssonUtils/iterators.h"
 
 namespace webss
