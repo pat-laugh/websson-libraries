@@ -48,8 +48,8 @@ bool GlobalParser::Parser::parserContainerEmpty()
 			throw runtime_error(ERROR_EXPECTED);
 		return true;
 	case Tag::UNKNOWN:
-		if (*it != CHAR_SEPARATOR)
-			throw runtime_error(ERROR_UNEXPECTED);
+		throw runtime_error(ERROR_UNEXPECTED);
+	case Tag::SEPARATOR:
 		if (!allowVoid)
 			throw runtime_error(ERROR_VOID_2);
 		break;
@@ -80,8 +80,8 @@ bool GlobalParser::Parser::parserCheckNextElement()
 			throw runtime_error(ERROR_EXPECTED);
 		return false;
 	case Tag::UNKNOWN:
-		if (*it != CHAR_SEPARATOR)
-			throw runtime_error(ERROR_UNEXPECTED);
+		throw runtime_error(ERROR_UNEXPECTED);
+	case Tag::SEPARATOR:
 		switch (nextElem = getTag(++it))
 		{
 		case Tag::NONE:
@@ -89,8 +89,8 @@ bool GlobalParser::Parser::parserCheckNextElement()
 				throw runtime_error(ERROR_EXPECTED);
 			return false;
 		case Tag::UNKNOWN:
-			if (*it != CHAR_SEPARATOR)
-				throw runtime_error(ERROR_UNEXPECTED);
+			throw runtime_error(ERROR_UNEXPECTED);
+		case Tag::SEPARATOR:
 			if (!allowVoid)
 				throw runtime_error(ERROR_VOID_2);
 			break;

@@ -57,6 +57,7 @@ Tag webss::getTag(SmartIterator& it)
 	case CHAR_IMPORT: return Tag::IMPORT;
 	case CHAR_OPTION: return Tag::OPTION;
 	case CHAR_SELF: return Tag::SELF;
+	case CHAR_SEPARATOR: return Tag::SEPARATOR;
 	}
 	if (isNameStart(*it))
 		return Tag::NAME_START;
