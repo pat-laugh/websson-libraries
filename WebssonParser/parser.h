@@ -173,10 +173,6 @@ namespace webss
 			Tuple parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params);
 			ParamBinary::SizeList parseBinarySizeList();
 			const Entity& checkEntTypeBinarySize(const Entity& ent);
-
-			//parserUtils.cpp
-			bool checkEmptyContainerVoid(ConType con, std::function<void()> funcIsVoid);
-			bool checkNextElementContainerVoid(ConType con, std::function<void()> funcIsVoid);
 		};
 	};
 

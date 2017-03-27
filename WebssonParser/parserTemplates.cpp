@@ -128,17 +128,18 @@ private:
 		static const ConType CON = ConType::TUPLE;
 		Tuple tuple(params.getSharedKeys());
 		Tuple::size_type index = 0;
-		if (!checkEmptyContainerVoid(CON, [&]() { if (index++ >= tuple.size()) throw runtime_error("too many values"); }))
+		Parser parser(*this, CON, true);
+		if (!parser.parserContainerEmpty())
 		{
 			do
 			{
 				if (!isNameStart(*it))
-					tuple.at(index) = parseTemplateContainer(params, params.at(index));
+					tuple.at(index) = parseTemplateContainer(params, params.at(index)); //needs parser.
 				else
 				{
 					auto nameType = parseNameType();
 					if (nameType.type == NameType::NAME)
-						tuple.at(nameType.name) = parseTemplateContainer(params, params.at(nameType.name));
+						tuple.at(nameType.name) = parseTemplateContainer(params, params.at(nameType.name)); //needs parser.
 					else
 					{
 						if (params.at(index).hasTemplateHead())
@@ -150,7 +151,7 @@ private:
 							break;
 						case NameType::ENTITY_ABSTRACT:
 						{
-							auto otherValue = checkAbstractEntity(CON, nameType.entity);
+							auto otherValue = parser.checkAbstractEntity(CON, nameType.entity);
 							if (otherValue.type != OtherValue::VALUE_ONLY)
 								throw runtime_error(ERROR_UNEXPECTED);
 							tuple.at(index) = move(otherValue.value);
@@ -166,7 +167,7 @@ private:
 					
 				}
 				++index;
-			} while (checkNextElementContainerVoid(CON, [&]() { if (index++ >= tuple.size()) throw runtime_error("too many values"); }));
+			} while (parserCheckNextElement());
 		}
 		checkDefaultValues(tuple, params);
 		return tuple;
@@ -178,10 +179,11 @@ private:
 		static const ConType CON = ConType::TUPLE;
 		Tuple tuple(params.getSharedKeys());
 		Tuple::size_type index = 0;
-		if (!checkEmptyContainerVoid(CON, [&]() { ++index; }))
+		Parser parser(*this, CON, true);
+		if (!parser.parserContainerEmpty())
 			do
-				tuple.at(index++) = parseLineString(CON);
-		while (checkNextElementContainerVoid(CON, [&]() { ++index; }));
+				tuple.at(index++) = parser.parseLineString(CON);
+			while (parserCheckNextElement());
 		checkDefaultValues(tuple, params);
 		return tuple;
 	}
