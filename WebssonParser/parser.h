@@ -110,9 +110,8 @@ namespace webss
 				return move(cont);
 			}
 
-			Tuple parseTuple();
 			List parseList();
-			List parseList2();
+			Tuple parseTuple();
 			Tuple parseTupleText();
 			List parseListText();
 			Dictionary parseDictionary();
@@ -151,9 +150,14 @@ namespace webss
 			//parserTemplates.cpp
 			Webss parseTemplateHead();
 			TemplateHeadStandard parseTemplateHeadText();
+
+			//only called from parseTemplateHead
 			TemplateHeadStandard parseTemplateHeadStandard(TemplateHeadStandard&& thead = TemplateHeadStandard());
 			TemplateHeadBinary parseTemplateHeadBinary(TemplateHeadBinary&& thead = TemplateHeadBinary());
+
 			TemplateHeadScoped parseTemplateHeadScoped(TemplateHeadScoped&& thead = TemplateHeadScoped());
+
+
 			void parseStandardParameterTemplateHead(TemplateHeadStandard& thead);
 			void parseOtherValuesTheadStandardAfterThead(TemplateHeadStandard& thead);
 

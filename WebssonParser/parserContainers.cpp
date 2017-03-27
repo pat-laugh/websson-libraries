@@ -216,7 +216,12 @@ void GlobalParser::Parser::parseScopedDocument(vector<ParamDocument>& docHead)
 	if (*skipJunkToValid(it) == OPEN_TEMPLATE)
 	{
 		++it;
-		auto head = parseTemplateHeadScoped();
+
+		Parser parser(*this, ConType::TEMPLATE_HEAD, false);
+		if (parser.parserContainerEmpty())
+			throw runtime_error("can't have empty scoped document head");
+
+		auto head = parser.parseTemplateHeadScoped();
 
 		skipJunkToTag(it, Tag::START_DICTIONARY);
 		DocumentHead body;
