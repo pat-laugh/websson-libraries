@@ -78,17 +78,10 @@ Dictionary GlobalParser::Parser::parseDictionary()
 
 List GlobalParser::Parser::parseList()
 {
-	return Parser(*this, ConType::LIST, false).parseList2();
-}
-
-List GlobalParser::Parser::parseList2()
-{
-	List cont;
-	if (!parserContainerEmpty())
-		do
-			cont.add(parseValueOnly(con));
-	while (parserCheckNextElement());
-	return cont;
+	return parseContainer<List, ConType::LIST>(List(), [&](List& list, Parser& parser)
+	{
+		list.add(parser.parseValueOnly(parser.con));
+	});
 }
 
 Tuple GlobalParser::Parser::parseTuple()
