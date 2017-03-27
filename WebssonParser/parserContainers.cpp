@@ -211,7 +211,6 @@ bool GlobalParser::Parser::parseDocumentHead(vector<ParamDocument>& docHead, con
 
 void GlobalParser::Parser::parseScopedDocument(vector<ParamDocument>& docHead)
 {
-	static const ConType CON = ConType::DICTIONARY;
 	if (*skipJunkToValid(it) == OPEN_TEMPLATE)
 	{
 		++it;
@@ -226,7 +225,7 @@ void GlobalParser::Parser::parseScopedDocument(vector<ParamDocument>& docHead)
 		DocumentHead body;
 		++it;
 
-		Parser parser(*this, CON, false);
+		Parser parser(*this, ConType::DICTIONARY, false);
 		if (!parser.parserContainerEmpty())
 		{
 			ParamDocumentIncluder includer(ents, head.getParameters());

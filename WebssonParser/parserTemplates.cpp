@@ -105,10 +105,9 @@ private:
 
 	Tuple parseTemplateTupleStandard(const TemplateHeadStandard::Parameters& params)
 	{
-		static const ConType CON = ConType::TUPLE;
 		Tuple tuple(params.getSharedKeys());
 		Tuple::size_type index = 0;
-		Parser parser(*this, CON, true);
+		Parser parser(*this, ConType::TUPLE, true);
 		if (!parser.parserContainerEmpty())
 		{
 			do
@@ -156,10 +155,9 @@ private:
 	template <class Parameters>
 	Tuple parseTemplateTupleText(const Parameters& params)
 	{
-		static const ConType CON = ConType::TUPLE;
 		Tuple tuple(params.getSharedKeys());
 		Tuple::size_type index = 0;
-		Parser parser(*this, CON, true);
+		Parser parser(*this, ConType::TUPLE, true);
 		if (!parser.parserContainerEmpty())
 			do
 				tuple.at(index++) = parser.parseLineString();

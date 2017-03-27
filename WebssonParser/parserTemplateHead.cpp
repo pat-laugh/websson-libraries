@@ -11,11 +11,9 @@ using namespace webss;
 
 const char ERROR_BINARY_TEMPLATE[] = "all values in a binary template must be binary";
 
-const ConType CON = ConType::TEMPLATE_HEAD;
-
 Webss GlobalParser::Parser::parseTemplateHead()
 {
-	Parser parser(*this, CON, false);
+	Parser parser(*this, ConType::TEMPLATE_HEAD, false);
 	if (parser.parserContainerEmpty())
 		return BlockHead();
 
