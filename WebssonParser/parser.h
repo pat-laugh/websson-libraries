@@ -129,7 +129,7 @@ namespace webss
 			OtherValue parseOtherValue(ConType con);
 			OtherValue checkAbstractEntity(ConType con, const Entity& ent);
 			void parseOtherValue(ConType con, std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Entity& abstractEntity)> funcAbstractEntity);
-			Webss parseValueOnly(ConType con);
+			Webss parseValueOnly();
 
 			//parserNumbers.cpp
 			Webss parseNumber();
@@ -167,6 +167,8 @@ namespace webss
 			Webss parseTemplateBodyScoped(const TemplateHeadScoped::Parameters& params, ConType con);
 			Webss parseTemplateBodyStandard(const TemplateHeadStandard::Parameters& params);
 			Webss parseTemplateBodyText(const TemplateHeadStandard::Parameters& params);
+
+			Webss parseTemplateContainer(const TemplateHeadStandard::Parameters & params, const ParamStandard & defaultValue);
 
 			//parserBinary.cpp
 			void parseBinaryHead(TemplateHeadBinary& thead);

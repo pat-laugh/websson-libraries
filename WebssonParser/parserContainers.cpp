@@ -80,7 +80,7 @@ List GlobalParser::Parser::parseList()
 {
 	return parseContainer<List, ConType::LIST>(List(), [&](List& list, Parser& parser)
 	{
-		list.add(parser.parseValueOnly(parser.con));
+		list.add(parser.parseValueOnly());
 	});
 }
 
@@ -255,7 +255,7 @@ ImportedDocument GlobalParser::Parser::parseImport(ConType con)
 #ifdef DISABLE_IMPORT
 	throw runtime_error("this parser cannot import documents");
 #else
-	auto importName = parseValueOnly(con);
+	auto importName = parseValueOnly();
 	if (!importName.isString())
 		throw runtime_error("import must reference a string");
 	ImportedDocument import(move(importName));

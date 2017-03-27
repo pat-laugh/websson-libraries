@@ -90,7 +90,7 @@ void GlobalParser::Parser::addJsonKeyvalue(Dictionary& dict)
 Webss GlobalParser::Parser::parseValueEqual(ConType con)
 {
 	if (*skipJunkToValid(it) != CHAR_EQUAL)
-		return parseValueOnly(con);
+		return parseValueOnly();
 	throw runtime_error("expected value-only not starting with an equal sign");
 }
 
@@ -137,7 +137,7 @@ GlobalParser::Parser::OtherValue GlobalParser::Parser::checkAbstractEntity(ConTy
 	switch (content.getTypeSafe())
 	{
 	case WebssType::BLOCK_HEAD:
-		return{ Block(ent, parseValueOnly(con)) };
+		return{ Block(ent, parseValueOnly()) };
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadBinary(ent), parseTemplateBodyBinary(content.getTemplateHeadBinarySafe().getParameters())) }, break)
 	case WebssType::TEMPLATE_HEAD_SCOPED:
@@ -174,7 +174,7 @@ void GlobalParser::Parser::parseOtherValue(ConType con, std::function<void(strin
 	}
 }
 
-Webss GlobalParser::Parser::parseValueOnly(ConType con)
+Webss GlobalParser::Parser::parseValueOnly()
 {
 	skipJunkToValid(it);
 	auto otherValue = parseOtherValue(con);
