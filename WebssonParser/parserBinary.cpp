@@ -287,7 +287,8 @@ Tuple parseBinaryTemplate(SmartIterator& it, const TemplateHeadBinary::Parameter
 ParamBinary::SizeList GlobalParser::Parser::parseBinarySizeList()
 {
 	using Blist = ParamBinary::SizeList;
-	if (checkEmptyContainer(ConType::LIST))
+	Parser parser(*this, ConType::LIST, false);
+	if (parser.parserContainerEmpty())
 		return Blist(Blist::Type::EMPTY);
 
 	Blist blist;
@@ -295,9 +296,9 @@ ParamBinary::SizeList GlobalParser::Parser::parseBinarySizeList()
 	{
 		if (isNameStart(*it))
 		{
-			auto nameType = parseNameType();
+			auto nameType = parser.parseNameType();
 			if (nameType.type == NameType::ENTITY_CONCRETE)
-				blist = Blist(checkEntTypeBinarySize(nameType.entity));
+				blist = Blist(parser.checkEntTypeBinarySize(nameType.entity));
 			else if (nameType.type == NameType::KEYWORD && nameType.keyword.isType())
 				blist = Blist(nameType.keyword.getSize());
 			else

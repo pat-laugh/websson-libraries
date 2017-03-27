@@ -25,29 +25,6 @@ bool checkContainerEnd(SmartIterator& it, ConType con)
 	return false;
 }
 
-bool GlobalParser::Parser::checkEmptyContainer(ConType con)
-{
-	if (checkContainerEnd(it, con))
-		return true;
-	if (*it == CHAR_SEPARATOR)
-		throw runtime_error(ERROR_VOID);
-	return false;
-}
-
-bool GlobalParser::Parser::checkNextElementContainer(ConType con)
-{
-	if (!lineGreed)
-		cleanLine(it, con);
-	else
-		lineGreed = false;
-
-	if (checkContainerEnd(it, con))
-		return false;
-	if (*it == CHAR_SEPARATOR && (checkContainerEnd(++it, con) || *it == CHAR_SEPARATOR))
-		throw runtime_error(ERROR_VOID);
-	return true;
-}
-
 bool GlobalParser::Parser::checkEmptyContainerVoid(ConType con, function<void()> funcIsVoid)
 {
 	if (checkContainerEnd(it, con))

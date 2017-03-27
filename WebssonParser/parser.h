@@ -175,8 +175,6 @@ namespace webss
 			const Entity& checkEntTypeBinarySize(const Entity& ent);
 
 			//parserUtils.cpp
-			bool checkEmptyContainer(ConType con);
-			bool checkNextElementContainer(ConType con);
 			bool checkEmptyContainerVoid(ConType con, std::function<void()> funcIsVoid);
 			bool checkNextElementContainerVoid(ConType con, std::function<void()> funcIsVoid);
 		};
