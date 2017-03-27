@@ -126,9 +126,9 @@ namespace webss
 			Webss parseCharValue(ConType con);
 			void addJsonKeyvalue(Dictionary& dict);
 			Webss parseValueEqual(ConType con);
-			OtherValue parseOtherValue(ConType con);
+			OtherValue parseOtherValue();
 			OtherValue checkAbstractEntity(ConType con, const Entity& ent);
-			void parseOtherValue(ConType con, std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Entity& abstractEntity)> funcAbstractEntity);
+			void parseOtherValue(std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Entity& abstractEntity)> funcAbstractEntity);
 			Webss parseValueOnly();
 
 			//parserNumbers.cpp

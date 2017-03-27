@@ -96,7 +96,7 @@ void GlobalParser::Parser::parseBinaryHead(TemplateHeadBinary& thead)
 
 	skipJunkToTag(it, Tag::END_TUPLE);
 	skipJunkToValid(++it);
-	parseOtherValue(ConType::TEMPLATE_HEAD,
+	parseOtherValue(
 		CaseKeyValue
 		{
 			bhead.setDefaultValue(move(value));

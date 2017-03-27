@@ -41,7 +41,7 @@ Webss GlobalParser::Parser::parseTemplateHead()
 	//if not, then the thead is a standard thead
 
 	TemplateHeadStandard thead;
-	auto other = parser.parseOtherValue(CON);
+	auto other = parser.parseOtherValue();
 	bool isEnd = !parser.parserCheckNextElement();
 	switch (other.type)
 	{
@@ -101,7 +101,7 @@ TemplateHeadBinary GlobalParser::Parser::parseTemplateHeadBinary(TemplateHeadBin
 			parseBinaryHead(thead);
 		}
 		else
-			parseOtherValue(CON,
+			parseOtherValue(
 				CaseKeyValue{ throw runtime_error(ERROR_BINARY_TEMPLATE); },
 				CaseKeyOnly{ throw runtime_error(ERROR_BINARY_TEMPLATE); },
 				CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
@@ -136,7 +136,7 @@ TemplateHeadScoped GlobalParser::Parser::parseTemplateHeadScoped(TemplateHeadSco
 			thead.attach(ParamScoped(parseUsingNamespaceStatic()));
 		}
 		else
-			parseOtherValue(CON,
+			parseOtherValue(
 				CaseKeyValue{ throw runtime_error(ERROR_UNEXPECTED); },
 				CaseKeyOnly{ throw runtime_error(ERROR_UNEXPECTED); },
 				CaseValueOnly{ throw runtime_error(ERROR_UNEXPECTED); },
@@ -169,7 +169,7 @@ TemplateHeadStandard GlobalParser::Parser::parseTemplateHeadStandard(TemplateHea
 		}
 		else
 		{
-			parseOtherValue(CON,
+			parseOtherValue(
 				CaseKeyValue{ thead.attach(move(key), move(value)); },
 				CaseKeyOnly{ thead.attachEmpty(move(key)); },
 				CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
@@ -216,7 +216,7 @@ void GlobalParser::Parser::parseStandardParameterTemplateHead(TemplateHeadStanda
 
 void GlobalParser::Parser::parseOtherValuesTheadStandardAfterThead(TemplateHeadStandard& thead)
 {
-	parseOtherValue(CON,
+	parseOtherValue(
 		CaseKeyValue{ thead.attach(move(key), move(value)); },
 		CaseKeyOnly{ thead.attachEmpty(move(key)); },
 		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },

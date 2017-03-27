@@ -68,7 +68,7 @@ Dictionary GlobalParser::Parser::parseDictionary()
 			parser.addJsonKeyvalue(dict);
 		}
 		else
-			parser.parseOtherValue(parser.con,
+			parser.parseOtherValue(
 				CaseKeyValue{ dict.addSafe(move(key), move(value)); },
 				ErrorKeyOnly(ERROR_INPUT_DICTIONARY),
 				ErrorValueOnly(ERROR_INPUT_DICTIONARY),
@@ -88,7 +88,7 @@ Tuple GlobalParser::Parser::parseTuple()
 {
 	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple, Parser& parser)
 	{
-		parser.parseOtherValue(parser.con,
+		parser.parseOtherValue(
 			CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
 			ErrorKeyOnly(ERROR_INPUT_TUPLE),
 			CaseValueOnly{ tuple.add(move(value)); },
@@ -139,7 +139,7 @@ Enum GlobalParser::Parser::parseEnum(const string& name)
 {
 	return parseContainer<Enum, ConType::LIST>(Enum(name), [&](Enum& tEnum, Parser& parser)
 	{
-		parser.parseOtherValue(parser.con,
+		parser.parseOtherValue(
 			ErrorKeyValue(ERROR_INPUT_ENUM),
 			CaseKeyOnly{ tEnum.add(move(key)); },
 			ErrorValueOnly(ERROR_INPUT_ENUM),
@@ -156,7 +156,7 @@ Document GlobalParser::Parser::parseDocument()
 		if (!parserContainerEmpty() && !parseDocumentHead(doc.getHead(), CON, Namespace::getEmptyInstance()))
 		{
 			do
-				parseOtherValue(CON,
+				parseOtherValue(
 					CaseKeyValue{ doc.addSafe(move(key), move(value)); },
 					ErrorKeyOnly(ERROR_INPUT_DOCUMENT),
 					CaseValueOnly{ doc.add(move(value)); },

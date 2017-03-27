@@ -14,7 +14,7 @@ Entity GlobalParser::Parser::parseConcreteEntity(ConType con)
 {
 	skipJunkToTag(it, Tag::NAME_START);
 	Entity ent;
-	parseOtherValue(con,
+	parseOtherValue(
 		CaseKeyValue{ ent = Entity(move(key), move(value)); },
 		CaseKeyOnly{ throw runtime_error(ERROR_EXPECTED); },
 		CaseValueOnly{ throw runtime_error(ERROR_UNEXPECTED); },

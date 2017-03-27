@@ -105,7 +105,7 @@ bool isKeyChar(char c)
 	}
 }
 
-GlobalParser::Parser::OtherValue GlobalParser::Parser::parseOtherValue(ConType con)
+GlobalParser::Parser::OtherValue GlobalParser::Parser::parseOtherValue()
 {
 	if (isKeyChar(*it))
 		return parseCharValue(con);
@@ -152,9 +152,9 @@ GlobalParser::Parser::OtherValue GlobalParser::Parser::checkAbstractEntity(ConTy
 	return{ ent };
 }
 
-void GlobalParser::Parser::parseOtherValue(ConType con, std::function<void(string&& key, Webss&& value)> funcKeyValue, function<void(string&& key)> funcKeyOnly, function<void(Webss&& value)> funcValueOnly, function<void(const Entity& abstractEntity)> funcAbstractEntity)
+void GlobalParser::Parser::parseOtherValue(std::function<void(string&& key, Webss&& value)> funcKeyValue, function<void(string&& key)> funcKeyOnly, function<void(Webss&& value)> funcValueOnly, function<void(const Entity& abstractEntity)> funcAbstractEntity)
 {
-	auto other = parseOtherValue(con);
+	auto other = parseOtherValue();
 	switch (other.type)
 	{
 	case OtherValue::Type::KEY_VALUE:
@@ -177,7 +177,7 @@ void GlobalParser::Parser::parseOtherValue(ConType con, std::function<void(strin
 Webss GlobalParser::Parser::parseValueOnly()
 {
 	skipJunkToValid(it);
-	auto otherValue = parseOtherValue(con);
+	auto otherValue = parseOtherValue();
 	if (otherValue.type != OtherValue::VALUE_ONLY)
 		throw runtime_error("expected value-only");
 	return move(otherValue.value);
