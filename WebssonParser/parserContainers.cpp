@@ -153,7 +153,7 @@ Document GlobalParser::Parser::parseDocument()
 	try
 	{
 		Document doc;
-		if (!checkEmptyContainer(CON) && !parseDocumentHead(doc.getHead(), CON, Namespace::getEmptyInstance()))
+		if (!parserContainerEmpty() && !parseDocumentHead(doc.getHead(), CON, Namespace::getEmptyInstance()))
 		{
 			do
 				parseOtherValue(CON,
@@ -161,7 +161,7 @@ Document GlobalParser::Parser::parseDocument()
 					ErrorKeyOnly(ERROR_INPUT_DOCUMENT),
 					CaseValueOnly{ doc.add(move(value)); },
 					ErrorAbstractEntity(ERROR_INPUT_DOCUMENT));
-			while (checkNextElementContainer(CON));
+			while (parserCheckNextElement());
 		}
 		return doc;
 	}
@@ -206,7 +206,7 @@ bool GlobalParser::Parser::parseDocumentHead(vector<ParamDocument>& docHead, Con
 		default:
 			return false;
 		}
-	} while (checkNextElementContainer(con));
+	} while (parserCheckNextElement());
 	return true;
 }
 
@@ -217,19 +217,21 @@ void GlobalParser::Parser::parseScopedDocument(vector<ParamDocument>& docHead)
 	{
 		++it;
 
-		Parser parser(*this, ConType::TEMPLATE_HEAD, false);
-		if (parser.parserContainerEmpty())
+		Parser parserHead(*this, ConType::TEMPLATE_HEAD, false);
+		if (parserHead.parserContainerEmpty())
 			throw runtime_error("can't have empty scoped document head");
 
-		auto head = parser.parseTemplateHeadScoped();
+		auto head = parserHead.parseTemplateHeadScoped();
 
 		skipJunkToTag(it, Tag::START_DICTIONARY);
 		DocumentHead body;
 		++it;
-		if (!checkEmptyContainer(CON))
+
+		Parser parser(*this, CON, false);
+		if (!parser.parserContainerEmpty())
 		{
 			ParamDocumentIncluder includer(ents, head.getParameters());
-			if (!parseDocumentHead(body, CON, Namespace::getEmptyInstance()))
+			if (!parser.parseDocumentHead(body, CON, Namespace::getEmptyInstance()))
 				throw runtime_error(ERROR_UNEXPECTED);
 		}
 		docHead.push_back(ScopedDocument{ move(head), move(body) });
@@ -267,7 +269,7 @@ ImportedDocument GlobalParser::Parser::parseImport(ConType con)
 			SmartIterator itImported(Curl().readWebDocument(link));
 			auto parserImported = makeImportParser(itImported);
 			DocumentHead docHead;
-			if (!parserImported.checkEmptyContainer(CON) && !parserImported.parseDocumentHead(docHead, CON, Namespace::getEmptyInstance()))
+			if (!parserImported.parserContainerEmpty() && !parserImported.parseDocumentHead(docHead, CON, Namespace::getEmptyInstance()))
 				throw runtime_error(ERROR_UNEXPECTED);
 		}
 		catch (const exception& e)
