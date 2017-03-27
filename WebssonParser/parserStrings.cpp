@@ -47,7 +47,7 @@ bool hasNextChar(SmartIterator& it, StringBuilder& line, function<bool()> endCon
 	return true;
 }
 
-string GlobalParser::Parser::parseLineString(ConType con)
+string GlobalParser::Parser::parseLineString()
 {
 	skipLineJunk(it);
 

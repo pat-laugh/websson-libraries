@@ -131,7 +131,7 @@ private:
 							break;
 						case NameType::ENTITY_ABSTRACT:
 						{
-							auto otherValue = parser.checkAbstractEntity(CON, nameType.entity);
+							auto otherValue = parser.checkAbstractEntity(nameType.entity);
 							if (otherValue.type != OtherValue::VALUE_ONLY)
 								throw runtime_error(ERROR_UNEXPECTED);
 							tuple.at(index) = move(otherValue.value);
@@ -162,14 +162,14 @@ private:
 		Parser parser(*this, CON, true);
 		if (!parser.parserContainerEmpty())
 			do
-				tuple.at(index++) = parser.parseLineString(CON);
+				tuple.at(index++) = parser.parseLineString();
 			while (parserCheckNextElement());
 		checkDefaultValues(tuple, params);
 		return tuple;
 	}
 };
 
-Webss GlobalParser::Parser::parseTemplate(ConType con)
+Webss GlobalParser::Parser::parseTemplate()
 {
 	auto headWebss = parseTemplateHead();
 	switch (headWebss.getType())
@@ -185,7 +185,7 @@ Webss GlobalParser::Parser::parseTemplate(ConType con)
 	case WebssType::TEMPLATE_HEAD_SCOPED:
 	{
 		auto head = move(headWebss.getTemplateHeadScoped());
-		auto body = parseTemplateBodyScoped(head.getParameters(), con);
+		auto body = parseTemplateBodyScoped(head.getParameters());
 		return TemplateScoped(move(head), move(body));
 	}
 	case WebssType::TEMPLATE_HEAD_SELF:
@@ -219,7 +219,7 @@ Webss GlobalParser::Parser::parseTemplateBodyBinary(const TemplateHeadBinary::Pa
 	return static_cast<ParserTemplates*>(this)->parseTemplateBody<TemplateHeadBinary::Parameters>(params, [&](const TemplateHeadBinary::Parameters& params) { return parseTemplateTupleBinary(params); }, [&](const TemplateHeadBinary::Parameters& params) -> Webss { throw runtime_error(ERROR_UNEXPECTED); });
 }
 
-Webss GlobalParser::Parser::parseTemplateBodyScoped(const TemplateHeadScoped::Parameters& params, ConType con)
+Webss GlobalParser::Parser::parseTemplateBodyScoped(const TemplateHeadScoped::Parameters& params)
 {
 	ParamDocumentIncluder includer(ents, params);
 	return parseValueOnly();
@@ -237,13 +237,12 @@ Webss GlobalParser::Parser::parseTemplateBodyText(const TemplateHeadStandard::Pa
 
 Webss GlobalParser::Parser::parseTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue)
 {
-	static const ConType CON = ConType::TUPLE;
 	switch (defaultValue.getTypeThead())
 	{
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		return parseTemplateBodyBinary(defaultValue.getTemplateHeadBinary().getParameters());
 	case WebssType::TEMPLATE_HEAD_SCOPED:
-		return parseTemplateBodyScoped(defaultValue.getTemplateHeadScoped().getParameters(), CON);
+		return parseTemplateBodyScoped(defaultValue.getTemplateHeadScoped().getParameters());
 	case WebssType::TEMPLATE_HEAD_SELF:
 		return parseTemplateBodyStandard(params);
 	case WebssType::TEMPLATE_HEAD_STANDARD:

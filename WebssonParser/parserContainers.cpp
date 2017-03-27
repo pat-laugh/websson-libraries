@@ -100,14 +100,14 @@ List GlobalParser::Parser::parseListText()
 {
 	return parseContainer<List, ConType::LIST>(List(), [&](List& list, Parser& parser)
 	{
-		list.add(parser.parseLineString(parser.con));
+		list.add(parser.parseLineString());
 	});
 }
 Tuple GlobalParser::Parser::parseTupleText()
 {
 	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple, Parser& parser)
 	{
-		tuple.add(parser.parseLineString(parser.con));
+		tuple.add(parser.parseLineString());
 	});
 }
 
@@ -123,7 +123,7 @@ Namespace GlobalParser::Parser::parseNamespace(const string& name, const Namespa
 			break;
 		case CHAR_CONCRETE_ENTITY:
 			++it;
-			nspace.addSafe(parser.parseConcreteEntity(parser.con));
+			nspace.addSafe(parser.parseConcreteEntity());
 			break;
 		case CHAR_SELF:
 			skipJunkToTag(++it, Tag::START_TEMPLATE);
@@ -149,11 +149,10 @@ Enum GlobalParser::Parser::parseEnum(const string& name)
 
 Document GlobalParser::Parser::parseDocument()
 {
-	static const ConType CON = ConType::DOCUMENT;
 	try
 	{
 		Document doc;
-		if (!parserContainerEmpty() && !parseDocumentHead(doc.getHead(), CON, Namespace::getEmptyInstance()))
+		if (!parserContainerEmpty() && !parseDocumentHead(doc.getHead(), Namespace::getEmptyInstance()))
 		{
 			do
 				parseOtherValue(
@@ -171,7 +170,7 @@ Document GlobalParser::Parser::parseDocument()
 	}
 }
 
-bool GlobalParser::Parser::parseDocumentHead(vector<ParamDocument>& docHead, ConType con, const Namespace& nspace)
+bool GlobalParser::Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& nspace)
 {
 	assert(it);
 	do
@@ -188,14 +187,14 @@ bool GlobalParser::Parser::parseDocumentHead(vector<ParamDocument>& docHead, Con
 		case CHAR_CONCRETE_ENTITY:
 		{
 			++it;
-			auto ent = parseConcreteEntity(con);
+			auto ent = parseConcreteEntity();
 			docHead.push_back(ParamDocument::makeEntityConcrete(ent)); ents.addLocalSafe(move(ent));
 			break;
 		}
 		case CHAR_IMPORT:
 		{
 			++it;
-			auto import = parseImport(con);
+			auto import = parseImport();
 			docHead.push_back(move(import));
 			break;
 		}
@@ -231,7 +230,7 @@ void GlobalParser::Parser::parseScopedDocument(vector<ParamDocument>& docHead)
 		if (!parser.parserContainerEmpty())
 		{
 			ParamDocumentIncluder includer(ents, head.getParameters());
-			if (!parser.parseDocumentHead(body, CON, Namespace::getEmptyInstance()))
+			if (!parser.parseDocumentHead(body, Namespace::getEmptyInstance()))
 				throw runtime_error(ERROR_UNEXPECTED);
 		}
 		docHead.push_back(ScopedDocument{ move(head), move(body) });
@@ -250,7 +249,7 @@ void GlobalParser::Parser::parseScopedDocument(vector<ParamDocument>& docHead)
 	}
 }
 
-ImportedDocument GlobalParser::Parser::parseImport(ConType con)
+ImportedDocument GlobalParser::Parser::parseImport()
 {
 #ifdef DISABLE_IMPORT
 	throw runtime_error("this parser cannot import documents");
@@ -265,11 +264,10 @@ ImportedDocument GlobalParser::Parser::parseImport(ConType con)
 		try
 		{
 			importedDocuments.addLocalSafe(link, 0);
-			static const ConType CON = ConType::DOCUMENT;
 			SmartIterator itImported(Curl().readWebDocument(link));
 			auto parserImported = makeImportParser(itImported);
 			DocumentHead docHead;
-			if (!parserImported.parserContainerEmpty() && !parserImported.parseDocumentHead(docHead, CON, Namespace::getEmptyInstance()))
+			if (!parserImported.parserContainerEmpty() && !parserImported.parseDocumentHead(docHead, Namespace::getEmptyInstance()))
 				throw runtime_error(ERROR_UNEXPECTED);
 		}
 		catch (const exception& e)

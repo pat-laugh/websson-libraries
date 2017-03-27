@@ -10,7 +10,7 @@
 using namespace std;
 using namespace webss;
 
-Entity GlobalParser::Parser::parseConcreteEntity(ConType con)
+Entity GlobalParser::Parser::parseConcreteEntity()
 {
 	skipJunkToTag(it, Tag::NAME_START);
 	Entity ent;

@@ -128,7 +128,7 @@ TemplateHeadScoped GlobalParser::Parser::parseTemplateHeadScoped(TemplateHeadSco
 		else if (*it == CHAR_CONCRETE_ENTITY)
 		{
 			++it;
-			thead.attach(ParamScoped::makeEntityConcrete(parseConcreteEntity(CON)));
+			thead.attach(ParamScoped::makeEntityConcrete(parseConcreteEntity()));
 		}
 		else if (*it == CHAR_USING_NAMESPACE)
 		{

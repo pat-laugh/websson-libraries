@@ -97,7 +97,7 @@ namespace webss
 			};
 
 			//returns true if end of container is met, else false
-			bool parseDocumentHead(std::vector<ParamDocument>& docHead, ConType con, const Namespace& nspace);
+			bool parseDocumentHead(std::vector<ParamDocument>& docHead, const Namespace& nspace);
 
 			template <class Container, ConType::Enum CON>
 			Container parseContainer(Container&& cont, std::function<void(Container& cont, Parser& parser)> func)
@@ -118,16 +118,16 @@ namespace webss
 			Namespace parseNamespace(const std::string& name, const Namespace& previousNamespace);
 			Enum parseEnum(const std::string& name);
 			void parseScopedDocument(std::vector<ParamDocument>& docHead);
-			ImportedDocument parseImport(ConType con);
+			ImportedDocument parseImport();
 			const Namespace& GlobalParser::Parser::parseUsingNamespaceStatic();
 
 			//parserKeyValues.cpp
 			GlobalParser::Parser::NameType parseNameType();
-			Webss parseCharValue(ConType con);
+			Webss parseCharValue();
 			void addJsonKeyvalue(Dictionary& dict);
-			Webss parseValueEqual(ConType con);
+			Webss parseValueEqual();
 			OtherValue parseOtherValue();
-			OtherValue checkAbstractEntity(ConType con, const Entity& ent);
+			OtherValue checkAbstractEntity(const Entity& ent);
 			void parseOtherValue(std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Entity& abstractEntity)> funcAbstractEntity);
 			Webss parseValueOnly();
 
@@ -135,7 +135,7 @@ namespace webss
 			Webss parseNumber();
 
 			//parserStrings.cpp
-			std::string parseLineString(ConType con);
+			std::string parseLineString();
 			std::string parseMultilineString();
 			std::string parseCString();
 			void checkEscapedChar(StringBuilder& line);
@@ -143,7 +143,7 @@ namespace webss
 			const std::string& parseStringEntity();
 
 			//parserEntities.cpp
-			Entity parseConcreteEntity(ConType con);
+			Entity parseConcreteEntity();
 			Entity parseAbstractEntity(const Namespace& currentNamespace);
 			std::string parseNameSafe();
 
@@ -161,10 +161,10 @@ namespace webss
 			void parseStandardParameterTemplateHead(TemplateHeadStandard& thead);
 			void parseOtherValuesTheadStandardAfterThead(TemplateHeadStandard& thead);
 
-			Webss parseTemplate(ConType con);
+			Webss parseTemplate();
 			Webss parseTemplateText();
 			Webss parseTemplateBodyBinary(const TemplateHeadBinary::Parameters& params);
-			Webss parseTemplateBodyScoped(const TemplateHeadScoped::Parameters& params, ConType con);
+			Webss parseTemplateBodyScoped(const TemplateHeadScoped::Parameters& params);
 			Webss parseTemplateBodyStandard(const TemplateHeadStandard::Parameters& params);
 			Webss parseTemplateBodyText(const TemplateHeadStandard::Parameters& params);
 
