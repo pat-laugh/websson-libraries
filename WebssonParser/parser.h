@@ -43,10 +43,10 @@ namespace webss
 			BasicEntityManager<void*>& importedDocuments;
 			SmartIterator& it;
 			ConType con;
+			Tag nextElem;
 			bool lineGreed = false;
 			bool multiLineContainer;
 			bool allowVoid;
-			Tag nextElem;
 
 			Parser(Parser& parser, ConType con, bool allowVoid);
 
@@ -112,6 +112,7 @@ namespace webss
 
 			Tuple parseTuple();
 			List parseList();
+			List parseList2();
 			Tuple parseTupleText();
 			List parseListText();
 			Dictionary parseDictionary();
