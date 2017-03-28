@@ -34,7 +34,7 @@ public:
 	template <class Parameters>
 	Webss parseTemplateBody(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
-		switch (getTag(it))
+		switch (nextTag = getTag(it))
 		{
 		case Tag::START_DICTIONARY:
 			return parseTemplateDictionary<Parameters>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
@@ -58,7 +58,7 @@ private:
 			if (!isNameStart(*it))
 				throw runtime_error(ERROR_UNEXPECTED);
 			auto name = parser.parseNameSafe();
-			switch (getTag(it))
+			switch (nextTag = getTag(it))
 			{
 			case Tag::START_LIST:
 				dict.addSafe(move(name), parseTemplateList<Parameters>(params, move(funcTemplTupleRegular), move(funcTemplTupleText)));
@@ -80,10 +80,9 @@ private:
 	{
 		return parseContainer<List, ConType::LIST>(List(), [&](List& list, Parser& parser)
 		{
-			auto tag = getTag(it);
-			if (tag == Tag::START_TUPLE)
+			if (nextTag == Tag::START_TUPLE)
 				list.add(funcTemplTupleRegular(params));
-			else if (tag == Tag::TEXT_TUPLE)
+			else if (nextTag == Tag::TEXT_TUPLE)
 				list.add(funcTemplTupleText(params));
 			else
 				throw runtime_error(ERROR_UNEXPECTED);
@@ -133,7 +132,7 @@ private:
 					
 				}
 				++index;
-			} while (parserCheckNextElement());
+			} while (parser.parserCheckNextElement());
 		}
 		checkDefaultValues(tuple, params);
 		return tuple;
@@ -148,7 +147,7 @@ private:
 		if (!parser.parserContainerEmpty())
 			do
 				tuple.at(index++) = parser.parseLineString();
-			while (parserCheckNextElement());
+			while (parser.parserCheckNextElement());
 		checkDefaultValues(tuple, params);
 		return tuple;
 	}
@@ -160,6 +159,7 @@ Webss GlobalParser::Parser::parseTemplate()
 	switch (headWebss.getType())
 	{
 	case WebssType::BLOCK_HEAD:
+		nextTag = getTag(it);
 		return Block(move(headWebss.getBlockHead()), parseValueOnly());
 	case WebssType::TEMPLATE_HEAD_BINARY:
 	{
@@ -207,6 +207,7 @@ Webss GlobalParser::Parser::parseTemplateBodyBinary(const TemplateHeadBinary::Pa
 Webss GlobalParser::Parser::parseTemplateBodyScoped(const TemplateHeadScoped::Parameters& params)
 {
 	ParamDocumentIncluder includer(ents, params);
+	nextTag = getTag(it);
 	return parseValueOnly();
 }
 
@@ -235,6 +236,7 @@ Webss GlobalParser::Parser::parseTemplateContainer(const TemplateHeadStandard::P
 	case WebssType::TEMPLATE_HEAD_TEXT:
 		return parseTemplateBodyText(defaultValue.getTemplateHeadStandard().getParameters());
 	default:
+		nextTag = getTag(it);
 		return parseValueOnly();
 	}
 }

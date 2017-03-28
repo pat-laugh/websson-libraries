@@ -202,8 +202,7 @@ void GlobalParser::Parser::parseStandardParameterTemplateHead(TemplateHeadStanda
 
 void GlobalParser::Parser::parseOtherValuesTheadStandardAfterThead(TemplateHeadStandard& thead)
 {
-	lineGreed = true;
-	parserCheckNextElement();
+	nextTag = getTag(it);
 	parseOtherValue(
 		CaseKeyValue{ thead.attach(move(key), move(value)); },
 		CaseKeyOnly{ thead.attachEmpty(move(key)); },

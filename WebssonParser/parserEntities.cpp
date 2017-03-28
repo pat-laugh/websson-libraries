@@ -12,8 +12,8 @@ using namespace webss;
 
 Entity GlobalParser::Parser::parseConcreteEntity()
 {
-	if (!parserCheckNextElement() || nextTag != Tag::NAME_START)
-		throw runtime_error("expected name");
+	skipJunkToTag(it, Tag::NAME_START);
+	nextTag = Tag::NAME_START;
 	Entity ent;
 	parseOtherValue(
 		CaseKeyValue{ ent = Entity(move(key), move(value)); },
@@ -27,7 +27,7 @@ Entity GlobalParser::Parser::parseAbstractEntity(const Namespace& currentNamespa
 {
 	skipJunkToTag(it, Tag::NAME_START);
 	auto name = parseNameSafe();
-	switch (getTag(it))
+	switch (nextTag = getTag(it))
 	{
 	case Tag::START_DICTIONARY:
 		return Entity(move(name), parseNamespace(name, currentNamespace));

@@ -37,7 +37,7 @@ GlobalParser::Parser::Parser(Parser& parser, ConType con, bool allowVoid)
 	multiLineContainer = checkLineEmpty(++it);
 }
 
-const char* ERROR_VOID_2 = "can't have void element"; //to avoid linker error
+const char* ERROR_VOID = "can't have void element"; //to avoid linker error
 
 bool GlobalParser::Parser::parserContainerEmpty()
 {
@@ -51,7 +51,7 @@ bool GlobalParser::Parser::parserContainerEmpty()
 		throw runtime_error(ERROR_UNEXPECTED);
 	case Tag::SEPARATOR:
 		if (!allowVoid)
-			throw runtime_error(ERROR_VOID_2);
+			throw runtime_error(ERROR_VOID);
 		break;
 	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
 		if (con.isEnd(*it))
@@ -92,7 +92,7 @@ bool GlobalParser::Parser::parserCheckNextElement()
 			throw runtime_error(ERROR_UNEXPECTED);
 		case Tag::SEPARATOR:
 			if (!allowVoid)
-				throw runtime_error(ERROR_VOID_2);
+				throw runtime_error(ERROR_VOID);
 			break;
 		case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
 			if (con.isEnd(*it))

@@ -247,6 +247,7 @@ ImportedDocument GlobalParser::Parser::parseImport()
 #ifdef DISABLE_IMPORT
 	throw runtime_error("this parser cannot import documents");
 #else
+	nextTag = getTag(it);
 	auto importName = parseValueOnly();
 	if (!importName.isString())
 		throw runtime_error("import must reference a string");

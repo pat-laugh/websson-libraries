@@ -89,7 +89,10 @@ void GlobalParser::Parser::addJsonKeyvalue(Dictionary& dict)
 Webss GlobalParser::Parser::parseValueEqual()
 {
 	if (*skipJunkToValid(it) != CHAR_EQUAL)
+	{
+		nextTag = getTag(it);
 		return parseValueOnly();
+	}
 	throw runtime_error("expected value-only not starting with an equal sign");
 }
 
@@ -114,7 +117,7 @@ GlobalParser::Parser::OtherValue GlobalParser::Parser::parseOtherValue()
 		switch (nameType.type)
 		{
 		case NameType::NAME:
-			PatternLineGreed(it && isKeyChar(*it), return OtherValue(move(nameType.name), parseCharValue()), return{ move(nameType.name) })
+			PatternLineGreed(it && isKeyChar(*it), nextTag = getTag(it); return OtherValue(move(nameType.name), parseCharValue()), return{ move(nameType.name) })
 		case NameType::KEYWORD:
 			return{ nameType.keyword };
 		case NameType::ENTITY_ABSTRACT:
@@ -136,6 +139,7 @@ GlobalParser::Parser::OtherValue GlobalParser::Parser::checkAbstractEntity(const
 	switch (content.getTypeSafe())
 	{
 	case WebssType::BLOCK_HEAD:
+		nextTag = getTag(it);
 		return{ Block(ent, parseValueOnly()) };
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadBinary(ent), parseTemplateBodyBinary(content.getTemplateHeadBinarySafe().getParameters())) }, break)
@@ -175,8 +179,6 @@ void GlobalParser::Parser::parseOtherValue(std::function<void(string&& key, Webs
 
 Webss GlobalParser::Parser::parseValueOnly()
 {
-	if (!parserCheckNextElement())
-		throw runtime_error("expected value");
 	auto otherValue = parseOtherValue();
 	if (otherValue.type != OtherValue::VALUE_ONLY)
 		throw runtime_error("expected value-only");
