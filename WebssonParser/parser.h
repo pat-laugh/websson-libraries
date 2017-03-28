@@ -43,7 +43,7 @@ namespace webss
 			BasicEntityManager<void*>& importedDocuments;
 			SmartIterator& it;
 			ConType con;
-			Tag nextElem;
+			Tag nextTag;
 			bool lineGreed = false;
 			bool multiLineContainer;
 			bool allowVoid;

@@ -41,7 +41,7 @@ const char* ERROR_VOID_2 = "can't have void element"; //to avoid linker error
 
 bool GlobalParser::Parser::parserContainerEmpty()
 {
-	switch (nextElem = getTag(it))
+	switch (nextTag = getTag(it))
 	{
 	case Tag::NONE:
 		if (con.hasEndChar())
@@ -73,7 +73,7 @@ bool GlobalParser::Parser::parserCheckNextElement()
 	else
 		lineGreed = false;
 
-	switch (nextElem = getTag(it))
+	switch (nextTag = getTag(it))
 	{
 	case Tag::NONE:
 		if (con.hasEndChar())
@@ -82,7 +82,7 @@ bool GlobalParser::Parser::parserCheckNextElement()
 	case Tag::UNKNOWN:
 		throw runtime_error(ERROR_UNEXPECTED);
 	case Tag::SEPARATOR:
-		switch (nextElem = getTag(++it))
+		switch (nextTag = getTag(++it))
 		{
 		case Tag::NONE:
 			if (con.hasEndChar())
