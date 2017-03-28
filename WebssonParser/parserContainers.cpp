@@ -134,6 +134,7 @@ Namespace GlobalParser::Parser::parseNamespace(const string& name, const Namespa
 		}
 	});
 }
+
 Enum GlobalParser::Parser::parseEnum(const string& name)
 {
 	return parseContainer<Enum, ConType::LIST>(Enum(name), [&](Enum& tEnum, Parser& parser)
@@ -212,8 +213,6 @@ void GlobalParser::Parser::parseScopedDocument(vector<ParamDocument>& docHead)
 {
 	if (*skipJunkToValid(it) == OPEN_TEMPLATE)
 	{
-		++it;
-
 		Parser parserHead(*this, ConType::TEMPLATE_HEAD, false);
 		if (parserHead.parserContainerEmpty())
 			throw runtime_error("can't have empty scoped document head");
@@ -222,7 +221,6 @@ void GlobalParser::Parser::parseScopedDocument(vector<ParamDocument>& docHead)
 
 		skipJunkToTag(it, Tag::START_DICTIONARY);
 		DocumentHead body;
-		++it;
 
 		Parser parser(*this, ConType::DICTIONARY, false);
 		if (!parser.parserContainerEmpty())

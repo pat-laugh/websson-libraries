@@ -102,7 +102,6 @@ namespace webss
 			template <class Container, ConType::Enum CON>
 			Container parseContainer(Container&& cont, std::function<void(Container& cont, Parser& parser)> func)
 			{
-				++it;
 				Parser parser(*this, CON, false);
 				if (!parser.parserContainerEmpty())
 					do

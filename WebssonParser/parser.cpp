@@ -34,7 +34,7 @@ GlobalParser::Parser::Parser(Parser& parser, ConType con, bool allowVoid)
 	: ents(parser.ents), importedDocuments(parser.importedDocuments), it(parser.it)
 	, con(con), allowVoid(allowVoid)
 {
-	multiLineContainer = checkLineEmpty(it);
+	multiLineContainer = checkLineEmpty(++it);
 }
 
 const char* ERROR_VOID_2 = "can't have void element"; //to avoid linker error

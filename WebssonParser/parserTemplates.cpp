@@ -92,7 +92,6 @@ private:
 
 	Tuple parseTemplateTupleStandard(const TemplateHeadStandard::Parameters& params)
 	{
-		++it;
 		Tuple tuple(params.getSharedKeys());
 		Tuple::size_type index = 0;
 		Parser parser(*this, ConType::TUPLE, true);
@@ -143,7 +142,6 @@ private:
 	template <class Parameters>
 	Tuple parseTemplateTupleText(const Parameters& params)
 	{
-		++it;
 		Tuple tuple(params.getSharedKeys());
 		Tuple::size_type index = 0;
 		Parser parser(*this, ConType::TUPLE, true);

@@ -40,7 +40,6 @@ void GlobalParser::Parser::parseBinaryHead(TemplateHeadBinary& thead)
 	else if (*it == OPEN_LIST)
 	{
 		bhead = Bhead(Bhead::Type::EMPTY);
-		++it;
 		blist = Blist(parseBinarySizeList());
 	}
 	else
@@ -85,13 +84,10 @@ void GlobalParser::Parser::parseBinaryHead(TemplateHeadBinary& thead)
 			}
 		}
 
-		if (*skipJunkToValid(it) != OPEN_LIST)
-			blist = Blist(Blist::Type::ONE);
-		else
-		{
-			++it;
+		if (*skipJunkToValid(it) == OPEN_LIST)
 			blist = Blist(parseBinarySizeList());
-		}
+		else
+			blist = Blist(Blist::Type::ONE);
 	}
 
 	skipJunkToTag(it, Tag::END_TUPLE);

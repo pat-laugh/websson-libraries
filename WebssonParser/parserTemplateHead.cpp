@@ -13,7 +13,6 @@ const char ERROR_BINARY_TEMPLATE[] = "all values in a binary template must be bi
 
 Webss GlobalParser::Parser::parseTemplateHead()
 {
-	++it;
 	Parser parser(*this, ConType::TEMPLATE_HEAD, false);
 	if (parser.parserContainerEmpty())
 		return BlockHead();
