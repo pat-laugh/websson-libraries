@@ -65,7 +65,6 @@ Webss GlobalParser::Parser::parseCharValue()
 	case Tag::TEXT_LIST: return{ parseListText(), true };
 	case Tag::TEXT_TUPLE: return{ parseTupleText(), true };
 	case Tag::TEXT_TEMPLATE: return parseTemplateText();
-	default: throw runtime_error(ERROR_UNEXPECTED);
 	}
 }
 
@@ -109,7 +108,7 @@ GlobalParser::Parser::OtherValue GlobalParser::Parser::parseOtherValue()
 {
 	if (isKeyChar(*it))
 		return parseCharValue();
-	else if (isNameStart(*it))
+	else if (nextTag == Tag::NAME_START)
 	{
 		auto nameType = parseNameType();
 		switch (nameType.type)
@@ -126,9 +125,9 @@ GlobalParser::Parser::OtherValue GlobalParser::Parser::parseOtherValue()
 			assert(false); throw domain_error("");
 		}
 	}
-	else if (isNumberStart(*it))
-		return{ parseNumber() };
-	throw runtime_error(ERROR_UNEXPECTED);
+	else if (nextTag == Tag::NUMBER_START)
+		return parseNumber();
+	throw runtime_error(nextTag == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
 }
 
 GlobalParser::Parser::OtherValue GlobalParser::Parser::checkAbstractEntity(const Entity& ent)
@@ -176,7 +175,8 @@ void GlobalParser::Parser::parseOtherValue(std::function<void(string&& key, Webs
 
 Webss GlobalParser::Parser::parseValueOnly()
 {
-	skipJunkToValid(it);
+	if (!parserCheckNextElement())
+		throw runtime_error("expected value");
 	auto otherValue = parseOtherValue();
 	if (otherValue.type != OtherValue::VALUE_ONLY)
 		throw runtime_error("expected value-only");

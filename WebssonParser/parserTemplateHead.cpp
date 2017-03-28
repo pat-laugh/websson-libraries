@@ -17,17 +17,15 @@ Webss GlobalParser::Parser::parseTemplateHead()
 	if (parser.parserContainerEmpty())
 		return BlockHead();
 
-	switch (*it)
+	switch (nextTag)
 	{
-	case OPEN_TEMPLATE: case CHAR_COLON:
+	case Tag::START_TEMPLATE: case Tag::TEXT_TEMPLATE:
 		return parser.parseTemplateHeadStandard();
-	case OPEN_TUPLE:
+	case Tag::START_TUPLE:
 		return parser.parseTemplateHeadBinary();
-	case CHAR_CONCRETE_ENTITY: case CHAR_ABSTRACT_ENTITY: case CHAR_USING_NAMESPACE:
+	case Tag::ENTITY_ABSTRACT: case Tag::ENTITY_CONCRETE: case Tag::USING_NAMESPACE:
 		return parser.parseTemplateHeadScoped();
-	case OPEN_DICTIONARY:
-		throw runtime_error(ERROR_UNEXPECTED);
-	case CHAR_SELF:
+	case Tag::SELF:
 		skipJunkToTag(++it, Tag::END_TEMPLATE);
 		++it;
 		return TemplateHeadSelf();
@@ -93,7 +91,7 @@ TemplateHeadBinary GlobalParser::Parser::parseTemplateHeadBinary(TemplateHeadBin
 {
 	assert(it);
 	do
-		if (*it == OPEN_TUPLE)
+		if (nextTag == Tag::START_TUPLE)
 			parseBinaryHead(thead);
 		else
 			parseOtherValue(
@@ -114,18 +112,17 @@ TemplateHeadScoped GlobalParser::Parser::parseTemplateHeadScoped(TemplateHeadSco
 {
 	assert(it);
 	do
-		if (*it == CHAR_ABSTRACT_ENTITY)
+		if (nextTag == Tag::ENTITY_ABSTRACT)
 		{
 			++it;
 			thead.attach(ParamScoped::makeEntityAbstract(parseAbstractEntity(Namespace::getEmptyInstance())));
 		}
-			
-		else if (*it == CHAR_CONCRETE_ENTITY)
+		else if (nextTag == Tag::ENTITY_CONCRETE)
 		{
 			++it;
 			thead.attach(ParamScoped::makeEntityConcrete(parseConcreteEntity()));
 		}
-		else if (*it == CHAR_USING_NAMESPACE)
+		else if (nextTag == Tag::USING_NAMESPACE)
 		{
 			++it;
 			thead.attach(ParamScoped(parseUsingNamespaceStatic()));
@@ -149,14 +146,10 @@ TemplateHeadStandard GlobalParser::Parser::parseTemplateHeadStandard(TemplateHea
 {
 	assert(it);
 	do
-		if (*it == OPEN_TEMPLATE)
+		if (nextTag == Tag::START_TEMPLATE)
 			parseStandardParameterTemplateHead(thead);
-		else if (*it == CHAR_COLON)
+		else if (nextTag == Tag::TEXT_TEMPLATE)
 		{
-			if (++it != CHAR_COLON)
-				throw runtime_error(webss_ERROR_EXPECTED_CHAR(CHAR_COLON));
-			skipJunkToTag(++it, Tag::START_TEMPLATE);
-
 			auto head = parseTemplateHeadText();
 			parseOtherValuesTheadStandardAfterThead(thead);
 			thead.back().setTemplateHead(move(head), true);
@@ -209,6 +202,8 @@ void GlobalParser::Parser::parseStandardParameterTemplateHead(TemplateHeadStanda
 
 void GlobalParser::Parser::parseOtherValuesTheadStandardAfterThead(TemplateHeadStandard& thead)
 {
+	lineGreed = true;
+	parserCheckNextElement();
 	parseOtherValue(
 		CaseKeyValue{ thead.attach(move(key), move(value)); },
 		CaseKeyOnly{ thead.attachEmpty(move(key)); },

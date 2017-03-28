@@ -12,7 +12,8 @@ using namespace webss;
 
 Entity GlobalParser::Parser::parseConcreteEntity()
 {
-	skipJunkToTag(it, Tag::NAME_START);
+	if (!parserCheckNextElement() || nextTag != Tag::NAME_START)
+		throw runtime_error("expected name");
 	Entity ent;
 	parseOtherValue(
 		CaseKeyValue{ ent = Entity(move(key), move(value)); },
