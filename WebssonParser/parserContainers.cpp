@@ -63,10 +63,7 @@ Dictionary GlobalParser::Parser::parseDictionary()
 	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict, Parser& parser)
 	{
 		if (nextTag == Tag::C_STRING)
-		{
-			++it;
 			parser.addJsonKeyvalue(dict);
-		}
 		else
 			parser.parseOtherValue(
 				CaseKeyValue{ dict.addSafe(move(key), move(value)); },

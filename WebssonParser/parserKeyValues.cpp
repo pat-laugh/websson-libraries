@@ -52,7 +52,7 @@ scopeLoop:
 
 Webss GlobalParser::Parser::parseCharValue()
 {
-	switch (getTag(it))
+	switch (nextTag)
 	{
 	case Tag::START_DICTIONARY: return parseDictionary();
 	case Tag::START_LIST: return parseList();
@@ -73,7 +73,7 @@ void GlobalParser::Parser::addJsonKeyvalue(Dictionary& dict)
 {
 	try
 	{
-		skipJunkToTag(it, Tag::NAME_START);
+		skipJunkToTag(++it, Tag::NAME_START);
 		auto name = parseNameSafe();
 		skipJunkToTag(it, Tag::C_STRING);
 		if (*skipJunkToValid(++it) != CHAR_COLON)
