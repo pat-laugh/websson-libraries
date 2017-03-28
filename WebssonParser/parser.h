@@ -110,11 +110,11 @@ namespace webss
 				return move(cont);
 			}
 
+			Dictionary parseDictionary();
 			List parseList();
 			Tuple parseTuple();
-			Tuple parseTupleText();
 			List parseListText();
-			Dictionary parseDictionary();
+			Tuple parseTupleText();
 			Namespace parseNamespace(const std::string& name, const Namespace& previousNamespace);
 			Enum parseEnum(const std::string& name);
 			void parseScopedDocument(std::vector<ParamDocument>& docHead);

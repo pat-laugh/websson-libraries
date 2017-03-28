@@ -26,6 +26,7 @@ WebssBinarySize checkBinarySize(WebssInt sizeInt);
 
 void GlobalParser::Parser::parseBinaryHead(TemplateHeadBinary& thead)
 {
+	++it;
 	using Bhead = ParamBinary::SizeHead;
 	using Blist = ParamBinary::SizeList;
 
@@ -70,7 +71,6 @@ void GlobalParser::Parser::parseBinaryHead(TemplateHeadBinary& thead)
 			bhead = Bhead(checkBinarySize(parseNumber().getIntSafe()));
 		else if (*it == OPEN_TEMPLATE)
 		{
-			++it;
 			auto headWebss = parseTemplateHead();
 			switch (headWebss.getType())
 			{
@@ -115,6 +115,7 @@ void GlobalParser::Parser::parseBinaryHead(TemplateHeadBinary& thead)
 //entry point from parserTemplates
 Tuple GlobalParser::Parser::parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params)
 {
+	++it;
 	auto tuple = parseBinaryTemplate(it, params);
 	if (it != CLOSE_TUPLE)
 		throw runtime_error(webss_ERROR_EXPECTED_CHAR(CLOSE_TUPLE));

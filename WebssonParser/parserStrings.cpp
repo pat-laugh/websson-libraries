@@ -69,7 +69,7 @@ string GlobalParser::Parser::parseLineString()
 string GlobalParser::Parser::parseMultilineString()
 {
 	StringBuilder text;
-	if (*skipJunkToValid(it) == CLOSE_DICTIONARY)
+	if (*skipJunkToValid(++it) == CLOSE_DICTIONARY)
 		return text;
 
 	int countStartEnd = 1;
@@ -114,6 +114,7 @@ loopStart:
 
 string GlobalParser::Parser::parseCString()
 {
+	++it;
 	StringBuilder cstr;
 	while (it)
 	{

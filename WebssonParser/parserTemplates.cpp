@@ -37,16 +37,12 @@ public:
 		switch (getTag(it))
 		{
 		case Tag::START_DICTIONARY:
-			++it;
 			return parseTemplateDictionary<Parameters>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
 		case Tag::START_LIST:
-			++it;
 			return parseTemplateList<Parameters>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
 		case Tag::START_TUPLE:
-			++it;
 			return funcTemplTupleRegular(params);
 		case Tag::TEXT_TUPLE:
-			++it;
 			return funcTemplTupleText(params);
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
@@ -57,6 +53,7 @@ private:
 	template <class Parameters>
 	Dictionary parseTemplateDictionary(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
+		++it;
 		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict, Parser& parser)
 		{
 			if (!isNameStart(*it))
@@ -65,15 +62,12 @@ private:
 			switch (getTag(it))
 			{
 			case Tag::START_LIST:
-				++it;
 				dict.addSafe(move(name), parseTemplateList<Parameters>(params, move(funcTemplTupleRegular), move(funcTemplTupleText)));
 				break;
 			case Tag::START_TUPLE:
-				++it;
 				dict.addSafe(move(name), funcTemplTupleRegular(params));
 				break;
 			case Tag::TEXT_TUPLE:
-				++it;
 				dict.addSafe(move(name), funcTemplTupleText(params));
 				break;
 			default:
@@ -85,19 +79,14 @@ private:
 	template <class Parameters>
 	List parseTemplateList(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
+		++it;
 		return parseContainer<List, ConType::LIST>(List(), [&](List& list, Parser& parser)
 		{
 			auto tag = getTag(it);
 			if (tag == Tag::START_TUPLE)
-			{
-				++it;
 				list.add(funcTemplTupleRegular(params));
-			}
 			else if (tag == Tag::TEXT_TUPLE)
-			{
-				++it;
 				list.add(funcTemplTupleText(params));
-			}
 			else
 				throw runtime_error(ERROR_UNEXPECTED);
 		});
@@ -105,6 +94,7 @@ private:
 
 	Tuple parseTemplateTupleStandard(const TemplateHeadStandard::Parameters& params)
 	{
+		++it;
 		Tuple tuple(params.getSharedKeys());
 		Tuple::size_type index = 0;
 		Parser parser(*this, ConType::TUPLE, true);
@@ -155,6 +145,7 @@ private:
 	template <class Parameters>
 	Tuple parseTemplateTupleText(const Parameters& params)
 	{
+		++it;
 		Tuple tuple(params.getSharedKeys());
 		Tuple::size_type index = 0;
 		Parser parser(*this, ConType::TUPLE, true);

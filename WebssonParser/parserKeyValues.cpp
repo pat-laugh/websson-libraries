@@ -54,17 +54,17 @@ Webss GlobalParser::Parser::parseCharValue()
 {
 	switch (getTag(it))
 	{
-	case Tag::START_DICTIONARY: ++it; return parseDictionary();
-	case Tag::START_LIST: ++it; return parseList();
-	case Tag::START_TUPLE: ++it; return parseTuple();
-	case Tag::START_TEMPLATE: ++it; return parseTemplate();
+	case Tag::START_DICTIONARY: return parseDictionary();
+	case Tag::START_LIST: return parseList();
+	case Tag::START_TUPLE: return parseTuple();
+	case Tag::START_TEMPLATE: return parseTemplate();
 	case Tag::LINE_STRING: ++it; return parseLineString();
 	case Tag::EQUAL: ++it; return parseValueEqual();
-	case Tag::C_STRING: ++it; return parseCString();
-	case Tag::TEXT_DICTIONARY: ++it; return parseMultilineString();
-	case Tag::TEXT_LIST: ++it; return{ parseListText(), true };
-	case Tag::TEXT_TUPLE: ++it; return{ parseTupleText(), true };
-	case Tag::TEXT_TEMPLATE: ++it; return parseTemplateText();
+	case Tag::C_STRING: return parseCString();
+	case Tag::TEXT_DICTIONARY: return parseMultilineString();
+	case Tag::TEXT_LIST: return{ parseListText(), true };
+	case Tag::TEXT_TUPLE: return{ parseTupleText(), true };
+	case Tag::TEXT_TEMPLATE: return parseTemplateText();
 	default: throw runtime_error(ERROR_UNEXPECTED);
 	}
 }

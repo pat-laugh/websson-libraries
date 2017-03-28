@@ -29,16 +29,12 @@ Entity GlobalParser::Parser::parseAbstractEntity(const Namespace& currentNamespa
 	switch (getTag(it))
 	{
 	case Tag::START_DICTIONARY:
-		++it;
 		return Entity(move(name), parseNamespace(name, currentNamespace));
 	case Tag::START_LIST:
-		++it;
 		return Entity(move(name), parseEnum(name));
 	case Tag::START_TEMPLATE:
-		++it;
 		return Entity(move(name), parseTemplateHead());
 	case Tag::TEXT_TEMPLATE:
-		++it;
 		return Entity(move(name), Webss(parseTemplateHeadText(), true));
 	default:
 		throw runtime_error(ERROR_UNEXPECTED);

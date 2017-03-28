@@ -13,6 +13,7 @@ const char ERROR_BINARY_TEMPLATE[] = "all values in a binary template must be bi
 
 Webss GlobalParser::Parser::parseTemplateHead()
 {
+	++it;
 	Parser parser(*this, ConType::TEMPLATE_HEAD, false);
 	if (parser.parserContainerEmpty())
 		return BlockHead();
@@ -94,10 +95,7 @@ TemplateHeadBinary GlobalParser::Parser::parseTemplateHeadBinary(TemplateHeadBin
 	assert(it);
 	do
 		if (*it == OPEN_TUPLE)
-		{
-			++it;
 			parseBinaryHead(thead);
-		}
 		else
 			parseOtherValue(
 				CaseKeyValue{ throw runtime_error(ERROR_BINARY_TEMPLATE); },
@@ -160,7 +158,6 @@ TemplateHeadStandard GlobalParser::Parser::parseTemplateHeadStandard(TemplateHea
 				throw runtime_error(webss_ERROR_EXPECTED_CHAR(CHAR_COLON));
 			skipJunkToTag(++it, Tag::START_TEMPLATE);
 
-			++it;
 			auto head = parseTemplateHeadText();
 			parseOtherValuesTheadStandardAfterThead(thead);
 			thead.back().setTemplateHead(move(head), true);
@@ -184,7 +181,6 @@ TemplateHeadStandard GlobalParser::Parser::parseTemplateHeadStandard(TemplateHea
 
 void GlobalParser::Parser::parseStandardParameterTemplateHead(TemplateHeadStandard& thead)
 {
-	++it;
 	auto headWebss = parseTemplateHead();
 	parseOtherValuesTheadStandardAfterThead(thead);
 	auto& lastParam = thead.back();
