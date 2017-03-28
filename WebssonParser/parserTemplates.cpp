@@ -53,7 +53,6 @@ private:
 	template <class Parameters>
 	Dictionary parseTemplateDictionary(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
-		++it;
 		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict, Parser& parser)
 		{
 			if (!isNameStart(*it))
@@ -79,7 +78,6 @@ private:
 	template <class Parameters>
 	List parseTemplateList(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
-		++it;
 		return parseContainer<List, ConType::LIST>(List(), [&](List& list, Parser& parser)
 		{
 			auto tag = getTag(it);

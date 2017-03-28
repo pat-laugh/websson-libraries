@@ -60,7 +60,6 @@ string getItCurrentChar(SmartIterator& it)
 
 Dictionary GlobalParser::Parser::parseDictionary()
 {
-	++it;
 	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict, Parser& parser)
 	{
 		if (nextTag == Tag::C_STRING)
@@ -79,7 +78,6 @@ Dictionary GlobalParser::Parser::parseDictionary()
 
 List GlobalParser::Parser::parseList()
 {
-	++it;
 	return parseContainer<List, ConType::LIST>(List(), [&](List& list, Parser& parser)
 	{
 		list.add(parser.parseValueOnly());
@@ -88,7 +86,6 @@ List GlobalParser::Parser::parseList()
 
 Tuple GlobalParser::Parser::parseTuple()
 {
-	++it;
 	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple, Parser& parser)
 	{
 		parser.parseOtherValue(
@@ -101,7 +98,6 @@ Tuple GlobalParser::Parser::parseTuple()
 
 List GlobalParser::Parser::parseListText()
 {
-	++it;
 	return parseContainer<List, ConType::LIST>(List(), [&](List& list, Parser& parser)
 	{
 		list.add(parser.parseLineString());
@@ -109,7 +105,6 @@ List GlobalParser::Parser::parseListText()
 }
 Tuple GlobalParser::Parser::parseTupleText()
 {
-	++it;
 	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple, Parser& parser)
 	{
 		tuple.add(parser.parseLineString());
@@ -118,7 +113,6 @@ Tuple GlobalParser::Parser::parseTupleText()
 
 Namespace GlobalParser::Parser::parseNamespace(const string& name, const Namespace& previousNamespace)
 {
-	++it;
 	return parseContainer<Namespace, ConType::DICTIONARY>(Namespace(name, previousNamespace), [&](Namespace& nspace, Parser& parser)
 	{
 		switch (*it)
@@ -142,7 +136,6 @@ Namespace GlobalParser::Parser::parseNamespace(const string& name, const Namespa
 }
 Enum GlobalParser::Parser::parseEnum(const string& name)
 {
-	++it;
 	return parseContainer<Enum, ConType::LIST>(Enum(name), [&](Enum& tEnum, Parser& parser)
 	{
 		parser.parseOtherValue(
