@@ -60,12 +60,12 @@ string getItCurrentChar(SmartIterator& it)
 
 Dictionary GlobalParser::Parser::parseDictionary()
 {
-	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict, Parser& parser)
+	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
 	{
 		if (nextTag == Tag::C_STRING)
-			parser.addJsonKeyvalue(dict);
+			addJsonKeyvalue(dict);
 		else
-			parser.parseOtherValue(
+			parseOtherValue(
 				CaseKeyValue{ dict.addSafe(move(key), move(value)); },
 				ErrorKeyOnly(ERROR_INPUT_DICTIONARY),
 				ErrorValueOnly(ERROR_INPUT_DICTIONARY),
@@ -75,17 +75,17 @@ Dictionary GlobalParser::Parser::parseDictionary()
 
 List GlobalParser::Parser::parseList()
 {
-	return parseContainer<List, ConType::LIST>(List(), [&](List& list, Parser& parser)
+	return parseContainer<List, ConType::LIST>(List(), [&](List& list)
 	{
-		list.add(parser.parseValueOnly());
+		list.add(parseValueOnly());
 	});
 }
 
 Tuple GlobalParser::Parser::parseTuple()
 {
-	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple, Parser& parser)
+	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple)
 	{
-		parser.parseOtherValue(
+		parseOtherValue(
 			CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
 			ErrorKeyOnly(ERROR_INPUT_TUPLE),
 			CaseValueOnly{ tuple.add(move(value)); },
@@ -95,36 +95,36 @@ Tuple GlobalParser::Parser::parseTuple()
 
 List GlobalParser::Parser::parseListText()
 {
-	return parseContainer<List, ConType::LIST>(List(), [&](List& list, Parser& parser)
+	return parseContainer<List, ConType::LIST>(List(), [&](List& list)
 	{
-		list.add(parser.parseLineString());
+		list.add(parseLineString());
 	});
 }
 Tuple GlobalParser::Parser::parseTupleText()
 {
-	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple, Parser& parser)
+	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple)
 	{
-		tuple.add(parser.parseLineString());
+		tuple.add(parseLineString());
 	});
 }
 
 Namespace GlobalParser::Parser::parseNamespace(const string& name, const Namespace& previousNamespace)
 {
-	return parseContainer<Namespace, ConType::DICTIONARY>(Namespace(name, previousNamespace), [&](Namespace& nspace, Parser& parser)
+	return parseContainer<Namespace, ConType::DICTIONARY>(Namespace(name, previousNamespace), [&](Namespace& nspace)
 	{
 		switch (*it)
 		{
 		case CHAR_ABSTRACT_ENTITY:
 			++it;
-			nspace.addSafe(parser.parseAbstractEntity(nspace));
+			nspace.addSafe(parseAbstractEntity(nspace));
 			break;
 		case CHAR_CONCRETE_ENTITY:
 			++it;
-			nspace.addSafe(parser.parseConcreteEntity());
+			nspace.addSafe(parseConcreteEntity());
 			break;
 		case CHAR_SELF:
 			skipJunkToTag(++it, Tag::START_TEMPLATE);
-			nspace.addSafe(Entity(string(name), parser.parseTemplateHead()));
+			nspace.addSafe(Entity(string(name), parseTemplateHead()));
 			break;
 		default:
 			throw runtime_error(ERROR_INPUT_NAMESPACE);
@@ -134,9 +134,9 @@ Namespace GlobalParser::Parser::parseNamespace(const string& name, const Namespa
 
 Enum GlobalParser::Parser::parseEnum(const string& name)
 {
-	return parseContainer<Enum, ConType::LIST>(Enum(name), [&](Enum& tEnum, Parser& parser)
+	return parseContainer<Enum, ConType::LIST>(Enum(name), [&](Enum& tEnum)
 	{
-		parser.parseOtherValue(
+		parseOtherValue(
 			ErrorKeyValue(ERROR_INPUT_ENUM),
 			CaseKeyOnly{ tEnum.add(move(key)); },
 			ErrorValueOnly(ERROR_INPUT_ENUM),
@@ -210,20 +210,20 @@ void GlobalParser::Parser::parseScopedDocument(vector<ParamDocument>& docHead)
 {
 	if (*skipJunkToValid(it) == OPEN_TEMPLATE)
 	{
-		Parser parserHead(*this, ConType::TEMPLATE_HEAD, false);
-		if (parserHead.parserContainerEmpty())
+		ContainerSwitcher switcher1(*this, ConType::TEMPLATE_HEAD, false);
+		if (parserContainerEmpty())
 			throw runtime_error("can't have empty scoped document head");
 
-		auto head = parserHead.parseTemplateHeadScoped();
+		auto head = parseTemplateHeadScoped();
 
 		skipJunkToTag(it, Tag::START_DICTIONARY);
 		DocumentHead body;
 
-		Parser parser(*this, ConType::DICTIONARY, false);
-		if (!parser.parserContainerEmpty())
+		ContainerSwitcher switcher2(*this, ConType::DICTIONARY, false);
+		if (!parserContainerEmpty())
 		{
 			ParamDocumentIncluder includer(ents, head.getParameters());
-			if (!parser.parseDocumentHead(body, Namespace::getEmptyInstance()))
+			if (!parseDocumentHead(body, Namespace::getEmptyInstance()))
 				throw runtime_error(ERROR_UNEXPECTED);
 		}
 		docHead.push_back(ScopedDocument{ move(head), move(body) });

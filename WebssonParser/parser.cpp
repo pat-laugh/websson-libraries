@@ -30,13 +30,6 @@ GlobalParser& GlobalParser::addEntity(string&& name, Webss&& value)
 
 Document GlobalParser::parse() { return GlobalParser::Parser::parseDocument(*this); }
 
-GlobalParser::Parser::Parser(Parser& parser, ConType con, bool allowVoid)
-	: ents(parser.ents), importedDocuments(parser.importedDocuments), it(parser.it)
-	, con(con), allowVoid(allowVoid)
-{
-	multiLineContainer = checkLineEmpty(++it);
-}
-
 const char* ERROR_VOID = "can't have void element"; //to avoid linker error
 
 bool GlobalParser::Parser::parserContainerEmpty()

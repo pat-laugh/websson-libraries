@@ -53,11 +53,11 @@ private:
 	template <class Parameters>
 	Dictionary parseTemplateDictionary(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
-		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict, Parser& parser)
+		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
 		{
 			if (!isNameStart(*it))
 				throw runtime_error(ERROR_UNEXPECTED);
-			auto name = parser.parseNameSafe();
+			auto name = parseNameSafe();
 			switch (nextTag = getTag(it))
 			{
 			case Tag::START_LIST:
@@ -78,7 +78,7 @@ private:
 	template <class Parameters>
 	List parseTemplateList(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
-		return parseContainer<List, ConType::LIST>(List(), [&](List& list, Parser& parser)
+		return parseContainer<List, ConType::LIST>(List(), [&](List& list)
 		{
 			if (nextTag == Tag::START_TUPLE)
 				list.add(funcTemplTupleRegular(params));
@@ -93,18 +93,18 @@ private:
 	{
 		Tuple tuple(params.getSharedKeys());
 		Tuple::size_type index = 0;
-		Parser parser(*this, ConType::TUPLE, true);
-		if (!parser.parserContainerEmpty())
+		ContainerSwitcher switcher(*this, ConType::TUPLE, true);
+		if (!parserContainerEmpty())
 		{
 			do
 			{
 				if (!isNameStart(*it))
-					tuple.at(index) = parser.parseTemplateContainer(params, params.at(index));
+					tuple.at(index) = parseTemplateContainer(params, params.at(index));
 				else
 				{
 					auto nameType = parseNameType();
 					if (nameType.type == NameType::NAME)
-						tuple.at(nameType.name) = parser.parseTemplateContainer(params, params.at(nameType.name));
+						tuple.at(nameType.name) = parseTemplateContainer(params, params.at(nameType.name));
 					else
 					{
 						if (params.at(index).hasTemplateHead())
@@ -116,7 +116,7 @@ private:
 							break;
 						case NameType::ENTITY_ABSTRACT:
 						{
-							auto otherValue = parser.checkAbstractEntity(nameType.entity);
+							auto otherValue = checkAbstractEntity(nameType.entity);
 							if (otherValue.type != OtherValue::VALUE_ONLY)
 								throw runtime_error(ERROR_UNEXPECTED);
 							tuple.at(index) = move(otherValue.value);
@@ -132,7 +132,7 @@ private:
 					
 				}
 				++index;
-			} while (parser.parserCheckNextElement());
+			} while (parserCheckNextElement());
 		}
 		checkDefaultValues(tuple, params);
 		return tuple;
@@ -143,11 +143,11 @@ private:
 	{
 		Tuple tuple(params.getSharedKeys());
 		Tuple::size_type index = 0;
-		Parser parser(*this, ConType::TUPLE, true);
-		if (!parser.parserContainerEmpty())
+		ContainerSwitcher switcher(*this, ConType::TUPLE, true);
+		if (!parserContainerEmpty())
 			do
-				tuple.at(index++) = parser.parseLineString();
-			while (parser.parserCheckNextElement());
+				tuple.at(index++) = parseLineString();
+			while (parserCheckNextElement());
 		checkDefaultValues(tuple, params);
 		return tuple;
 	}

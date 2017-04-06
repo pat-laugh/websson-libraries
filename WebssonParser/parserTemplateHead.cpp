@@ -13,18 +13,18 @@ const char ERROR_BINARY_TEMPLATE[] = "all values in a binary template must be bi
 
 Webss GlobalParser::Parser::parseTemplateHead()
 {
-	Parser parser(*this, ConType::TEMPLATE_HEAD, false);
-	if (parser.parserContainerEmpty())
+	ContainerSwitcher switcher(*this, ConType::TEMPLATE_HEAD, false);
+	if (parserContainerEmpty())
 		return BlockHead();
 
 	switch (nextTag)
 	{
 	case Tag::START_TEMPLATE: case Tag::TEXT_TEMPLATE:
-		return parser.parseTemplateHeadStandard();
+		return parseTemplateHeadStandard();
 	case Tag::START_TUPLE:
-		return parser.parseTemplateHeadBinary();
+		return parseTemplateHeadBinary();
 	case Tag::ENTITY_ABSTRACT: case Tag::ENTITY_CONCRETE: case Tag::USING_NAMESPACE:
-		return parser.parseTemplateHeadScoped();
+		return parseTemplateHeadScoped();
 	case Tag::SELF:
 		skipJunkToTag(++it, Tag::END_TEMPLATE);
 		++it;
@@ -37,16 +37,16 @@ Webss GlobalParser::Parser::parseTemplateHead()
 	//if not, then the thead is a standard thead
 
 	TemplateHeadStandard thead;
-	auto other = parser.parseOtherValue();
-	bool isEnd = !parser.parserCheckNextElement();
+	auto other = parseOtherValue();
+	bool isEnd = !parserCheckNextElement();
 	switch (other.type)
 	{
 	case OtherValue::Type::KEY_VALUE:
 		thead.attach(move(other.key), move(other.value));
-		return isEnd ? move(thead) : parser.parseTemplateHeadStandard(move(thead));
+		return isEnd ? move(thead) : parseTemplateHeadStandard(move(thead));
 	case OtherValue::Type::KEY_ONLY:
 		thead.attachEmpty(move(other.key));
-		return isEnd ? move(thead) : parser.parseTemplateHeadStandard(move(thead));
+		return isEnd ? move(thead) : parseTemplateHeadStandard(move(thead));
 	case OtherValue::Type::ABSTRACT_ENTITY:
 		switch (other.abstractEntity.getContent().getTypeSafe())
 		{
@@ -57,19 +57,19 @@ Webss GlobalParser::Parser::parseTemplateHead()
 		case WebssType::TEMPLATE_HEAD_BINARY:
 		{
 			TemplateHeadBinary theadBinary(other.abstractEntity);
-			return isEnd ? move(theadBinary) : parser.parseTemplateHeadBinary(move(theadBinary));
+			return isEnd ? move(theadBinary) : parseTemplateHeadBinary(move(theadBinary));
 		}
 		case WebssType::TEMPLATE_HEAD_SCOPED:
 		{
 			TemplateHeadScoped theadScoped(other.abstractEntity);
-			return isEnd ? move(theadScoped) : parser.parseTemplateHeadScoped(move(theadScoped));
+			return isEnd ? move(theadScoped) : parseTemplateHeadScoped(move(theadScoped));
 		}
 		case WebssType::TEMPLATE_HEAD_STANDARD:
 			thead = TemplateHeadStandard(other.abstractEntity);
-			return isEnd ? move(thead) : parser.parseTemplateHeadStandard(move(thead));
+			return isEnd ? move(thead) : parseTemplateHeadStandard(move(thead));
 		case WebssType::TEMPLATE_HEAD_TEXT:
 			thead = TemplateHeadStandard(other.abstractEntity);
-			return isEnd ? Webss(move(thead), true) : Webss(parser.parseTemplateHeadStandard(move(thead)), true);
+			return isEnd ? Webss(move(thead), true) : Webss(parseTemplateHeadStandard(move(thead)), true);
 		default:
 			throw runtime_error("unexpected entity type within thead: " + other.abstractEntity.getContent().getTypeSafe().toString());
 		}

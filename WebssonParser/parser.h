@@ -32,7 +32,7 @@ namespace webss
 			static Document parseDocument(GlobalParser& globalParser)
 			{
 				Parser parser(globalParser, ConType::DOCUMENT);
-				parser.multiLineContainer = true;
+				parser.multilineContainer = true;
 				return parser.parseDocument();
 			}
 		public:
@@ -42,13 +42,61 @@ namespace webss
 			BasicEntityManager<Webss>& ents;
 			BasicEntityManager<void*>& importedDocuments;
 			SmartIterator& it;
-			ConType con;
 			Tag nextTag;
-			bool lineGreed = false;
-			bool multiLineContainer;
+			ConType con;
+			bool multilineContainer;
 			bool allowVoid;
+			bool lineGreed = false;
 
-			Parser(Parser& parser, ConType con, bool allowVoid);
+			class ContainerSwitcher
+			{
+			private:
+				Parser& parser;
+				ConType oldCon;
+				bool oldAllowVoid;
+				bool oldMultilineContainer;
+			public:
+				ContainerSwitcher(Parser& parser, ConType newCon, bool newAllowVoid) : parser(parser), oldCon(parser.con), oldAllowVoid(parser.allowVoid), oldMultilineContainer(parser.multilineContainer)
+				{
+					parser.con = newCon;
+					parser.allowVoid = newAllowVoid;
+					parser.multilineContainer = checkLineEmpty(++parser.it);
+				}
+
+				~ContainerSwitcher()
+				{
+					parser.con = oldCon;
+					parser.allowVoid = oldAllowVoid;
+					parser.multilineContainer = oldMultilineContainer;
+				}
+			};
+
+			/*
+			class ImportSwitcher
+			{
+			private:
+				Parser& parser;
+				SmartIterator* oldIt;
+				Tag oldNextTag;
+				ConType oldCon;
+				bool oldAllowVoid;
+				bool oldMultilineContainer;
+				bool oldLineGreed;
+			public:
+				ImportSwitcher(Parser& parser, SmartIterator& newIt) : parser(parser), oldIt(parser.it), oldCon(parser.con), oldAllowVoid(parser.allowVoid), oldMultilineContainer(parser.multilineContainer)
+				{
+					parser.con = newCon;
+					parser.allowVoid = newAllowVoid;
+					parser.multilineContainer = checkLineEmpty(++parser.it);
+				}
+
+				~ImportSwitcher()
+				{
+					parser.con = oldCon;
+					parser.allowVoid = oldAllowVoid;
+					parser.multilineContainer = oldMultilineContainer;
+				}
+			};*/
 
 			//returns true if container is empty, else false
 			bool parserContainerEmpty();
@@ -100,13 +148,13 @@ namespace webss
 			bool parseDocumentHead(std::vector<ParamDocument>& docHead, const Namespace& nspace);
 
 			template <class Container, ConType::Enum CON>
-			Container parseContainer(Container&& cont, std::function<void(Container& cont, Parser& parser)> func)
+			Container parseContainer(Container&& cont, std::function<void(Container& cont)> func)
 			{
-				Parser parser(*this, CON, false);
-				if (!parser.parserContainerEmpty())
+				ContainerSwitcher switcher(*this, CON, false);
+				if (!parserContainerEmpty())
 					do
-						func(cont, parser);
-				while (parser.parserCheckNextElement());
+						func(cont);
+					while (parserCheckNextElement());
 				return move(cont);
 			}
 
