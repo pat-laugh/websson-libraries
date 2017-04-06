@@ -37,7 +37,7 @@ bool hasNextChar(SmartIterator& it, StringBuilder& line, function<bool()> endCon
 			if (isEnd(++it, endCondition))
 				return false;
 		} while (isLineJunk(*it));
-		if (*it == CHAR_COMMENT && (checkComment(it) || checkLineEscape(it)) && isEnd(it, endCondition))
+		if (checkJunkOperators(it) && isEnd(it, endCondition))
 			return false;
 		while (spaces-- > 0)
 			line += ' ';

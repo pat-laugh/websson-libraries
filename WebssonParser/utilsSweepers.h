@@ -32,12 +32,9 @@ namespace webss
 	//skips line junk and valid junk operators (line escape and comments)
 	SmartIterator& skipLineJunk(SmartIterator& it);
 
-	//if it points to a valid comment, then skips it and returns true, else returns false
-	bool checkComment(SmartIterator& it);
-
-	//if it points to a valid line escape, then skips it and returns true, else returns false
-	//throws an error if a valid line escape has an invalid operand (only line junk is allowed between '\\' and ('\n' or eof))
-	bool checkLineEscape(SmartIterator& it);
+	//if it points to a valid junk operator, then skips it and returns true, else returns false
+	//throws an error if there is a junk operator, but its operand is invalid
+	bool checkJunkOperators(SmartIterator& it);
 
 	//skips junk and valid junk operators (line escape and comments) until valid non-junk char is met
 	//throws an error if eof is met

@@ -11,9 +11,9 @@
 using namespace std;
 using namespace webss;
 
-bool checkOperators(SmartIterator& it);
 void skipLineComment(SmartIterator& it);
 void skipMultilineComment(SmartIterator& it);
+void skipLineEscape(SmartIterator& it);
 
 Tag getTagColon(SmartIterator& it)
 {
@@ -78,7 +78,7 @@ SmartIterator& webss::skipJunk(SmartIterator& it)
 	while (it)
 		if (isJunk(*it))
 			++it;
-		else if (!checkOperators(it))
+		else if (!checkJunkOperators(it))
 			break;
 	return it;
 }
@@ -90,7 +90,7 @@ SmartIterator& webss::skipLineJunk(SmartIterator& it)
 			++it;
 		else
 		{
-			checkOperators(it);
+			checkJunkOperators(it);
 			break;
 		}
 	return it;
@@ -131,42 +131,43 @@ void skipMultilineComment(SmartIterator& it)
 	throw runtime_error("multiline comment is not closed");
 }
 
-bool checkOperators(SmartIterator& it)
+void skipLineEscape(SmartIterator& it)
 {
-	if (*it == CHAR_COMMENT)
-		return checkComment(it) || checkLineEscape(it);
-	return false;
-}
-
-bool webss::checkLineEscape(SmartIterator& it)
-{
-	if (it.peekEnd() || it.peek() != '~')
-		return false;
-
-	it.incTwo();
-	
-	while (it && isLineJunk(*it))
-		++it;
+loopStart:
 	if (!it)
-		return true;
-	if (*it != '\n')
-		throw runtime_error(ERROR_UNEXPECTED);
-	skipLineJunk(++it);
-	return true;
+		return;
+	if (*it == '\n')
+	{
+		skipLineJunk(++it);
+		return;
+	}
+	if (isLineJunk(*it)) //only chars allowed between /~ and \n are line-junk
+	{
+		++it;
+		goto loopStart;
+	}
+	throw runtime_error(ERROR_UNEXPECTED);
 }
 
-bool webss::checkComment(SmartIterator& it)
+bool webss::checkJunkOperators(SmartIterator& it)
 {
-	if (it.peekEnd())
+	if (*it != CHAR_COMMENT || it.peekEnd())
 		return false;
-	
-	char c = it.peek();
-	if (c == CHAR_COMMENT)
+
+	switch (it.peek())
+	{
+	case CHAR_COMMENT:
 		skipLineComment(it.incTwo());
-	else if (c == '*')
+		break;
+	case '*':
 		skipMultilineComment(it.incTwo());
-	else
+		break;
+	case '~':
+		skipLineEscape(it.incTwo());
+		break;
+	default:
 		return false;
+	}
 	return true;
 }
 
