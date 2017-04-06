@@ -258,10 +258,9 @@ ImportedDocument GlobalParser::Parser::parseImport()
 		try
 		{
 			importedDocuments.addLocalSafe(link, 0);
-			SmartIterator itImported(Curl().readWebDocument(link));
-			auto parserImported = makeImportParser(itImported);
+			ImportSwitcher switcher(*this, SmartIterator(Curl().readWebDocument(link)));
 			DocumentHead docHead;
-			if (!parserImported.parserContainerEmpty() && !parserImported.parseDocumentHead(docHead, Namespace::getEmptyInstance()))
+			if (!parserContainerEmpty() && !parseDocumentHead(docHead, Namespace::getEmptyInstance()))
 				throw runtime_error(ERROR_UNEXPECTED);
 		}
 		catch (const exception& e)

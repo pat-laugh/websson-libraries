@@ -45,7 +45,7 @@ namespace webss
 			Tag nextTag;
 			ConType con;
 			bool multilineContainer;
-			bool allowVoid;
+			bool allowVoid = false;
 			bool lineGreed = false;
 
 			class ContainerSwitcher
@@ -71,45 +71,41 @@ namespace webss
 				}
 			};
 
-			/*
 			class ImportSwitcher
 			{
 			private:
 				Parser& parser;
-				SmartIterator* oldIt;
+				SmartIterator oldIt;
 				Tag oldNextTag;
 				ConType oldCon;
 				bool oldAllowVoid;
 				bool oldMultilineContainer;
 				bool oldLineGreed;
 			public:
-				ImportSwitcher(Parser& parser, SmartIterator& newIt) : parser(parser), oldIt(parser.it), oldCon(parser.con), oldAllowVoid(parser.allowVoid), oldMultilineContainer(parser.multilineContainer)
+				ImportSwitcher(Parser& parser, SmartIterator&& newIt) : parser(parser), oldIt(std::move(parser.it)), oldNextTag(parser.nextTag), oldCon(parser.con), oldAllowVoid(parser.allowVoid), oldMultilineContainer(parser.multilineContainer), oldLineGreed(parser.lineGreed)
 				{
-					parser.con = newCon;
-					parser.allowVoid = newAllowVoid;
-					parser.multilineContainer = checkLineEmpty(++parser.it);
+					parser.it = std::move(newIt);
+					parser.con = ConType::DOCUMENT;
+					parser.allowVoid = false;
+					parser.multilineContainer = true;
 				}
 
 				~ImportSwitcher()
 				{
+					parser.it = std::move(oldIt);
+					parser.nextTag = oldNextTag;
 					parser.con = oldCon;
 					parser.allowVoid = oldAllowVoid;
 					parser.multilineContainer = oldMultilineContainer;
+					parser.lineGreed = oldLineGreed;
 				}
-			};*/
+			};
 
 			//returns true if container is empty, else false
 			bool parserContainerEmpty();
 
 			//returns true if has next element, else false
 			bool parserCheckNextElement();
-
-			Parser makeImportParser(SmartIterator& newIt)
-			{
-				return Parser(ents, importedDocuments, newIt);
-			}
-			Parser(BasicEntityManager<Webss>& ents, BasicEntityManager<void*>& importedDocuments, SmartIterator& it)
-				: ents(ents), importedDocuments(importedDocuments), it(it), con(ConType::DOCUMENT) {}
 
 			Document parseDocument();
 
