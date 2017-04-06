@@ -32,7 +32,6 @@ namespace webss
 		ConType con = ConType::DOCUMENT;
 		bool multilineContainer = true;
 		bool allowVoid = false;
-		bool lineGreed = false;
 
 		class ContainerSwitcher
 		{
@@ -68,7 +67,7 @@ namespace webss
 			bool oldMultilineContainer;
 			bool oldLineGreed;
 		public:
-			ImportSwitcher(Parser& parser, SmartIterator&& newIt) : parser(parser), oldIt(std::move(parser.it)), oldNextTag(parser.nextTag), oldCon(parser.con), oldAllowVoid(parser.allowVoid), oldMultilineContainer(parser.multilineContainer), oldLineGreed(parser.lineGreed)
+			ImportSwitcher(Parser& parser, SmartIterator&& newIt) : parser(parser), oldIt(std::move(parser.it)), oldNextTag(parser.nextTag), oldCon(parser.con), oldAllowVoid(parser.allowVoid), oldMultilineContainer(parser.multilineContainer)
 			{
 				parser.it = std::move(newIt);
 				parser.con = ConType::DOCUMENT;
@@ -83,7 +82,6 @@ namespace webss
 				parser.con = oldCon;
 				parser.allowVoid = oldAllowVoid;
 				parser.multilineContainer = oldMultilineContainer;
-				parser.lineGreed = oldLineGreed;
 			}
 		};
 

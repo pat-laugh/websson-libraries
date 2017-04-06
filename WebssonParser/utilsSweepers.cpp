@@ -178,12 +178,6 @@ SmartIterator& webss::skipJunkToValid(SmartIterator& it)
 	return it;
 }
 
-void webss::cleanLine(SmartIterator& it, ConType con)
-{
-	if (skipLineJunk(it) && !isLineEnd(*it, con))
-		throw runtime_error(ERROR_UNEXPECTED);
-}
-
 bool webss::isLineEnd(char c, ConType con)
 {
 	return c == '\n' || c == CHAR_SEPARATOR || con.isEnd(c);

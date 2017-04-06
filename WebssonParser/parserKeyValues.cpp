@@ -21,7 +21,6 @@ else if (*it != '\n') \
 } \
 else if (!skipJunk(++it) || !(ConditionSuccess)) \
 { \
-	lineGreed = true; \
 	Failure; \
 } \
 else \

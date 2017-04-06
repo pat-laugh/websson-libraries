@@ -59,11 +59,6 @@ bool Parser::parserContainerEmpty()
 
 bool Parser::parserCheckNextElement()
 {
-	if (!lineGreed)
-		cleanLine(it, con);
-	else
-		lineGreed = false;
-
 	switch (nextTag = getTag(it))
 	{
 	case Tag::NONE:

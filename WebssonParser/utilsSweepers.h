@@ -40,10 +40,6 @@ namespace webss
 	//throws an error if eof is met
 	SmartIterator& skipJunkToValid(SmartIterator& it);
 
-	//calls skipLineJunk, then checks the char pointed by it
-	//if it is not a separator nor an end of container, an error is thrown
-	void cleanLine(SmartIterator& it, ConType con);
-
 	//return true if c is end of line, separator or end of container, else false
 	bool isLineEnd(char c, ConType con);
 
