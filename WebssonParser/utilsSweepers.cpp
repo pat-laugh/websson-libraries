@@ -133,25 +133,20 @@ void skipMultilineComment(SmartIterator& it)
 
 bool checkOperators(SmartIterator& it)
 {
-	if (*it == CHAR_ESCAPE)
-		return checkLineEscape(it);
-	else if (*it == CHAR_COMMENT)
-		return checkComment(it);
+	if (*it == CHAR_COMMENT)
+		return checkComment(it) || checkLineEscape(it);
 	return false;
 }
 
 bool webss::checkLineEscape(SmartIterator& it)
 {
-	if (it.peekEnd())
-	{
-		++it;
-		return true;
-	}
-	if (!isJunk(it.peek()))
+	if (it.peekEnd() || it.peek() != '~')
 		return false;
+
+	it.incTwo();
 	
-	while (++it && isLineJunk(*it))
-		;
+	while (it && isLineJunk(*it))
+		++it;
 	if (!it)
 		return true;
 	if (*it != '\n')

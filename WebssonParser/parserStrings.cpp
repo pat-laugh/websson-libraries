@@ -6,6 +6,7 @@
 #include "WebssonUtils/constants.h"
 #include "WebssonUtils/utils.h"
 #include "WebssonUtils/utilsWebss.h"
+#include "errors.h"
 
 using namespace std;
 using namespace webss;
@@ -36,9 +37,7 @@ bool hasNextChar(SmartIterator& it, StringBuilder& line, function<bool()> endCon
 			if (isEnd(++it, endCondition))
 				return false;
 		} while (isLineJunk(*it));
-		if (*it == CHAR_COMMENT && checkComment(it) && isEnd(it, endCondition))
-			return false;
-		else if (*it == CHAR_ESCAPE && checkLineEscape(it) && isEnd(it, endCondition))
+		if (*it == CHAR_COMMENT && (checkComment(it) || checkLineEscape(it)) && isEnd(it, endCondition))
 			return false;
 		while (spaces-- > 0)
 			line += ' ';
@@ -144,10 +143,10 @@ string Parser::parseCString()
 
 void Parser::checkEscapedChar(StringBuilder& line)
 {
-	if (checkLineEscape(it))
-		return;
+	if (!++it)
+		throw runtime_error(ERROR_EXPECTED);
 
-	switch (*(++it)) //no need to check it is valid since if not valid, would've been a line escape
+	switch (*it)
 	{
 	case 'x': case 'u': case 'U':
 		putEscapedHex(it, line);
