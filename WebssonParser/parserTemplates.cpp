@@ -77,7 +77,7 @@ private:
 	{
 		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
 		{
-			if (!isNameStart(*it))
+			if (nextTag != Tag::NAME_START)
 				throw runtime_error(ERROR_UNEXPECTED);
 			auto name = parseNameSafe();
 			switch (nextTag = getTag(it))
@@ -120,13 +120,18 @@ private:
 		{
 			do
 			{
-				if (!isNameStart(*it))
-					tuple.at(index) = parseTemplateContainer(params, params.at(index));
-				else
+				switch (nextTag)
+				{
+				case Tag::SEPARATOR: //void
+					break;
+				case Tag::NAME_START:
 				{
 					auto nameType = parseNameType();
 					if (nameType.type == NameType::NAME)
+					{
+						nextTag = getTag(it);
 						tuple.at(nameType.name) = parseTemplateContainer(params, params.at(nameType.name));
+					}
 					else
 					{
 						if (params.at(index).hasTemplateHead())
@@ -147,11 +152,13 @@ private:
 						case NameType::ENTITY_CONCRETE:
 							tuple.at(index) = move(nameType.entity);
 							break;
-						default:
-							assert(false); throw domain_error("");
 						}
 					}
-					
+					break;
+				}
+				default:
+					tuple.at(index) = parseTemplateContainer(params, params.at(index));
+					break;
 				}
 				++index;
 			} while (checkNextElement());
@@ -209,8 +216,6 @@ Webss Parser::parseTemplate()
 		auto body = parseTemplateBodyText(head.getParameters());
 		return{ move(head), move(body), true };
 	}
-	default:
-		throw logic_error("");
 	}
 }
 
@@ -258,7 +263,6 @@ Webss Parser::parseTemplateContainer(const TemplateHeadStandard::Parameters& par
 	case WebssType::TEMPLATE_HEAD_TEXT:
 		return parseTemplateBodyText(defaultValue.getTemplateHeadStandard().getParameters());
 	default:
-		nextTag = getTag(it);
 		return parseValueOnly();
 	}
 }
