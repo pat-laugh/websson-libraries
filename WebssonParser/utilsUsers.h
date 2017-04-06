@@ -4,7 +4,9 @@
 
 //utils for users
 
-#include "utilsParser.h"
+#include "WebssonStructures/webss.h"
+#include "WebssonUtils/conType.h"
+#include "WebssonUtils/iterators.h"
 #include "WebssonUtils/utilsWebss.h"
 
 namespace webss

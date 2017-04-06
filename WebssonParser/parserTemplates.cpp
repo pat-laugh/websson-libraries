@@ -4,11 +4,33 @@
 
 #include "errors.h"
 #include "patternsContainers.h"
-#include "utilsParser.h"
 #include "WebssonUtils/utilsWebss.h"
 
 using namespace std;
 using namespace webss;
+
+const char ERROR_NO_DEFAULT[] = "no default value, so value must be implemented";
+
+void setDefaultValue(Webss& value, const ParamStandard& defaultValue);
+
+template <class Parameters>
+Tuple makeDefaultTuple(const Parameters& params)
+{
+	Tuple tuple(params.getSharedKeys());
+	for (Tuple::size_type i = 0; i < params.size(); ++i)
+		setDefaultValue(tuple[i], params[i]);
+	return tuple;
+}
+
+void setDefaultValue(Webss& value, const ParamStandard& defaultValue)
+{
+	if (defaultValue.hasTemplateHead())
+		value = makeDefaultTuple(defaultValue.getTemplateHeadStandard().getParameters());
+	else if (!defaultValue.hasDefaultValue())
+		throw runtime_error(ERROR_NO_DEFAULT);
+	else
+		value = Webss(defaultValue.getDefaultPointer());
+}
 
 template <class Parameters>
 void checkDefaultValues(Tuple& tuple, const Parameters& params)
