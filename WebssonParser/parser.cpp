@@ -30,7 +30,7 @@ Parser& Parser::addEntity(string&& name, Webss&& value)
 
 const char* ERROR_VOID = "can't have void element"; //to avoid linker error
 
-bool Parser::parserContainerEmpty()
+bool Parser::containerEmpty()
 {
 	switch (nextTag = getTag(it))
 	{
@@ -57,7 +57,7 @@ bool Parser::parserContainerEmpty()
 	return false;
 }
 
-bool Parser::parserCheckNextElement()
+bool Parser::checkNextElement()
 {
 	switch (nextTag = getTag(it))
 	{

@@ -86,10 +86,10 @@ namespace webss
 		};
 
 		//returns true if container is empty, else false
-		bool parserContainerEmpty();
+		bool containerEmpty();
 
 		//returns true if has next element, else false
-		bool parserCheckNextElement();
+		bool checkNextElement();
 
 		class OtherValue
 		{
@@ -129,10 +129,10 @@ namespace webss
 		Container parseContainer(Container&& cont, std::function<void(Container& cont)> func)
 		{
 			ContainerSwitcher switcher(*this, CON, false);
-			if (!parserContainerEmpty())
+			if (!containerEmpty())
 				do
 					func(cont);
-			while (parserCheckNextElement());
+			while (checkNextElement());
 			return move(cont);
 		}
 

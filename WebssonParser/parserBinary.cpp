@@ -284,7 +284,7 @@ ParamBinary::SizeList Parser::parseBinarySizeList()
 {
 	using Blist = ParamBinary::SizeList;
 	ContainerSwitcher switcher(*this, ConType::LIST, false);
-	if (parserContainerEmpty())
+	if (containerEmpty())
 		return Blist(Blist::Type::EMPTY);
 
 	Blist blist;

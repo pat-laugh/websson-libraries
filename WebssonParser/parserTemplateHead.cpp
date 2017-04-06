@@ -14,7 +14,7 @@ const char ERROR_BINARY_TEMPLATE[] = "all values in a binary template must be bi
 Webss Parser::parseTemplateHead()
 {
 	ContainerSwitcher switcher(*this, ConType::TEMPLATE_HEAD, false);
-	if (parserContainerEmpty())
+	if (containerEmpty())
 		return BlockHead();
 
 	switch (nextTag)
@@ -38,7 +38,7 @@ Webss Parser::parseTemplateHead()
 
 	TemplateHeadStandard thead;
 	auto other = parseOtherValue();
-	bool isEnd = !parserCheckNextElement();
+	bool isEnd = !checkNextElement();
 	switch (other.type)
 	{
 	case OtherValue::Type::KEY_VALUE:
@@ -104,7 +104,7 @@ TemplateHeadBinary Parser::parseTemplateHeadBinary(TemplateHeadBinary&& thead)
 						throw runtime_error(ERROR_BINARY_TEMPLATE);
 					thead.attach(abstractEntity);
 				});
-	while (parserCheckNextElement());
+	while (checkNextElement());
 	return move(thead);
 }
 
@@ -138,7 +138,7 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 						throw runtime_error(ERROR_BINARY_TEMPLATE);
 					thead.attach(abstractEntity);
 				});
-	while (parserCheckNextElement());
+	while (checkNextElement());
 	return move(thead);
 }
 
@@ -167,7 +167,7 @@ TemplateHeadStandard Parser::parseTemplateHeadStandard(TemplateHeadStandard&& th
 					thead.attach(abstractEntity);
 				});
 		}
-	while (parserCheckNextElement());
+	while (checkNextElement());
 	return move(thead);
 }
 

@@ -149,7 +149,7 @@ Document Parser::parseDocument()
 	try
 	{
 		Document doc;
-		if (!parserContainerEmpty() && !parseDocumentHead(doc.getHead(), Namespace::getEmptyInstance()))
+		if (!containerEmpty() && !parseDocumentHead(doc.getHead(), Namespace::getEmptyInstance()))
 		{
 			do
 				parseOtherValue(
@@ -157,7 +157,7 @@ Document Parser::parseDocument()
 					ErrorKeyOnly(ERROR_INPUT_DOCUMENT),
 					CaseValueOnly{ doc.add(move(value)); },
 					ErrorAbstractEntity(ERROR_INPUT_DOCUMENT));
-			while (parserCheckNextElement());
+			while (checkNextElement());
 		}
 		return doc;
 	}
@@ -202,7 +202,7 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 		default:
 			return false;
 		}
-	} while (parserCheckNextElement());
+	} while (checkNextElement());
 	return true;
 }
 
@@ -211,7 +211,7 @@ void Parser::parseScopedDocument(vector<ParamDocument>& docHead)
 	if (*skipJunkToValid(it) == OPEN_TEMPLATE)
 	{
 		ContainerSwitcher switcher1(*this, ConType::TEMPLATE_HEAD, false);
-		if (parserContainerEmpty())
+		if (containerEmpty())
 			throw runtime_error("can't have empty scoped document head");
 
 		auto head = parseTemplateHeadScoped();
@@ -220,7 +220,7 @@ void Parser::parseScopedDocument(vector<ParamDocument>& docHead)
 		DocumentHead body;
 
 		ContainerSwitcher switcher2(*this, ConType::DICTIONARY, false);
-		if (!parserContainerEmpty())
+		if (!containerEmpty())
 		{
 			ParamDocumentIncluder includer(ents, head.getParameters());
 			if (!parseDocumentHead(body, Namespace::getEmptyInstance()))
@@ -260,7 +260,7 @@ ImportedDocument Parser::parseImport()
 			importedDocuments.addLocalSafe(link, 0);
 			ImportSwitcher switcher(*this, SmartIterator(Curl().readWebDocument(link)));
 			DocumentHead docHead;
-			if (!parserContainerEmpty() && !parseDocumentHead(docHead, Namespace::getEmptyInstance()))
+			if (!containerEmpty() && !parseDocumentHead(docHead, Namespace::getEmptyInstance()))
 				throw runtime_error(ERROR_UNEXPECTED);
 		}
 		catch (const exception& e)

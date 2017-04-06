@@ -116,7 +116,7 @@ private:
 		Tuple tuple(params.getSharedKeys());
 		Tuple::size_type index = 0;
 		ContainerSwitcher switcher(*this, ConType::TUPLE, true);
-		if (!parserContainerEmpty())
+		if (!containerEmpty())
 		{
 			do
 			{
@@ -154,7 +154,7 @@ private:
 					
 				}
 				++index;
-			} while (parserCheckNextElement());
+			} while (checkNextElement());
 		}
 		checkDefaultValues(tuple, params);
 		return tuple;
@@ -166,10 +166,10 @@ private:
 		Tuple tuple(params.getSharedKeys());
 		Tuple::size_type index = 0;
 		ContainerSwitcher switcher(*this, ConType::TUPLE, true);
-		if (!parserContainerEmpty())
+		if (!containerEmpty())
 			do
 				tuple.at(index++) = parseLineString();
-			while (parserCheckNextElement());
+			while (checkNextElement());
 		checkDefaultValues(tuple, params);
 		return tuple;
 	}
