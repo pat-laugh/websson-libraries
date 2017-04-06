@@ -11,7 +11,7 @@ using namespace webss;
 
 const char ERROR_BINARY_TEMPLATE[] = "all values in a binary template must be binary";
 
-Webss GlobalParser::Parser::parseTemplateHead()
+Webss Parser::parseTemplateHead()
 {
 	ContainerSwitcher switcher(*this, ConType::TEMPLATE_HEAD, false);
 	if (parserContainerEmpty())
@@ -78,7 +78,7 @@ Webss GlobalParser::Parser::parseTemplateHead()
 	}
 }
 
-TemplateHeadStandard GlobalParser::Parser::parseTemplateHeadText()
+TemplateHeadStandard Parser::parseTemplateHeadText()
 {
 	auto headWebss = parseTemplateHead();
 	if (headWebss.getType() == WebssType::TEMPLATE_HEAD_STANDARD || headWebss.getType() == WebssType::TEMPLATE_HEAD_TEXT)
@@ -87,7 +87,7 @@ TemplateHeadStandard GlobalParser::Parser::parseTemplateHeadText()
 		throw runtime_error("expected standard template head");
 }
 
-TemplateHeadBinary GlobalParser::Parser::parseTemplateHeadBinary(TemplateHeadBinary&& thead)
+TemplateHeadBinary Parser::parseTemplateHeadBinary(TemplateHeadBinary&& thead)
 {
 	assert(it);
 	do
@@ -108,7 +108,7 @@ TemplateHeadBinary GlobalParser::Parser::parseTemplateHeadBinary(TemplateHeadBin
 	return move(thead);
 }
 
-TemplateHeadScoped GlobalParser::Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
+TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 {
 	assert(it);
 	do
@@ -142,7 +142,7 @@ TemplateHeadScoped GlobalParser::Parser::parseTemplateHeadScoped(TemplateHeadSco
 	return move(thead);
 }
 
-TemplateHeadStandard GlobalParser::Parser::parseTemplateHeadStandard(TemplateHeadStandard&& thead)
+TemplateHeadStandard Parser::parseTemplateHeadStandard(TemplateHeadStandard&& thead)
 {
 	assert(it);
 	do
@@ -171,7 +171,7 @@ TemplateHeadStandard GlobalParser::Parser::parseTemplateHeadStandard(TemplateHea
 	return move(thead);
 }
 
-void GlobalParser::Parser::parseStandardParameterTemplateHead(TemplateHeadStandard& thead)
+void Parser::parseStandardParameterTemplateHead(TemplateHeadStandard& thead)
 {
 	auto headWebss = parseTemplateHead();
 	parseOtherValuesTheadStandardAfterThead(thead);
@@ -200,7 +200,7 @@ void GlobalParser::Parser::parseStandardParameterTemplateHead(TemplateHeadStanda
 	}
 }
 
-void GlobalParser::Parser::parseOtherValuesTheadStandardAfterThead(TemplateHeadStandard& thead)
+void Parser::parseOtherValuesTheadStandardAfterThead(TemplateHeadStandard& thead)
 {
 	nextTag = getTag(it);
 	parseOtherValue(

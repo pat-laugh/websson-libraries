@@ -9,7 +9,7 @@
 using namespace std;
 using namespace webss;
 
-Webss GlobalParser::Parser::parseNumber()
+Webss Parser::parseNumber()
 {
 	bool negative = checkNumberNegative(it);
 	auto base = checkNumberBase(it);

@@ -10,29 +10,27 @@
 using namespace std;
 using namespace webss;
 
-GlobalParser::GlobalParser() : it(SmartIterator(string(""))) {}
-GlobalParser::GlobalParser(SmartIterator&& it) : it(move(it)) {}
-GlobalParser::GlobalParser(const std::istream& in) : it(SmartIterator(in)) {}
-GlobalParser::GlobalParser(const std::stringstream& in) : it(SmartIterator(in)) {}
-GlobalParser::GlobalParser(const std::string& in) : it(SmartIterator(in)) {}
+Parser::Parser() : it(SmartIterator(string(""))) {}
+Parser::Parser(SmartIterator&& it) : it(move(it)) {}
+Parser::Parser(const std::istream& in) : it(SmartIterator(in)) {}
+Parser::Parser(const std::stringstream& in) : it(SmartIterator(in)) {}
+Parser::Parser(const std::string& in) : it(SmartIterator(in)) {}
 
-GlobalParser& GlobalParser::setIterator(SmartIterator&& it)
+Parser& Parser::setIterator(SmartIterator&& it)
 {
 	this->it = move(it);
 	return *this;
 }
 
-GlobalParser& GlobalParser::addEntity(string&& name, Webss&& value)
+Parser& Parser::addEntity(string&& name, Webss&& value)
 {
 	ents.addGlobal(move(name), move(value));
 	return *this;
 }
 
-Document GlobalParser::parse() { return GlobalParser::Parser::parseDocument(*this); }
-
 const char* ERROR_VOID = "can't have void element"; //to avoid linker error
 
-bool GlobalParser::Parser::parserContainerEmpty()
+bool Parser::parserContainerEmpty()
 {
 	switch (nextTag = getTag(it))
 	{
@@ -59,7 +57,7 @@ bool GlobalParser::Parser::parserContainerEmpty()
 	return false;
 }
 
-bool GlobalParser::Parser::parserCheckNextElement()
+bool Parser::parserCheckNextElement()
 {
 	if (!lineGreed)
 		cleanLine(it, con);
