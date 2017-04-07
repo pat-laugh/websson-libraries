@@ -115,11 +115,9 @@ Namespace Parser::parseNamespace(const string& name, const Namespace& previousNa
 		switch (*it)
 		{
 		case CHAR_ABSTRACT_ENTITY:
-			++it;
 			nspace.addSafe(parseAbstractEntity(nspace));
 			break;
 		case CHAR_CONCRETE_ENTITY:
-			++it;
 			nspace.addSafe(parseConcreteEntity());
 			break;
 		case CHAR_SELF:
@@ -179,7 +177,6 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 		{
 		case CHAR_ABSTRACT_ENTITY:
 		{
-			++it;
 			auto ent = parseAbstractEntity(nspace);
 			docHead.push_back(ParamDocument::makeEntityAbstract(ent));
 			ents.addLocalSafe(move(ent));
@@ -187,7 +184,6 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 		}
 		case CHAR_CONCRETE_ENTITY:
 		{
-			++it;
 			auto ent = parseConcreteEntity();
 			docHead.push_back(ParamDocument::makeEntityConcrete(ent));
 			ents.addLocalSafe(move(ent));

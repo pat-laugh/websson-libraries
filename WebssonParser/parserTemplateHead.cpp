@@ -118,7 +118,6 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 		{
 		case Tag::ENTITY_ABSTRACT:
 		{
-			++it;
 			auto ent = parseAbstractEntity(Namespace::getEmptyInstance());
 			containerAddSafe(entNames, string(ent.getName()));
 			thead.attach(ParamScoped::makeEntityAbstract(move(ent)));
@@ -126,7 +125,6 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 		}
 		case Tag::ENTITY_CONCRETE:
 		{
-			++it;
 			auto ent = parseConcreteEntity();
 			containerAddSafe(entNames, string(ent.getName()));
 			thead.attach(ParamScoped::makeEntityConcrete(move(ent)));
