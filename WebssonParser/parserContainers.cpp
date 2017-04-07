@@ -209,26 +209,34 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 	return true;
 }
 
+TemplateHeadScoped Parser::parseScopedDocumentHead()
+{
+	ContainerSwitcher switcher(*this, ConType::TEMPLATE_HEAD, false);
+	if (containerEmpty())
+		throw runtime_error("can't have empty scoped document head");
+	return parseTemplateHeadScoped();
+}
+
+DocumentHead Parser::parseScopedDocumentBody(const TemplateHeadScoped& head)
+{
+	DocumentHead body;
+	ContainerSwitcher switcher(*this, ConType::DICTIONARY, false);
+	if (!containerEmpty())
+	{
+		ParamDocumentIncluder includer(ents, head.getParameters());
+		if (!parseDocumentHead(body, Namespace::getEmptyInstance()))
+			throw runtime_error(ERROR_UNEXPECTED);
+	}
+	return body;
+}
+
 void Parser::parseScopedDocument(vector<ParamDocument>& docHead)
 {
 	if (*skipJunkToValid(it) == OPEN_TEMPLATE)
 	{
-		ContainerSwitcher switcher1(*this, ConType::TEMPLATE_HEAD, false);
-		if (containerEmpty())
-			throw runtime_error("can't have empty scoped document head");
-
-		auto head = parseTemplateHeadScoped();
-
+		auto head = parseScopedDocumentHead();
 		skipJunkToTag(it, Tag::START_DICTIONARY);
-		DocumentHead body;
-
-		ContainerSwitcher switcher2(*this, ConType::DICTIONARY, false);
-		if (!containerEmpty())
-		{
-			ParamDocumentIncluder includer(ents, head.getParameters());
-			if (!parseDocumentHead(body, Namespace::getEmptyInstance()))
-				throw runtime_error(ERROR_UNEXPECTED);
-		}
+		auto body = parseScopedDocumentBody(head);
 		docHead.push_back(ScopedDocument{ move(head), move(body) });
 	}
 	else

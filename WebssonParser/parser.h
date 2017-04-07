@@ -143,6 +143,8 @@ namespace webss
 		Tuple parseTupleText();
 		Namespace parseNamespace(const std::string& name, const Namespace& previousNamespace);
 		Enum parseEnum(const std::string& name);
+		TemplateHeadScoped parseScopedDocumentHead();
+		DocumentHead parseScopedDocumentBody(const TemplateHeadScoped& head);
 		void parseScopedDocument(std::vector<ParamDocument>& docHead);
 		ImportedDocument parseImport();
 		const Namespace& parseUsingNamespaceStatic();
