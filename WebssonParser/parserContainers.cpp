@@ -62,15 +62,48 @@ Dictionary Parser::parseDictionary()
 {
 	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
 	{
-		if (nextTag == Tag::C_STRING)
+		string name;
+		if (nextTag == Tag::NAME_START)
+			name = parseNameNotKeyword();
+		else if (nextTag == Tag::EXPLICIT_NAME)
+			name = parseNameExplicit();
+		else if (nextTag == Tag::C_STRING)
+		{
 			addJsonKeyvalue(dict);
+			return;
+		}
 		else
-			parseOtherValue(
-				CaseKeyValue{ dict.addSafe(move(key), move(value)); },
-				ErrorKeyOnly(ERROR_INPUT_DICTIONARY),
-				ErrorValueOnly(ERROR_INPUT_DICTIONARY),
-				ErrorAbstractEntity(ERROR_INPUT_DICTIONARY));
+			throw runtime_error(ERROR_INPUT_DICTIONARY);
+		nextTag = getTag(it);
+		dict.addSafe(move(name), parseValueOnly());
 	});
+}
+
+string Parser::parseNameJson()
+{
+	if (!++it || !isNameStart(*it))
+		throw runtime_error("expected name in supposed Json key-value");
+	string name = parseNameNotKeyword();
+	if (!it || *it != CHAR_CSTRING)
+		throw runtime_error("expected end quote in supposed Json key-value");
+	++it;
+	return name;
+}
+
+void Parser::addJsonKeyvalue(Dictionary& dict)
+{
+	try
+	{
+		auto name = parseNameJson();
+		if (*skipJunkToValid(++it) != CHAR_COLON)
+			throw runtime_error("");
+		++it;
+		dict.addSafe(move(name), parseValueEqual());
+	}
+	catch (const runtime_error&)
+	{
+		throw runtime_error("could not parse supposed Json key-value");
+	}
 }
 
 List Parser::parseList()
@@ -138,7 +171,7 @@ Enum Parser::parseEnum(const string& name)
 		if (nextTag == Tag::NAME_START)
 			name = parseNameNotKeyword();
 		else if (nextTag == Tag::EXPLICIT_NAME)
-			name = parseExplicitName();
+			name = parseNameExplicit();
 		else
 			throw runtime_error(ERROR_UNEXPECTED);
 		tEnum.addSafe(move(name));

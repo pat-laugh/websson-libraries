@@ -81,7 +81,7 @@ private:
 			if (nextTag == Tag::NAME_START)
 				name = parseNameSafe();
 			else if (nextTag == Tag::EXPLICIT_NAME)
-				name = parseExplicitName();
+				name = parseNameExplicit();
 			else
 				throw runtime_error(ERROR_UNEXPECTED);
 
@@ -163,7 +163,7 @@ private:
 				}
 				case Tag::EXPLICIT_NAME:
 				{
-					auto name = parseExplicitName();
+					auto name = parseNameExplicit();
 					nextTag = getTag(it);
 					tuple.at(name) = parseTemplateContainer(params, params.at(name));
 				}

@@ -54,24 +54,6 @@ Webss Parser::parseCharValue()
 	}
 }
 
-void Parser::addJsonKeyvalue(Dictionary& dict)
-{
-	try
-	{
-		skipJunkToTag(++it, Tag::NAME_START);
-		auto name = parseNameSafe();
-		skipJunkToTag(it, Tag::C_STRING);
-		if (*skipJunkToValid(++it) != CHAR_COLON)
-			throw runtime_error("");
-		++it;
-		dict.addSafe(move(name), parseValueEqual());
-	}
-	catch (const runtime_error&)
-	{
-		throw runtime_error("could not parse supposed Json key-value");
-	}
-}
-
 Webss Parser::parseValueEqual()
 {
 	if (*skipJunkToValid(it) != CHAR_EQUAL)
@@ -115,7 +97,7 @@ Parser::OtherValue Parser::parseOtherValue()
 		return parseNumber();
 	case Tag::EXPLICIT_NAME:
 	{
-		auto name = parseExplicitName();
+		auto name = parseNameExplicit();
 		switch (nextTag = getTag(it))
 		{
 		case CASE_TAG_KEY_CHAR:

@@ -137,6 +137,7 @@ namespace webss
 		}
 
 		Dictionary parseDictionary();
+		std::string parseNameJson();
 		List parseList();
 		Tuple parseTuple();
 		List parseListText();
@@ -175,7 +176,7 @@ namespace webss
 		Entity parseAbstractEntity(const Namespace& currentNamespace);
 		std::string parseNameSafe();
 		std::string parseNameNotKeyword();
-		std::string parseExplicitName();
+		std::string parseNameExplicit();
 
 		//parserTemplates.cpp
 		Webss parseTemplateHead();

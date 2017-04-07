@@ -12,14 +12,14 @@ using namespace webss;
 
 Entity Parser::parseConcreteEntity()
 {
-	auto name = parseExplicitName();
+	auto name = parseNameExplicit();
 	nextTag = getTag(it);
 	return Entity(move(name), parseValueOnly());
 }
 
 Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 {
-	auto name = parseExplicitName();
+	auto name = parseNameExplicit();
 	switch (nextTag = getTag(it))
 	{
 	case Tag::START_DICTIONARY:
@@ -53,7 +53,7 @@ string Parser::parseNameNotKeyword()
 	return name;
 }
 
-string Parser::parseExplicitName()
+string Parser::parseNameExplicit()
 {
 	++it;
 	return parseNameNotKeyword();
