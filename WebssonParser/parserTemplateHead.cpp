@@ -113,37 +113,64 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 	set<string> entNames, nspaceNames;
 	assert(it);
 	do
-		if (nextTag == Tag::ENTITY_ABSTRACT)
+	{
+		switch (nextTag)
+		{
+		case Tag::ENTITY_ABSTRACT:
 		{
 			++it;
 			auto ent = parseAbstractEntity(Namespace::getEmptyInstance());
 			containerAddSafe(entNames, string(ent.getName()));
 			thead.attach(ParamScoped::makeEntityAbstract(move(ent)));
+			break;
 		}
-		else if (nextTag == Tag::ENTITY_CONCRETE)
+		case Tag::ENTITY_CONCRETE:
 		{
 			++it;
 			auto ent = parseConcreteEntity();
 			containerAddSafe(entNames, string(ent.getName()));
 			thead.attach(ParamScoped::makeEntityConcrete(move(ent)));
+			break;
 		}
-		else if (nextTag == Tag::USING_NAMESPACE)
+		case Tag::USING_NAMESPACE:
 		{
 			++it;
-			thead.attach(ParamScoped(parseUsingNamespaceStatic()));
+			const Namespace& nspace = parseUsingNamespaceStatic();
+			containerAddSafe(entNames, string(nspace.getName()));
+			thead.attach(ParamScoped(nspace));
+			break;
 		}
-		else
-			parseOtherValue(
-				CaseKeyValue{ throw runtime_error(ERROR_UNEXPECTED); },
-				CaseKeyOnly{ throw runtime_error(ERROR_UNEXPECTED); },
-				CaseValueOnly{ throw runtime_error(ERROR_UNEXPECTED); },
-				CaseAbstractEntity
+		case Tag::NAME_START:
+		{
+			auto nameType = parseNameType();
+			if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isTemplateHeadScoped())
+				throw runtime_error(ERROR_UNEXPECTED);
+			for (const auto& param : nameType.entity.getContent().getTemplateHeadScopedSafe().getParameters())
+			{
+				switch (param.getType())
 				{
-					if (!abstractEntity.getContent().isTemplateHeadScoped())
-						throw runtime_error(ERROR_BINARY_TEMPLATE);
-					thead.attach(abstractEntity);
-				});
-	while (checkNextElement());
+				case ParamScoped::Type::ENTITY_ABSTRACT:
+					containerAddSafe(entNames, string(param.getAbstractEntity().getName()));
+					thead.attach(ParamScoped::makeEntityAbstract(param.getAbstractEntity()));
+					break;
+				case ParamScoped::Type::ENTITY_CONCRETE:
+					containerAddSafe(entNames, string(param.getConcreteEntity().getName()));
+					thead.attach(ParamScoped::makeEntityConcrete(param.getConcreteEntity()));
+					break;
+				case ParamScoped::Type::NAMESPACE:
+					containerAddSafe(entNames, string(param.getNamespace().getName()));
+					thead.attach(ParamScoped(param.getNamespace()));
+					break;
+				default:
+					assert(false);
+				}
+			}
+			break;
+		}
+		default:
+			throw runtime_error(ERROR_UNEXPECTED);
+		}	
+	} while (checkNextElement());
 	return move(thead);
 }
 
