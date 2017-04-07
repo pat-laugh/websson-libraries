@@ -123,7 +123,9 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 		else if (nextTag == Tag::ENTITY_CONCRETE)
 		{
 			++it;
-			thead.attach(ParamScoped::makeEntityConcrete(parseConcreteEntity()));
+			auto ent = parseConcreteEntity();
+			containerAddSafe(entNames, string(ent.getName()));
+			thead.attach(ParamScoped::makeEntityConcrete(move(ent)));
 		}
 		else if (nextTag == Tag::USING_NAMESPACE)
 		{

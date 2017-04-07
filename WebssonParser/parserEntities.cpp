@@ -13,14 +13,11 @@ using namespace webss;
 Entity Parser::parseConcreteEntity()
 {
 	skipJunkToTag(it, Tag::NAME_START);
-	nextTag = Tag::NAME_START;
-	Entity ent;
-	parseOtherValue(
-		CaseKeyValue{ ent = Entity(move(key), move(value)); },
-		CaseKeyOnly{ throw runtime_error(ERROR_EXPECTED); },
-		CaseValueOnly{ throw runtime_error(ERROR_UNEXPECTED); },
-		CaseAbstractEntity{ throw runtime_error(webss_ERROR_ENTITY_EXISTS(abstractEntity.getName())); });
-	return ent;
+	auto name = parseName(it);
+	if (isKeyword(name))
+		throw runtime_error("entity name can't be a keyword");
+	nextTag = getTag(it);
+	return Entity(move(name), parseValueOnly());
 }
 
 Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
