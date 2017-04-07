@@ -36,7 +36,7 @@ Tag getTagColon(SmartIterator& it)
 
 Tag webss::getTag(SmartIterator& it)
 {
-	if (!skipJunk(it))
+	if (!it)
 		return Tag::NONE;
 	switch (*it)
 	{
@@ -58,7 +58,10 @@ Tag webss::getTag(SmartIterator& it)
 	case CHAR_OPTION: return Tag::OPTION;
 	case CHAR_SELF: return Tag::SELF;
 	case CHAR_SEPARATOR: return Tag::SEPARATOR;
+	case CHAR_EXPLICIT_NAME: return Tag::EXPLICIT_NAME;
 	}
+	if (isJunk(*it))
+		return getTag(skipJunk(++it));
 	if (isNameStart(*it))
 		return Tag::NAME_START;
 	if (isNumberStart(*it))

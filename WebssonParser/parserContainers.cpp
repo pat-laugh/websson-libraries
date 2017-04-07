@@ -136,11 +136,13 @@ Enum Parser::parseEnum(const string& name)
 {
 	return parseContainer<Enum, ConType::LIST>(Enum(name), [&](Enum& tEnum)
 	{
-		if (nextTag != Tag::NAME_START)
+		string name;
+		if (nextTag == Tag::NAME_START)
+			name = parseNameNotKeyword();
+		else if (nextTag == Tag::EXPLICIT_NAME)
+			name = parseExplicitName();
+		else
 			throw runtime_error(ERROR_UNEXPECTED);
-		auto name = parseName(it);
-		if (isKeyword(name))
-			throw runtime_error("enum name can't be a keyword");
 		tEnum.addSafe(move(name));
 	});
 }

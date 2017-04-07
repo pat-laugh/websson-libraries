@@ -77,9 +77,14 @@ private:
 	{
 		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
 		{
-			if (nextTag != Tag::NAME_START)
+			string name;
+			if (nextTag == Tag::NAME_START)
+				name = parseNameSafe();
+			else if (nextTag == Tag::EXPLICIT_NAME)
+				name = parseExplicitName();
+			else
 				throw runtime_error(ERROR_UNEXPECTED);
-			auto name = parseNameSafe();
+
 			switch (nextTag = getTag(it))
 			{
 			case Tag::START_LIST:
@@ -155,6 +160,12 @@ private:
 						}
 					}
 					break;
+				}
+				case Tag::EXPLICIT_NAME:
+				{
+					auto name = parseExplicitName();
+					nextTag = getTag(it);
+					tuple.at(name) = parseTemplateContainer(params, params.at(name));
 				}
 				default:
 					tuple.at(index) = parseTemplateContainer(params, params.at(index));

@@ -130,6 +130,12 @@ Parser::OtherValue Parser::parseOtherValue()
 	}
 	else if (nextTag == Tag::NUMBER_START)
 		return parseNumber();
+	else if (nextTag == Tag::EXPLICIT_NAME)
+	{
+		auto name = parseExplicitName();
+		nextTag = getTag(it);
+		return it && isKeyChar(*it) ? OtherValue(move(name), parseCharValue()) : OtherValue(name);
+	}
 	throw runtime_error(nextTag == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
 }
 

@@ -12,20 +12,14 @@ using namespace webss;
 
 Entity Parser::parseConcreteEntity()
 {
-	skipJunkToTag(it, Tag::NAME_START);
-	auto name = parseName(it);
-	if (isKeyword(name))
-		throw runtime_error("entity name can't be a keyword");
+	auto name = parseNameNotKeyword();
 	nextTag = getTag(it);
 	return Entity(move(name), parseValueOnly());
 }
 
 Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 {
-	skipJunkToTag(it, Tag::NAME_START);
-	auto name = parseName(it);
-	if (isKeyword(name))
-		throw runtime_error("entity name can't be a keyword");
+	auto name = parseNameNotKeyword();
 	switch (nextTag = getTag(it))
 	{
 	case Tag::START_DICTIONARY:
@@ -48,4 +42,19 @@ string Parser::parseNameSafe()
 	if (nameType.type != NameType::NAME)
 		throw runtime_error("expected name that is neither an entity nor a keyword");
 	return move(nameType.name);
+}
+
+string Parser::parseNameNotKeyword()
+{
+	skipJunkToTag(it, Tag::NAME_START);
+	auto name = parseName(it);
+	if (isKeyword(name))
+		throw runtime_error("expected name that is not a keyword");
+	return name;
+}
+
+string Parser::parseExplicitName()
+{
+	++it;
+	return parseNameNotKeyword();
 }
