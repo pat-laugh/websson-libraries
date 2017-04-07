@@ -110,12 +110,15 @@ TemplateHeadBinary Parser::parseTemplateHeadBinary(TemplateHeadBinary&& thead)
 
 TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 {
+	set<string> entNames, nspaceNames;
 	assert(it);
 	do
 		if (nextTag == Tag::ENTITY_ABSTRACT)
 		{
 			++it;
-			thead.attach(ParamScoped::makeEntityAbstract(parseAbstractEntity(Namespace::getEmptyInstance())));
+			auto ent = parseAbstractEntity(Namespace::getEmptyInstance());
+			containerAddSafe(entNames, string(ent.getName()));
+			thead.attach(ParamScoped::makeEntityAbstract(move(ent)));
 		}
 		else if (nextTag == Tag::ENTITY_CONCRETE)
 		{

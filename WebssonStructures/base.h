@@ -26,7 +26,7 @@ namespace webss
 	T& accessKeyUnsafe(const Container& cont, const std::string& key)
 	{
 		auto it = cont.find(key);
-		assert(it != cont.end() && ("key not in container: " + key).c_str());
+		assert(it != cont.end() && "key not in container");
 		return const_cast<T&>(it->second);
 	}
 
@@ -42,7 +42,7 @@ namespace webss
 	template <class Container, class T>
 	void containerAddUnsafe(Container& cont, std::string&& key, T&& value)
 	{
-		assert(cont.find(key) == cont.end() && ("key already in container" + key).c_str());
+		assert(cont.find(key) == cont.end() && "key already in container");
 		cont.insert({ std::move(key), std::move(value) });
 	}
 
@@ -50,8 +50,16 @@ namespace webss
 	void containerAddSafe(Container& cont, std::string&& key, T&& value)
 	{
 		if (cont.find(key) != cont.end())
-			throw std::runtime_error("key already in container" + key + key);
+			throw std::runtime_error("key already in container: " + key);
 		cont.insert({ std::move(key), std::move(value) });
+	}
+
+	template <class Container>
+	void containerAddSafe(Container& cont, std::string&& key)
+	{
+		if (cont.find(key) != cont.end())
+			throw std::runtime_error("key already in container: " + key);
+		cont.insert(std::move(key));
 	}
 
 #define This VectorWrapper

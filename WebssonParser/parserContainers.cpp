@@ -178,14 +178,16 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 		{
 			++it;
 			auto ent = parseAbstractEntity(nspace);
-			docHead.push_back(ParamDocument::makeEntityAbstract(ent)); ents.addLocalSafe(move(ent));
+			docHead.push_back(ParamDocument::makeEntityAbstract(ent));
+			ents.addLocalSafe(move(ent));
 			break;
 		}
 		case CHAR_CONCRETE_ENTITY:
 		{
 			++it;
 			auto ent = parseConcreteEntity();
-			docHead.push_back(ParamDocument::makeEntityConcrete(ent)); ents.addLocalSafe(move(ent));
+			docHead.push_back(ParamDocument::makeEntityConcrete(ent));
+			ents.addLocalSafe(move(ent));
 			break;
 		}
 		case CHAR_IMPORT:

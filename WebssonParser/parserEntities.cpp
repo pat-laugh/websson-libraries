@@ -26,7 +26,9 @@ Entity Parser::parseConcreteEntity()
 Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 {
 	skipJunkToTag(it, Tag::NAME_START);
-	auto name = parseNameSafe();
+	auto name = parseName(it);
+	if (isKeyword(name))
+		throw runtime_error("entity name can't be a keyword");
 	switch (nextTag = getTag(it))
 	{
 	case Tag::START_DICTIONARY:
