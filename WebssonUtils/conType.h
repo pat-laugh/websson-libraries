@@ -36,6 +36,9 @@ namespace webss
 
 		std::string toString() const;
 
+		//returns true c == con's start char, else false
+		bool isStart(char c) const;
+
 		//returns true c == con's end char, else false
 		bool isEnd(char c) const;
 

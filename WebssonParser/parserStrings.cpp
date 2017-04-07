@@ -49,48 +49,90 @@ bool hasNextChar(SmartIterator& it, StringBuilder& line, function<bool()> endCon
 string Parser::parseLineString()
 {
 	skipLineJunk(it);
-
 	StringBuilder line;
-	while (hasNextChar(it, line, [&]() { return *it == CHAR_SEPARATOR || con.isEnd(*it); }))
+	if (multilineContainer)
 	{
-		if (*it == CHAR_ESCAPE)
+		while (hasNextChar(it, line, [&]() { return false; }))
 		{
-			checkEscapedChar(line);
-			continue;
+			if (*it == CHAR_ESCAPE)
+			{
+				checkEscapedChar(line);
+				continue;
+			}
+			else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(line))
+				continue;
+			putChar(it, line);
 		}
-		else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(line))
-			continue;
-		putChar(it, line);
+	}
+	else
+	{
+		int countStartEnd = 1;
+		while (hasNextChar(it, line, [&]() { return *it == CHAR_SEPARATOR || (con.isEnd(*it) && --countStartEnd == 0); }))
+		{
+			if (*it == CHAR_ESCAPE)
+			{
+				checkEscapedChar(line);
+				continue;
+			}
+			else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(line))
+				continue;
+			else if (con.isStart(*it))
+				++countStartEnd;
+			putChar(it, line);
+		}
 	}
 	return line;
 }
 
 string Parser::parseMultilineString()
 {
+	ContainerSwitcher switcher(*this, ConType::DICTIONARY, true);
 	StringBuilder text;
-	if (*skipJunkToValid(++it) == CLOSE_DICTIONARY)
-		return text;
+	if (*skipJunkToValid(it) == CLOSE_DICTIONARY)
+		return "";
 
 	int countStartEnd = 1;
 	bool addSpace = false;
 loopStart:
-	while (hasNextChar(it, text, [&]() { return *it == CLOSE_DICTIONARY && --countStartEnd == 0; }))
+	if (multilineContainer)
 	{
-		if (*it == CHAR_ESCAPE)
+		while (hasNextChar(it, text, [&]() { return false; }))
 		{
-			checkEscapedChar(text);
-			addSpace = false;
-			continue;
-		}
-		else if (*it == OPEN_DICTIONARY)
-			++countStartEnd;
-		else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(text))
-		{
+			if (*it == CHAR_ESCAPE)
+			{
+				checkEscapedChar(text);
+				addSpace = false;
+				continue;
+			}
+			else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(text))
+			{
+				addSpace = true;
+				continue;
+			}
 			addSpace = true;
-			continue;
+			putChar(it, text);
 		}
-		addSpace = true;
-		putChar(it, text);
+	}
+	else
+	{
+		while (hasNextChar(it, text, [&]() { return *it == CLOSE_DICTIONARY && --countStartEnd == 0; }))
+		{
+			if (*it == CHAR_ESCAPE)
+			{
+				checkEscapedChar(text);
+				addSpace = false;
+				continue;
+			}
+			else if (*it == OPEN_DICTIONARY)
+				++countStartEnd;
+			else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(text))
+			{
+				addSpace = true;
+				continue;
+			}
+			addSpace = true;
+			putChar(it, text);
+		}
 	}
 	if (!it)
 		throw runtime_error("multiline string is not closed");

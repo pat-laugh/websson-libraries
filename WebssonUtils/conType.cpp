@@ -26,6 +26,23 @@ string ConType::toString() const
 	}
 }
 
+bool ConType::isStart(char c) const
+{
+	switch (e)
+	{
+	case ConType::DICTIONARY:
+		return c == OPEN_DICTIONARY;
+	case ConType::LIST:
+		return c == OPEN_LIST;
+	case ConType::TUPLE:
+		return c == OPEN_TUPLE;
+	case ConType::TEMPLATE_HEAD:
+		return c == OPEN_TEMPLATE;
+	default:
+		return false;
+	}
+}
+
 bool ConType::isEnd(char c) const
 {
 	switch (e)
