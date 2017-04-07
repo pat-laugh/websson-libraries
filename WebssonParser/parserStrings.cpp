@@ -151,11 +151,6 @@ void Parser::checkEscapedChar(StringBuilder& line)
 	case 'x': case 'u': case 'U':
 		putEscapedHex(it, line);
 		return;
-	case 'c':
-		if (!++it || *it != OPEN_DICTIONARY)
-			throw runtime_error(webss_ERROR_EXPECTED_CHAR('{'));
-		putEscapedEntity(line);
-		return;
 
 	case '0': line += '\0'; break;
     case 'a': line += '\a'; break;
@@ -199,22 +194,4 @@ const string& Parser::parseStringEntity()
 	{
 		throw runtime_error("could not get string entity");
 	}
-}
-
-void Parser::putEscapedEntity(StringBuilder& line)
-{
-	ContainerSwitcher switcher(*this, ConType::DICTIONARY, false);
-	if (containerEmpty())
-		return;
-	do
-	{
-		try
-		{
-			line += parseValueOnly().getStringSafe();
-		}
-		catch (const exception&)
-		{
-			throw runtime_error("escaped entity must be of type string");
-		}
-	} while (checkNextElement());
 }

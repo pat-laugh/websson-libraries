@@ -169,7 +169,6 @@ namespace webss
 		void checkEscapedChar(StringBuilder& line);
 		bool checkStringEntity(StringBuilder& line);
 		const std::string& parseStringEntity();
-		void putEscapedEntity(StringBuilder& line);
 
 		//parserEntities.cpp
 		Entity parseConcreteEntity();
