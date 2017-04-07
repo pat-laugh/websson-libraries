@@ -1,13 +1,7 @@
-root = true
-
-#'\n' newline ending every file
 [*]
-end_of_line = lf
-insert_final_newline = false
-
-#set default charset
-[*.{h,c,cpp,js,html,css,txt}]
 charset = utf-8
 indent_style = tab
 indent_size = 4
 trim_trailing_whitespace = true
+end_of_line = lf
+insert_final_newline = false
