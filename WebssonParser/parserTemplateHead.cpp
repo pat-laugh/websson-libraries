@@ -158,7 +158,7 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 					thead.attach(ParamScoped::makeEntityConcrete(param.getConcreteEntity()));
 					break;
 				case ParamScoped::Type::NAMESPACE:
-					containerAddSafe(entNames, string(param.getNamespace().getName()));
+					containerAddSafe(nspaceNames, string(param.getNamespace().getName()));
 					thead.attach(ParamScoped(param.getNamespace()));
 					break;
 				default:
