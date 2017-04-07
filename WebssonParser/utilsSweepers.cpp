@@ -186,16 +186,23 @@ bool webss::isLineEnd(char c, ConType con)
 	return c == '\n' || c == CHAR_SEPARATOR || con.isEnd(c);
 }
 
-bool webss::checkLineEmpty(SmartIterator& it)
+bool checkEndOfLine(SmartIterator& it)
 {
 	if (!it)
 		return true;
-	if (*it == '\n')
-	{
-		++it;
+	if (*it != '\n')
+		return false;
+	++it;
+	return true;
+}
+
+bool webss::checkLineEmpty(SmartIterator& it)
+{
+	if (checkEndOfLine(it))
 		return true;
-	}
-	return isJunk(*it) ? checkLineEmpty(skipLineJunk(++it)) : false; //optimization: isLineJunk checks for '\n' and isJunk
+	if (isJunk(*it))
+		return checkEndOfLine(skipLineJunk(++it));
+	return checkJunkOperators(it) && checkEndOfLine(it);
 }
 
 string webss::parseName(SmartIterator& it)
