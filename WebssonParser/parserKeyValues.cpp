@@ -9,23 +9,6 @@
 using namespace std;
 using namespace webss;
 
-#define PatternLineGreed(ConditionSuccess, Success, Failure) { \
-if (!skipLineJunk(it)) \
-	{ Failure; } \
-else if (*it != '\n') \
-{ \
-	if (ConditionSuccess) \
-		{ Success; } \
-	else \
-		{ Failure; } \
-} \
-else if (!skipJunk(++it) || !(ConditionSuccess)) \
-{ \
-	Failure; \
-} \
-else \
-	{ Success; } }
-
 Parser::NameType Parser::parseNameType()
 {
 	string name = parseName(it);
@@ -36,7 +19,8 @@ Parser::NameType Parser::parseNameType()
 
 	const Entity* ent = &ents[name];
 scopeLoop:
-	PatternLineGreed(*it == CHAR_SCOPE, /* continue below */, return{ *ent })
+	if (getTag(it) != Tag::SCOPE)
+		return{ *ent };
 	try
 	{
 		skipJunkToTag(++it, Tag::NAME_START);
@@ -48,6 +32,8 @@ scopeLoop:
 	}
 	catch (const exception&) { throw runtime_error("could not get scoped value"); }
 }
+
+#define CASE_TAG_KEY_CHAR Tag::START_DICTIONARY: case Tag::START_LIST: case Tag::START_TUPLE: case Tag::START_TEMPLATE: case Tag::LINE_STRING: case Tag::EQUAL: case Tag::C_STRING: case Tag::TEXT_DICTIONARY: case Tag::TEXT_LIST: case Tag::TEXT_TUPLE: case Tag::TEXT_TEMPLATE
 
 Webss Parser::parseCharValue()
 {
@@ -96,28 +82,25 @@ Webss Parser::parseValueEqual()
 	throw runtime_error("expected value-only not starting with an equal sign");
 }
 
-bool isKeyChar(char c)
-{
-	switch (c)
-	{
-	case OPEN_DICTIONARY: case OPEN_LIST: case OPEN_TUPLE: case OPEN_TEMPLATE: case CHAR_COLON: case CHAR_EQUAL: case CHAR_CSTRING:
-		return true;
-	default:
-		return false;
-	}
-}
-
 Parser::OtherValue Parser::parseOtherValue()
 {
-	if (isKeyChar(*it))
+	switch (nextTag)
+	{
+	case CASE_TAG_KEY_CHAR:
 		return parseCharValue();
-	else if (nextTag == Tag::NAME_START)
+	case Tag::NAME_START:
 	{
 		auto nameType = parseNameType();
 		switch (nameType.type)
 		{
 		case NameType::NAME:
-			PatternLineGreed(it && isKeyChar(*it), nextTag = getTag(it); return OtherValue(move(nameType.name), parseCharValue()), return{ move(nameType.name) })
+			switch (nextTag = getTag(it))
+			{
+			case CASE_TAG_KEY_CHAR:
+				return OtherValue(move(nameType.name), parseCharValue());
+			default:
+				return{ move(nameType.name) };
+			}
 		case NameType::KEYWORD:
 			return{ nameType.keyword };
 		case NameType::ENTITY_ABSTRACT:
@@ -128,33 +111,58 @@ Parser::OtherValue Parser::parseOtherValue()
 			assert(false); throw domain_error("");
 		}
 	}
-	else if (nextTag == Tag::NUMBER_START)
+	case Tag::NUMBER_START:
 		return parseNumber();
-	else if (nextTag == Tag::EXPLICIT_NAME)
+	case Tag::EXPLICIT_NAME:
 	{
 		auto name = parseExplicitName();
-		nextTag = getTag(it);
-		return it && isKeyChar(*it) ? OtherValue(move(name), parseCharValue()) : OtherValue(name);
+		switch (nextTag = getTag(it))
+		{
+		case CASE_TAG_KEY_CHAR:
+			return OtherValue(move(name), parseCharValue());
+		default:
+			return{ name };
+		}
 	}
-	throw runtime_error(nextTag == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
+	default:
+		throw runtime_error(nextTag == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
+	}
+}
+
+bool isTemplateBodyStart(Tag tag)
+{
+	return tag == Tag::START_TUPLE || tag == Tag::START_LIST || tag == Tag::START_DICTIONARY;
 }
 
 Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 {
 	const auto& content = ent.getContent();
+	nextTag = getTag(it);
 	switch (content.getTypeSafe())
 	{
 	case WebssType::BLOCK_HEAD:
-		nextTag = getTag(it);
 		return{ Block(ent, parseValueOnly()) };
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadBinary(ent), parseTemplateBodyBinary(content.getTemplateHeadBinarySafe().getParameters())) }, break)
+		if (isTemplateBodyStart(nextTag))
+			return{ Webss(TemplateHeadBinary(ent), parseTemplateBodyBinary(content.getTemplateHeadBinarySafe().getParameters())) };
+		break;
 	case WebssType::TEMPLATE_HEAD_SCOPED:
-		PatternLineGreed(isKeyChar(*it) || isNameStart(*it) || isNumberStart(*it), return{ TemplateScoped(ent, parseTemplateBodyScoped(ent.getContent().getTemplateHeadScopedSafe().getParameters())) }, break)
+		switch (nextTag)
+		{
+		case CASE_TAG_KEY_CHAR: case Tag::NAME_START: case Tag::NUMBER_START:
+			return{ TemplateScoped(ent, parseTemplateBodyScoped(ent.getContent().getTemplateHeadScopedSafe().getParameters())) };
+		default:
+			break;
+		}
+		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD:
-		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyStandard(content.getTemplateHeadStandardSafe().getParameters())) }, break)
+		if (isTemplateBodyStart(nextTag))
+			return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyStandard(content.getTemplateHeadStandardSafe().getParameters())) };
+		break;
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		PatternLineGreed(*it == OPEN_TUPLE || *it == OPEN_LIST || *it == OPEN_DICTIONARY, return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyText(content.getTemplateHeadStandardSafe().getParameters())) }, break)
+		if (isTemplateBodyStart(nextTag))
+			return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyText(content.getTemplateHeadStandardSafe().getParameters())) };
+		break;
 	default:
 		break;
 	}

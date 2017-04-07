@@ -59,6 +59,7 @@ Tag webss::getTag(SmartIterator& it)
 	case CHAR_SELF: return Tag::SELF;
 	case CHAR_SEPARATOR: return Tag::SEPARATOR;
 	case CHAR_EXPLICIT_NAME: return Tag::EXPLICIT_NAME;
+	case CHAR_SCOPE: return Tag::SCOPE;
 	}
 	if (isJunk(*it))
 		return getTag(skipJunk(++it));
