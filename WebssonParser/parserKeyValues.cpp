@@ -33,27 +33,6 @@ scopeLoop:
 	catch (const exception&) { throw runtime_error("could not get scoped value"); }
 }
 
-#define CASE_TAG_KEY_CHAR Tag::START_DICTIONARY: case Tag::START_LIST: case Tag::START_TUPLE: case Tag::START_TEMPLATE: case Tag::LINE_STRING: case Tag::EQUAL: case Tag::C_STRING: case Tag::TEXT_DICTIONARY: case Tag::TEXT_LIST: case Tag::TEXT_TUPLE: case Tag::TEXT_TEMPLATE
-
-Webss Parser::parseCharValue()
-{
-	switch (nextTag)
-	{
-	case Tag::START_DICTIONARY: return parseDictionary();
-	case Tag::START_LIST: return parseList();
-	case Tag::START_TUPLE: return parseTuple();
-	case Tag::START_TEMPLATE: return parseTemplate();
-	case Tag::LINE_STRING: ++it; return parseLineString();
-	case Tag::EQUAL: ++it; return parseValueEqual();
-	case Tag::C_STRING: return parseCString();
-	case Tag::TEXT_DICTIONARY: return parseMultilineString();
-	case Tag::TEXT_LIST: return{ parseListText(), true };
-	case Tag::TEXT_TUPLE: return{ parseTupleText(), true };
-	case Tag::TEXT_TEMPLATE: return parseTemplateText();
-	default: assert(false);
-	}
-}
-
 Webss Parser::parseValueEqual()
 {
 	if (*skipJunkToValid(it) != CHAR_EQUAL)
@@ -64,25 +43,30 @@ Webss Parser::parseValueEqual()
 	throw runtime_error("expected value-only not starting with an equal sign");
 }
 
+#define CASE_TAG_KEY_CHAR Tag::START_DICTIONARY: case Tag::START_LIST: case Tag::START_TUPLE: case Tag::START_TEMPLATE: case Tag::LINE_STRING: case Tag::EQUAL: case Tag::C_STRING: case Tag::TEXT_DICTIONARY: case Tag::TEXT_LIST: case Tag::TEXT_TUPLE: case Tag::TEXT_TEMPLATE
+
 Parser::OtherValue Parser::parseOtherValue()
 {
 	switch (nextTag)
 	{
-	case CASE_TAG_KEY_CHAR:
-		return parseCharValue();
+	case Tag::START_DICTIONARY: return Webss(parseDictionary());
+	case Tag::START_LIST: return Webss(parseList());
+	case Tag::START_TUPLE: return Webss(parseTuple());
+	case Tag::START_TEMPLATE: return Webss(parseTemplate());
+	case Tag::LINE_STRING: ++it; return Webss(parseLineString());
+	case Tag::EQUAL: ++it; return Webss(parseValueEqual());
+	case Tag::C_STRING: return Webss(parseCString());
+	case Tag::TEXT_DICTIONARY: return Webss(parseMultilineString());
+	case Tag::TEXT_LIST: return Webss(parseListText(), true);
+	case Tag::TEXT_TUPLE: return Webss(parseTupleText(), true);
+	case Tag::TEXT_TEMPLATE: return Webss(parseTemplateText());
 	case Tag::NAME_START:
 	{
 		auto nameType = parseNameType();
 		switch (nameType.type)
 		{
 		case NameType::NAME:
-			switch (nextTag = getTag(it))
-			{
-			case CASE_TAG_KEY_CHAR:
-				return OtherValue(move(nameType.name), parseCharValue());
-			default:
-				return{ move(nameType.name) };
-			}
+			return parseOtherValueName(move(nameType.name));
 		case NameType::KEYWORD:
 			return{ nameType.keyword };
 		case NameType::ENTITY_ABSTRACT:
@@ -90,24 +74,26 @@ Parser::OtherValue Parser::parseOtherValue()
 		case NameType::ENTITY_CONCRETE:
 			return{ Webss(move(nameType.entity)) };
 		default:
-			assert(false); throw domain_error("");
+			assert(false);
 		}
 	}
 	case Tag::NUMBER_START:
 		return parseNumber();
 	case Tag::EXPLICIT_NAME:
-	{
-		auto name = parseNameExplicit();
-		switch (nextTag = getTag(it))
-		{
-		case CASE_TAG_KEY_CHAR:
-			return OtherValue(move(name), parseCharValue());
-		default:
-			return{ name };
-		}
-	}
+		return parseOtherValueName(parseNameExplicit());
 	default:
 		throw runtime_error(nextTag == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
+	}
+}
+
+Parser::OtherValue Parser::parseOtherValueName(string&& name)
+{
+	switch (nextTag = getTag(it))
+	{
+	case CASE_TAG_KEY_CHAR:
+		return OtherValue(move(name), move(parseOtherValue().value));
+	default:
+		return{ name };
 	}
 }
 
@@ -143,7 +129,7 @@ Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 		break;
 	case WebssType::TEMPLATE_HEAD_TEXT:
 		if (isTemplateBodyStart(nextTag))
-			return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyText(content.getTemplateHeadStandardSafe().getParameters())) };
+			return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyText(content.getTemplateHeadStandardSafe().getParameters()), true) };
 		break;
 	default:
 		break;

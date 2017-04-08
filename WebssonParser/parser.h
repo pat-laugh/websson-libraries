@@ -156,6 +156,7 @@ namespace webss
 		void addJsonKeyvalue(Dictionary& dict);
 		Webss parseValueEqual();
 		OtherValue parseOtherValue();
+		OtherValue parseOtherValueName(std::string&& name);
 		OtherValue checkAbstractEntity(const Entity& ent);
 		void parseOtherValue(std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Entity& abstractEntity)> funcAbstractEntity);
 		Webss parseValueOnly();

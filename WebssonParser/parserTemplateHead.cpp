@@ -93,17 +93,15 @@ TemplateHeadBinary Parser::parseTemplateHeadBinary(TemplateHeadBinary&& thead)
 	do
 		if (nextTag == Tag::START_TUPLE)
 			parseBinaryHead(thead);
+		else if (nextTag == Tag::NAME_START)
+		{
+			auto nameType = parseNameType();
+			if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isTemplateHeadBinary())
+				throw runtime_error(ERROR_BINARY_TEMPLATE);
+			thead.attach(nameType.entity);
+		}
 		else
-			parseOtherValue(
-				CaseKeyValue{ throw runtime_error(ERROR_BINARY_TEMPLATE); },
-				CaseKeyOnly{ throw runtime_error(ERROR_BINARY_TEMPLATE); },
-				CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
-				CaseAbstractEntity
-				{
-					if (!abstractEntity.getContent().isTemplateHeadBinary())
-						throw runtime_error(ERROR_BINARY_TEMPLATE);
-					thead.attach(abstractEntity);
-				});
+			throw runtime_error(ERROR_BINARY_TEMPLATE);
 	while (checkNextElement());
 	return move(thead);
 }
