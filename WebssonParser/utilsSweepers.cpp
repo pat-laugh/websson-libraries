@@ -60,14 +60,29 @@ Tag webss::getTag(SmartIterator& it)
 	case CHAR_SEPARATOR: return Tag::SEPARATOR;
 	case CHAR_EXPLICIT_NAME: return Tag::EXPLICIT_NAME;
 	case CHAR_SCOPE: return Tag::SCOPE;
-	}
-	if (isJunk(*it))
+
+		//junk
+	case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x06: case 0x07: case 0x08: case 0x09: case 0x0a: case 0x0b: case 0x0c: case 0x0d: case 0x0e: case 0x0f:
+	case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x16: case 0x17: case 0x18: case 0x19: case 0x1a: case 0x1b: case 0x1c: case 0x1d: case 0x1e: case 0x1f:
+	case 0x20: case 0x7f:
 		return getTag(skipJunk(++it));
-	if (isNameStart(*it))
+
+		//junk operators
+	case '/':
+		return checkJunkOperators(it) ? getTag(it) : Tag::UNKNOWN;
+
+		//name start
+	case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V': case 'W': case 'X': case 'Y': case 'Z':
+	case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': case 'n': case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u': case 'v': case 'w': case 'x': case 'y': case 'z':
 		return Tag::NAME_START;
-	if (isNumberStart(*it))
+	default:
+		return (unsigned char)*it > 127 ? Tag::NAME_START : Tag::UNKNOWN;
+
+		//number start
+	case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+	case '-': case '+':
 		return Tag::NUMBER_START;
-	return Tag::UNKNOWN;
+	}
 }
 
 SmartIterator& webss::skipJunkToTag(SmartIterator& it, Tag tag)
