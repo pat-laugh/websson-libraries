@@ -166,6 +166,7 @@ private:
 					auto name = parseNameExplicit();
 					nextTag = getTag(it);
 					tuple.at(name) = parseTemplateContainer(params, params.at(name));
+					break;
 				}
 				default:
 					tuple.at(index) = parseTemplateContainer(params, params.at(index));
