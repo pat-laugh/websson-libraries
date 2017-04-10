@@ -81,10 +81,15 @@ Dictionary Parser::parseDictionary()
 
 string Parser::parseNameJson()
 {
-	if (!++it || !isNameStart(*it))
+	string name;
+	auto tag = getTag(++it);
+	if (tag == Tag::NAME_START)
+		name = parseNameNotKeyword();
+	else if (tag == Tag::EXPLICIT_NAME)
+		name = parseNameExplicit();
+	else
 		throw runtime_error("expected name in supposed Json key-value");
-	string name = parseNameNotKeyword();
-	if (!it || *it != CHAR_CSTRING)
+	if (getTag(it) != Tag::C_STRING)
 		throw runtime_error("expected end quote in supposed Json key-value");
 	++it;
 	return name;
@@ -95,8 +100,7 @@ void Parser::addJsonKeyvalue(Dictionary& dict)
 	try
 	{
 		auto name = parseNameJson();
-		if (*skipJunkToValid(++it) != CHAR_COLON)
-			throw runtime_error("");
+		skipJunkToTag(it, Tag::LINE_STRING);
 		++it;
 		dict.addSafe(move(name), parseValueEqual());
 	}

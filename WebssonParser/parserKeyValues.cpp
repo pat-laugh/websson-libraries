@@ -35,11 +35,8 @@ scopeLoop:
 
 Webss Parser::parseValueEqual()
 {
-	if (*skipJunkToValid(it) != CHAR_EQUAL)
-	{
-		nextTag = getTag(it);
+	if ((nextTag = getTag(it)) != Tag::EQUAL)
 		return parseValueOnly();
-	}
 	throw runtime_error("expected value-only not starting with an equal sign");
 }
 

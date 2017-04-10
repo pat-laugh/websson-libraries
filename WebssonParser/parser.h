@@ -152,7 +152,6 @@ namespace webss
 
 		//parserKeyValues.cpp
 		NameType parseNameType();
-		Webss parseCharValue();
 		void addJsonKeyvalue(Dictionary& dict);
 		Webss parseValueEqual();
 		OtherValue parseOtherValue();
