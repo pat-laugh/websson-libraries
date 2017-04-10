@@ -82,14 +82,3 @@ int Keyword::getSize() const
 		assert(false && "can't get size of keyword "); throw domain_error("");
 	}
 }
-
-bool Keyword::isType() const
-{
-	switch (e)
-	{
-	case Keyword::BOOL: case Keyword::INT8: case Keyword::INT16: case Keyword::INT32: case Keyword::INT64: case Keyword::FLOAT: case Keyword::DOUBLE: case Keyword::STRING:
-		return true;
-	default:
-		return false;
-	}
-}

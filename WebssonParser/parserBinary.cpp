@@ -49,10 +49,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 			switch (nameType.type)
 			{
 			case NameType::KEYWORD:
-				if (!nameType.keyword.isType())
-					throw runtime_error("invalid binary type: " + nameType.keyword.toString());
-				bhead = Bhead(nameType.keyword);
-				break;
+				throw runtime_error("invalid binary type: " + nameType.keyword.toString());
 			case NameType::ENTITY_ABSTRACT:
 				if (!nameType.entity.getContent().isTemplateHeadBinary())
 					throw runtime_error(ERROR_UNEXPECTED);
@@ -293,13 +290,9 @@ ParamBinary::SizeList Parser::parseBinarySizeList()
 		if (isNameStart(*it))
 		{
 			auto nameType = parseNameType();
-			if (nameType.type == NameType::ENTITY_CONCRETE)
-				blist = Blist(checkEntTypeBinarySize(nameType.entity));
-			else if (nameType.type == NameType::KEYWORD && nameType.keyword.isType())
-				blist = Blist(nameType.keyword.getSize());
-			else
+			if (nameType.type != NameType::ENTITY_CONCRETE)
 				throw;
-			
+			blist = Blist(checkEntTypeBinarySize(nameType.entity));
 		}
 		else if (isNumberStart(*it))
 			blist = Blist(checkBinarySize(parseNumber().getIntSafe()));
