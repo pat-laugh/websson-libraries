@@ -210,17 +210,17 @@ Webss parseBinaryKeyword(SmartIterator& it, Keyword keyword)
 	{
 	case Keyword::BOOL:
 		return Webss(readByte(it) != 0);
-	case Keyword::INT1:
+	case Keyword::INT8:
 		return Webss((WebssInt)readByte(it));
-	case Keyword::INT2: case Keyword::INT4: case Keyword::INT8:
+	case Keyword::INT16: case Keyword::INT32: case Keyword::INT64:
 		tInt = 0;
-		readBytes(it, keyword.getSize(), reinterpret_cast<char*>(&tInt));
+		readBytes(it, keyword.getSize() / 8, reinterpret_cast<char*>(&tInt));
 		return Webss(tInt);
 	case Keyword::FLOAT:
-		readBytes(it, sizeof(float), reinterpret_cast<char*>(&tFloat));
+		readBytes(it, 4, reinterpret_cast<char*>(&tFloat));
 		return Webss(tFloat);
 	case Keyword::DOUBLE:
-		readBytes(it, sizeof(double), reinterpret_cast<char*>(&tDouble));
+		readBytes(it, 8, reinterpret_cast<char*>(&tDouble));
 		return Webss(tDouble);
 	default:
 		assert(false && "other keywords should've been parsed before"); throw domain_error("");

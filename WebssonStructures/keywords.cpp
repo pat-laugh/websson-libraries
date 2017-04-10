@@ -27,19 +27,19 @@ const unordered_map<string, Keyword> KEYWORDS = {
 	{ "Bool", Keyword::BOOL },
 	{ "bool", Keyword::BOOL },
 
-	{ "Byte", Keyword::INT1 },
-	{ "byte", Keyword::INT1 },
+	{ "Byte", Keyword::INT8 },
+	{ "byte", Keyword::INT8 },
 
-	{ "Short", Keyword::INT2 },
-	{ "short", Keyword::INT2 },
+	{ "Short", Keyword::INT16 },
+	{ "short", Keyword::INT16 },
 
-	{ "I", Keyword::INT4 },
-	{ "Int", Keyword::INT4 },
-	{ "int", Keyword::INT4 },
+	{ "I", Keyword::INT32 },
+	{ "Int", Keyword::INT32 },
+	{ "int", Keyword::INT32 },
 
-	{ "L", Keyword::INT8 },
-	{ "Long", Keyword::INT8 },
-	{ "long", Keyword::INT8 },
+	{ "L", Keyword::INT64 },
+	{ "Long", Keyword::INT64 },
+	{ "long", Keyword::INT64 },
 
 	{ "Float", Keyword::FLOAT },
 	{ "float", Keyword::FLOAT },
@@ -72,13 +72,13 @@ string Keyword::toString() const
 		return "T";
 	case Keyword::BOOL:
 		return "B";
-	case Keyword::INT1:
-		return "byte";
-	case Keyword::INT2:
-		return "short";
-	case Keyword::INT4:
-		return "I";
 	case Keyword::INT8:
+		return "byte";
+	case Keyword::INT16:
+		return "short";
+	case Keyword::INT32:
+		return "I";
+	case Keyword::INT64:
 		return "L";
 	case Keyword::FLOAT:
 		return "float";
@@ -95,14 +95,16 @@ int Keyword::getSize() const
 {
 	switch (e)
 	{
-	case Keyword::BOOL: case Keyword::INT1:
+	case Keyword::BOOL:
 		return 1;
-	case Keyword::INT2:
-		return 2;
-	case Keyword::INT4: case Keyword::FLOAT:
-		return 4;
-	case Keyword::INT8: case Keyword::DOUBLE:
+	case Keyword::INT8:
 		return 8;
+	case Keyword::INT16:
+		return 16;
+	case Keyword::INT32: case Keyword::FLOAT:
+		return 32;
+	case Keyword::INT64: case Keyword::DOUBLE:
+		return 64;
 	case Keyword::STRING:
 		return 0;
 	default:
@@ -114,7 +116,7 @@ bool Keyword::isType() const
 {
 	switch (e)
 	{
-	case Keyword::BOOL: case Keyword::INT1: case Keyword::INT2: case Keyword::INT4: case Keyword::INT8: case Keyword::FLOAT: case Keyword::DOUBLE: case Keyword::STRING:
+	case Keyword::BOOL: case Keyword::INT8: case Keyword::INT16: case Keyword::INT32: case Keyword::INT64: case Keyword::FLOAT: case Keyword::DOUBLE: case Keyword::STRING:
 		return true;
 	default:
 		return false;

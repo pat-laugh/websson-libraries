@@ -155,24 +155,24 @@ void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, co
 			assert(webss.getType() == WebssType::PRIMITIVE_BOOL);
 			out += webss.getBool() ? 1 : 0;
 			break;
-		case Keyword::INT1:
+		case Keyword::INT8:
 			assert(webss.getType() == WebssType::PRIMITIVE_INT);
 			out += (char)webss.getInt();
 			break;
-		case Keyword::INT2: case Keyword::INT4: case Keyword::INT8:
+		case Keyword::INT16: case Keyword::INT32: case Keyword::INT64:
 			assert(webss.getType() == WebssType::PRIMITIVE_INT);
 			tInt = webss.getInt();
-			writeBytes(out, bhead.getKeyword().getSize(), reinterpret_cast<char*>(&tInt));
+			writeBytes(out, bhead.getKeyword().getSize() / 8, reinterpret_cast<char*>(&tInt));
 			break;
 		case Keyword::FLOAT:
 			assert(webss.getType() == WebssType::PRIMITIVE_DOUBLE);
 			tFloat = static_cast<float>(webss.getDouble());
-			writeBytes(out, sizeof(float), reinterpret_cast<char*>(&tFloat));
+			writeBytes(out, 4, reinterpret_cast<char*>(&tFloat));
 			break;
 		case Keyword::DOUBLE:
 			assert(webss.getType() == WebssType::PRIMITIVE_DOUBLE);
 			tDouble = webss.getDouble();
-			writeBytes(out, sizeof(double), reinterpret_cast<char*>(&tDouble));
+			writeBytes(out, 8, reinterpret_cast<char*>(&tDouble));
 			break;
 		default:
 			assert(false); throw domain_error("");

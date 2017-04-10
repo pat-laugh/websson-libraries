@@ -12,11 +12,11 @@ namespace webss
 		enum class Enum
 		{
 			KEY_NULL, KEY_FALSE, KEY_TRUE,
-			BOOL, INT1, INT2, INT4, INT8, FLOAT, DOUBLE,
+			BOOL, INT8, INT16, INT32, INT64, FLOAT, DOUBLE,
 			STRING
 		};
 		static const Enum KEY_NULL = Enum::KEY_NULL, KEY_FALSE = Enum::KEY_FALSE, KEY_TRUE = Enum::KEY_TRUE,
-			BOOL = Enum::BOOL, INT1 = Enum::INT1, INT2 = Enum::INT2, INT4 = Enum::INT4, INT8 = Enum::INT8, FLOAT = Enum::FLOAT, DOUBLE = Enum::DOUBLE,
+			BOOL = Enum::BOOL, INT8 = Enum::INT8, INT16 = Enum::INT16, INT32 = Enum::INT32, INT64 = Enum::INT64, FLOAT = Enum::FLOAT, DOUBLE = Enum::DOUBLE,
 			STRING = Enum::STRING;
 
 		constexpr Keyword() : e(Enum::KEY_NULL) {}
@@ -37,7 +37,7 @@ namespace webss
 		//if keyword is type, returns its size in bytes, else throws an error
 		int getSize() const;
 
-		//returns true if the keyword is a type: BOOL, INT1, INT2, INT4, INT8, FLOAT, DOUBLE, STRING; else false
+		//returns true if the keyword is a type: BOOL, INT8, INT16, INT32, INT64, FLOAT, DOUBLE, STRING; else false
 		bool isType() const;
 	private:
 		const Enum e;
