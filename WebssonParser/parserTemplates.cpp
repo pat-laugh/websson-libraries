@@ -79,7 +79,7 @@ private:
 		{
 			string name;
 			if (nextTag == Tag::NAME_START)
-				name = parseNameSafe();
+				name = parseName(it);
 			else if (nextTag == Tag::EXPLICIT_NAME)
 				name = parseNameExplicit();
 			else

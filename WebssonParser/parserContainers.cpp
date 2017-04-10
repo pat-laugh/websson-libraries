@@ -64,7 +64,7 @@ Dictionary Parser::parseDictionary()
 	{
 		string name;
 		if (nextTag == Tag::NAME_START)
-			name = parseNameNotKeyword();
+			name = parseName(it);
 		else if (nextTag == Tag::EXPLICIT_NAME)
 			name = parseNameExplicit();
 		else if (nextTag == Tag::C_STRING)
@@ -84,7 +84,7 @@ string Parser::parseNameJson()
 	string name;
 	auto tag = getTag(++it);
 	if (tag == Tag::NAME_START)
-		name = parseNameNotKeyword();
+		name = parseName(it);
 	else if (tag == Tag::EXPLICIT_NAME)
 		name = parseNameExplicit();
 	else
@@ -173,7 +173,7 @@ Enum Parser::parseEnum(const string& name)
 	{
 		string name;
 		if (nextTag == Tag::NAME_START)
-			name = parseNameNotKeyword();
+			name = parseName(it);
 		else if (nextTag == Tag::EXPLICIT_NAME)
 			name = parseNameExplicit();
 		else

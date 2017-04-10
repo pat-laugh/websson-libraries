@@ -44,17 +44,8 @@ string Parser::parseNameSafe()
 	return move(nameType.name);
 }
 
-string Parser::parseNameNotKeyword()
-{
-	skipJunkToTag(it, Tag::NAME_START);
-	auto name = parseName(it);
-	if (isKeyword(name))
-		throw runtime_error("expected name that is not a keyword");
-	return name;
-}
-
 string Parser::parseNameExplicit()
 {
-	++it;
-	return parseNameNotKeyword();
+	skipJunkToTag(++it, Tag::NAME_START);
+	return parseName(it);
 }

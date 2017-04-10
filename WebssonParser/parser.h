@@ -175,7 +175,6 @@ namespace webss
 		Entity parseConcreteEntity();
 		Entity parseAbstractEntity(const Namespace& currentNamespace);
 		std::string parseNameSafe();
-		std::string parseNameNotKeyword();
 		std::string parseNameExplicit();
 
 		//parserTemplates.cpp
