@@ -15,6 +15,8 @@ namespace webss
 	public:
 		static Document parse() { return Parser().parseDocument(); }
 
+		
+
 		Parser();
 		Parser(SmartIterator&& it);
 		Parser(const std::istream& in);
@@ -32,6 +34,8 @@ namespace webss
 		ConType con = ConType::DOCUMENT;
 		bool multilineContainer = true;
 		bool allowVoid = false;
+
+		void initEnts();
 
 		class ContainerSwitcher
 		{

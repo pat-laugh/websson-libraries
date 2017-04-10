@@ -21,36 +21,7 @@ const unordered_map<string, Keyword> KEYWORDS = {
 
 	{ "T", Keyword::KEY_TRUE },
 	{ "True", Keyword::KEY_TRUE },
-	{ "true", Keyword::KEY_TRUE },
-
-	{ "B", Keyword::BOOL },
-	{ "Bool", Keyword::BOOL },
-	{ "bool", Keyword::BOOL },
-
-	{ "Byte", Keyword::INT8 },
-	{ "byte", Keyword::INT8 },
-
-	{ "Short", Keyword::INT16 },
-	{ "short", Keyword::INT16 },
-
-	{ "I", Keyword::INT32 },
-	{ "Int", Keyword::INT32 },
-	{ "int", Keyword::INT32 },
-
-	{ "L", Keyword::INT64 },
-	{ "Long", Keyword::INT64 },
-	{ "long", Keyword::INT64 },
-
-	{ "Float", Keyword::FLOAT },
-	{ "float", Keyword::FLOAT },
-
-	{ "D", Keyword::DOUBLE },
-	{ "Double", Keyword::DOUBLE },
-	{ "double", Keyword::DOUBLE },
-
-	{ "S", Keyword::STRING },
-	{ "String", Keyword::STRING },
-	{ "string", Keyword::STRING }
+	{ "true", Keyword::KEY_TRUE }
 };
 
 bool webss::isKeyword(const string& s)

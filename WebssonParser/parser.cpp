@@ -10,11 +10,39 @@
 using namespace std;
 using namespace webss;
 
-Parser::Parser() : it(SmartIterator(string(""))) {}
-Parser::Parser(SmartIterator&& it) : it(move(it)) {}
-Parser::Parser(const std::istream& in) : it(SmartIterator(in)) {}
-Parser::Parser(const std::stringstream& in) : it(SmartIterator(in)) {}
-Parser::Parser(const std::string& in) : it(SmartIterator(in)) {}
+TemplateHeadBinary makeTheadBinaryKeyword(Keyword keyword)
+{
+	using Bhead = ParamBinary::SizeHead;
+	using Blist = ParamBinary::SizeList;
+	TemplateHeadBinary thead;
+	thead.attach("", ParamBinary(Bhead(keyword), Blist(Blist::Type::ONE)));
+	return thead;
+}
+
+void addTheadBinaryEntityKeywords(BasicEntityManager<Webss> ents, vector<string> names, Keyword keyword)
+{
+	Entity ent(string(names[0]), makeTheadBinaryKeyword(keyword));
+	for (const auto& name : names)
+		ents.addGlobalEntity(name, ent);
+}
+
+void Parser::initEnts()
+{
+	addTheadBinaryEntityKeywords(ents, { "B", "Bool", "bool" }, Keyword::BOOL);
+	addTheadBinaryEntityKeywords(ents, { "byte", "Byte" }, Keyword::INT8);
+	addTheadBinaryEntityKeywords(ents, { "short", "Short" }, Keyword::INT16);
+	addTheadBinaryEntityKeywords(ents, { "I", "Int", "int" }, Keyword::INT32);
+	addTheadBinaryEntityKeywords(ents, { "L", "Long", "long" }, Keyword::INT64);
+	addTheadBinaryEntityKeywords(ents, { "float", "Float" }, Keyword::FLOAT);
+	addTheadBinaryEntityKeywords(ents, { "D", "Double", "double" }, Keyword::DOUBLE);
+	addTheadBinaryEntityKeywords(ents, { "S", "String", "string" }, Keyword::STRING);
+}
+
+Parser::Parser() : it(SmartIterator(string(""))) { initEnts(); }
+Parser::Parser(SmartIterator&& it) : it(move(it)) { initEnts(); }
+Parser::Parser(const std::istream& in) : it(SmartIterator(in)) { initEnts(); }
+Parser::Parser(const std::stringstream& in) : it(SmartIterator(in)) { initEnts(); }
+Parser::Parser(const std::string& in) : it(SmartIterator(in)) { initEnts(); }
 
 Parser& Parser::setIterator(SmartIterator&& it)
 {
@@ -28,7 +56,7 @@ Parser& Parser::addEntity(string&& name, Webss&& value)
 	return *this;
 }
 
-const char* ERROR_VOID = "can't have void element"; //to avoid linker error
+const char* ERROR_VOID = "can't have void element";
 
 bool Parser::containerEmpty()
 {

@@ -37,6 +37,12 @@ namespace webss
 				it = locals.erase(it);
 		}
 
+		//Adds alias to entity; the name may be different than the entity's name
+		void addGlobalEntity(std::string name, Entity ent)
+		{
+			globals.insert({ move(name), std::move(ent) });
+		}
+
 		void addGlobal(std::string name, T content)
 		{
 			addGlobal(Entity(std::move(name), std::move(content)));
