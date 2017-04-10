@@ -68,17 +68,17 @@ Parser::OtherValue Parser::parseOtherValue()
 		case NameType::NAME:
 			return parseOtherValueName(move(nameType.name));
 		case NameType::KEYWORD:
-			return{ nameType.keyword };
+			return Webss(nameType.keyword);
 		case NameType::ENTITY_ABSTRACT:
 			return checkAbstractEntity(nameType.entity);
 		case NameType::ENTITY_CONCRETE:
-			return{ Webss(move(nameType.entity)) };
+			return Webss(move(nameType.entity));
 		default:
 			assert(false);
 		}
 	}
 	case Tag::NUMBER_START:
-		return parseNumber();
+		return Webss(parseNumber());
 	case Tag::EXPLICIT_NAME:
 		return parseOtherValueName(parseNameExplicit());
 	default:
@@ -91,9 +91,9 @@ Parser::OtherValue Parser::parseOtherValueName(string&& name)
 	switch (nextTag = getTag(it))
 	{
 	case CASE_TAG_KEY_CHAR:
-		return OtherValue(move(name), move(parseOtherValue().value));
+		return{ move(name), move(parseOtherValue().value) };
 	default:
-		return{ name };
+		return{ move(name) };
 	}
 }
 
