@@ -33,9 +33,6 @@ namespace webss
 		Keyword(std::string s);
 
 		std::string toString() const;
-
-		//if keyword is type, returns its size in bytes, else throws an error
-		int getSize() const;
 	private:
 		const Enum e;
 	};

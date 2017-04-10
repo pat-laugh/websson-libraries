@@ -209,9 +209,16 @@ Webss parseBinaryKeyword(SmartIterator& it, Keyword keyword)
 		return Webss(readByte(it) != 0);
 	case Keyword::INT8:
 		return Webss((WebssInt)readByte(it));
-	case Keyword::INT16: case Keyword::INT32: case Keyword::INT64:
+	case Keyword::INT16:
 		tInt = 0;
-		readBytes(it, keyword.getSize() / 8, reinterpret_cast<char*>(&tInt));
+		readBytes(it, 2, reinterpret_cast<char*>(&tInt));
+		return Webss(tInt);
+	case Keyword::INT32:
+		tInt = 0;
+		readBytes(it, 4, reinterpret_cast<char*>(&tInt));
+		return Webss(tInt);
+	case Keyword::INT64:
+		readBytes(it, 8, reinterpret_cast<char*>(&tInt));
 		return Webss(tInt);
 	case Keyword::FLOAT:
 		readBytes(it, 4, reinterpret_cast<char*>(&tFloat));

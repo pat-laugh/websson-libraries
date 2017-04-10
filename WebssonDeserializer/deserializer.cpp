@@ -180,8 +180,8 @@ private:
 				putTheadBinary(out, bhead.getTemplateHead());
 				break;
 			case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD:
-putEntityName(out, bhead.getEntity());
-break;
+				putEntityName(out, bhead.getEntity());
+				break;
 			case Type::SELF:
 				putTheadSelf(out);
 				break;

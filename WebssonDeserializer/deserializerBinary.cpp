@@ -159,10 +159,20 @@ void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, co
 			assert(webss.getType() == WebssType::PRIMITIVE_INT);
 			out += (char)webss.getInt();
 			break;
-		case Keyword::INT16: case Keyword::INT32: case Keyword::INT64:
+		case Keyword::INT16:
 			assert(webss.getType() == WebssType::PRIMITIVE_INT);
 			tInt = webss.getInt();
-			writeBytes(out, bhead.getKeyword().getSize() / 8, reinterpret_cast<char*>(&tInt));
+			writeBytes(out, 2, reinterpret_cast<char*>(&tInt));
+			break;
+		case Keyword::INT32:
+			assert(webss.getType() == WebssType::PRIMITIVE_INT);
+			tInt = webss.getInt();
+			writeBytes(out, 4, reinterpret_cast<char*>(&tInt));
+			break;
+		case Keyword::INT64:
+			assert(webss.getType() == WebssType::PRIMITIVE_INT);
+			tInt = webss.getInt();
+			writeBytes(out, 8, reinterpret_cast<char*>(&tInt));
 			break;
 		case Keyword::FLOAT:
 			assert(webss.getType() == WebssType::PRIMITIVE_DOUBLE);
@@ -184,8 +194,10 @@ void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, co
 		const auto& s = webss.getString();
 		if (bhead.isEmpty())
 			writeBinarySize(out, s.length());
+#ifdef assert
 		else
 			assert(bhead.size() == s.length());
+#endif
 		out += s;
 	}
 }

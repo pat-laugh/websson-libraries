@@ -119,17 +119,14 @@ namespace webss
 
 			WebssBinarySize size() const
 			{
-				switch (type)
-				{
-				case Type::KEYWORD:
-					return keyword.getSize();
-				case Type::NUMBER:
-					return number;
-				case Type::ENTITY_NUMBER:
+				if (type == Type::ENTITY_NUMBER)
 					return static_cast<WebssBinarySize>(ent.getContent().getIntSafe());
-				default:
-					assert(false); throw std::domain_error("");
-				}
+				else if (type == Type::NUMBER)
+					return number;
+				assert(false); 
+#ifndef assert
+				throw std::domain_error("");
+#endif
 			}
 		private:
 			static constexpr char* ERROR_BINARY_SIZE_HEAD = "size of binary head must be a positive integer, binary template head or equivalent entity";

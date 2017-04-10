@@ -61,24 +61,3 @@ string Keyword::toString() const
 		return "unknown";
 	}
 }
-
-int Keyword::getSize() const
-{
-	switch (e)
-	{
-	case Keyword::BOOL:
-		return 1;
-	case Keyword::INT8:
-		return 8;
-	case Keyword::INT16:
-		return 16;
-	case Keyword::INT32: case Keyword::FLOAT:
-		return 32;
-	case Keyword::INT64: case Keyword::DOUBLE:
-		return 64;
-	case Keyword::STRING:
-		return 0;
-	default:
-		assert(false && "can't get size of keyword "); throw domain_error("");
-	}
-}
