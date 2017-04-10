@@ -149,6 +149,8 @@ namespace webss
 		void parseScopedDocument(std::vector<ParamDocument>& docHead);
 		ImportedDocument parseImport();
 		const Namespace& parseUsingNamespaceStatic();
+		void parseOption();
+		void parseOptionVersion();
 
 		//parserKeyValues.cpp
 		NameType parseNameType();

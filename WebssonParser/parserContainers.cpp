@@ -237,6 +237,10 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 			++it;
 			parseScopedDocument(docHead);
 			break;
+		case CHAR_OPTION:
+			++it;
+			parseOption();
+			break;
 		default:
 			return false;
 		}
@@ -323,4 +327,26 @@ const Namespace& Parser::parseUsingNamespaceStatic()
 	if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isNamespace())
 		throw runtime_error("expected namespace");
 	return nameType.entity.getContent().getNamespaceSafe();
+}
+
+void Parser::parseOption()
+{
+	skipLineJunk(it);
+	if (it != '-' || !++it)
+		throw runtime_error("expected option version");
+	if (*it == 'v')
+		++it;
+	else if (*it != '-' || !++it || !isNameStart(it) || parseName(it) != "version")
+		throw runtime_error("expected option version");
+	parseOptionVersion();
+}
+
+void Parser::parseOptionVersion()
+{
+	if (it != ':')
+		throw runtime_error("expected line-string");
+	++it;
+	auto version = parseLineString();
+	if (version != "1.0.0")
+		throw runtime_error("this parser can only parse version 1.0.0");
 }
