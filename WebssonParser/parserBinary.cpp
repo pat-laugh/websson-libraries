@@ -3,6 +3,7 @@
 #include "parser.h"
 
 #include <limits>
+#include <cstdint>
 
 #include "errors.h"
 #include "patternsContainers.h"
@@ -198,7 +199,9 @@ Webss parseBinaryKeyword(SmartIterator& it, Keyword keyword)
 {
 	union
 	{
-		WebssInt tInt;
+		int16_t tInt16;
+		int32_t tInt32;
+		int64_t tInt64;
 		float tFloat;
 		double tDouble;
 	};
@@ -210,16 +213,14 @@ Webss parseBinaryKeyword(SmartIterator& it, Keyword keyword)
 	case Keyword::INT8:
 		return Webss((WebssInt)readByte(it));
 	case Keyword::INT16:
-		tInt = 0;
-		readBytes(it, 2, reinterpret_cast<char*>(&tInt));
-		return Webss(tInt);
+		readBytes(it, 2, reinterpret_cast<char*>(&tInt16));
+		return Webss(tInt16);
 	case Keyword::INT32:
-		tInt = 0;
-		readBytes(it, 4, reinterpret_cast<char*>(&tInt));
-		return Webss(tInt);
+		readBytes(it, 4, reinterpret_cast<char*>(&tInt32));
+		return Webss(tInt32);
 	case Keyword::INT64:
-		readBytes(it, 8, reinterpret_cast<char*>(&tInt));
-		return Webss(tInt);
+		readBytes(it, 8, reinterpret_cast<char*>(&tInt64));
+		return Webss(tInt64);
 	case Keyword::FLOAT:
 		readBytes(it, 4, reinterpret_cast<char*>(&tFloat));
 		return Webss(tFloat);
