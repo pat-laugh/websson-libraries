@@ -10,6 +10,17 @@
 using namespace std;
 using namespace webss;
 
+void addGlobalEntities(BasicEntityManager<Webss>& ents, vector<string> names, Entity ent)
+{
+	for (const auto& name : names)
+		ents.addGlobalEntity(name, ent);
+}
+
+void addEntityKeywords(BasicEntityManager<Webss>& ents)
+{
+	addGlobalEntities(ents, { "N", "Nil", "Null", "nil", "null", "F", "False", "false", "T", "True", "true" }, Entity("", Webss()));
+}
+
 TemplateHeadBinary makeTheadBinaryKeyword(Keyword keyword)
 {
 	using Bhead = ParamBinary::SizeHead;
@@ -19,15 +30,15 @@ TemplateHeadBinary makeTheadBinaryKeyword(Keyword keyword)
 	return thead;
 }
 
-void addTheadBinaryEntityKeywords(BasicEntityManager<Webss> ents, vector<string> names, Keyword keyword)
+void addTheadBinaryEntityKeywords(BasicEntityManager<Webss>& ents, vector<string> names, Keyword keyword)
 {
-	Entity ent(string(names[0]), makeTheadBinaryKeyword(keyword));
-	for (const auto& name : names)
-		ents.addGlobalEntity(name, ent);
+	string entName(names[0]);
+	addGlobalEntities(ents, move(names), Entity(move(entName), makeTheadBinaryKeyword(keyword)));
 }
 
 void Parser::initEnts()
 {
+	addEntityKeywords(ents);
 	addTheadBinaryEntityKeywords(ents, { "B", "Bool", "bool" }, Keyword::BOOL);
 	addTheadBinaryEntityKeywords(ents, { "byte", "Byte" }, Keyword::INT8);
 	addTheadBinaryEntityKeywords(ents, { "short", "Short" }, Keyword::INT16);
