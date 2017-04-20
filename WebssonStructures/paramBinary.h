@@ -25,7 +25,7 @@ namespace webss
 		public:
 			using TemplateHead = BasicTemplateHead<BasicParamBinary, Webss>;
 			using Entity = BasicEntity<Webss>;
-			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, SELF, KEYWORD, NUMBER, TEMPLATE_HEAD, ENTITY_NUMBER, ENTITY_TEMPLATE_HEAD };
+			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, SELF, KEYWORD, NUMBER, TEMPLATE_HEAD, ENTITY_NUMBER, ENTITY_TEMPLATE_HEAD, BITS };
 
 			This() {}
 			This(Keyword keyword) : type(Type::KEYWORD)
@@ -45,6 +45,7 @@ namespace webss
 
 			static This makeEntityThead(const Entity& entThead) { return This(entThead); }
 			static This makeEntityNumber(const Entity& entNumber) { return This(entNumber, true); }
+			static This makeSizeBits(WebssBinarySize num) { return This(num, true); }
 
 			This(WebssBinarySize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
 			This(TemplateHeadSelf) : type(Type::SELF) {}
@@ -150,6 +151,10 @@ namespace webss
 				: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
 			{
 				assert(entNumInt >= 0 && entNumInt <= numeric_limits<WebssBinarySize>::max());
+			}
+			This(WebssBinarySize num, bool bits) : type(Type::BITS), number(num)
+			{
+				assert(num > 0 && num <= 8);
 			}
 
 			void destroyUnion()

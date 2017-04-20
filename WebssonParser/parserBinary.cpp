@@ -81,6 +81,14 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 				throw runtime_error(ERROR_BINARY_SIZE_HEAD);
 			}
 		}
+		else if (nextTag == Tag::EXPLICIT_NAME)
+		{
+			skipJunkToTag(++it, Tag::NUMBER_START);
+			auto numBits = parseNumber().getIntSafe();
+			if (numBits < 1 || numBits > 8)
+				throw runtime_error("the number of bits must be between 1 and 8");
+			bhead = Bhead::makeSizeBits(numBits);
+		}
 
 		if (getTag(it) == Tag::START_LIST)
 			blist = Blist(parseBinarySizeList());
@@ -211,21 +219,19 @@ Webss parseBinary(BinaryIterator& it, const ParamBinary& param, function<Webss()
 
 Webss parseBinaryElement(BinaryIterator& it, const ParamBinary::SizeHead& bhead)
 {
-	if (bhead.isKeyword())
-		return parseBinaryKeyword(it, bhead.getKeyword());
-	
-	if (bhead.isEmpty())
-		return Webss(it.readString(it.readNumber()));
+	using Type = ParamBinary::SizeHead::Type;
 
-	auto length = bhead.size();
-	if (length < 8)
+	switch (bhead.getType())
 	{
-		string value;
-		value += (char)it.readBits(length);
-		return Webss(move(value));
+	case Type::KEYWORD:
+		return parseBinaryKeyword(it, bhead.getKeyword());
+	case Type::EMPTY: case Type::EMPTY_ENTITY_NUMBER:
+		return Webss(it.readString(it.readNumber()));
+	case Type::BITS:
+		return Webss(string(1, (char)it.readBits(bhead.size())));
+	case Type::NUMBER:
+		return Webss(it.readString(bhead.size()));
 	}
-
-	return Webss(it.readString((string::size_type)std::ceil(length / 8)));
 }
 
 Webss parseBinaryKeyword(BinaryIterator& it, Keyword keyword)
