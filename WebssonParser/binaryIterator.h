@@ -15,7 +15,8 @@ namespace webss
 	{
 	private:
 		SmartIterator& it;
-		int bitshift = 8;
+		char bitshift = 8;
+		char byteBlock;
 
 		int getBitmask(int num)
 		{
@@ -36,7 +37,7 @@ namespace webss
 		{
 			if (bitshift == 8)
 			{
-				readByte();
+				byteBlock = readByte();
 				bitshift = 0;
 			}
 		}
@@ -46,7 +47,7 @@ namespace webss
 		int readBit()
 		{
 			checkBitshift();
-			int bit = (*it >> bitshift) & 1;
+			int bit = (byteBlock >> bitshift) & 1;
 			++bitshift;
 			return bit;
 		}
@@ -58,17 +59,17 @@ namespace webss
 
 			if (bitshift + numBits <= 8)
 			{
-				int bits = (*it >> bitshift) & getBitmask(numBits);
+				int bits = (byteBlock >> bitshift) & getBitmask(numBits);
 				bitshift += numBits;
 				return bits;
 			}
 
 			//the number is spread on two bytes
 			int numBitsPart1 = 8 - bitshift, numBitsPart2 = numBits - numBitsPart1;
-			int bits = (*it >> bitshift) & getBitmask(numBitsPart1);
-			readByte();
+			int bits = (byteBlock >> bitshift) & getBitmask(numBitsPart1);
+			byteBlock = readByte();
 			bits <<= numBitsPart2; //make space for part 2
-			bits |= (*it & getBitmask(numBitsPart2));
+			bits |= (byteBlock & getBitmask(numBitsPart2));
 			bitshift = numBitsPart2;
 		}
 
