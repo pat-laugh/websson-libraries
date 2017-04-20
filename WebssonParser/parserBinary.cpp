@@ -9,6 +9,7 @@
 #include "patternsContainers.h"
 #include "WebssonUtils/constants.h"
 #include "WebssonUtils/utilsWebss.h"
+#include "binaryIterator.h"
 
 using namespace std;
 using namespace webss;
@@ -154,15 +155,15 @@ WebssBinarySize checkBinarySize(WebssInt sizeInt)
 //entry point from parserTemplates
 Tuple Parser::parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params)
 {
-	++it;
+	BinaryIterator itBin(it);
 	auto tuple = parseBinaryTemplate(it, params);
-	if (it != CLOSE_TUPLE)
+	if (++it != CLOSE_TUPLE)
 		throw runtime_error(webss_ERROR_EXPECTED_CHAR(CLOSE_TUPLE));
 	++it;
 	return tuple;
 }
 
-Tuple parseBinaryTemplate(SmartIterator& it, const TemplateHeadBinary::Parameters& params)
+Tuple parseBinaryTemplate(BinaryIterator& it, const TemplateHeadBinary::Parameters& params)
 {
 	Tuple tuple(params.getSharedKeys());
 	for (decltype(tuple.size()) i = 0; i < tuple.size(); ++i)
@@ -170,7 +171,7 @@ Tuple parseBinaryTemplate(SmartIterator& it, const TemplateHeadBinary::Parameter
 		const auto& param = params[i];
 		if (!param.getSizeHead().hasDefaultValue())
 			tuple[i] = parseBinary(it, param);
-		else if ((unsigned char)readByte(it) >= CHAR_BINARY_DEFAULT_TRUE)
+		else if (it.readBit() == CHAR_BINARY_DEFAULT_TRUE)
 			setDefaultValueBinary(tuple[i], params[i]);
 		else
 			tuple[i] = param.getSizeHead().isSelf() ? parseBinaryTemplate(it, params) : parseBinary(it, param);
@@ -183,7 +184,7 @@ void setDefaultValueBinary(Webss& value, const ParamBinary& param)
 	value = Webss(param.getSizeHead().getDefaultPointer());
 }
 
-Webss parseBinary(SmartIterator& it, const ParamBinary& param)
+Webss parseBinary(BinaryIterator& it, const ParamBinary& param)
 {
 	if (!param.getSizeHead().isTemplateHead())
 		return parseBinary(it, param, [&]() { return parseBinaryElement(it, param.getSizeHead()); });
@@ -192,9 +193,9 @@ Webss parseBinary(SmartIterator& it, const ParamBinary& param)
 	return parseBinary(it, param, [&]() { return parseBinaryTemplate(it, params); });
 }
 
-#define getBinaryLength(x) x.isEmpty() ? readNumber(it) : x.size()
+#define getBinaryLength(x) x.isEmpty() ? it.readNumber() : x.size()
 
-Webss parseBinary(SmartIterator& it, const ParamBinary& param, function<Webss()> func)
+Webss parseBinary(BinaryIterator& it, const ParamBinary& param, function<Webss()> func)
 {
 	if (param.getSizeList().isOne())
 		return func();
@@ -210,81 +211,29 @@ Webss parseBinary(SmartIterator& it, const ParamBinary& param, function<Webss()>
 	return list;
 }
 
-Webss parseBinaryElement(SmartIterator& it, const ParamBinary::SizeHead& bhead)
+Webss parseBinaryElement(BinaryIterator& it, const ParamBinary::SizeHead& bhead)
 {
 	if (bhead.isKeyword())
 		return parseBinaryKeyword(it, bhead.getKeyword());
 
 	auto length = getBinaryLength(bhead);
 	string value(length, 0);
-	readBytes(it, length, const_cast<char*>(value.data()));
+	it.readBytes(length, const_cast<char*>(value.data()));
 	return Webss(move(value));
 }
 
 #undef getBinaryLength
 
-//reads a number following UTF-7 encoding thing
-WebssBinarySize readNumber(SmartIterator& it)
-{
-	const int fullShift = 7, maxFullShifts = sizeof(WebssBinarySize) / fullShift;
-	WebssBinarySize num = 0;
-	for (int numShifts = 0; ; ++it)
-	{
-		if (!it)
-			throw runtime_error(ERROR_EXPECTED);
-		num = (num << fullShift) | (0x7F & *it);
-		if ((*it & 0x80) == 0)
-			break;
-		if (++numShifts == maxFullShifts)
-		{
-			const int partShift = sizeof(WebssBinarySize) % fullShift;
-			const int partMask = 0xFF >> (8 - partShift);
-			const int partEndMask = 0xFF ^ partMask;
-			if (!++it)
-				throw runtime_error(ERROR_EXPECTED);
-			if ((*it & partEndMask) != 0)
-				throw runtime_error("binary length is too great");
-			num = (num << partShift) | (partMask & *it);
-			break;
-		}
-	}
-	++it;
-	return checkBinarySize(num);
-}
-
-//reads num number of bytes and puts them in the char pointer passed as parameter
-//if the end of it is reached before all the bytes have been read, an error is thrown
-//advances it past the last byte read
-//REQUIREMENT: the char pointer must point to sufficient memory space
-void readBytes(SmartIterator& it, WebssBinarySize num, char* value)
-{
-	for (; num-- > 0; ++it)
-	{
-		if (!it)
-			throw runtime_error(ERROR_EXPECTED);
-		*value++ = *it;
-	}
-}
-
-char readByte(SmartIterator& it)
-{
-	if (!it)
-		throw runtime_error(ERROR_EXPECTED);
-	char c = *it;
-	++it;
-	return c;
-}
-
-void parseBitList(SmartIterator& it, List& list, WebssBinarySize length)
+void parseBitList(BinaryIterator& it, List& list, WebssBinarySize length)
 {
 	char c;
 	int shift = 0;
-	c = readByte(it);
+	c = it.readByte();
 	while (length-- > 0)
 	{
 		if (shift == 8)
 		{
-			c = readByte(it);
+			c = it.readByte();
 			shift = 0;
 		}
 
@@ -293,7 +242,7 @@ void parseBitList(SmartIterator& it, List& list, WebssBinarySize length)
 	}
 }
 
-Webss parseBinaryKeyword(SmartIterator& it, Keyword keyword)
+Webss parseBinaryKeyword(BinaryIterator& it, Keyword keyword)
 {
 	union
 	{
@@ -307,23 +256,23 @@ Webss parseBinaryKeyword(SmartIterator& it, Keyword keyword)
 	switch (keyword)
 	{
 	case Keyword::BOOL:
-		return Webss(readByte(it) != 0);
+		return Webss(it.readBit() != 0);
 	case Keyword::INT8:
-		return Webss((WebssInt)readByte(it));
+		return Webss((WebssInt)it.readByte());
 	case Keyword::INT16:
-		readBytes(it, 2, reinterpret_cast<char*>(&tInt16));
+		it.readBytes(2, reinterpret_cast<char*>(&tInt16));
 		return Webss(tInt16);
 	case Keyword::INT32:
-		readBytes(it, 4, reinterpret_cast<char*>(&tInt32));
+		it.readBytes(4, reinterpret_cast<char*>(&tInt32));
 		return Webss(tInt32);
 	case Keyword::INT64:
-		readBytes(it, 8, reinterpret_cast<char*>(&tInt64));
+		it.readBytes(8, reinterpret_cast<char*>(&tInt64));
 		return Webss(tInt64);
 	case Keyword::FLOAT:
-		readBytes(it, 4, reinterpret_cast<char*>(&tFloat));
+		it.readBytes(4, reinterpret_cast<char*>(&tFloat));
 		return Webss(tFloat);
 	case Keyword::DOUBLE:
-		readBytes(it, 8, reinterpret_cast<char*>(&tDouble));
+		it.readBytes(8, reinterpret_cast<char*>(&tDouble));
 		return Webss(tDouble);
 	default:
 		assert(false && "other keywords should've been parsed before"); throw domain_error("");

@@ -72,7 +72,7 @@ namespace webss
 		}
 
 		//reads a number following UTF-7 encoding thing
-		std::string::size_type readNumber(SmartIterator& it)
+		std::string::size_type readNumber()
 		{
 			const int fullShift = 7, maxFullShifts = sizeof(std::string::size_type) / fullShift;
 			std::string::size_type num = 0;
