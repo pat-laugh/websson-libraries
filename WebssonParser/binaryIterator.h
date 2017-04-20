@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "WebssonUtils/iterators.h"
+#include "WebssonUtils/stringBuilder.h"
 
 namespace webss
 {
@@ -111,6 +112,14 @@ namespace webss
 			if (!++it)
 				throw std::runtime_error("expected character");
 			return *it;
+		}
+
+		std::string readString(std::string::size_type num)
+		{
+			StringBuilder sb;
+			while (num-- > 0)
+				sb += readByte();
+			return sb;
 		}
 	};
 #undef This

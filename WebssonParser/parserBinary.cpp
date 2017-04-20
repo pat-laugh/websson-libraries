@@ -4,6 +4,7 @@
 
 #include <limits>
 #include <cstdint>
+#include <cmath>
 
 #include "errors.h"
 #include "patternsContainers.h"
@@ -193,20 +194,16 @@ Webss parseBinary(BinaryIterator& it, const ParamBinary& param)
 	return parseBinary(it, param, [&]() { return parseBinaryTemplate(it, params); });
 }
 
-#define getBinaryLength(x) x.isEmpty() ? it.readNumber() : x.size()
-
 Webss parseBinary(BinaryIterator& it, const ParamBinary& param, function<Webss()> func)
 {
-	if (param.getSizeList().isOne())
+	const auto& blist = param.getSizeList();
+	if (blist.isOne())
 		return func();
 
 	List list;
-	auto length = getBinaryLength(param.getSizeList());
-	if (param.getSizeHead().isBool())
-		parseBitList(it, list, length);
-	else
-		while (length-- > 0)
-			list.add(func());
+	auto length = blist.isEmpty() ? it.readNumber() : blist.size();
+	while (length-- > 0)
+		list.add(func());
 
 	return list;
 }
@@ -215,31 +212,19 @@ Webss parseBinaryElement(BinaryIterator& it, const ParamBinary::SizeHead& bhead)
 {
 	if (bhead.isKeyword())
 		return parseBinaryKeyword(it, bhead.getKeyword());
+	
+	if (bhead.isEmpty())
+		return Webss(it.readString(it.readNumber()));
 
-	auto length = getBinaryLength(bhead);
-	string value(length, 0);
-	it.readBytes(length, const_cast<char*>(value.data()));
-	return Webss(move(value));
-}
-
-#undef getBinaryLength
-
-void parseBitList(BinaryIterator& it, List& list, WebssBinarySize length)
-{
-	char c;
-	int shift = 0;
-	c = it.readByte();
-	while (length-- > 0)
+	auto length = bhead.size();
+	if (length < 8)
 	{
-		if (shift == 8)
-		{
-			c = it.readByte();
-			shift = 0;
-		}
-
-		list.add(Webss(((c >> shift) & 1) == 1)); //need explicit Webss, else converted to int (despite the ==)
-		++shift;
+		string value;
+		value += (char)it.readBits(length);
+		return Webss(move(value));
 	}
+
+	return Webss(it.readString(std::ceil(length / 8)));
 }
 
 Webss parseBinaryKeyword(BinaryIterator& it, Keyword keyword)
