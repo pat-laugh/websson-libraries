@@ -25,7 +25,7 @@ namespace webss
 		public:
 			using TemplateHead = BasicTemplateHead<BasicParamBinary, Webss>;
 			using Entity = BasicEntity<Webss>;
-			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, SELF, KEYWORD, NUMBER, TEMPLATE_HEAD, ENTITY_NUMBER, ENTITY_TEMPLATE_HEAD, BITS };
+			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, SELF, KEYWORD, NUMBER, TEMPLATE_HEAD, ENTITY_NUMBER, ENTITY_TEMPLATE_HEAD, BITS, ENTITY_BITS };
 
 			This() {}
 			This(Keyword keyword) : type(Type::KEYWORD)
@@ -46,6 +46,7 @@ namespace webss
 			static This makeEntityThead(const Entity& entThead) { return This(entThead); }
 			static This makeEntityNumber(const Entity& entNumber) { return This(entNumber, true); }
 			static This makeSizeBits(WebssBinarySize num) { return This(num, true); }
+			static This makeEntityBits(const Entity& entNumber) { return This(entNumber, true, true); }
 
 			This(WebssBinarySize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
 			This(TemplateHeadSelf) : type(Type::SELF) {}
@@ -82,7 +83,7 @@ namespace webss
 			bool isKeyword() const { return type == Type::KEYWORD; }
 			bool isBool() const { return isKeyword() && keyword == Keyword::BOOL; }
 			bool isTemplateHead() const { return type == Type::ENTITY_TEMPLATE_HEAD || type == Type::TEMPLATE_HEAD; }
-			bool hasEntity() const { return type == Type::ENTITY_TEMPLATE_HEAD || type == Type::ENTITY_NUMBER || type == Type::EMPTY_ENTITY_NUMBER; }
+			bool hasEntity() const { return type == Type::ENTITY_TEMPLATE_HEAD || type == Type::ENTITY_NUMBER || type == Type::EMPTY_ENTITY_NUMBER || type == Type::ENTITY_BITS; }
 
 			bool hasDefaultValue() const { return defaultValue.get() != nullptr; }
 			bool isSelf() const { return type == Type::SELF; }
@@ -120,14 +121,15 @@ namespace webss
 
 			WebssBinarySize size() const
 			{
-				if (type == Type::ENTITY_NUMBER)
+				switch (type)
+				{
+				case Type::ENTITY_NUMBER: case Type::ENTITY_BITS:
 					return static_cast<WebssBinarySize>(ent.getContent().getIntSafe());
-				else if (type == Type::NUMBER)
+				case Type::NUMBER: case Type::BITS:
 					return number;
-				assert(false); 
-#ifndef assert
-				throw std::domain_error("");
-#endif
+				default:
+					assert(false);
+				}
 			}
 		private:
 			static constexpr char* ERROR_BINARY_SIZE_HEAD = "size of binary head must be a positive integer, binary template head or equivalent entity";
@@ -156,6 +158,10 @@ namespace webss
 			{
 				assert(num > 0 && num <= 8);
 			}
+			This(const Entity& entNumber, bool isNumber, bool bits) : type(Type::ENTITY_BITS), ent(entNumber)
+			{
+				assert(entNumInt > 0 && entNumInt <= 8);
+			}
 
 			void destroyUnion()
 			{
@@ -164,7 +170,7 @@ namespace webss
 				case Type::TEMPLATE_HEAD:
 					delete thead;
 					break;
-				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD:
+				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD: case Type::ENTITY_BITS:
 					ent.~BasicEntity();
 					break;
 				default:
@@ -182,13 +188,13 @@ namespace webss
 				case Type::KEYWORD:
 					keyword = o.keyword;
 					break;
-				case Type::NUMBER:
+				case Type::NUMBER: case Type::BITS:
 					number = o.number;
 					break;
 				case Type::TEMPLATE_HEAD:
 					thead = o.thead;
 					break;
-				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD:
+				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD: case Type::ENTITY_BITS:
 					new (&ent) Entity(std::move(o.ent));
 					o.ent.~BasicEntity();
 					break;
@@ -210,13 +216,13 @@ namespace webss
 				case Type::KEYWORD:
 					keyword = o.keyword;
 					break;
-				case Type::NUMBER:
+				case Type::NUMBER: case Type::BITS:
 					number = o.number;
 					break;
 				case Type::TEMPLATE_HEAD:
 					thead = new TemplateHead(*o.thead);
 					break;
-				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD:
+				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD: case Type::ENTITY_BITS:
 					new (&ent) Entity(o.ent);
 					break;
 				default:

@@ -19,6 +19,7 @@ const char ERROR_BINARY_SIZE_HEAD[] = "size of binary head must be a positive in
 const char ERROR_BINARY_SIZE_LIST[] = "size of binary list must be a positive integer or equivalent entity";
 
 WebssBinarySize checkBinarySize(WebssInt sizeInt);
+WebssBinarySize checkBinarySizeBits(WebssInt sizeInt);
 Tuple parseBinaryTemplate(BinaryIterator& it, const TemplateHeadBinary::Parameters& params);
 Webss parseBinary(BinaryIterator& it, const ParamBinary& bhead);
 Webss parseBinary(BinaryIterator& it, const ParamBinary& bhead, function<Webss()> func);
@@ -83,11 +84,25 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 		}
 		else if (nextTag == Tag::EXPLICIT_NAME)
 		{
-			skipJunkToTag(++it, Tag::NUMBER_START);
-			auto numBits = parseNumber().getIntSafe();
-			if (numBits < 1 || numBits > 8)
-				throw runtime_error("the number of bits must be between 1 and 8");
-			bhead = Bhead::makeSizeBits(numBits);
+			nextTag = getTag(++it);
+			if (nextTag == Tag::NAME_START)
+			{
+				auto nameType = parseNameType();
+				switch (nameType.type)
+				{
+				case NameType::KEYWORD: case NameType::ENTITY_ABSTRACT:
+					throw runtime_error("invalid binary type: " + nameType.keyword.toString());
+				case NameType::ENTITY_CONCRETE:
+					bhead = Bhead::makeEntityBits(checkEntTypeBinarySizeBits(nameType.entity));
+					break;
+				default:
+					throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(nameType.name));
+				}
+			}
+			else if (nextTag == Tag::NUMBER_START)
+				bhead = Bhead::makeSizeBits(checkBinarySizeBits(parseNumber().getIntSafe()));
+			else
+				throw runtime_error(ERROR_UNEXPECTED);
 		}
 
 		if (getTag(it) == Tag::START_LIST)
@@ -162,6 +177,20 @@ WebssBinarySize checkBinarySize(WebssInt sizeInt)
 	return static_cast<WebssBinarySize>(sizeInt);
 }
 
+const Entity& Parser::checkEntTypeBinarySizeBits(const Entity& ent)
+{
+	try { checkBinarySizeBits(ent.getContent().getIntSafe()); }
+	catch (const exception& e) { throw runtime_error(e.what()); }
+	return ent;
+}
+
+WebssBinarySize checkBinarySizeBits(WebssInt sizeInt)
+{
+	if (sizeInt < 1 || sizeInt > 8)
+		throw runtime_error("the number of bits must be between 1 and 8");
+	return static_cast<WebssBinarySize>(sizeInt);
+}
+
 //entry point from parserTemplates
 Tuple Parser::parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params)
 {
@@ -227,10 +256,12 @@ Webss parseBinaryElement(BinaryIterator& it, const ParamBinary::SizeHead& bhead)
 		return parseBinaryKeyword(it, bhead.getKeyword());
 	case Type::EMPTY: case Type::EMPTY_ENTITY_NUMBER:
 		return Webss(it.readString(it.readNumber()));
-	case Type::BITS:
+	case Type::BITS: case Type::ENTITY_BITS:
 		return Webss(string(1, (char)it.readBits(bhead.size())));
-	case Type::NUMBER:
+	case Type::NUMBER: case Type::ENTITY_NUMBER:
 		return Webss(it.readString(bhead.size()));
+	default:
+		assert(false);
 	}
 }
 

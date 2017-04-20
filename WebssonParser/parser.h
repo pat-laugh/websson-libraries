@@ -211,6 +211,7 @@ namespace webss
 		Tuple parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params);
 		ParamBinary::SizeList parseBinarySizeList();
 		const Entity& checkEntTypeBinarySize(const Entity& ent);
+		const Entity& checkEntTypeBinarySizeBits(const Entity& ent);
 	};
 
 	class ParamDocumentIncluder
