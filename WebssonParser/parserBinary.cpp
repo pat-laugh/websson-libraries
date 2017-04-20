@@ -18,35 +18,34 @@ using namespace webss;
 const char ERROR_BINARY_SIZE_HEAD[] = "size of binary head must be a positive integer, binary template head or equivalent entity";
 const char ERROR_BINARY_SIZE_LIST[] = "size of binary list must be a positive integer or equivalent entity";
 
-Webss parseBinary(SmartIterator& it, const ParamBinary& bhead);
-void parseBitList(SmartIterator& it, List& list, WebssBinarySize length);
-Webss parseBinary(SmartIterator& it, const ParamBinary& bhead, function<Webss()> func);
-Webss parseBinaryElement(SmartIterator& it, const ParamBinary::SizeHead& bhead);
-Tuple parseBinaryTemplate(SmartIterator& it, const TemplateHeadBinary::Parameters& params);
-
 WebssBinarySize checkBinarySize(WebssInt sizeInt);
+Tuple parseBinaryTemplate(BinaryIterator& it, const TemplateHeadBinary::Parameters& params);
+Webss parseBinary(BinaryIterator& it, const ParamBinary& bhead);
+Webss parseBinary(BinaryIterator& it, const ParamBinary& bhead, function<Webss()> func);
+Webss parseBinaryElement(BinaryIterator& it, const ParamBinary::SizeHead& bhead);
+Webss parseBinaryKeyword(BinaryIterator& it, Keyword keyword);
 
 void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 {
-	++it;
+	nextTag = getTag(++it);
 	using Bhead = ParamBinary::SizeHead;
 	using Blist = ParamBinary::SizeList;
 
 	Bhead bhead;
 	Blist blist;
-	if (*skipJunkToValid(it) == CLOSE_TUPLE)
+	if (nextTag == Tag::END_TUPLE)
 	{
 		bhead = Bhead(Bhead::Type::EMPTY);
 		blist = Blist(Blist::Type::ONE);
 	}
-	else if (*it == OPEN_LIST)
+	else if (nextTag == Tag::START_LIST)
 	{
 		bhead = Bhead(Bhead::Type::EMPTY);
 		blist = Blist(parseBinarySizeList());
 	}
 	else
 	{
-		if (isNameStart(*it))
+		if (nextTag == Tag::NAME_START)
 		{
 			auto nameType = parseNameType();
 			switch (nameType.type)
@@ -65,9 +64,9 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 				throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(nameType.name));
 			}
 		}
-		else if (isNumberStart(*it))
+		else if (nextTag == Tag::NUMBER_START)
 			bhead = Bhead(checkBinarySize(parseNumber().getIntSafe()));
-		else if (*it == OPEN_TEMPLATE)
+		else if (nextTag == Tag::START_TEMPLATE)
 		{
 			auto headWebss = parseTemplateHead();
 			switch (headWebss.getType())
@@ -83,14 +82,14 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 			}
 		}
 
-		if (*skipJunkToValid(it) == OPEN_LIST)
+		if (getTag(it) == Tag::START_LIST)
 			blist = Blist(parseBinarySizeList());
 		else
 			blist = Blist(Blist::Type::ONE);
 	}
 
 	skipJunkToTag(it, Tag::END_TUPLE);
-	skipJunkToValid(++it);
+	nextTag = getTag(++it);
 	parseOtherValue(
 		CaseKeyValue
 		{
@@ -117,23 +116,25 @@ ParamBinary::SizeList Parser::parseBinarySizeList()
 	Blist blist;
 	try
 	{
-		if (isNameStart(*it))
+		if (nextTag == Tag::NAME_START)
 		{
 			auto nameType = parseNameType();
 			if (nameType.type != NameType::ENTITY_CONCRETE)
 				throw;
 			blist = Blist(checkEntTypeBinarySize(nameType.entity));
 		}
-		else if (isNumberStart(*it))
+		else if (nextTag == Tag::NUMBER_START)
 			blist = Blist(checkBinarySize(parseNumber().getIntSafe()));
 		else
+			throw;
+
+		if (checkNextElement())
 			throw;
 	}
 	catch (const exception&)
 	{
 		throw runtime_error("value in binary list must be void or a positive integer");
 	}
-	++skipJunkToTag(it, Tag::END_LIST);
 	return blist;
 }
 
@@ -157,11 +158,16 @@ WebssBinarySize checkBinarySize(WebssInt sizeInt)
 Tuple Parser::parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params)
 {
 	BinaryIterator itBin(it);
-	auto tuple = parseBinaryTemplate(it, params);
+	auto tuple = parseBinaryTemplate(itBin, params);
 	if (++it != CLOSE_TUPLE)
 		throw runtime_error(webss_ERROR_EXPECTED_CHAR(CLOSE_TUPLE));
 	++it;
 	return tuple;
+}
+
+inline void setDefaultValueBinary(Webss& value, const ParamBinary& param)
+{
+	value = Webss(param.getSizeHead().getDefaultPointer());
 }
 
 Tuple parseBinaryTemplate(BinaryIterator& it, const TemplateHeadBinary::Parameters& params)
@@ -178,11 +184,6 @@ Tuple parseBinaryTemplate(BinaryIterator& it, const TemplateHeadBinary::Paramete
 			tuple[i] = param.getSizeHead().isSelf() ? parseBinaryTemplate(it, params) : parseBinary(it, param);
 	}
 	return tuple;
-}
-
-void setDefaultValueBinary(Webss& value, const ParamBinary& param)
-{
-	value = Webss(param.getSizeHead().getDefaultPointer());
 }
 
 Webss parseBinary(BinaryIterator& it, const ParamBinary& param)
@@ -224,7 +225,7 @@ Webss parseBinaryElement(BinaryIterator& it, const ParamBinary::SizeHead& bhead)
 		return Webss(move(value));
 	}
 
-	return Webss(it.readString(std::ceil(length / 8)));
+	return Webss(it.readString((string::size_type)std::ceil(length / 8)));
 }
 
 Webss parseBinaryKeyword(BinaryIterator& it, Keyword keyword)

@@ -71,6 +71,7 @@ namespace webss
 			bits <<= numBitsPart2; //make space for part 2
 			bits |= (byteBlock & getBitmask(numBitsPart2));
 			bitshift = numBitsPart2;
+			return bits;
 		}
 
 		//reads a number following UTF-7 encoding thing
