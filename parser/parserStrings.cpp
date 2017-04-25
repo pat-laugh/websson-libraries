@@ -3,9 +3,9 @@
 #include "parser.h"
 
 #include "unicode.h"
-#include "WebssonUtils/constants.h"
-#include "WebssonUtils/utils.h"
-#include "WebssonUtils/utilsWebss.h"
+#include "utils/constants.h"
+#include "utils/utils.h"
+#include "utils/utilsWebss.h"
 #include "errors.h"
 
 using namespace std;

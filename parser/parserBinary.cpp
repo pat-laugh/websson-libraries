@@ -8,8 +8,8 @@
 
 #include "errors.h"
 #include "patternsContainers.h"
-#include "WebssonUtils/constants.h"
-#include "WebssonUtils/utilsWebss.h"
+#include "utils/constants.h"
+#include "utils/utilsWebss.h"
 #include "binaryIterator.h"
 
 using namespace std;

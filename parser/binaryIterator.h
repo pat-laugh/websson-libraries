@@ -5,8 +5,8 @@
 #include <assert.h>
 #include <stdexcept>
 
-#include "WebssonUtils/iterators.h"
-#include "WebssonUtils/stringBuilder.h"
+#include "utils/iterators.h"
+#include "utils/stringBuilder.h"
 
 namespace webss
 {

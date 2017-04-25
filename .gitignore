@@ -13,7 +13,7 @@
 !*.css
 !*.txt
 !*.md
-!WebssonDeserializer/
-!WebssonParser/
-!WebssonStructures/
-!WebssonUtils/
+!deserializer/
+!parser/
+!structures/
+!utils/

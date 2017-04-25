@@ -5,8 +5,8 @@
 #include <functional>
 #include <set>
 
-#include "WebssonUtils/conType.h"
-#include "WebssonUtils/iterators.h"
+#include "utils/conType.h"
+#include "utils/iterators.h"
 
 namespace webss
 {

@@ -6,9 +6,9 @@
 #include <memory>
 #include <set>
 
-#include "WebssonStructures/webss.h"
-#include "WebssonUtils/conType.h"
-#include "WebssonUtils/stringBuilder.h"
+#include "structures/webss.h"
+#include "utils/conType.h"
+#include "utils/stringBuilder.h"
 
 namespace webss
 {

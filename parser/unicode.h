@@ -2,8 +2,8 @@
 //Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include "WebssonUtils/iterators.h"
-#include "WebssonUtils/stringBuilder.h"
+#include "utils/iterators.h"
+#include "utils/stringBuilder.h"
 
 namespace webss
 {

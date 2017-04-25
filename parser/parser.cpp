@@ -4,7 +4,7 @@
 
 #include <cassert>
 
-#include "WebssonUtils/constants.h"
+#include "utils/constants.h"
 #include "errors.h"
 
 using namespace std;

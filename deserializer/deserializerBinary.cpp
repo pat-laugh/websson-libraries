@@ -2,8 +2,8 @@
 //Copyright(c) 2017 Patrick Laughrea
 #include "deserializer.h"
 
-#include "WebssonUtils/constants.h"
-#include "WebssonUtils/utils.h"
+#include "utils/constants.h"
+#include "utils/utils.h"
 
 using namespace std;
 using namespace webss;

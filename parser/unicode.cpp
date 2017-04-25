@@ -8,7 +8,7 @@
 #include "errors.h"
 #include "utilsNumbers.h"
 #include "utilsSweepers.h"
-#include "WebssonUtils/utils.h"
+#include "utils/utils.h"
 
 using namespace std;
 using namespace webss;

@@ -2,8 +2,8 @@
 //Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include "WebssonStructures/types.h"
-#include "WebssonUtils/iterators.h"
+#include "structures/types.h"
+#include "utils/iterators.h"
 
 namespace webss
 {

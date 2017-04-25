@@ -5,7 +5,7 @@
 #include <set>
 #include <unordered_map>
 
-#include "WebssonStructures/entity.h"
+#include "structures/entity.h"
 
 namespace webss
 {

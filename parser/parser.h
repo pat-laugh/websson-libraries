@@ -4,9 +4,9 @@
 
 #include "entityManager.h"
 #include "utilsSweepers.h"
-#include "WebssonStructures/webss.h"
-#include "WebssonUtils/stringBuilder.h"
-#include "WebssonUtils/constants.h"
+#include "structures/webss.h"
+#include "utils/stringBuilder.h"
+#include "utils/constants.h"
 
 namespace webss
 {

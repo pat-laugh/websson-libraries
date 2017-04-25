@@ -1,8 +1,0 @@
-
-(ee=25)::<20>
-(ee=25)::<>
-::(f)<ss>
-
-binaryFunction(<I>myInt[], <bool>myBool[], <>myString[2], <bool>singleBool)
-<	00001111234500001111234500001111qwfr  %*/+This is my string! There are 43 characters! This one has only 32 characters!T>
-

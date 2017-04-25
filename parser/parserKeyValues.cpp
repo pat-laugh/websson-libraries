@@ -3,8 +3,8 @@
 #include "parser.h"
 
 #include "errors.h"
-#include "WebssonUtils/constants.h"
-#include "WebssonUtils/utilsWebss.h"
+#include "utils/constants.h"
+#include "utils/utilsWebss.h"
 
 using namespace std;
 using namespace webss;
