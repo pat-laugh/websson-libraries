@@ -1,1 +1,1 @@
-'# WebSSON Serializer' 
+# WebSSON Serializer
