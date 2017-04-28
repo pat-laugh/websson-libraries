@@ -26,6 +26,7 @@ namespace webss
 		This() : keys(new Keymap()) {}
 		This(Data&& data) : keys(nullptr), data(std::move(data)) {}
 		This(const std::shared_ptr<Keymap>& keys) : keys(keys), data(keys->size()) {}
+		This(const std::shared_ptr<Keymap>& keys, const Data& data) : keys(keys), data(data) {}
 
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }
@@ -91,6 +92,8 @@ namespace webss
 		}
 
 		const std::shared_ptr<Keymap>& getSharedKeys() const { return keys; }
+
+		const Data& getData() const { return data; }
 
 		iterator begin() { return data.begin(); }
 		iterator end() { return data.end(); }

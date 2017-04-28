@@ -66,12 +66,68 @@ public:
 			return funcTemplTupleRegular(params);
 		case Tag::TEXT_TUPLE:
 			return funcTemplTupleText(params);
+		case Tag::NAME_START:
+			return checkTemplateBodyEntity(params);
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
 	}
 
 private:
+	template <class Parameters>
+	Webss checkTemplateBodyEntity(const Parameters& params)
+	{
+		throw runtime_error(ERROR_UNEXPECTED);
+	}
+
+	template <>
+	Webss checkTemplateBodyEntity<TemplateHeadStandard::Parameters>(const TemplateHeadStandard::Parameters& params)
+	{
+		auto value = parseValueOnly();
+		switch (value.getTypeSafe())
+		{
+		case WebssType::DICTIONARY:
+			return checkTemplateBodyEntityDict(params, value.getDictionarySafe());
+		case WebssType::LIST:
+			return checkTemplateBodyEntityList(params, value.getListSafe());
+		case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
+			return checkTemplateBodyEntityTuple(params, value.getTupleSafe());
+		default:
+			throw runtime_error("expected entity with template body structure");
+		}
+	}
+
+	template <class Parameters>
+	Dictionary checkTemplateBodyEntityDict(const Parameters& params, const Dictionary& entityDict)
+	{
+		Dictionary dict;
+		for (const auto& keyValue : entityDict)
+		{
+			if (keyValue.second.isList())
+				dict.add(keyValue.first, checkTemplateBodyEntityList(params, keyValue.second.getListSafe()));
+			else
+				dict.add(keyValue.first, checkTemplateBodyEntityTuple(params, keyValue.second.getTupleSafe()));
+		}
+		return dict;
+	}
+
+	template <class Parameters>
+	List checkTemplateBodyEntityList(const Parameters& params, const List& entityList)
+	{
+		List list;
+		for (const auto& elem : entityList)
+			list.add(checkTemplateBodyEntityTuple(params, elem.getTupleSafe()));
+		return list;
+	}
+
+	template <class Parameters>
+	Tuple checkTemplateBodyEntityTuple(const Parameters& params, const Tuple& entityTuple)
+	{
+		Tuple tuple(params.getSharedKeys(), entityTuple.getData());
+		checkDefaultValues(tuple, params);
+		return tuple;
+	}
+
 	template <class Parameters>
 	Dictionary parseTemplateDictionary(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
@@ -96,6 +152,9 @@ private:
 			case Tag::TEXT_TUPLE:
 				dict.addSafe(move(name), funcTemplTupleText(params));
 				break;
+			case Tag::NAME_START:
+				dict.addSafe(move(name), checkTemplateBodyEntity(params));
+				break;
 			default:
 				throw runtime_error(ERROR_UNEXPECTED);
 			}
@@ -111,6 +170,8 @@ private:
 				list.add(funcTemplTupleRegular(params));
 			else if (nextTag == Tag::TEXT_TUPLE)
 				list.add(funcTemplTupleText(params));
+			else if (nextTag == Tag::NAME_START)
+				list.add(checkTemplateBodyEntity(params));
 			else
 				throw runtime_error(ERROR_UNEXPECTED);
 		});
@@ -129,14 +190,6 @@ private:
 				{
 				case Tag::SEPARATOR: //void
 					break;
-				case Tag::NAME_START:
-				{
-					if (params.at(index).hasTemplateHead())
-						throw runtime_error(ERROR_UNEXPECTED);
-					auto value = parseValueOnly();
-					tuple.at(index) = move(value);
-					break;
-				}
 				case Tag::EXPLICIT_NAME:
 				{
 					auto name = parseNameExplicit();

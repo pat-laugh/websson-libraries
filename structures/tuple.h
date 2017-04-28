@@ -15,5 +15,6 @@ namespace webss
 		BasicTuple() : base() {}
 		BasicTuple(Data&& data) : base(std::move(data)) {}
 		BasicTuple(const std::shared_ptr<Keymap>& keys) : base(keys) {}
+		BasicTuple(const std::shared_ptr<Keymap>& keys, const Data& data) : base(keys, data) {}
 	};
 }
