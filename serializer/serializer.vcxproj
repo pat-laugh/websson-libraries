@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A2D66695-B9F4-4B25-9816-B4BB3E7DCBF3}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>deserializer</RootNamespace>
+    <RootNamespace>serializer</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -131,11 +131,11 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="deserializer.h" />
+    <ClInclude Include="serializer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="deserializer.cpp" />
-    <ClCompile Include="deserializerBinary.cpp" />
+    <ClCompile Include="serializer.cpp" />
+    <ClCompile Include="serializerBinary.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\structures\structures.vcxproj">

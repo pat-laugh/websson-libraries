@@ -3,7 +3,7 @@
 #include <string>
 
 #include "parser/parser.h"
-#include "deserializer/deserializer.h"
+#include "serializer/serializer.h"
 
 using namespace std;
 using namespace webss;
@@ -36,7 +36,7 @@ int main()
 			if (fileOut.fail()) { cerr << "Error: failed to open file \"" << fileOutName << "\"" << endl; cin >> inChar; exit(EXIT_FAILURE); }
 			try
 			{
-				fileOut << Deserializer::deserialize(data);
+				fileOut << Serializer::serialize(data);
 				fileOut.flush();
 				cout << "No errors while deserializing" << endl;
 			}

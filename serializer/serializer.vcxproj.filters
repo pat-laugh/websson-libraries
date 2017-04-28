@@ -18,15 +18,15 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="deserializer.h">
+    <ClInclude Include="serializer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="deserializer.cpp">
+    <ClCompile Include="serializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="deserializerBinary.cpp">
+    <ClCompile Include="serializerBinary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

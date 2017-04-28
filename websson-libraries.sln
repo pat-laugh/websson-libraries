@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tests", "tests\tests.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "parser", "parser\parser.vcxproj", "{3616DBE0-DC18-4B61-BD07-E4BBB390CE38}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "deserializer", "deserializer\deserializer.vcxproj", "{A2D66695-B9F4-4B25-9816-B4BB3E7DCBF3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "serializer", "serializer\serializer.vcxproj", "{A2D66695-B9F4-4B25-9816-B4BB3E7DCBF3}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "utils", "utils\utils.vcxproj", "{3B517F6E-CCDE-45CD-ACA0-ABE05330F677}"
 EndProject

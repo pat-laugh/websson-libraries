@@ -12,37 +12,37 @@
 
 namespace webss
 {
-	class Deserializer
+	class Serializer
 	{
 	public:
-		static void deserialize(StringBuilder& out, const Document& doc)
+		static void serialize(StringBuilder& out, const Document& doc)
 		{
-			Deserializer().putDocument(out, doc);
+			Serializer().putDocument(out, doc);
 		}
 		
-		static std::string deserialize(const Document& doc)
+		static std::string serialize(const Document& doc)
 		{
 			StringBuilder out;
-			deserialize(out, doc);
+			serialize(out, doc);
 			return out;
 		}
 
-		static void deserialize(StringBuilder& out, const DocumentHead& docHead)
+		static void serialize(StringBuilder& out, const DocumentHead& docHead)
 		{
-			Deserializer().putDocumentHead(out, docHead);
+			Serializer().putDocumentHead(out, docHead);
 		}
 
-		static std::string deserialize(const DocumentHead& docHead)
+		static std::string serialize(const DocumentHead& docHead)
 		{
 			StringBuilder out;
-			deserialize(out, docHead);
+			serialize(out, docHead);
 			return out;
 		}
 
 	protected:
 		std::set<void*> currentNamespaces;
 
-		Deserializer() {}
+		Serializer() {}
 
 
 		void putPreviousNamespaceNames(StringBuilder& out, const Namespace& nspace);

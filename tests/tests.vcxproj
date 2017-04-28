@@ -151,11 +151,11 @@
     <ClCompile Include="tests.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\deserializer\deserializer.vcxproj">
-      <Project>{a2d66695-b9f4-4b25-9816-b4bb3e7dcbf3}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\parser\parser.vcxproj">
       <Project>{3616dbe0-dc18-4b61-bd07-e4bbb390ce38}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\serializer\serializer.vcxproj">
+      <Project>{a2d66695-b9f4-4b25-9816-b4bb3e7dcbf3}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

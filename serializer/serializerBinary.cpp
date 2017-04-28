@@ -1,6 +1,6 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "deserializer.h"
+#include "serializer.h"
 
 #include "utils/constants.h"
 #include "utils/utils.h"
@@ -101,7 +101,7 @@ void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data)
 	}
 }
 
-void deserializeBitList(StringBuilder& out, const List& list)
+void serializeBitList(StringBuilder& out, const List& list)
 {
 	char c = 0;
 	int shift = 0;
@@ -132,7 +132,7 @@ void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data, 
 		writeBinarySize(out, list.size());
 
 	if (param.getSizeHead().isBool())
-		deserializeBitList(out, list);
+		serializeBitList(out, list);
 	else
 		for (const auto& webss : list)
 			func(webss);

@@ -1,6 +1,6 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "deserializer.h"
+#include "serializer.h"
 
 #include <cstdio>
 #include <limits>
@@ -55,7 +55,7 @@ void putSeparatedValues(StringBuilder& out, const Container& cont, function<void
 	}
 }
 
-class DeserializerTemplate : public Deserializer
+class SerializerTemplate : public Serializer
 {
 public:
 	template <ConType::Enum CON>
@@ -261,7 +261,7 @@ private:
 	}
 };
 
-void Deserializer::putPreviousNamespaceNames(StringBuilder& out, const Namespace& nspace)
+void Serializer::putPreviousNamespaceNames(StringBuilder& out, const Namespace& nspace)
 {
 	const auto& nspaces = nspace.getNamespaces();
 	if (!nspaces.empty())
@@ -279,12 +279,12 @@ void Deserializer::putPreviousNamespaceNames(StringBuilder& out, const Namespace
 	}
 }
 
-bool Deserializer::namespaceCurrentScope(const Namespace& nspace)
+bool Serializer::namespaceCurrentScope(const Namespace& nspace)
 {
 	return currentNamespaces.find(nspace.getPointer().get()) != currentNamespaces.end();
 }
 
-void Deserializer::putEntityName(StringBuilder& out, const Entity& ent)
+void Serializer::putEntityName(StringBuilder& out, const Entity& ent)
 {
 	if (ent.hasNamespace())
 	{
@@ -299,7 +299,7 @@ void Deserializer::putEntityName(StringBuilder& out, const Entity& ent)
 	out += ent.getName();
 }
 
-void Deserializer::putAbstractValue(StringBuilder& out, const Webss& webss, ConType con)
+void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss, ConType con)
 {
 	switch (webss.getType())
 	{
@@ -333,7 +333,7 @@ void Deserializer::putAbstractValue(StringBuilder& out, const Webss& webss, ConT
 	}
 }
 
-void Deserializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConType con)
+void Serializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConType con)
 {
 	switch (webss.getType())
 	{
@@ -392,7 +392,7 @@ void Deserializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConT
 	}
 }
 
-void Deserializer::putCharValue(StringBuilder& out, const Webss& value, ConType con)
+void Serializer::putCharValue(StringBuilder& out, const Webss& value, ConType con)
 {
 	switch (value.getType())
 	{
@@ -405,21 +405,21 @@ void Deserializer::putCharValue(StringBuilder& out, const Webss& value, ConType 
 	}
 }
 
-void Deserializer::putKeyValue(StringBuilder& out, const string& key, const Webss& value, ConType con)
+void Serializer::putKeyValue(StringBuilder& out, const string& key, const Webss& value, ConType con)
 {
-	assert(value.getType() != WebssType::DEFAULT && "can't deserialize this type with key");
+	assert(value.getType() != WebssType::DEFAULT && "can't serialize this type with key");
 
 	out += key;
 	putCharValue(out, value, con);
 }
 
-void Deserializer::putInt(StringBuilder& out, WebssInt i)
+void Serializer::putInt(StringBuilder& out, WebssInt i)
 {
 	assert(i != numeric_limits<WebssInt>::min());
 	out += to_string(i);
 }
 
-void Deserializer::putDouble(StringBuilder& out, double d)
+void Serializer::putDouble(StringBuilder& out, double d)
 {
 	assert(std::isfinite(d));
 	char buffer[32];
@@ -471,7 +471,7 @@ bool isMustEscapeChar(char c)
 	return c == '?' || c == '\\' || isControlAscii(c);
 }
 
-void Deserializer::putLineString(StringBuilder& out, const string& str, ConType con)
+void Serializer::putLineString(StringBuilder& out, const string& str, ConType con)
 {
 	if (str.empty())
 		return;
@@ -507,7 +507,7 @@ void Deserializer::putLineString(StringBuilder& out, const string& str, ConType 
 	} while (++it != str.end());
 }
 
-void Deserializer::putCstring(StringBuilder& out, const string& str)
+void Serializer::putCstring(StringBuilder& out, const string& str)
 {
 	out += CHAR_CSTRING;
 	if (!str.empty())
@@ -519,7 +519,7 @@ void Deserializer::putCstring(StringBuilder& out, const string& str)
 	out += CHAR_CSTRING;
 }
 
-void Deserializer::putDocument(StringBuilder& out, const Document& doc)
+void Serializer::putDocument(StringBuilder& out, const Document& doc)
 {
 	static const auto CON = ConType::DOCUMENT;
 
@@ -539,12 +539,12 @@ void Deserializer::putDocument(StringBuilder& out, const Document& doc)
 	});
 }
 
-void Deserializer::putDocumentHead(StringBuilder& out, const DocumentHead& docHead)
+void Serializer::putDocumentHead(StringBuilder& out, const DocumentHead& docHead)
 {
-	static_cast<DeserializerTemplate*>(this)->putDocumentHead<ConType::DOCUMENT>(out, docHead);
+	static_cast<SerializerTemplate*>(this)->putDocumentHead<ConType::DOCUMENT>(out, docHead);
 }
 
-void Deserializer::putAbstractEntity(StringBuilder& out, const Entity& ent, ConType con)
+void Serializer::putAbstractEntity(StringBuilder& out, const Entity& ent, ConType con)
 {
 	const auto& content = ent.getContent();
 	assert(content.isAbstract());
@@ -553,7 +553,7 @@ void Deserializer::putAbstractEntity(StringBuilder& out, const Entity& ent, ConT
 	putAbstractValue(out, content, con);
 }
 
-void Deserializer::putConcreteEntity(StringBuilder& out, const Entity& ent, ConType con)
+void Serializer::putConcreteEntity(StringBuilder& out, const Entity& ent, ConType con)
 {
 	const auto& content = ent.getContent();
 	assert(content.isConcrete());
@@ -562,7 +562,7 @@ void Deserializer::putConcreteEntity(StringBuilder& out, const Entity& ent, ConT
 	putCharValue(out, content, con);
 }
 
-void Deserializer::putImportedDocument(StringBuilder& out, const ImportedDocument& importDoc, ConType con)
+void Serializer::putImportedDocument(StringBuilder& out, const ImportedDocument& importDoc, ConType con)
 {
 	const auto& name = importDoc.getName();
 	assert(name.isString());
@@ -573,22 +573,22 @@ void Deserializer::putImportedDocument(StringBuilder& out, const ImportedDocumen
 		putConcreteValue(out, name, con);
 }
 
-void Deserializer::putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc)
+void Serializer::putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc)
 {
 	out += CHAR_SCOPED_DOCUMENT;
 	putTheadScoped(out, scopedDoc.head);
 	NamespaceIncluder includer(currentNamespaces, scopedDoc.head.getParameters());
-	static_cast<DeserializerTemplate*>(this)->putDocumentHead<ConType::DICTIONARY>(out, scopedDoc.body);
+	static_cast<SerializerTemplate*>(this)->putDocumentHead<ConType::DICTIONARY>(out, scopedDoc.body);
 }
 
-void Deserializer::putUsingNamespace(StringBuilder& out, const Namespace& nspace)
+void Serializer::putUsingNamespace(StringBuilder& out, const Namespace& nspace)
 {
 	out += CHAR_USING_NAMESPACE;
 	putPreviousNamespaceNames(out, nspace);
 	out += nspace.getName();
 }
 
-void Deserializer::putNamespace(StringBuilder& out, const Namespace& nspace)
+void Serializer::putNamespace(StringBuilder& out, const Namespace& nspace)
 {
 	static const auto CON = ConType::DICTIONARY;
 	NamespaceIncluder includer(currentNamespaces, nspace);
@@ -601,14 +601,14 @@ void Deserializer::putNamespace(StringBuilder& out, const Namespace& nspace)
 	});
 }
 
-void Deserializer::putEnum(StringBuilder& out, const Enum& tEnum)
+void Serializer::putEnum(StringBuilder& out, const Enum& tEnum)
 {
 	static const auto CON = ConType::LIST;
 	NamespaceIncluder includer(currentNamespaces, tEnum);
 	putSeparatedValues<Enum, CON>(out, tEnum, [&](Enum::const_iterator it) { putEntityName(out, *it); });
 }
 
-void Deserializer::putBlockHead(StringBuilder& out, const BlockHead& blockHead)
+void Serializer::putBlockHead(StringBuilder& out, const BlockHead& blockHead)
 {
 	out += OPEN_TEMPLATE;
 	if (blockHead.hasEntity())
@@ -616,26 +616,26 @@ void Deserializer::putBlockHead(StringBuilder& out, const BlockHead& blockHead)
 	out += CLOSE_TEMPLATE;
 }
 
-void Deserializer::putDictionary(StringBuilder& out, const Dictionary& dict)
+void Serializer::putDictionary(StringBuilder& out, const Dictionary& dict)
 {
 	static const auto CON = ConType::DICTIONARY;
 	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it) { putKeyValue(out, it->first, it->second, CON); });
 }
 
-void Deserializer::putList(StringBuilder& out, const List& list)
+void Serializer::putList(StringBuilder& out, const List& list)
 {
 	static const auto CON = ConType::LIST;
 	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it) { putConcreteValue(out, *it, CON); });
 }
 
-void Deserializer::putListText(StringBuilder& out, const List& list)
+void Serializer::putListText(StringBuilder& out, const List& list)
 {
 	static const auto CON = ConType::LIST;
 	out += ASSIGN_CONTAINER_STRING;
 	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it) { putLineString(out, it->getStringSafe(), CON); });
 }
 
-void Deserializer::putTuple(StringBuilder& out, const Tuple& tuple)
+void Serializer::putTuple(StringBuilder& out, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
 	using Type = decltype(tuple.getOrderedKeyValues());
@@ -648,14 +648,14 @@ void Deserializer::putTuple(StringBuilder& out, const Tuple& tuple)
 	});
 }
 
-void Deserializer::putTupleText(StringBuilder& out, const Tuple& tuple)
+void Serializer::putTupleText(StringBuilder& out, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
 	out += ASSIGN_CONTAINER_STRING;
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it) { putLineString(out, it->getStringSafe(), CON); });
 }
 
-void Deserializer::putTheadScoped(StringBuilder& out, const TemplateHeadScoped& thead)
+void Serializer::putTheadScoped(StringBuilder& out, const TemplateHeadScoped& thead)
 {
 	static const auto CON = ConType::TEMPLATE_HEAD;
 	ContainerIncluder<CON> includer(out);
@@ -684,25 +684,25 @@ void Deserializer::putTheadScoped(StringBuilder& out, const TemplateHeadScoped& 
 		});
 	}
 }
-void Deserializer::putTheadSelf(StringBuilder& out)
+void Serializer::putTheadSelf(StringBuilder& out)
 {
 	ContainerIncluder<ConType::TEMPLATE_HEAD> includer(out);
 	out += CHAR_SELF;
 }
-void Deserializer::putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
+void Serializer::putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
 {
-	static_cast<DeserializerTemplate*>(this)->putTheadBinary(out, thead);
+	static_cast<SerializerTemplate*>(this)->putTheadBinary(out, thead);
 }
-void Deserializer::putTheadStandard(StringBuilder& out, const TemplateHeadStandard& thead)
+void Serializer::putTheadStandard(StringBuilder& out, const TemplateHeadStandard& thead)
 {
-	static_cast<DeserializerTemplate*>(this)->putTheadStandard(out, thead);
+	static_cast<SerializerTemplate*>(this)->putTheadStandard(out, thead);
 }
-void Deserializer::putTheadText(StringBuilder& out, const TemplateHeadStandard& thead)
+void Serializer::putTheadText(StringBuilder& out, const TemplateHeadStandard& thead)
 {
-	static_cast<DeserializerTemplate*>(this)->putTheadText(out, thead);
+	static_cast<SerializerTemplate*>(this)->putTheadText(out, thead);
 }
 
-void Deserializer::putFuncBinary(StringBuilder& out, const TemplateBinary& templ)
+void Serializer::putFuncBinary(StringBuilder& out, const TemplateBinary& templ)
 {
 	auto putTupleRegular = [&](StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple) { putFuncBinaryTuple(out, params, tuple); };
 	auto putTupleText = [&](StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple) { putFuncBinaryTuple(out, params, tuple); };
@@ -712,10 +712,10 @@ void Deserializer::putFuncBinary(StringBuilder& out, const TemplateBinary& templ
 	switch (templ.getType())
 	{
 	case WebssType::DICTIONARY:
-		static_cast<DeserializerTemplate*>(this)->putTemplateDictionary<TemplateHeadBinary::Parameters>(out, params, templ.getDictionary(), move(putTupleRegular), move(putTupleText));
+		static_cast<SerializerTemplate*>(this)->putTemplateDictionary<TemplateHeadBinary::Parameters>(out, params, templ.getDictionary(), move(putTupleRegular), move(putTupleText));
 		break;
 	case WebssType::LIST:
-		static_cast<DeserializerTemplate*>(this)->putTemplateList<TemplateHeadBinary::Parameters>(out, params, templ.getList(), move(putTupleRegular), move(putTupleText));
+		static_cast<SerializerTemplate*>(this)->putTemplateList<TemplateHeadBinary::Parameters>(out, params, templ.getList(), move(putTupleRegular), move(putTupleText));
 		break;
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		putFuncBinaryTuple(out, params, templ.getTuple());
@@ -725,23 +725,23 @@ void Deserializer::putFuncBinary(StringBuilder& out, const TemplateBinary& templ
 	}
 }
 
-void Deserializer::putFuncStandard(StringBuilder& out, const TemplateStandard& templ)
+void Serializer::putFuncStandard(StringBuilder& out, const TemplateStandard& templ)
 {
 	putTheadStandard(out, templ);
 	putFuncStandardBody(out, templ.getParameters(), templ.getWebss());
 }
 
-void Deserializer::putFuncStandardBody(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Webss& body)
+void Serializer::putFuncStandardBody(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Webss& body)
 {
 	auto putTupleRegular = [&](StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple) { putFuncStandardTuple(out, params, tuple); };
 	auto putTupleText = [&](StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple) { putFuncStandardTupleText(out, params, tuple); };
 	switch (body.getType())
 	{
 	case WebssType::DICTIONARY:
-		static_cast<DeserializerTemplate*>(this)->putTemplateDictionary<TemplateHeadStandard::Parameters>(out, params, body.getDictionary(), move(putTupleRegular), move(putTupleText));
+		static_cast<SerializerTemplate*>(this)->putTemplateDictionary<TemplateHeadStandard::Parameters>(out, params, body.getDictionary(), move(putTupleRegular), move(putTupleText));
 		break;
 	case WebssType::LIST:
-		static_cast<DeserializerTemplate*>(this)->putTemplateList<TemplateHeadStandard::Parameters>(out, params, body.getList(), move(putTupleRegular), move(putTupleText));
+		static_cast<SerializerTemplate*>(this)->putTemplateList<TemplateHeadStandard::Parameters>(out, params, body.getList(), move(putTupleRegular), move(putTupleText));
 		break;
 	case WebssType::TUPLE:
 		putFuncStandardTuple(out, params, body.getTuple());
@@ -754,7 +754,7 @@ void Deserializer::putFuncStandardBody(StringBuilder& out, const TemplateHeadSta
 	}
 }
 
-void Deserializer::putFuncText(StringBuilder& out, const TemplateStandard& templ)
+void Serializer::putFuncText(StringBuilder& out, const TemplateStandard& templ)
 {
 	auto putTupleRegular = [&](StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple) { putFuncTextTuple(out, params, tuple); };
 	auto putTupleText = [&](StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple) { putFuncTextTuple(out, params, tuple); };
@@ -764,10 +764,10 @@ void Deserializer::putFuncText(StringBuilder& out, const TemplateStandard& templ
 	switch (templ.getType())
 	{
 	case WebssType::DICTIONARY:
-		static_cast<DeserializerTemplate*>(this)->putTemplateDictionary<TemplateHeadStandard::Parameters>(out, params, templ.getDictionary(), move(putTupleRegular), move(putTupleText));
+		static_cast<SerializerTemplate*>(this)->putTemplateDictionary<TemplateHeadStandard::Parameters>(out, params, templ.getDictionary(), move(putTupleRegular), move(putTupleText));
 		break;
 	case WebssType::LIST:
-		static_cast<DeserializerTemplate*>(this)->putTemplateList<TemplateHeadStandard::Parameters>(out, params, templ.getList(), move(putTupleRegular), move(putTupleText));
+		static_cast<SerializerTemplate*>(this)->putTemplateList<TemplateHeadStandard::Parameters>(out, params, templ.getList(), move(putTupleRegular), move(putTupleText));
 		break;
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		putFuncTextTuple(out, params, templ.getTuple());
@@ -777,13 +777,13 @@ void Deserializer::putFuncText(StringBuilder& out, const TemplateStandard& templ
 	}
 }
 
-void Deserializer::putFuncBinaryTuple(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
+void Serializer::putFuncBinaryTuple(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
 {
 	extern void putFuncBodyBinary(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple);
 	ContainerIncluder<ConType::TUPLE> includer(out);
 	putFuncBodyBinary(out, params, tuple);
 }
-void Deserializer::putFuncStandardTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
+void Serializer::putFuncStandardTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
 	assert(tuple.size() <= params.size() && "too many elements in template tuple");
@@ -803,7 +803,7 @@ void Deserializer::putFuncStandardTuple(StringBuilder& out, const TemplateHeadSt
 		}
 	});
 }
-void Deserializer::putFuncStandardTupleText(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
+void Serializer::putFuncStandardTupleText(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
 	assert(tuple.size() <= params.size() && "too many elements in template tuple");
@@ -831,7 +831,7 @@ void Deserializer::putFuncStandardTupleText(StringBuilder& out, const TemplateHe
 		assert(params[i++].hasDefaultValue());
 #endif
 }
-void Deserializer::putFuncTextTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
+void Serializer::putFuncTextTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
 	assert(tuple.size() <= params.size() && "too many elements in template tuple");
@@ -854,7 +854,7 @@ void Deserializer::putFuncTextTuple(StringBuilder& out, const TemplateHeadStanda
 	});
 }
 
-void Deserializer::putBlock(StringBuilder& out, const Block& block, ConType con)
+void Serializer::putBlock(StringBuilder& out, const Block& block, ConType con)
 {
 	if (block.hasEntity())
 	{
@@ -869,7 +869,7 @@ void Deserializer::putBlock(StringBuilder& out, const Block& block, ConType con)
 	}
 }
 
-void Deserializer::putFuncScoped(StringBuilder& out, const TemplateScoped& templ, ConType con)
+void Serializer::putFuncScoped(StringBuilder& out, const TemplateScoped& templ, ConType con)
 {
 	NamespaceIncluder includer(currentNamespaces, templ.getParameters());
 	if (templ.hasEntity())
