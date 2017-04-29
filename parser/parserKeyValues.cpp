@@ -96,7 +96,7 @@ Parser::OtherValue Parser::parseOtherValueName(string&& name)
 
 bool isTemplateBodyStart(Tag tag)
 {
-	return tag == Tag::START_TUPLE || tag == Tag::START_LIST || tag == Tag::START_DICTIONARY;
+	return tag == Tag::START_TUPLE || tag == Tag::START_LIST || tag == Tag::START_DICTIONARY || tag == Tag::NAME_START;
 }
 
 Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
