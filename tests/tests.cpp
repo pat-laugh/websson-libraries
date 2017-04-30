@@ -12,7 +12,12 @@ int main()
 {
 	char inChar;
 
+//#define TEST
+#ifdef TEST
+	for (int i = 0; i < 2000; ++i)
+#else
 	do
+#endif
 	{
 		string filename("testWebsson");
 		Document data;
@@ -51,8 +56,12 @@ int main()
 			cout << "Parse failed: " << e.what() << endl;
 		}
 		fileIn.close();
+#ifdef TEST
+	}
+#else
 		cin >> inChar;
 	} while (inChar != 'q');
+#endif
 
     return 0;
 }
