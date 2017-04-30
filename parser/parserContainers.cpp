@@ -2,14 +2,11 @@
 //Copyright(c) 2017 Patrick Laughrea
 #include "parser.h"
 
-//#define DISABLE_IMPORT
-#ifndef DISABLE_IMPORT
-#include "curl.h"
-#endif
 #include "errors.h"
 #include "patternsContainers.h"
 #include "utils/constants.h"
 #include "utils/utilsWebss.h"
+#include "importManager.h"
 
 using namespace std;
 using namespace webss;
@@ -294,9 +291,6 @@ void Parser::parseScopedDocument(vector<ParamDocument>& docHead)
 
 ImportedDocument Parser::parseImport()
 {
-#ifdef DISABLE_IMPORT
-	throw runtime_error("this parser cannot import documents");
-#else
 	nextTag = getTag(it);
 	auto importName = parseValueOnly();
 	if (!importName.isString())
@@ -308,7 +302,7 @@ ImportedDocument Parser::parseImport()
 		try
 		{
 			importedDocuments.addLocalSafe(link, 0);
-			ImportSwitcher switcher(*this, SmartIterator(Curl().readWebDocument(link)));
+			ImportSwitcher switcher(*this, SmartIterator(ImportManager::getInstance().importDocument(link)));
 			DocumentHead docHead;
 			if (!containerEmpty() && !parseDocumentHead(docHead, Namespace::getEmptyInstance()))
 				throw runtime_error(ERROR_UNEXPECTED);
@@ -317,7 +311,6 @@ ImportedDocument Parser::parseImport()
 			{ throw runtime_error(string("while parsing import, ") + e.what()); }
 	}
 	return import;
-#endif
 }
 
 const Namespace& Parser::parseUsingNamespaceStatic()
