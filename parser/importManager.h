@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 #include <unordered_map>
 
 namespace webss
@@ -8,7 +9,7 @@ namespace webss
 	class ImportManager
 	{
 	private:
-		std::unordered_map<std::string, std::string> docs;
+		std::unordered_map<std::string, std::stringstream> docs;
 
 		ImportManager() {}
 	public:
@@ -18,6 +19,6 @@ namespace webss
 			return instance;
 		}
 
-		std::string importDocument(std::string link);
+		std::stringstream importDocument(std::string link);
 	};
 }
