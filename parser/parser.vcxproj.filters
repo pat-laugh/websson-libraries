@@ -45,6 +45,9 @@
     <ClInclude Include="utilsSweepers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="importManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="parser.cpp">
@@ -81,6 +84,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utilsSweepers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="importManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
