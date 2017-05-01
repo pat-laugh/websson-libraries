@@ -127,8 +127,11 @@ namespace webss
 					return static_cast<WebssBinarySize>(ent.getContent().getIntSafe());
 				case Type::NUMBER: case Type::BITS:
 					return number;
+#ifdef assert
 				default:
 					assert(false);
+					throw std::domain_error("");
+#endif
 				}
 			}
 		private:

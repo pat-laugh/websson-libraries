@@ -423,7 +423,8 @@ void Serializer::putDouble(StringBuilder& out, double d)
 {
 	assert(std::isfinite(d));
 	char buffer[32];
-	snprintf(buffer, 32, "%.17g", d);
+	int num = snprintf(buffer, 32, "%.17g", d);
+	assert(num > 0 && num < 32);
 	out += buffer;
 }
 

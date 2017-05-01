@@ -261,6 +261,11 @@ Webss Parser::parseTemplate()
 		auto body = parseTemplateBodyText(head.getParameters());
 		return{ move(head), move(body), true };
 	}
+#ifdef assert
+	default:
+		assert(false);
+		throw domain_error("");
+#endif
 	}
 }
 
