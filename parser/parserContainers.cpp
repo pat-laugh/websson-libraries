@@ -207,34 +207,34 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 	assert(it);
 	do
 	{
-		switch (*it)
+		switch (nextTag)
 		{
-		case CHAR_ABSTRACT_ENTITY:
+		case Tag::ENTITY_ABSTRACT:
 		{
 			auto ent = parseAbstractEntity(nspace);
 			docHead.push_back(ParamDocument::makeEntityAbstract(ent));
 			ents.addLocalSafe(move(ent));
 			break;
 		}
-		case CHAR_CONCRETE_ENTITY:
+		case Tag::ENTITY_CONCRETE:
 		{
 			auto ent = parseConcreteEntity();
 			docHead.push_back(ParamDocument::makeEntityConcrete(ent));
 			ents.addLocalSafe(move(ent));
 			break;
 		}
-		case CHAR_IMPORT:
+		case Tag::IMPORT:
 		{
 			++it;
 			auto import = parseImport();
 			docHead.push_back(move(import));
 			break;
 		}
-		case CHAR_SCOPED_DOCUMENT:
+		case Tag::USING:
 			++it;
 			parseScopedDocument(docHead);
 			break;
-		case CHAR_OPTION:
+		case Tag::OPTION:
 			++it;
 			parseOption();
 			break;

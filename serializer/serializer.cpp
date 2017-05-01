@@ -575,7 +575,7 @@ void Serializer::putImportedDocument(StringBuilder& out, const ImportedDocument&
 
 void Serializer::putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc)
 {
-	out += CHAR_SCOPED_DOCUMENT;
+	out += CHAR_USING;
 	putTheadScoped(out, scopedDoc.head);
 	NamespaceIncluder includer(currentNamespaces, scopedDoc.head.getParameters());
 	static_cast<SerializerTemplate*>(this)->putDocumentHead<ConType::DICTIONARY>(out, scopedDoc.body);
@@ -583,7 +583,7 @@ void Serializer::putScopedDocument(StringBuilder& out, const ScopedDocument& sco
 
 void Serializer::putUsingNamespace(StringBuilder& out, const Namespace& nspace)
 {
-	out += CHAR_USING_NAMESPACE;
+	out += CHAR_USING;
 	putPreviousNamespaceNames(out, nspace);
 	out += nspace.getName();
 }

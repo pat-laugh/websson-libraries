@@ -23,7 +23,7 @@ Webss Parser::parseTemplateHead()
 		return parseTemplateHeadStandard();
 	case Tag::START_TUPLE:
 		return parseTemplateHeadBinary();
-	case Tag::ENTITY_ABSTRACT: case Tag::ENTITY_CONCRETE: case Tag::USING_NAMESPACE:
+	case Tag::ENTITY_ABSTRACT: case Tag::ENTITY_CONCRETE: case Tag::USING:
 		return parseTemplateHeadScoped();
 	case Tag::SELF:
 		skipJunkToTag(++it, Tag::END_TEMPLATE);
@@ -128,7 +128,7 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 			thead.attach(ParamScoped::makeEntityConcrete(move(ent)));
 			break;
 		}
-		case Tag::USING_NAMESPACE:
+		case Tag::USING:
 		{
 			++it;
 			const Namespace& nspace = parseUsingNamespaceStatic();
