@@ -8,14 +8,13 @@ namespace webss
 	class ImportManager
 	{
 	private:
-		static ImportManager instance;
-
 		std::unordered_map<std::string, std::string> docs;
 
 		ImportManager() {}
 	public:
 		static ImportManager& getInstance()
 		{
+			static ImportManager instance;
 			return instance;
 		}
 
