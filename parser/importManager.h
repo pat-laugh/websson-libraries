@@ -19,6 +19,6 @@ namespace webss
 			return instance;
 		}
 
-		std::stringstream importDocument(std::string link);
+		std::stringstream importDocument(const std::string& link);
 	};
 }
