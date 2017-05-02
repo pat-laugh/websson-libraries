@@ -8,6 +8,10 @@
 using namespace std;
 using namespace webss;
 
+const Keyword::Enum Keyword::KEY_NULL;
+const Keyword::Enum Keyword::KEY_FALSE;
+const Keyword::Enum Keyword::KEY_TRUE;
+
 const unordered_map<string, Keyword> KEYWORDS = {
 	{ "N", Keyword::KEY_NULL },
 	{ "Nil", Keyword::KEY_NULL },

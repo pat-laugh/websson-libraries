@@ -1,6 +1,6 @@
 #include "importManager.h"
 
-//#define DISABLE_IMPORT
+#define DISABLE_IMPORT
 #ifndef DISABLE_IMPORT
 #include "curl.h"
 #endif

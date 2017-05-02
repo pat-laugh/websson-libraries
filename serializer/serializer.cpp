@@ -775,9 +775,10 @@ void Serializer::putFuncText(StringBuilder& out, const TemplateStandard& templ)
 	}
 }
 
+extern void putFuncBodyBinary(StringBuilder&, const TemplateHeadBinary::Parameters&, const Tuple&);
+
 void Serializer::putFuncBinaryTuple(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
 {
-	extern void putFuncBodyBinary(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple);
 	ContainerIncluder<ConType::TUPLE> includer(out);
 	putFuncBodyBinary(out, params, tuple);
 }
