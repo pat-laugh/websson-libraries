@@ -89,5 +89,8 @@
     <ClCompile Include="importManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="curl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
