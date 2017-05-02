@@ -155,7 +155,7 @@ namespace webss
 			This(const Entity& entNumber, bool isNumber)
 				: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
 			{
-				assert(entNumInt >= 0 && entNumInt <= std::numeric_limits<WebssBinarySize>::max());
+				assert(entNumInt >= 0 && static_cast<WebssBinarySize>(entNumInt) <= std::numeric_limits<WebssBinarySize>::max());
 			}
 			This(WebssBinarySize num, bool bits) : type(Type::BITS), number(num)
 			{
@@ -253,7 +253,7 @@ namespace webss
 			BasicSizeList(const Entity& entNumber)
 				: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
 			{
-				assert(entNumInt >= 0 && entNumInt <= std::numeric_limits<WebssBinarySize>::max());
+				assert(entNumInt >= 0 && static_cast<WebssBinarySize>(entNumInt) <= std::numeric_limits<WebssBinarySize>::max());
 			}
 			BasicSizeList(WebssBinarySize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
 

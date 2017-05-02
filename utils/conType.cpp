@@ -3,6 +3,7 @@
 #include "conType.h"
 
 #include <assert.h>
+#include <stdexcept>
 
 using namespace std;
 using namespace webss;

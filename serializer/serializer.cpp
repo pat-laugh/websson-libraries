@@ -2,6 +2,7 @@
 //Copyright(c) 2017 Patrick Laughrea
 #include "serializer.h"
 
+#include <cmath>
 #include <cstdio>
 #include <limits>
 #include <type_traits>

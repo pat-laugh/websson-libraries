@@ -167,7 +167,7 @@ const Entity& Parser::checkEntTypeBinarySize(const Entity& ent)
 
 WebssBinarySize checkBinarySize(WebssInt sizeInt)
 {
-	if (sizeInt > numeric_limits<WebssBinarySize>::max())
+	if (static_cast<WebssBinarySize>(sizeInt) > numeric_limits<WebssBinarySize>::max())
 		throw runtime_error("binary size is too big");
 	else if (sizeInt < 0)
 		throw runtime_error("binary size must be positive");
