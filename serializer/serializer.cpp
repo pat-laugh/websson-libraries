@@ -13,16 +13,14 @@
 using namespace std;
 using namespace webss;
 
-const char ERROR_ANONYMOUS_KEY[] = "can't have anonymous key in dictionary, template head or enum";
-
-template <ConType::Enum CON> void putContainerStart(StringBuilder& out) = delete;
+template <ConType::Enum CON> void putContainerStart(StringBuilder& out) { assert(false); }
 template <> void putContainerStart<ConType::DOCUMENT>(StringBuilder& out) {}
 template <> void putContainerStart<ConType::DICTIONARY>(StringBuilder& out) { out += OPEN_DICTIONARY; }
 template <> void putContainerStart<ConType::LIST>(StringBuilder& out) { out += OPEN_LIST; }
 template <> void putContainerStart<ConType::TUPLE>(StringBuilder& out) { out += OPEN_TUPLE; }
 template <> void putContainerStart<ConType::TEMPLATE_HEAD>(StringBuilder& out) { out += OPEN_TEMPLATE; }
 
-template <ConType::Enum CON> void putContainerEnd(StringBuilder& out) = delete;
+template <ConType::Enum CON> void putContainerEnd(StringBuilder& out) { assert(false); }
 template <> void putContainerEnd<ConType::DOCUMENT>(StringBuilder& out) {}
 template <> void putContainerEnd<ConType::DICTIONARY>(StringBuilder& out) { out += CLOSE_DICTIONARY; }
 template <> void putContainerEnd<ConType::LIST>(StringBuilder& out) { out += CLOSE_LIST; }
@@ -154,7 +152,7 @@ private:
 			using Type = typename remove_reference<decltype(keyValues)>::type;
 			putSeparatedValues<Type, CON>(out, keyValues, [&](typename Type::const_iterator it)
 			{
-				assert(it->first != nullptr && ERROR_ANONYMOUS_KEY);
+				assert(it->first != nullptr && "can't have anonymous key in dictionary, template head or enum");
 				putParam(out, *it->first, *it->second);
 			});
 		}
@@ -271,11 +269,11 @@ void Serializer::putPreviousNamespaceNames(StringBuilder& out, const Namespace& 
 		//then precede the entity's name with all the namespaces that were not in the current scope
 
 		auto i = nspaces.size();
-		while (--i >= 0 && !namespaceCurrentScope(*nspaces[i]))
-			;
+		while (i > 0 && !namespaceCurrentScope(*nspaces[i - 1]))
+			--i;
 
-		while (++i < nspaces.size())
-			out += nspaces[i]->getName() + CHAR_SCOPE;
+		while (i < nspaces.size())
+			out += nspaces[i++]->getName() + CHAR_SCOPE;
 	}
 }
 
@@ -511,12 +509,11 @@ void Serializer::putLineString(StringBuilder& out, const string& str, ConType co
 void Serializer::putCstring(StringBuilder& out, const string& str)
 {
 	out += CHAR_CSTRING;
-	if (!str.empty())
-		for (auto it = str.begin(); it != str.end(); ++it)
-			if (isMustEscapeChar(*it) || *it == CHAR_CSTRING)
-				addCharEscape(out, *it);
-			else
-				out += *it;
+	for (auto it = str.begin(); it != str.end(); ++it)
+		if (isMustEscapeChar(*it) || *it == CHAR_CSTRING)
+			addCharEscape(out, *it);
+		else
+			out += *it;
 	out += CHAR_CSTRING;
 }
 

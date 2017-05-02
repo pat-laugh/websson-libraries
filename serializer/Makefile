@@ -1,11 +1,8 @@
 # MIT License
 # Copyright(c) 2017 Patrick Laughrea
 
-DIR_UTILS = ../utils
-DIR_STRUCTURES = ../structures
-
 CC = g++
-OPTIONS = -std=c++11 -Wall -iquote .. -L$(DIR_UTILS) -lutils -L$(DIR_STRUCTURES) -lstructures
+OPTIONS = -std=c++11 -Wall -iquote ..
 LIBRARY = libserializer.a
 
 all: $(LIBRARY)
