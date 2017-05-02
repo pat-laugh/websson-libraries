@@ -8,17 +8,15 @@
 using namespace std;
 using namespace webss;
 
-stringstream ImportManager::importDocument(const string& link)
+string ImportManager::importDocument(const string& link)
 {
 #ifdef DISABLE_IMPORT
 	throw runtime_error("this parser cannot import documents");
 #else
 	auto doc = docs.find(link);
 	if (doc == docs.end())
-		doc = docs.insert({ link, Curl().readWebDocument(link) }).first;
-
-	stringstream ss;
-	ss << doc->second.rdbuf();
-	return ss;
+		doc = docs.insert({ link, Curl().readWebDocument(link).str() }).first;
+	
+	return doc->second;
 #endif
 }
