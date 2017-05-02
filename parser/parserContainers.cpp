@@ -223,7 +223,6 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 		}
 		case Tag::IMPORT:
 		{
-			++it;
 			auto import = parseImport();
 			docHead.push_back(move(import));
 			break;
@@ -320,7 +319,7 @@ ParamDocument Parser::parseUsingAll()
 
 ImportedDocument Parser::parseImport()
 {
-	nextTag = getTag(it);
+	nextTag = getTag(++it);
 	auto importName = parseValueOnly();
 	if (!importName.isString())
 		throw runtime_error("import must reference a string");
