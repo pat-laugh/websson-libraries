@@ -51,9 +51,9 @@ void Parser::initEnts()
 
 Parser::Parser() : it(SmartIterator(string(""))) { initEnts(); }
 Parser::Parser(SmartIterator&& it) : it(move(it)) { initEnts(); }
-Parser::Parser(const std::istream& in) : it(SmartIterator(in)) { initEnts(); }
-Parser::Parser(const std::stringstream& in) : it(SmartIterator(in)) { initEnts(); }
-Parser::Parser(const std::string& in) : it(SmartIterator(in)) { initEnts(); }
+Parser::Parser(const istream& in) : it(SmartIterator(in)) { initEnts(); }
+Parser::Parser(const stringstream& in) : it(SmartIterator(in)) { initEnts(); }
+Parser::Parser(const string& in) : it(SmartIterator(in)) { initEnts(); }
 
 Parser& Parser::setIterator(SmartIterator&& it)
 {

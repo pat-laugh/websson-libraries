@@ -24,7 +24,7 @@ namespace webss
 		Parser& addEntity(std::string&& name, Webss&& value);
 
 		Document parseDocument();
-	public:
+	protected:
 		BasicEntityManager<Webss> ents;
 		BasicEntityManager<void*> importedDocuments;
 		SmartIterator it;
