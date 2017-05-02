@@ -10,13 +10,17 @@ namespace webss
 	template <class Parameter>
 	class This : public BasicSharedMap<Parameter>
 	{
+	private:
+		using base = BasicSharedMap<Parameter>;
+		using Data = typename base::Data;
+		using Keymap = typename base::Keymap;
 	public:
 		This() : base() {}
 		This(Data&& data) : base(std::move(data)) {}
 		This(const std::shared_ptr<Keymap>& keys) : base(keys) {}
 
 		//instead of the keys being shared, this creates an indepedent copy of the keys and the data
-		This makeCompleteCopy() const { return This(*keys, data); }
+		This makeCompleteCopy() const { return This(*base::keys, base::data); }
 
 		void merge(const This& sender)
 		{
@@ -29,8 +33,6 @@ namespace webss
 					addSafe(*keyValue.first, *keyValue.second);
 		}
 	private:
-		using base = BasicSharedMap<Parameter>;
-
 		//there's a subtle, but important difference with the default copy constructor: default shares the keymap (through the shared pointer),
 		//whereas here the keymap itself is moved or copied
 		This(const Keymap& keymap, const Data& data) : base(keymap, data) {}

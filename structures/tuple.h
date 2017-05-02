@@ -11,6 +11,8 @@ namespace webss
 	{
 	private:
 		using base = BasicSharedMap<Webss>;
+		using Data = typename base::Data;
+		using Keymap = typename base::Keymap;
 	public:
 		BasicTuple() : base() {}
 		BasicTuple(Data&& data) : base(std::move(data)) {}

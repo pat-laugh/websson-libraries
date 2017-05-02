@@ -17,14 +17,14 @@ namespace webss
 		using Head = TemplateHead;
 		using Body = BasicTemplateBody<Webss>;
 	public:
-		This(Head&& head, typename Body::Dictionary&& Body) : Head(std::move(head)), Body(std::move(Body)) {}
-		This(const Head& head, const typename Body::Dictionary& Body) : Head(head), Body(Body) {}
-		This(Head&& head, typename Body::List&& Body) : Head(std::move(head)), Body(std::move(Body)) {}
-		This(const Head& head, const typename Body::List& Body) : Head(head), Body(Body) {}
-		This(Head&& head, typename Body::Tuple&& Body) : Head(std::move(head)), Body(std::move(Body)) {}
-		This(const Head& head, const typename Body::Tuple& Body) : Head(head), Body(Body) {}
-		This(Head&& head, typename Body::Tuple&& Body, bool isText) : Head(std::move(head)), Body(std::move(Body), true) {}
-		This(const Head& head, const typename Body::Tuple& Body, bool isText) : Head(head), Body(Body, true) {}
+		This(Head&& head, typename Body::Dictionary&& body) : Head(std::move(head)), Body(std::move(body)) {}
+		This(const Head& head, const typename Body::Dictionary& body) : Head(head), Body(body) {}
+		This(Head&& head, typename Body::List&& body) : Head(std::move(head)), Body(std::move(body)) {}
+		This(const Head& head, const typename Body::List& body) : Head(head), Body(body) {}
+		This(Head&& head, typename Body::Tuple&& body) : Head(std::move(head)), Body(std::move(body)) {}
+		This(const Head& head, const typename Body::Tuple& body) : Head(head), Body(body) {}
+		This(Head&& head, typename Body::Tuple&& body, bool isText) : Head(std::move(head)), Body(std::move(body), true) {}
+		This(const Head& head, const typename Body::Tuple& body, bool isText) : Head(head), Body(body, true) {}
 	};
 #undef This
 

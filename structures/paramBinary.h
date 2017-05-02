@@ -13,7 +13,7 @@
 
 namespace webss
 {
-	template <class Webss>
+	template <class Webss2>
 	class BasicParamBinary
 	{
 	public:
@@ -116,7 +116,7 @@ namespace webss
 			const TemplateHead& getTemplateHead() const
 			{
 				assert(isTemplateHead());
-				return type == Type::ENTITY_TEMPLATE_HEAD ? ent.getContent().getElement<TemplateHead>() : *thead;
+				return type == Type::ENTITY_TEMPLATE_HEAD ? ent.getContent(). template getElement<TemplateHead>() : *thead;
 			}
 
 			WebssBinarySize size() const
@@ -135,7 +135,7 @@ namespace webss
 				}
 			}
 		private:
-			static constexpr char* ERROR_BINARY_SIZE_HEAD = "size of binary head must be a positive integer, binary template head or equivalent entity";
+			static constexpr const char* ERROR_BINARY_SIZE_HEAD = "size of binary head must be a positive integer, binary template head or equivalent entity";
 
 			Type type = Type::NONE;
 			union
@@ -155,7 +155,7 @@ namespace webss
 			This(const Entity& entNumber, bool isNumber)
 				: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
 			{
-				assert(entNumInt >= 0 && entNumInt <= numeric_limits<WebssBinarySize>::max());
+				assert(entNumInt >= 0 && entNumInt <= std::numeric_limits<WebssBinarySize>::max());
 			}
 			This(WebssBinarySize num, bool bits) : type(Type::BITS), number(num)
 			{
@@ -242,7 +242,7 @@ namespace webss
 		class BasicSizeList
 		{
 		public:
-			using Entity = BasicEntity<Webss>;
+			using Entity = BasicEntity<Webss2>;
 			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, ONE, NUMBER, ENTITY_NUMBER };
 
 			BasicSizeList() {}
@@ -253,7 +253,7 @@ namespace webss
 			BasicSizeList(const Entity& entNumber)
 				: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
 			{
-				assert(entNumInt >= 0 && entNumInt <= numeric_limits<WebssBinarySize>::max());
+				assert(entNumInt >= 0 && entNumInt <= std::numeric_limits<WebssBinarySize>::max());
 			}
 			BasicSizeList(WebssBinarySize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
 
@@ -299,7 +299,7 @@ namespace webss
 				return ent;
 			}
 		private:
-			static constexpr char* ERROR_BINARY_SIZE_LIST = "size of binary list must be a positive integer or equivalent entity";
+			static constexpr const char* ERROR_BINARY_SIZE_LIST = "size of binary list must be a positive integer or equivalent entity";
 
 			Type type = Type::NONE;
 			union
@@ -354,7 +354,7 @@ namespace webss
 		};
 #undef entNumInt
 
-		using SizeHead = BasicSizeHead<Webss>;
+		using SizeHead = BasicSizeHead<Webss2>;
 		using SizeList = BasicSizeList;
 
 		BasicParamBinary() {}

@@ -61,7 +61,7 @@ namespace webss
 		const Parameters& getParameters() const
 		{
 			assert(type != Type::NONE);
-			return type == Type::ENTITY ? ent.getContent().getElement<This>().getParameters() : *params;
+			return type == Type::ENTITY ? ent.getContent(). template getElement<This>().getParameters() : *params;
 		}
 
 		const Entity& getEntity() const
@@ -103,7 +103,7 @@ namespace webss
 
 		void attach(const Entity& ent2)
 		{
-			if (ent2.getContent().getElement<This>().empty())
+			if (ent2.getContent(). template getElement<This>().empty())
 				return;
 
 			if (type == Type::NONE)
@@ -115,7 +115,7 @@ namespace webss
 			else if (type == Type::ENTITY)
 				removeEntity();
 
-			params->merge(ent2.getContent().getElement<This>().getParameters());
+			params->merge(ent2.getContent(). template getElement<This>().getParameters());
 		}
 
 		void attach(const This& value)
@@ -156,7 +156,7 @@ namespace webss
 
 		void removeEntity()
 		{
-			auto newParameters = ent.getContent().getElement<This>().getParameters().makeCompleteCopy();
+			auto newParameters = ent.getContent(). template getElement<This>().getParameters().makeCompleteCopy();
 			ent.~BasicEntity();
 			type = Type::NONE;
 			setParameters(std::move(newParameters));
@@ -266,7 +266,7 @@ namespace webss
 		const Parameters& getParameters() const
 		{
 			assert(type != Type::NONE);
-			return type == Type::ENTITY ? ent.getContent().getElement<This>().getParameters() : *params;
+			return type == Type::ENTITY ? ent.getContent(). template getElement<This>().getParameters() : *params;
 		}
 
 		const Entity& getEntity() const
@@ -308,7 +308,7 @@ namespace webss
 
 		void attach(const Entity& ent2)
 		{
-			if (ent2.getContent().getElement<This>().empty())
+			if (ent2.getContent(). template getElement<This>().empty())
 				return;
 
 			if (type == Type::NONE)
@@ -320,7 +320,7 @@ namespace webss
 			else if (type == Type::ENTITY)
 				removeEntity();
 
-			params->merge(ent2.getContent().getElement<This>().getParameters());
+			params->merge(ent2.getContent(). template getElement<This>().getParameters());
 		}
 
 		void attach(const This& value)
@@ -357,7 +357,7 @@ namespace webss
 
 		void removeEntity()
 		{
-			auto newParameters = ent.getContent().getElement<This>().getParameters().makeCompleteCopy();
+			auto newParameters = ent.getContent(). template getElement<This>().getParameters().makeCompleteCopy();
 			ent.~BasicEntity();
 			type = Type::NONE;
 			setParameters(std::move(newParameters));
