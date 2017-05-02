@@ -2,7 +2,6 @@
 //Copyright(c) 2017 Patrick Laughrea
 #include "utils.h"
 
-using namespace std;
 using namespace webss;
 
 bool webss::isDigitBin(char c)
