@@ -147,9 +147,9 @@ namespace webss
 		Enum parseEnum(const std::string& name);
 		TemplateHeadScoped parseScopedDocumentHead();
 		DocumentHead parseScopedDocumentBody(const TemplateHeadScoped& head);
-		ScopedDocument parseScopedDocument();
-		Entity parseUsingOne();
-		const Namespace& parseUsingAll();
+		ParamDocument parseScopedDocument();
+		ParamDocument parseUsingOne();
+		ParamDocument parseUsingAll();
 		ImportedDocument parseImport();
 		void parseOption();
 		void parseOptionVersion();

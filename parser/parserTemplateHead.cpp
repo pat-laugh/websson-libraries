@@ -130,16 +130,17 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 		}
 		case Tag::USING_ONE:
 		{
-			auto ent = parseUsingOne();
-			containerAddSafe(entNames, string(ent.getName()));
-			thead.attach(ParamScoped::makeUsingOne(move(ent)));
+			auto param = parseUsingOne();
+			containerAddSafe(entNames, string(param.getEntity().getName()));
+			thead.attach(move(param));
 			break;
 		}
 		case Tag::USING_ALL:
 		{
-			const auto& nspace = parseUsingAll();
+			auto param = parseUsingAll();
+			const auto& nspace = param.getNamespace();
 			containerAddSafe(nspaceNames, string(nspace.getName()));
-			thead.attach(ParamScoped(nspace));
+			thead.attach(move(param));
 			break;
 		}
 		case Tag::NAME_START:
@@ -149,24 +150,16 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 				throw runtime_error(ERROR_UNEXPECTED);
 			for (const auto& param : nameType.entity.getContent().getTemplateHeadScopedSafe().getParameters())
 			{
+				using Type = ParamScoped::Type;
 				switch (param.getType())
 				{
-				case ParamScoped::Type::ENTITY_ABSTRACT:
-					containerAddSafe(entNames, string(param.getAbstractEntity().getName()));
-					thead.attach(ParamScoped::makeEntityAbstract(param.getAbstractEntity()));
+				case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ONE: case Type::USING_ONE_IMPORT:
+					containerAddSafe(entNames, string(param.getEntity().getName()));
+					thead.attach(ParamDocument(param));
 					break;
-				case ParamScoped::Type::ENTITY_CONCRETE:
-					containerAddSafe(entNames, string(param.getConcreteEntity().getName()));
-					thead.attach(ParamScoped::makeEntityConcrete(param.getConcreteEntity()));
-					break;
-				case ParamScoped::Type::USING_ONE:
-					//TODO
-				//	containerAddSafe(nspaceNames, string(param.getNamespace().getName()));
-				//	thead.attach(ParamScoped(param.getNamespace()));
-				//	break;
-				case ParamScoped::Type::USING_ALL:
+				case Type::USING_ALL: case Type::USING_ALL_IMPORT:
 					containerAddSafe(nspaceNames, string(param.getNamespace().getName()));
-					thead.attach(ParamScoped(param.getNamespace()));
+					thead.attach(ParamDocument(param));
 					break;
 				default:
 					assert(false);

@@ -230,15 +230,16 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 		}
 		case Tag::USING_ONE:
 		{
-			auto ent = parseUsingOne();
-			docHead.push_back(ParamDocument::makeUsingOne(ent));
+			auto param = parseUsingOne();
+			const auto& ent = param.getEntity();
 			ents.addLocalSafe(Entity(ent.getName(), ent.getContent()));
+			docHead.push_back(move(param));
 			break;
 		}
 		case Tag::USING_ALL:
 		{
-			const auto& nspace = parseUsingAll();
-			docHead.push_back(ParamDocument(nspace));
+			auto param = parseUsingAll();
+			const auto& nspace = param.getNamespace();
 
 			//first check the namespace entity is accessible; if so it has to be removed since
 			//it'll no longer be necessary and an entity with the same name could be inside
@@ -248,13 +249,14 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 			for (const auto& ent : nspace)
 				ents.addLocalSafe(ent);
 
+			docHead.push_back(move(param));
+
 			break;
 		}
 		case Tag::SELF:
 			docHead.push_back(parseScopedDocument());
 			break;
 		case Tag::OPTION:
-			++it;
 			parseOption();
 			break;
 		default:
@@ -285,7 +287,7 @@ DocumentHead Parser::parseScopedDocumentBody(const TemplateHeadScoped& head)
 	return body;
 }
 
-ScopedDocument Parser::parseScopedDocument()
+ParamDocument Parser::parseScopedDocument()
 {
 	skipJunkToTag(++it, Tag::START_TEMPLATE);
 	auto head = parseScopedDocumentHead();
@@ -294,7 +296,7 @@ ScopedDocument Parser::parseScopedDocument()
 	return ScopedDocument{ move(head), move(body) };
 }
 
-Entity Parser::parseUsingOne()
+ParamDocument Parser::parseUsingOne()
 {
 	skipJunkToTag(++it, Tag::NAME_START);
 	auto nameType = parseNameType();
@@ -304,16 +306,16 @@ Entity Parser::parseUsingOne()
 	}
 	else if (nameType.type == NameType::KEYWORD)
 		throw runtime_error("expected entity");
-	return nameType.entity;
+	return ParamDocument::makeUsingOne(nameType.entity);
 }
 
-const Namespace& Parser::parseUsingAll()
+ParamDocument Parser::parseUsingAll()
 {
 	skipJunkToTag(++it, Tag::NAME_START);
 	auto nameType = parseNameType();
 	if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isNamespace())
 		throw runtime_error("expected namespace");
-	return nameType.entity.getContent().getNamespaceSafe();
+	return ParamDocument::makeUsingAll(nameType.entity);
 }
 
 ImportedDocument Parser::parseImport()
@@ -342,7 +344,7 @@ ImportedDocument Parser::parseImport()
 
 void Parser::parseOption()
 {
-	skipLineJunk(it);
+	skipLineJunk(++it);
 	if (it != '-' || !++it)
 		throw runtime_error("expected option version");
 	if (*it == 'v')
