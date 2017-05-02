@@ -66,13 +66,13 @@ public:
 			switch (it->getType())
 			{
 			case Type::ENTITY_ABSTRACT:
-				putAbstractEntity(out, it->getAbstractEntity(), CON);
+				putAbstractEntity(out, it->getEntity(), CON);
 				break;
 			case Type::ENTITY_CONCRETE:
-				putConcreteEntity(out, it->getConcreteEntity(), CON);
+				putConcreteEntity(out, it->getEntity(), CON);
 				break;
 			case Type::IMPORT:
-				putImportedDocument(out, it->getImportedDoc(), CON);
+				putImportedDocument(out, it->getImport(), CON);
 				break;
 			case Type::USING_ONE:
 				//TODO
@@ -673,10 +673,10 @@ void Serializer::putTheadScoped(StringBuilder& out, const TemplateHeadScoped& th
 			switch (it->getType())
 			{
 			case ParamType::ENTITY_ABSTRACT:
-				putAbstractEntity(out, it->getAbstractEntity(), CON);
+				putAbstractEntity(out, it->getEntity(), CON);
 				break;
 			case ParamType::ENTITY_CONCRETE:
-				putConcreteEntity(out, it->getConcreteEntity(), CON);
+				putConcreteEntity(out, it->getEntity(), CON);
 				break;
 			case ParamType::USING_ONE:
 				//TODO

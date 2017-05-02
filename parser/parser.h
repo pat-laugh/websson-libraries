@@ -252,17 +252,10 @@ namespace webss
 			using Type = ParamDocument::Type;
 			switch (paramDoc.getType())
 			{
-			case Type::ENTITY_ABSTRACT:
-				include(paramDoc.getAbstractEntity());
+			case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ONE: case Type::USING_ONE_IMPORT:
+				include(paramDoc.getEntity());
 				break;
-			case Type::ENTITY_CONCRETE:
-				include(paramDoc.getConcreteEntity());
-				break;
-			case Type::USING_ONE:
-				//TODO
-			//	include(paramDoc.getConcreteEntity());
-			//	break;
-			case Type::USING_ALL:
+			case Type::USING_ALL: case Type::USING_ALL_IMPORT:
 			{
 				const auto& nspace = paramDoc.getNamespace();
 
