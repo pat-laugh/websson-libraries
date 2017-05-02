@@ -5,7 +5,7 @@ CC = g++
 OPTIONS = -std=c++11 -Wall
 LIBRARY = libstructures.a
 
-all : $(LIBRARY)
+all: $(LIBRARY)
 
 $(LIBRARY): keywords.o webss.o
 	ar -rc $(LIBRARY) $^
@@ -17,4 +17,4 @@ webss.o: webss.cpp
 	$(CC) $(OPTIONS) -o $@ -c $<
 
 clean:
-	rm $(LIBRARY) *.o		
+	rm -rf $(LIBRARY) *.o

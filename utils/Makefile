@@ -5,7 +5,7 @@ CC = g++
 OPTIONS = -std=c++11 -Wall
 LIBRARY = libutils.a
 
-all : $(LIBRARY)
+all: $(LIBRARY)
 
 $(LIBRARY): conType.o utils.o utilsWebss.o
 	ar -rc $(LIBRARY) $^
@@ -20,4 +20,4 @@ utilsWebss.o: utilsWebss.cpp
 	$(CC) $(OPTIONS) -o $@ -c $<
 
 clean:
-	rm $(LIBRARY) *.o		
+	rm -rf $(LIBRARY) *.o
