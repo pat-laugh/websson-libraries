@@ -15,9 +15,6 @@
 using namespace std;
 using namespace webss;
 
-const char ERROR_BINARY_SIZE_HEAD[] = "size of binary head must be a positive integer, binary template head or equivalent entity";
-const char ERROR_BINARY_SIZE_LIST[] = "size of binary list must be a positive integer or equivalent entity";
-
 WebssBinarySize checkBinarySize(WebssInt sizeInt);
 WebssBinarySize checkBinarySizeBits(WebssInt sizeInt);
 Tuple parseBinaryTemplate(BinaryIterator& it, const TemplateHeadBinary::Parameters& params);

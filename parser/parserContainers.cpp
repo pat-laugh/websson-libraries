@@ -12,10 +12,8 @@ using namespace std;
 using namespace webss;
 
 const char ERROR_INPUT_DICTIONARY[] = "dictionary can only have key-values";
-const char ERROR_INPUT_LIST[] = "list can only have concrete value-onlys";
 const char ERROR_INPUT_TUPLE[] = "tuple can only have concrete value-onlys or key-values";
 const char ERROR_INPUT_NAMESPACE[] = "namespace can only have entity definitions";
-const char ERROR_INPUT_ENUM[] = "enum can only have key-onlys";
 const char ERROR_INPUT_DOCUMENT[] = "document can only have concrete value-onlys or key-values";
 
 string getItPosition(SmartIterator& it)

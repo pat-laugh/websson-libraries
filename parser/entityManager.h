@@ -16,7 +16,7 @@ namespace webss
 	class BasicEntityManager
 	{
 	private:
-		static constexpr char* ERROR_ENTITY_EXISTS = "entity already exists: ";
+		static constexpr const char* ERROR_ENTITY_EXISTS = "entity already exists: ";
 		using Entity = BasicEntity<T>;
 		std::unordered_map<std::string, Entity> globals;
 		std::set<std::string*, less_ptr<std::string>> locals;
@@ -59,7 +59,7 @@ namespace webss
 		void addGlobalSafe(Entity ent)
 		{
 			if (hasEntity(ent.getName()))
-				throw std::runtime_error(ERROR_ENTITY_EXISTS + name);
+				throw std::runtime_error(ERROR_ENTITY_EXISTS + ent.getName());
 
 			addGlobal(std::move(ent));
 		}

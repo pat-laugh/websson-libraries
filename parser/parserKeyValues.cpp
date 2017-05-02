@@ -88,7 +88,7 @@ Parser::OtherValue Parser::parseOtherValueName(string&& name)
 	switch (nextTag = getTag(it))
 	{
 	case CASE_TAG_KEY_CHAR:
-		return{ move(name), move(parseOtherValue().value) };
+		return{ move(name), parseOtherValue().value };
 	default:
 		return{ move(name) };
 	}

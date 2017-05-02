@@ -22,7 +22,7 @@ bool isEnd(SmartIterator& it, function<bool()> endCondition)
 	return !it || *it == '\n' || endCondition();
 }
 
-bool hasNextChar(SmartIterator& it, StringBuilder& line, function<bool()> endCondition = []() {})
+bool hasNextChar(SmartIterator& it, StringBuilder& line, function<bool()> endCondition = []() { return false; })
 {
 	if (isEnd(it, endCondition))
 		return false;
@@ -52,7 +52,7 @@ string Parser::parseLineString()
 	StringBuilder line;
 	if (multilineContainer)
 	{
-		while (hasNextChar(it, line, [&]() { return false; }))
+		while (hasNextChar(it, line))
 		{
 			if (*it == CHAR_ESCAPE)
 			{
@@ -96,7 +96,7 @@ string Parser::parseMultilineString()
 loopStart:
 	if (multilineContainer)
 	{
-		while (hasNextChar(it, text, [&]() { return false; }))
+		while (hasNextChar(it, text))
 		{
 			if (*it == CHAR_ESCAPE)
 			{

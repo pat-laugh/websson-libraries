@@ -15,8 +15,6 @@ namespace webss
 	public:
 		static Document parse() { return Parser().parseDocument(); }
 
-		
-
 		Parser();
 		Parser(SmartIterator&& it);
 		Parser(const std::istream& in);
@@ -69,7 +67,6 @@ namespace webss
 			ConType oldCon;
 			bool oldAllowVoid;
 			bool oldMultilineContainer;
-			bool oldLineGreed;
 		public:
 			ImportSwitcher(Parser& parser, SmartIterator&& newIt) : parser(parser), oldIt(std::move(parser.it)), oldNextTag(parser.nextTag), oldCon(parser.con), oldAllowVoid(parser.allowVoid), oldMultilineContainer(parser.multilineContainer)
 			{
@@ -137,7 +134,7 @@ namespace webss
 				do
 					func(cont);
 			while (checkNextElement());
-			return move(cont);
+			return std::move(cont);
 		}
 
 		Dictionary parseDictionary();

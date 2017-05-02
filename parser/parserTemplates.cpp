@@ -40,6 +40,9 @@ void checkDefaultValues(Tuple& tuple, const Parameters& params)
 			setDefaultValue(tuple[index], params[index]);
 }
 
+template<typename T>
+struct identity { using type = T; };
+
 class ParserTemplates : public Parser
 {
 public:
@@ -77,11 +80,16 @@ private:
 	template <class Parameters>
 	Webss checkTemplateBodyEntity(const Parameters& params, WebssType filter)
 	{
+		return checkTemplateBodyEntity(params, filter, identity<Parameters>());
+	}
+	
+	template <typename Parameters>
+	Webss checkTemplateBodyEntity(const Parameters& params, WebssType filter, identity<Parameters>)
+	{
 		throw runtime_error(ERROR_UNEXPECTED);
 	}
 
-	template <>
-	Webss checkTemplateBodyEntity<TemplateHeadStandard::Parameters>(const TemplateHeadStandard::Parameters& params, WebssType filter)
+	Webss checkTemplateBodyEntity(const TemplateHeadStandard::Parameters& params, WebssType filter, identity<TemplateHeadStandard::Parameters>)
 	{
 		auto value = parseValueOnly();
 		switch (value.getTypeSafe())

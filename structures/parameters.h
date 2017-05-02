@@ -28,9 +28,9 @@ namespace webss
 
 			for (const auto& keyValue : orderedKeyValues)
 				if (keyValue.first == nullptr)
-					add(*keyValue.second);
+					base::add(*keyValue.second);
 				else
-					addSafe(*keyValue.first, *keyValue.second);
+					base::addSafe(*keyValue.first, *keyValue.second);
 		}
 	private:
 		//there's a subtle, but important difference with the default copy constructor: default shares the keymap (through the shared pointer),
