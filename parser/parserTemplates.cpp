@@ -40,8 +40,8 @@ void checkDefaultValues(Tuple& tuple, const Parameters& params)
 			setDefaultValue(tuple[index], params[index]);
 }
 
-template<typename T>
-struct identity { using type = T; };
+template <>
+void checkDefaultValues<TemplateHeadBinary::Parameters>(Tuple& tuple, const TemplateHeadBinary::Parameters& params) {} //already checked while parsing binary
 
 class ParserTemplates : public Parser
 {
@@ -76,20 +76,26 @@ public:
 		}
 	}
 
+	Webss parseTemplateBodyBinary(const TemplateHeadBinary::Parameters& params, function<Webss(const TemplateHeadBinary::Parameters& params)>&& funcTemplTupleRegular, function<Webss(const TemplateHeadBinary::Parameters& params)>&& funcTemplTupleText)
+	{
+		switch (nextTag = getTag(it))
+		{
+		case Tag::START_DICTIONARY:
+			return parseTemplateDictionary<TemplateHeadBinary::Parameters>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
+		case Tag::START_LIST:
+			return parseTemplateList<TemplateHeadBinary::Parameters>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
+		case Tag::START_TUPLE:
+			return funcTemplTupleRegular(params);
+		case Tag::TEXT_TUPLE:
+			return funcTemplTupleText(params);
+		default:
+			throw runtime_error(ERROR_UNEXPECTED);
+		}
+	}
+
 private:
 	template <class Parameters>
 	Webss checkTemplateBodyEntity(const Parameters& params, WebssType filter)
-	{
-		return checkTemplateBodyEntity(params, filter, identity<Parameters>());
-	}
-	
-	template <typename Parameters>
-	Webss checkTemplateBodyEntity(const Parameters& params, WebssType filter, identity<Parameters>)
-	{
-		throw runtime_error(ERROR_UNEXPECTED);
-	}
-
-	Webss checkTemplateBodyEntity(const TemplateHeadStandard::Parameters& params, WebssType filter, identity<TemplateHeadStandard::Parameters>)
 	{
 		auto value = parseValueOnly();
 		switch (value.getTypeSafe())
@@ -286,7 +292,7 @@ Webss Parser::parseTemplateText()
 
 Webss Parser::parseTemplateBodyBinary(const TemplateHeadBinary::Parameters& params)
 {
-	return static_cast<ParserTemplates*>(this)->parseTemplateBody<TemplateHeadBinary::Parameters>(params, [&](const TemplateHeadBinary::Parameters& params) { return parseTemplateTupleBinary(params); }, [&](const TemplateHeadBinary::Parameters& params) -> Webss { throw runtime_error(ERROR_UNEXPECTED); });
+	return static_cast<ParserTemplates*>(this)->parseTemplateBodyBinary(params, [&](const TemplateHeadBinary::Parameters& params) { return parseTemplateTupleBinary(params); }, [&](const TemplateHeadBinary::Parameters& params) -> Webss { throw runtime_error(ERROR_UNEXPECTED); });
 }
 
 Webss Parser::parseTemplateBodyScoped(const TemplateHeadScoped::Parameters& params)
