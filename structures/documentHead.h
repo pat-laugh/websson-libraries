@@ -57,12 +57,13 @@ namespace webss
 		using ScopedDoc = BasicScopedDocument<Webss>;
 		using Import = BasicImportedDocument<Webss>;
 
-		enum class Type { NONE, ENTITY_ABSTRACT, ENTITY_CONCRETE, NAMESPACE, IMPORT, SCOPED_DOCUMENT };
+		enum class Type { NONE, ENTITY_ABSTRACT, ENTITY_CONCRETE, USING_ALL, IMPORT, SCOPED_DOCUMENT, USING_ONE };
 
 		This() {}
-		static This makeEntityAbstract(Entity entAbstract) { return This(entAbstract); }
-		static This makeEntityConcrete(Entity entConcrete) { return This(entConcrete, true); }
-		This(Namespace nspace) : type(Type::NAMESPACE), nspace(new Namespace(std::move(nspace))) {}
+		static This makeEntityAbstract(Entity ent) { return This(ent); }
+		static This makeEntityConcrete(Entity ent) { return This(ent, true); }
+		static This makeUsingOne(Entity ent) { return This(ent, true, true); }
+		This(Namespace nspace) : type(Type::USING_ALL), nspace(new Namespace(std::move(nspace))) {}
 		This(Import import) : type(Type::IMPORT), import(new Import(std::move(import))) {}
 		This(ScopedDoc scopedDoc) : type(Type::SCOPED_DOCUMENT), scopedDoc(new ScopedDoc(std::move(scopedDoc))) {}
 		~This() { destroyUnion(); }
@@ -87,9 +88,9 @@ namespace webss
 		}
 
 		Type getType() const { return type; }
-		bool hasNamespace() const { return type == Type::NAMESPACE; }
-		const Entity& getAbstractEntity() const { return entAbstract; }
-		const Entity& getConcreteEntity() const { return entConcrete; }
+		bool hasNamespace() const { return type == Type::USING_ALL; }
+		const Entity& getAbstractEntity() const { return ent; }
+		const Entity& getConcreteEntity() const { return ent; }
 		const Namespace& getNamespace() const { return *nspace; }
 		const Import& getImportedDoc() const { return *import; }
 		const ScopedDoc& getScopedDoc() const { return *scopedDoc; }
@@ -97,27 +98,24 @@ namespace webss
 		Type type = Type::NONE;
 		union
 		{
-			Entity entAbstract;
-			Entity entConcrete;
+			Entity ent;
 			Namespace* nspace;
 			Import* import;
 			ScopedDoc* scopedDoc;
 		};
 
-		This(Entity entAbstract) : type(Type::ENTITY_ABSTRACT), entAbstract(std::move(entAbstract)) {}
-		This(Entity entConcrete, bool isConcrete) : type(Type::ENTITY_CONCRETE), entAbstract(std::move(entConcrete)) {}
+		This(Entity ent) : type(Type::ENTITY_ABSTRACT), ent(std::move(ent)) {}
+		This(Entity ent, bool isConcrete) : type(Type::ENTITY_CONCRETE), ent(std::move(ent)) {}
+		This(Entity ent, bool dummy1, bool dummy2) : type(Type::USING_ONE), ent(std::move(ent)) {}
 
 		void destroyUnion()
 		{
 			switch (type)
 			{
-			case Type::ENTITY_ABSTRACT:
-				entAbstract.~BasicEntity();
+			case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ONE:
+				ent.~BasicEntity();
 				break;
-			case Type::ENTITY_CONCRETE:
-				entConcrete.~BasicEntity();
-				break;
-			case Type::NAMESPACE:
+			case Type::USING_ALL:
 				delete nspace;
 				break;
 			case Type::IMPORT:
@@ -136,15 +134,11 @@ namespace webss
 		{
 			switch (o.type)
 			{
-			case Type::ENTITY_ABSTRACT:
-				new (&entAbstract) Entity(std::move(o.entAbstract));
-				o.entAbstract.~BasicEntity();
+			case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ONE:
+				new (&ent) Entity(std::move(o.ent));
+				o.ent.~BasicEntity();
 				break;
-			case Type::ENTITY_CONCRETE:
-				new (&entConcrete) Entity(std::move(o.entConcrete));
-				o.entConcrete.~BasicEntity();
-				break;
-			case Type::NAMESPACE:
+			case Type::USING_ALL:
 				nspace = o.nspace;
 				break;
 			case Type::IMPORT:
@@ -165,13 +159,10 @@ namespace webss
 		{
 			switch (o.type)
 			{
-			case Type::ENTITY_ABSTRACT:
-				new (&entAbstract) Entity(o.entAbstract);
+			case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ONE:
+				new (&ent) Entity(o.ent);
 				break;
-			case Type::ENTITY_CONCRETE:
-				new (&entConcrete) Entity(o.entConcrete);
-				break;
-			case Type::NAMESPACE:
+			case Type::USING_ALL:
 				nspace = new Namespace(*o.nspace);
 				break;
 			case Type::IMPORT:

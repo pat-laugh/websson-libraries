@@ -23,7 +23,7 @@ Webss Parser::parseTemplateHead()
 		return parseTemplateHeadStandard();
 	case Tag::START_TUPLE:
 		return parseTemplateHeadBinary();
-	case Tag::ENTITY_ABSTRACT: case Tag::ENTITY_CONCRETE: case Tag::USING:
+	case Tag::ENTITY_ABSTRACT: case Tag::ENTITY_CONCRETE: case Tag::USING_ONE: case Tag::USING_ALL:
 		return parseTemplateHeadScoped();
 	case Tag::SELF:
 		skipJunkToTag(++it, Tag::END_TEMPLATE);
@@ -128,11 +128,17 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 			thead.attach(ParamScoped::makeEntityConcrete(move(ent)));
 			break;
 		}
-		case Tag::USING:
+		case Tag::USING_ONE:
 		{
-			++it;
-			const Namespace& nspace = parseUsingNamespaceStatic();
-			containerAddSafe(entNames, string(nspace.getName()));
+			auto ent = parseUsingOne();
+			containerAddSafe(entNames, string(ent.getName()));
+			thead.attach(ParamScoped::makeUsingOne(move(ent)));
+			break;
+		}
+		case Tag::USING_ALL:
+		{
+			const auto& nspace = parseUsingAll();
+			containerAddSafe(nspaceNames, string(nspace.getName()));
 			thead.attach(ParamScoped(nspace));
 			break;
 		}
@@ -153,7 +159,12 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 					containerAddSafe(entNames, string(param.getConcreteEntity().getName()));
 					thead.attach(ParamScoped::makeEntityConcrete(param.getConcreteEntity()));
 					break;
-				case ParamScoped::Type::NAMESPACE:
+				case ParamScoped::Type::USING_ONE:
+					//TODO
+				//	containerAddSafe(nspaceNames, string(param.getNamespace().getName()));
+				//	thead.attach(ParamScoped(param.getNamespace()));
+				//	break;
+				case ParamScoped::Type::USING_ALL:
 					containerAddSafe(nspaceNames, string(param.getNamespace().getName()));
 					thead.attach(ParamScoped(param.getNamespace()));
 					break;

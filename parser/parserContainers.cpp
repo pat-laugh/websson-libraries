@@ -228,9 +228,30 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 			docHead.push_back(move(import));
 			break;
 		}
-		case Tag::USING:
-			++it;
-			parseScopedDocument(docHead);
+		case Tag::USING_ONE:
+		{
+			auto ent = parseUsingOne();
+			docHead.push_back(ParamDocument::makeUsingOne(ent));
+			ents.addLocalSafe(Entity(ent.getName(), ent.getContent()));
+			break;
+		}
+		case Tag::USING_ALL:
+		{
+			const auto& nspace = parseUsingAll();
+			docHead.push_back(ParamDocument(nspace));
+
+			//first check the namespace entity is accessible; if so it has to be removed since
+			//it'll no longer be necessary and an entity with the same name could be inside
+			if (ParamDocumentIncluder::namespacePresentScope(ents, nspace))
+				ents.removeLocal(ents[nspace.getName()]);
+
+			for (const auto& ent : nspace)
+				ents.addLocalSafe(ent);
+
+			break;
+		}
+		case Tag::SELF:
+			docHead.push_back(parseScopedDocument());
 			break;
 		case Tag::OPTION:
 			++it;
@@ -264,27 +285,35 @@ DocumentHead Parser::parseScopedDocumentBody(const TemplateHeadScoped& head)
 	return body;
 }
 
-void Parser::parseScopedDocument(vector<ParamDocument>& docHead)
+ScopedDocument Parser::parseScopedDocument()
 {
-	if (*skipJunkToValid(it) == OPEN_TEMPLATE)
-	{
-		auto head = parseScopedDocumentHead();
-		skipJunkToTag(it, Tag::START_DICTIONARY);
-		auto body = parseScopedDocumentBody(head);
-		docHead.push_back(ScopedDocument{ move(head), move(body) });
-	}
-	else
-	{
-		const auto& nspace = parseUsingNamespaceStatic();
+	skipJunkToTag(++it, Tag::START_TEMPLATE);
+	auto head = parseScopedDocumentHead();
+	skipJunkToTag(it, Tag::START_DICTIONARY);
+	auto body = parseScopedDocumentBody(head);
+	return ScopedDocument{ move(head), move(body) };
+}
 
-		//first check the namespace entity is accessible; if so it has to be removed since
-		//it'll no longer be necessary and an entity with the same name could be inside
-		if (ParamDocumentIncluder::namespacePresentScope(ents, nspace))
-			ents.removeLocal(ents[nspace.getName()]);
-
-		for (const auto& ent : nspace)
-			ents.addLocalSafe(ent);
+Entity Parser::parseUsingOne()
+{
+	skipJunkToTag(++it, Tag::NAME_START);
+	auto nameType = parseNameType();
+	if (nameType.type == NameType::NAME)
+	{
+		//to do
 	}
+	else if (nameType.type == NameType::KEYWORD)
+		throw runtime_error("expected entity");
+	return nameType.entity;
+}
+
+const Namespace& Parser::parseUsingAll()
+{
+	skipJunkToTag(++it, Tag::NAME_START);
+	auto nameType = parseNameType();
+	if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isNamespace())
+		throw runtime_error("expected namespace");
+	return nameType.entity.getContent().getNamespaceSafe();
 }
 
 ImportedDocument Parser::parseImport()
@@ -309,15 +338,6 @@ ImportedDocument Parser::parseImport()
 			{ throw runtime_error(string("while parsing import, ") + e.what()); }
 	}
 	return import;
-}
-
-const Namespace& Parser::parseUsingNamespaceStatic()
-{
-	skipJunkToTag(it, Tag::NAME_START);
-	auto nameType = parseNameType();
-	if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isNamespace())
-		throw runtime_error("expected namespace");
-	return nameType.entity.getContent().getNamespaceSafe();
 }
 
 void Parser::parseOption()

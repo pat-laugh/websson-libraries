@@ -74,7 +74,11 @@ public:
 			case Type::IMPORT:
 				putImportedDocument(out, it->getImportedDoc(), CON);
 				break;
-			case Type::NAMESPACE:
+			case Type::USING_ONE:
+				//TODO
+			//	putImportedDocument(out, it->getImportedDoc(), CON);
+			//	break;
+			case Type::USING_ALL:
 				putUsingNamespace(out, it->getNamespace());
 				break;
 			case Type::SCOPED_DOCUMENT:
@@ -574,7 +578,7 @@ void Serializer::putImportedDocument(StringBuilder& out, const ImportedDocument&
 
 void Serializer::putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc)
 {
-	out += CHAR_USING;
+	out += CHAR_USING_ONE;
 	putTheadScoped(out, scopedDoc.head);
 	NamespaceIncluder includer(currentNamespaces, scopedDoc.head.getParameters());
 	static_cast<SerializerTemplate*>(this)->putDocumentHead<ConType::DICTIONARY>(out, scopedDoc.body);
@@ -582,7 +586,7 @@ void Serializer::putScopedDocument(StringBuilder& out, const ScopedDocument& sco
 
 void Serializer::putUsingNamespace(StringBuilder& out, const Namespace& nspace)
 {
-	out += CHAR_USING;
+	out += CHAR_USING_ONE;
 	putPreviousNamespaceNames(out, nspace);
 	out += nspace.getName();
 }
@@ -674,7 +678,11 @@ void Serializer::putTheadScoped(StringBuilder& out, const TemplateHeadScoped& th
 			case ParamType::ENTITY_CONCRETE:
 				putConcreteEntity(out, it->getConcreteEntity(), CON);
 				break;
-			case ParamType::NAMESPACE:
+			case ParamType::USING_ONE:
+				//TODO
+			//	putConcreteEntity(out, it->getConcreteEntity(), CON);
+			//	break;
+			case ParamType::USING_ALL:
 				putUsingNamespace(out, it->getNamespace());
 				break;
 			default:

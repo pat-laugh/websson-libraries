@@ -18,7 +18,8 @@ namespace webss
 	const char CHAR_SCOPE = '.';
 	const char CHAR_SELF = '&';
 	const char CHAR_SEPARATOR = ',';
-	const char CHAR_USING = '~';
+	const char CHAR_USING_ONE = '~';
+	const char CHAR_USING_ALL = '*';
 
 	const char CHAR_BINARY_DEFAULT_FALSE = 0;
 	const char CHAR_BINARY_DEFAULT_TRUE = 1;

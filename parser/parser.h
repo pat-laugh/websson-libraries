@@ -147,9 +147,10 @@ namespace webss
 		Enum parseEnum(const std::string& name);
 		TemplateHeadScoped parseScopedDocumentHead();
 		DocumentHead parseScopedDocumentBody(const TemplateHeadScoped& head);
-		void parseScopedDocument(std::vector<ParamDocument>& docHead);
+		ScopedDocument parseScopedDocument();
+		Entity parseUsingOne();
+		const Namespace& parseUsingAll();
 		ImportedDocument parseImport();
-		const Namespace& parseUsingNamespaceStatic();
 		void parseOption();
 		void parseOptionVersion();
 
@@ -257,7 +258,11 @@ namespace webss
 			case Type::ENTITY_CONCRETE:
 				include(paramDoc.getConcreteEntity());
 				break;
-			case Type::NAMESPACE:
+			case Type::USING_ONE:
+				//TODO
+			//	include(paramDoc.getConcreteEntity());
+			//	break;
+			case Type::USING_ALL:
 			{
 				const auto& nspace = paramDoc.getNamespace();
 
