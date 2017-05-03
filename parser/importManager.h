@@ -20,7 +20,7 @@ namespace webss
 	{
 	private:
 		std::unordered_map<std::string, std::vector<Entity>> docs;
-		std::set<std::string> parsing;
+		std::unordered_map<std::string, std::thread::id> parsing;
 		std::mutex mDocs, mParsing;
 
 		ImportManager() {}
@@ -39,15 +39,22 @@ namespace webss
 			{
 				//check if doc was already parsed
 				std::lock_guard<std::mutex> lockDocs(mDocs); //unlocks when out of scope
-				auto doc = docs.find(link);
-				if (doc != docs.end())
-					return doc->second;
+				auto itDocs = docs.find(link);
+				if (itDocs != docs.end())
+					return itDocs->second;
 
 				//check if doc is being parsed
 				std::lock_guard<std::mutex> lockParsing(mParsing);
-				if (parsing.find(link) != parsing.end())
-					goto checkAgainLater; //unlocks both locks
-				parsing.insert(link);
+				auto itParsing = parsing.find(link);
+				if (itParsing != parsing.end())
+				{
+					if (itParsing->second != std::this_thread::get_id())
+						goto checkAgainLater; //unlocks both locks
+					
+					parsing.erase(link);
+					throw std::runtime_error("can't have circular import");
+				}
+				parsing.insert({ link, std::this_thread::get_id() });
 			}
 			try
 			{
@@ -63,7 +70,7 @@ namespace webss
 				throw std::runtime_error(std::string("while parsing imported document \"") + link + "\", " + e.what());
 			}
 		checkAgainLater:
-			this_thread::yield();
+			std::this_thread::yield();
 			return importDocument(link);
 #endif
 		}
