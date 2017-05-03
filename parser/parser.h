@@ -3,6 +3,7 @@
 #pragma once
 
 #include "entityManager.h"
+#include "importManager.h"
 #include "utilsSweepers.h"
 #include "structures/webss.h"
 #include "utils/stringBuilder.h"
@@ -272,6 +273,13 @@ namespace webss
 
 				for (const auto& ent : nspace)
 					include(ent);
+				break;
+			}
+			case Type::IMPORT:
+			{
+				const auto& link = paramDoc.getImport().getLink();
+				for (const auto& entPair : ImportManager<Parser>::getInstance().importDocument(link))
+					include(entPair.second);
 				break;
 			}
 			default:

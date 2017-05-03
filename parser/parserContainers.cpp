@@ -6,7 +6,6 @@
 #include "patternsContainers.h"
 #include "utils/constants.h"
 #include "utils/utilsWebss.h"
-#include "importManager.h"
 
 using namespace std;
 using namespace webss;
@@ -308,7 +307,7 @@ ParamDocument Parser::parseUsingOne()
 		throw runtime_error("expected import for scoped import");
 	auto import = parseImport();
 	const Entity* ent = &ImportManager<Parser>::getInstance().importDocument(import.getLink()).at(names[0]);
-	for (int i = 1; i < names.size(); ++i)
+	for (decltype(names.size()) i = 1; i < names.size(); ++i)
 		ent = &ent->getContent().getNamespaceSafe().at(names[i]);
 	return ParamDocument::makeUsingOne(*ent, move(import));
 }

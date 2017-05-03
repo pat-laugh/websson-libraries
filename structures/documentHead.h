@@ -33,18 +33,13 @@ namespace webss
 	class BasicImportedDocument
 	{
 	public:
-		BasicImportedDocument(Webss&& name) : name(std::move(name))
-		{
-			assert(this->name.isString() && "import must reference a string");
-			link = const_cast<std::string*>(&this->name.getStringSafe());
-		}
+		BasicImportedDocument(Webss&& name) : name(std::move(name)) { assert(this->name.isString() && "import must reference a string"); }
 		~BasicImportedDocument() {}
 
 		const Webss& getName() const { return name; }
-		const std::string& getLink() const { return *link; }
+		const std::string& getLink() const { return name.getStringSafe(); }
 	private:
 		Webss name;
-		std::string* link;
 	};
 
 #define This BasicParamDocument

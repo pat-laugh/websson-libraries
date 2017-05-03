@@ -108,7 +108,7 @@ TemplateHeadBinary Parser::parseTemplateHeadBinary(TemplateHeadBinary&& thead)
 
 TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 {
-	set<string> entNames, nspaceNames;
+	set<string> entNames, nspaceNames, imports;
 	assert(it);
 	do
 	{
@@ -143,6 +143,13 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 			thead.attach(move(param));
 			break;
 		}
+		case Tag::IMPORT:
+		{
+			auto import = parseImport();
+			containerAddSafe(imports, string(import.getLink()));
+			thead.attach(ParamScoped(import));
+			break;
+		}
 		case Tag::NAME_START:
 		{
 			auto nameType = parseNameType();
@@ -159,6 +166,10 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 					break;
 				case Type::USING_ALL:
 					containerAddSafe(nspaceNames, string(param.getNamespace().getName()));
+					thead.attach(ParamDocument(param));
+					break;
+				case Type::IMPORT:
+					containerAddSafe(imports, string(param.getImport().getLink()));
 					thead.attach(ParamDocument(param));
 					break;
 				default:
