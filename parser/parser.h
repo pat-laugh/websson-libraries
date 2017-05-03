@@ -25,9 +25,9 @@ namespace webss
 
 		Document parseDocument();
 
-		BasicEntityManager<Webss> getEnts() { return ents; }
+		EntityManager getEnts() { return ents; }
 	protected:
-		BasicEntityManager<Webss> ents;
+		EntityManager ents;
 		SmartIterator it;
 		Tag nextTag;
 		ConType con = ConType::DOCUMENT;

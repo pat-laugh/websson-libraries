@@ -145,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="curl.cpp" />
+    <ClCompile Include="entityManager.cpp" />
     <ClCompile Include="importManager.cpp" />
     <ClCompile Include="paramDocumentIncluder.cpp" />
     <ClCompile Include="parser.cpp" />

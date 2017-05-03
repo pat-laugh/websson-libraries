@@ -10,7 +10,7 @@ namespace webss
 	class ParamDocumentIncluder
 	{
 	private:
-		BasicEntityManager<Webss>& ents;
+		EntityManager& ents;
 		std::vector<Entity> entitiesToReAdd;
 		std::vector<Entity> entitiesToRemove;
 
@@ -18,12 +18,12 @@ namespace webss
 		void include(const Entity& ent);
 
 	public:
-		ParamDocumentIncluder(BasicEntityManager<Webss>& ents, const TemplateHeadScoped::Parameters& params);
+		ParamDocumentIncluder(EntityManager& ents, const TemplateHeadScoped::Parameters& params);
 		~ParamDocumentIncluder();
 
 		void includeEntities(const ParamDocument& paramDoc);
 
-		static bool namespacePresentScope(const BasicEntityManager<Webss>& ents, const Namespace& nspace)
+		static bool namespacePresentScope(const EntityManager& ents, const Namespace& nspace)
 		{
 			const auto& name = nspace.getName();
 			if (!ents.hasEntity(name))

@@ -21,7 +21,7 @@ void ParamDocumentIncluder::include(const Entity& ent)
 	ents.addLocalSafe(ent);
 }
 
-ParamDocumentIncluder::ParamDocumentIncluder(BasicEntityManager<Webss>& ents, const TemplateHeadScoped::Parameters& params) : ents(ents)
+ParamDocumentIncluder::ParamDocumentIncluder(EntityManager& ents, const TemplateHeadScoped::Parameters& params) : ents(ents)
 {
 	for (const auto& param : params)
 		includeEntities(param);

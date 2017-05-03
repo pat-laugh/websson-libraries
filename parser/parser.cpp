@@ -10,13 +10,13 @@
 using namespace std;
 using namespace webss;
 
-void addGlobalEntities(BasicEntityManager<Webss>& ents, vector<string> names, Entity ent)
+void addGlobalEntities(EntityManager& ents, vector<string> names, Entity ent)
 {
 	for (const auto& name : names)
 		ents.addGlobalEntity(name, ent);
 }
 
-void addEntityKeywords(BasicEntityManager<Webss>& ents)
+void addEntityKeywords(EntityManager& ents)
 {
 	addGlobalEntities(ents, { "N", "Nil", "Null", "nil", "null", "F", "False", "false", "T", "True", "true" }, Entity("", Webss()));
 }
@@ -30,7 +30,7 @@ TemplateHeadBinary makeTheadBinaryKeyword(Keyword keyword)
 	return thead;
 }
 
-void addTheadBinaryEntityKeywords(BasicEntityManager<Webss>& ents, vector<string> names, Keyword keyword)
+void addTheadBinaryEntityKeywords(EntityManager& ents, vector<string> names, Keyword keyword)
 {
 	string entName(names[0]);
 	addGlobalEntities(ents, move(names), Entity(move(entName), makeTheadBinaryKeyword(keyword)));
