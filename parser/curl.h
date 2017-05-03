@@ -1,3 +1,5 @@
+//MIT License
+//Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
 #include <sstream>
@@ -5,15 +7,6 @@
 class Curl
 {
 private:
-	static size_t function(char* ptr, size_t size, size_t nmemb, std::stringstream* ss)
-	{
-		auto length = size * nmemb;
-		auto end = (char*)ptr + length;
-		while (ptr < end)
-			*ss << *ptr++;
-		return length;
-	}
-
 	void* curl;
 	char errorBuffer[256];
 public:

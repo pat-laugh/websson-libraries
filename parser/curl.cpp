@@ -8,10 +8,19 @@
 
 using namespace std;
 
+size_t function(char* ptr, size_t size, size_t nmemb, stringstream* ss)
+{
+	auto length = size * nmemb;
+	auto end = (char*)ptr + length;
+	while (ptr < end)
+		*ss << *ptr++;
+	return length;
+}
+
 Curl::Curl()
 {
 	if (!(curl = curl_easy_init()))
-		throw std::runtime_error("failed to init curl");
+		throw runtime_error("failed to init curl");
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, function);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
 }
@@ -21,7 +30,7 @@ Curl::~Curl()
 	curl_easy_cleanup(curl);
 }
 
-void Curl::readWebDocument(std::stringstream& ss, const char* fileName)
+void Curl::readWebDocument(stringstream& ss, const char* fileName)
 {
 	errorBuffer[0] = 0;
 	curl_easy_setopt(curl, CURLOPT_URL, fileName);
@@ -29,17 +38,17 @@ void Curl::readWebDocument(std::stringstream& ss, const char* fileName)
 
 	auto res = curl_easy_perform(curl);
 	if (res != CURLE_OK)
-		throw std::runtime_error(curl_easy_strerror(res));
+		throw runtime_error(curl_easy_strerror(res));
 }
 
-void Curl::readWebDocument(std::stringstream& ss, std::string&& fileName) { readWebDocument(ss, fileName.c_str()); }
-void Curl::readWebDocument(std::stringstream& ss, const std::string& fileName) { readWebDocument(ss, fileName.c_str()); }
+void Curl::readWebDocument(stringstream& ss, string&& fileName) { readWebDocument(ss, fileName.c_str()); }
+void Curl::readWebDocument(stringstream& ss, const string& fileName) { readWebDocument(ss, fileName.c_str()); }
 
-std::stringstream Curl::readWebDocument(const char* fileName)
+stringstream Curl::readWebDocument(const char* fileName)
 {
-	std::stringstream ss;
+	stringstream ss;
 	readWebDocument(ss, fileName);
 	return ss;
 }
-std::stringstream Curl::readWebDocument(std::string&& fileName) { return readWebDocument(fileName.c_str()); }
-std::stringstream Curl::readWebDocument(const std::string& fileName) { return readWebDocument(fileName.c_str()); }
+stringstream Curl::readWebDocument(string&& fileName) { return readWebDocument(fileName.c_str()); }
+stringstream Curl::readWebDocument(const string& fileName) { return readWebDocument(fileName.c_str()); }

@@ -3,6 +3,7 @@
 #include "parser.h"
 
 #include "errors.h"
+#include "paramDocumentIncluder.h"
 #include "patternsContainers.h"
 #include "utils/utilsWebss.h"
 

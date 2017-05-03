@@ -48,6 +48,9 @@
     <ClInclude Include="importManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="paramDocumentIncluder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="parser.cpp">
@@ -87,6 +90,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="curl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="importManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="paramDocumentIncluder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

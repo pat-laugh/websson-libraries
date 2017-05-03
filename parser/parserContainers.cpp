@@ -3,6 +3,8 @@
 #include "parser.h"
 
 #include "errors.h"
+#include "importManager.h"
+#include "paramDocumentIncluder.h"
 #include "patternsContainers.h"
 #include "utils/constants.h"
 #include "utils/utilsWebss.h"
@@ -224,7 +226,7 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 		{
 			auto import = parseImport();
 			const auto& link = import.getLink();
-			for (const auto& entPair : ImportManager<Parser>::getInstance().importDocument(link))
+			for (const auto& entPair : ImportManager::getInstance().importDocument(link))
 				ents.addLocalSafe(entPair.second);
 			docHead.push_back(move(import));
 			break;
@@ -306,7 +308,7 @@ ParamDocument Parser::parseUsingOne()
 	if (nextTag != Tag::IMPORT)
 		throw runtime_error("expected import for scoped import");
 	auto import = parseImport();
-	const Entity* ent = &ImportManager<Parser>::getInstance().importDocument(import.getLink()).at(names[0]);
+	const Entity* ent = &ImportManager::getInstance().importDocument(import.getLink()).at(names[0]);
 	for (decltype(names.size()) i = 1; i < names.size(); ++i)
 		ent = &ent->getContent().getNamespaceSafe().at(names[i]);
 	return ParamDocument::makeUsingOne(*ent, move(import));

@@ -136,6 +136,7 @@
     <ClInclude Include="entityManager.h" />
     <ClInclude Include="errors.h" />
     <ClInclude Include="importManager.h" />
+    <ClInclude Include="paramDocumentIncluder.h" />
     <ClInclude Include="parser.h" />
     <ClInclude Include="patternsContainers.h" />
     <ClInclude Include="unicode.h" />
@@ -144,6 +145,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="curl.cpp" />
+    <ClCompile Include="importManager.cpp" />
+    <ClCompile Include="paramDocumentIncluder.cpp" />
     <ClCompile Include="parser.cpp" />
     <ClCompile Include="parserBinary.cpp" />
     <ClCompile Include="parserContainers.cpp" />
