@@ -53,12 +53,12 @@ private:
 public:
 	Webss parseTemplateBodyStandard(const ParametersStandard& params)
 	{
-		return parseTemplateBodyStandard(params, [&](const ParametersStandard& params) { return Webss(parseTemplateTupleStandard(params)); }, [&](const ParametersStandard& params) { return Webss(parseTemplateTupleText(params), true); });
+		return parseTemplateBodyStandard(params, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<false>(params)); }, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<true>(params), true); });
 	}
 
 	Webss parseTemplateBodyText(const ParametersStandard& params)
 	{
-		return parseTemplateBodyStandard(params, [&](const ParametersStandard& params) { return Webss(parseTemplateTupleText(params), true); }, [&](const ParametersStandard& params) { return Webss(parseTemplateTupleText(params), true); });
+		return parseTemplateBodyStandard(params, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<true>(params), true); }, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<true>(params), true); });
 	}
 
 	Webss parseTemplateBodyStandard(const ParametersStandard& params, function<Webss(const ParametersStandard& params)>&& funcTemplTupleRegular, function<Webss(const ParametersStandard& params)>&& funcTemplTupleText)
@@ -95,6 +95,38 @@ public:
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
+	}
+
+	template <bool isText>
+	Tuple parseTemplateTuple(const TemplateHeadStandard::Parameters& params)
+	{
+		Tuple tuple(params.getSharedKeys());
+		Tuple::size_type index = 0;
+		ContainerSwitcher switcher(*this, ConType::TUPLE, true);
+		if (!containerEmpty())
+		{
+			do
+			{
+				switch (nextTag)
+				{
+				case Tag::SEPARATOR: //void
+					break;
+				case Tag::EXPLICIT_NAME:
+				{
+					auto name = parseNameExplicit();
+					nextTag = getTag(it);
+					tuple.at(name) = isText ? Webss(parseLineString()) : parseTemplateContainer(params, params.at(name));
+					break;
+				}
+				default:
+					tuple.at(index) = isText ? Webss(parseLineString()) : parseTemplateContainer(params, params.at(index));
+					break;
+				}
+				++index;
+			} while (checkNextElement());
+		}
+		checkDefaultValues(tuple, params);
+		return tuple;
 	}
 
 private:
@@ -292,62 +324,10 @@ Webss Parser::parseTemplateContainer(const TemplateHeadStandard::Parameters& par
 
 Tuple Parser::parseTemplateTupleStandard(const TemplateHeadStandard::Parameters& params)
 {
-	Tuple tuple(params.getSharedKeys());
-	Tuple::size_type index = 0;
-	ContainerSwitcher switcher(*this, ConType::TUPLE, true);
-	if (!containerEmpty())
-	{
-		do
-		{
-			switch (nextTag)
-			{
-			case Tag::SEPARATOR: //void
-				break;
-			case Tag::EXPLICIT_NAME:
-			{
-				auto name = parseNameExplicit();
-				nextTag = getTag(it);
-				tuple.at(name) = parseTemplateContainer(params, params.at(name));
-				break;
-			}
-			default:
-				tuple.at(index) = parseTemplateContainer(params, params.at(index));
-				break;
-			}
-			++index;
-		} while (checkNextElement());
-	}
-	checkDefaultValues(tuple, params);
-	return tuple;
+	return static_cast<ParserTemplates*>(this)->parseTemplateTuple<false>(params);
 }
 
 Tuple Parser::parseTemplateTupleText(const TemplateHeadStandard::Parameters& params)
 {
-	Tuple tuple(params.getSharedKeys());
-	Tuple::size_type index = 0;
-	ContainerSwitcher switcher(*this, ConType::TUPLE, true);
-	if (!containerEmpty())
-	{
-		do
-		{
-			switch (nextTag)
-			{
-			case Tag::SEPARATOR: //void
-				break;
-			case Tag::EXPLICIT_NAME:
-			{
-				auto name = parseNameExplicit();
-				nextTag = getTag(it);
-				tuple.at(name) = parseLineString();
-				break;
-			}
-			default:
-				tuple.at(index) = parseLineString();
-				break;
-			}
-			++index;
-		} while (checkNextElement());
-	}
-	checkDefaultValues(tuple, params);
-	return tuple;
+	return static_cast<ParserTemplates*>(this)->parseTemplateTuple<true>(params);
 }
