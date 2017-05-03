@@ -2,6 +2,7 @@
 //Copyright(c) 2017 Patrick Laughrea
 #include "parser.h"
 
+#include "containerSwitcher.h"
 #include "unicode.h"
 #include "utils/constants.h"
 #include "utils/utils.h"

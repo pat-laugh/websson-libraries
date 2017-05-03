@@ -132,6 +132,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="binaryIterator.h" />
+    <ClInclude Include="containerSwitcher.h" />
     <ClInclude Include="curl.h" />
     <ClInclude Include="entityManager.h" />
     <ClInclude Include="errors.h" />

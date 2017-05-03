@@ -13,8 +13,6 @@ namespace webss
 	class Parser
 	{
 	public:
-		static Document parse() { return Parser().parseDocument(); }
-
 		Parser();
 		Parser(SmartIterator&& it);
 		Parser(const std::istream& in);
@@ -34,58 +32,10 @@ namespace webss
 		bool multilineContainer = true;
 		bool allowVoid = false;
 
-		void initEnts();
+		class ContainerSwitcher;
 
-		class ContainerSwitcher
-		{
-		private:
-			Parser& parser;
-			ConType oldCon;
-			bool oldAllowVoid;
-			bool oldMultilineContainer;
-		public:
-			ContainerSwitcher(Parser& parser, ConType newCon, bool newAllowVoid) : parser(parser), oldCon(parser.con), oldAllowVoid(parser.allowVoid), oldMultilineContainer(parser.multilineContainer)
-			{
-				parser.con = newCon;
-				parser.allowVoid = newAllowVoid;
-				parser.multilineContainer = checkLineEmpty(++parser.it);
-			}
-
-			~ContainerSwitcher()
-			{
-				parser.con = oldCon;
-				parser.allowVoid = oldAllowVoid;
-				parser.multilineContainer = oldMultilineContainer;
-			}
-		};
-
-		class ImportSwitcher
-		{
-		private:
-			Parser& parser;
-			SmartIterator oldIt;
-			Tag oldNextTag;
-			ConType oldCon;
-			bool oldAllowVoid;
-			bool oldMultilineContainer;
-		public:
-			ImportSwitcher(Parser& parser, SmartIterator&& newIt) : parser(parser), oldIt(std::move(parser.it)), oldNextTag(parser.nextTag), oldCon(parser.con), oldAllowVoid(parser.allowVoid), oldMultilineContainer(parser.multilineContainer)
-			{
-				parser.it = std::move(newIt);
-				parser.con = ConType::DOCUMENT;
-				parser.allowVoid = false;
-				parser.multilineContainer = true;
-			}
-
-			~ImportSwitcher()
-			{
-				parser.it = std::move(oldIt);
-				parser.nextTag = oldNextTag;
-				parser.con = oldCon;
-				parser.allowVoid = oldAllowVoid;
-				parser.multilineContainer = oldMultilineContainer;
-			}
-		};
+		template <class Container, ConType::Enum CON>
+		Container parseContainer(Container&& cont, std::function<void(Container& cont)> func);
 
 		//returns true if container is empty, else false
 		bool containerEmpty();
@@ -126,17 +76,6 @@ namespace webss
 
 		//returns true if end of container is met, else false
 		bool parseDocumentHead(std::vector<ParamDocument>& docHead, const Namespace& nspace);
-
-		template <class Container, ConType::Enum CON>
-		Container parseContainer(Container&& cont, std::function<void(Container& cont)> func)
-		{
-			ContainerSwitcher switcher(*this, CON, false);
-			if (!containerEmpty())
-				do
-					func(cont);
-			while (checkNextElement());
-			return std::move(cont);
-		}
 
 		Dictionary parseDictionary();
 		std::string parseNameJson();
@@ -188,9 +127,7 @@ namespace webss
 		//only called from parseTemplateHead
 		TemplateHeadStandard parseTemplateHeadStandard(TemplateHeadStandard&& thead = TemplateHeadStandard());
 		TemplateHeadBinary parseTemplateHeadBinary(TemplateHeadBinary&& thead = TemplateHeadBinary());
-
 		TemplateHeadScoped parseTemplateHeadScoped(TemplateHeadScoped&& thead = TemplateHeadScoped());
-
 
 		void parseStandardParameterTemplateHead(TemplateHeadStandard& thead);
 		void parseOtherValuesTheadStandardAfterThead(TemplateHeadStandard& thead);
@@ -202,7 +139,7 @@ namespace webss
 		Webss parseTemplateBodyStandard(const TemplateHeadStandard::Parameters& params);
 		Webss parseTemplateBodyText(const TemplateHeadStandard::Parameters& params);
 
-		Webss parseTemplateContainer(const TemplateHeadStandard::Parameters & params, const ParamStandard & defaultValue);
+		Webss parseTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue);
 
 		//parserBinary.cpp
 		void parseBinaryHead(TemplateHeadBinary& thead);

@@ -2,6 +2,7 @@
 //Copyright(c) 2017 Patrick Laughrea
 #include "parser.h"
 
+#include "containerSwitcher.h"
 #include "errors.h"
 #include "patternsContainers.h"
 #include "utils/constants.h"

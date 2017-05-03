@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cmath>
 
+#include "containerSwitcher.h"
 #include "errors.h"
 #include "patternsContainers.h"
 #include "utils/constants.h"

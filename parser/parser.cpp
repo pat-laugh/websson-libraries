@@ -36,7 +36,7 @@ void addTheadBinaryEntityKeywords(EntityManager& ents, vector<string> names, Key
 	addGlobalEntities(ents, move(names), Entity(move(entName), makeTheadBinaryKeyword(keyword)));
 }
 
-void Parser::initEnts()
+void initEnts(EntityManager& ents)
 {
 	addEntityKeywords(ents);
 	addTheadBinaryEntityKeywords(ents, { "B", "Bool", "bool" }, Keyword::BOOL);
@@ -49,11 +49,11 @@ void Parser::initEnts()
 	addTheadBinaryEntityKeywords(ents, { "S", "String", "string" }, Keyword::STRING);
 }
 
-Parser::Parser() : it(SmartIterator(string(""))) { initEnts(); }
-Parser::Parser(SmartIterator&& it) : it(move(it)) { initEnts(); }
-Parser::Parser(const istream& in) : it(SmartIterator(in)) { initEnts(); }
-Parser::Parser(const stringstream& in) : it(SmartIterator(in)) { initEnts(); }
-Parser::Parser(const string& in) : it(SmartIterator(in)) { initEnts(); }
+Parser::Parser() : it(SmartIterator(string(""))) { initEnts(ents); }
+Parser::Parser(SmartIterator&& it) : it(move(it)) { initEnts(ents); }
+Parser::Parser(const istream& in) : it(SmartIterator(in)) { initEnts(ents); }
+Parser::Parser(const stringstream& in) : it(SmartIterator(in)) { initEnts(ents); }
+Parser::Parser(const string& in) : it(SmartIterator(in)) { initEnts(ents); }
 
 Parser& Parser::setIterator(SmartIterator&& it)
 {
