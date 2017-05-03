@@ -317,6 +317,8 @@ ParamDocument Parser::parseUsingAll()
 	return ParamDocument::makeUsingAll(nameType.entity);
 }
 
+auto importManager = ImportManager<Parser>::getInstance();
+
 ImportedDocument Parser::parseImport()
 {
 	nextTag = getTag(++it);
@@ -330,10 +332,9 @@ ImportedDocument Parser::parseImport()
 		try
 		{
 			importedDocuments.addLocalSafe(link, 0);
-			ImportSwitcher switcher(*this, SmartIterator(ImportManager::getInstance().importDocument(link)));
-			DocumentHead docHead;
-			if (!containerEmpty() && !parseDocumentHead(docHead, Namespace::getEmptyInstance()))
-				throw runtime_error(ERROR_UNEXPECTED);
+			const auto& importedEnts = importManager.importDocument(link);
+			for (auto& ent : importedEnts.getLocalEnts())
+				ents.addLocalSafe(move(ent));
 		}
 		catch (const exception& e)
 			{ throw runtime_error(string("while parsing import, ") + e.what()); }

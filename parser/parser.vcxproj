@@ -144,7 +144,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="curl.cpp" />
-    <ClCompile Include="importManager.cpp" />
     <ClCompile Include="parser.cpp" />
     <ClCompile Include="parserBinary.cpp" />
     <ClCompile Include="parserContainers.cpp" />

@@ -4,6 +4,7 @@
 
 #include <set>
 #include <unordered_map>
+#include <vector>
 
 #include "structures/entity.h"
 
@@ -23,6 +24,14 @@ namespace webss
 	public:
 		BasicEntityManager() {}
 		~BasicEntityManager() { clearAll(); }
+
+		std::vector<Entity> getLocalEnts() const
+		{
+			std::vector<Entity> ents;
+			for (auto sPtr : locals)
+				ents.push_back(globals.find(*sPtr)->second);
+			return ents;
+		}
 
 		void clearAll()
 		{
