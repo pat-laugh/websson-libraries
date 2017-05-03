@@ -225,8 +225,8 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 		{
 			auto import = parseImport();
 			const auto& link = import.getLink();
-			for (const auto& ent : ImportManager<Parser>::getInstance().importDocument(link))
-				ents.addLocalSafe(ent);
+			for (const auto& entPair : ImportManager<Parser>::getInstance().importDocument(link))
+				ents.addLocalSafe(entPair.second);
 			docHead.push_back(move(import));
 			break;
 		}
@@ -300,15 +300,17 @@ ParamDocument Parser::parseScopedDocument()
 
 ParamDocument Parser::parseUsingOne()
 {
-	skipJunkToTag(++it, Tag::NAME_START);
-	auto nameType = parseNameType();
-	if (nameType.type == NameType::NAME)
-	{
-		//to do
-	}
-	else if (nameType.type == NameType::KEYWORD)
-		throw runtime_error("expected entity");
-	return ParamDocument::makeUsingOne(nameType.entity);
+	vector<string> names;
+	do
+		names.push_back(parseName(skipJunkToTag(++it, Tag::NAME_START)));
+	while ((nextTag = getTag(it)) == Tag::SCOPE);
+	if (nextTag != Tag::IMPORT)
+		throw runtime_error("expected import for scoped import");
+	auto import = parseImport();
+	const Entity* ent = &ImportManager<Parser>::getInstance().importDocument(import.getLink()).at(names[0]);
+	for (int i = 1; i < names.size(); ++i)
+		ent = &ent->getContent().getNamespaceSafe().at(names[i]);
+	return ParamDocument::makeUsingOne(*ent, move(import));
 }
 
 ParamDocument Parser::parseUsingAll()

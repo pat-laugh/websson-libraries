@@ -35,15 +35,6 @@ Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 	}
 }
 
-string Parser::parseNameSafe()
-{
-	skipJunkToTag(it, Tag::NAME_START);
-	auto nameType = parseNameType();
-	if (nameType.type != NameType::NAME)
-		throw runtime_error("expected name that is neither an entity nor a keyword");
-	return move(nameType.name);
-}
-
 string Parser::parseNameExplicit()
 {
 	skipJunkToTag(++it, Tag::NAME_START);

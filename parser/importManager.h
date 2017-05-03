@@ -19,7 +19,7 @@ namespace webss
 	class ImportManager
 	{
 	private:
-		std::unordered_map<std::string, std::vector<Entity>> docs;
+		std::unordered_map<std::string, std::unordered_map<std::string, Entity>> docs;
 		std::unordered_map<std::string, std::thread::id> parsing;
 		std::mutex mDocs, mParsing;
 
@@ -31,7 +31,7 @@ namespace webss
 			return instance;
 		}
 
-		const std::vector<Entity>& importDocument(const std::string& link)
+		const std::unordered_map<std::string, Entity>& importDocument(const std::string& link)
 		{
 #ifdef DISABLE_IMPORT
 			throw runtime_error("this parser cannot import documents");
@@ -63,7 +63,10 @@ namespace webss
 				std::lock_guard<std::mutex> lockDocs(mDocs);
 				std::lock_guard<std::mutex> lockParsing(mParsing);
 				parsing.erase(link);
-				return docs.insert({ link, parser.getEnts().getLocalEnts() }).first->second;
+				std::unordered_map<std::string, Entity> ents;
+				for (const auto& ent : parser.getEnts().getLocalEnts())
+					ents.insert({ ent.getName(), ent });
+				return docs.insert({ link, std::move(ents) }).first->second;
 			}
 			catch (const std::exception& e)
 			{
