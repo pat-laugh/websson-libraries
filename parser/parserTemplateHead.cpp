@@ -153,11 +153,11 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 				using Type = ParamScoped::Type;
 				switch (param.getType())
 				{
-				case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ONE: case Type::USING_ONE_IMPORT:
+				case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ONE:
 					containerAddSafe(entNames, string(param.getEntity().getName()));
 					thead.attach(ParamDocument(param));
 					break;
-				case Type::USING_ALL: case Type::USING_ALL_IMPORT:
+				case Type::USING_ALL:
 					containerAddSafe(nspaceNames, string(param.getNamespace().getName()));
 					thead.attach(ParamDocument(param));
 					break;

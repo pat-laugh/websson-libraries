@@ -60,16 +60,14 @@ namespace webss
 		enum class Type
 		{
 			NONE, ENTITY_ABSTRACT, ENTITY_CONCRETE, SCOPED_DOCUMENT,
-			USING_ALL, USING_ONE, USING_ALL_IMPORT, USING_ONE_IMPORT, IMPORT
+			USING_ALL, USING_ONE, IMPORT
 		};
 
 		This() {}
 		static This makeEntityAbstract(Entity ent) { return This(ent, Type::ENTITY_ABSTRACT); }
 		static This makeEntityConcrete(Entity ent) { return This(ent, Type::ENTITY_CONCRETE); }
 		static This makeUsingAll(Entity ent) { assert(ent.getContent().isNamespace()); return This(ent, Type::USING_ALL); }
-		static This makeUsingAll(Entity ent, Import import) { assert(ent.getContent().isNamespace()); return This(ent, Type::USING_ALL_IMPORT, std::move(import)); }
-		static This makeUsingOne(Entity ent) { return This(ent, Type::USING_ONE); }
-		static This makeUsingOne(Entity ent, Import import) { return This(ent, Type::USING_ONE_IMPORT, std::move(import)); }
+		static This makeUsingOne(Entity ent, Import import) { return This(ent, Type::USING_ONE, std::move(import)); }
 		This(Import import) : type(Type::IMPORT), import(new Import(std::move(import))) {}
 		This(ScopedDoc scopedDoc) : type(Type::SCOPED_DOCUMENT), scopedDoc(new ScopedDoc(std::move(scopedDoc))) {}
 		~This() { destroyUnion(); }
@@ -94,7 +92,7 @@ namespace webss
 		}
 
 		Type getType() const { return type; }
-		bool hasNamespace() const { return type == Type::USING_ALL || type == Type::USING_ALL_IMPORT; }
+		bool hasNamespace() const { return type == Type::USING_ALL; }
 		const Entity& getEntity() const { return ent; }
 		const Namespace& getNamespace() const { return ent.getContent().getNamespaceSafe(); }
 		const Import& getImport() const { return *import; }
@@ -116,10 +114,10 @@ namespace webss
 		{
 			switch (type)
 			{
-			case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ALL: case Type::USING_ONE:
+			case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ALL:
 				ent.~BasicEntity();
 				break;
-			case Type::USING_ALL_IMPORT: case Type::USING_ONE_IMPORT:
+			case Type::USING_ONE:
 				ent.~BasicEntity();
 				delete import;
 				break;
@@ -139,11 +137,11 @@ namespace webss
 		{
 			switch (o.type)
 			{
-			case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ALL: case Type::USING_ONE:
+			case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ALL:
 				new (&ent) Entity(std::move(o.ent));
 				o.ent.~BasicEntity();
 				break;
-			case Type::USING_ALL_IMPORT: case Type::USING_ONE_IMPORT:
+			case Type::USING_ONE:
 				new (&ent) Entity(std::move(o.ent));
 				o.ent.~BasicEntity();
 				import = o.import;
@@ -166,10 +164,10 @@ namespace webss
 		{
 			switch (o.type)
 			{
-			case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ALL: case Type::USING_ONE:
+			case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ALL:
 				new (&ent) Entity(o.ent);
 				break;
-			case Type::USING_ALL_IMPORT: case Type::USING_ONE_IMPORT:
+			case Type::USING_ONE:
 				new (&ent) Entity(o.ent);
 				import = new Import(*o.import);
 				break;
