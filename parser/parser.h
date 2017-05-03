@@ -141,6 +141,9 @@ namespace webss
 
 		Webss parseTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue);
 
+		Tuple parseTemplateTupleStandard(const TemplateHeadStandard::Parameters& params);
+		Tuple parseTemplateTupleText(const TemplateHeadStandard::Parameters& params);
+
 		//parserBinary.cpp
 		void parseBinaryHead(TemplateHeadBinary& thead);
 		Tuple parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params);

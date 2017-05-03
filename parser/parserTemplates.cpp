@@ -47,26 +47,28 @@ void checkDefaultValues<TemplateHeadBinary::Parameters>(Tuple& tuple, const Temp
 
 class ParserTemplates : public Parser
 {
+private:
+	using ParametersStandard = TemplateHeadStandard::Parameters;
+	using ParametersBinary = TemplateHeadBinary::Parameters;
 public:
-	Webss parseTemplateBodyStandard(const TemplateHeadStandard::Parameters& params)
+	Webss parseTemplateBodyStandard(const ParametersStandard& params)
 	{
-		return parseTemplateBody<TemplateHeadStandard::Parameters>(params, [&](const TemplateHeadStandard::Parameters& params) { return Webss(parseTemplateTupleStandard(params)); }, [&](const TemplateHeadStandard::Parameters& params) { return Webss(parseTemplateTupleText(params), true); });
+		return parseTemplateBodyStandard(params, [&](const ParametersStandard& params) { return Webss(parseTemplateTupleStandard(params)); }, [&](const ParametersStandard& params) { return Webss(parseTemplateTupleText(params), true); });
 	}
 
-	Webss parseTemplateBodyText(const TemplateHeadStandard::Parameters& params)
+	Webss parseTemplateBodyText(const ParametersStandard& params)
 	{
-		return parseTemplateBody<TemplateHeadStandard::Parameters>(params, [&](const TemplateHeadStandard::Parameters& params) { return Webss(parseTemplateTupleText(params), true); }, [&](const TemplateHeadStandard::Parameters& params) { return Webss(parseTemplateTupleText(params), true); });
+		return parseTemplateBodyStandard(params, [&](const ParametersStandard& params) { return Webss(parseTemplateTupleText(params), true); }, [&](const ParametersStandard& params) { return Webss(parseTemplateTupleText(params), true); });
 	}
 
-	template <class Parameters>
-	Webss parseTemplateBody(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
+	Webss parseTemplateBodyStandard(const ParametersStandard& params, function<Webss(const ParametersStandard& params)>&& funcTemplTupleRegular, function<Webss(const ParametersStandard& params)>&& funcTemplTupleText)
 	{
 		switch (nextTag = getTag(it))
 		{
 		case Tag::START_DICTIONARY:
-			return parseTemplateDictionary<Parameters>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
+			return parseTemplateDictionary<ParametersStandard>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
 		case Tag::START_LIST:
-			return parseTemplateList<Parameters>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
+			return parseTemplateList<ParametersStandard>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
 		case Tag::START_TUPLE:
 			return funcTemplTupleRegular(params);
 		case Tag::TEXT_TUPLE:
@@ -78,14 +80,14 @@ public:
 		}
 	}
 
-	Webss parseTemplateBodyBinary(const TemplateHeadBinary::Parameters& params, function<Webss(const TemplateHeadBinary::Parameters& params)>&& funcTemplTupleRegular, function<Webss(const TemplateHeadBinary::Parameters& params)>&& funcTemplTupleText)
+	Webss parseTemplateBodyBinary(const ParametersBinary& params, function<Webss(const ParametersBinary& params)>&& funcTemplTupleRegular, function<Webss(const ParametersBinary& params)>&& funcTemplTupleText)
 	{
 		switch (nextTag = getTag(it))
 		{
 		case Tag::START_DICTIONARY:
-			return parseTemplateDictionary<TemplateHeadBinary::Parameters>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
+			return parseTemplateDictionary<ParametersBinary>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
 		case Tag::START_LIST:
-			return parseTemplateList<TemplateHeadBinary::Parameters>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
+			return parseTemplateList<ParametersBinary>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
 		case Tag::START_TUPLE:
 			return funcTemplTupleRegular(params);
 		case Tag::TEXT_TUPLE:
@@ -196,51 +198,6 @@ private:
 				throw runtime_error(ERROR_UNEXPECTED);
 		});
 	}
-
-	Tuple parseTemplateTupleStandard(const TemplateHeadStandard::Parameters& params)
-	{
-		Tuple tuple(params.getSharedKeys());
-		Tuple::size_type index = 0;
-		ContainerSwitcher switcher(*this, ConType::TUPLE, true);
-		if (!containerEmpty())
-		{
-			do
-			{
-				switch (nextTag)
-				{
-				case Tag::SEPARATOR: //void
-					break;
-				case Tag::EXPLICIT_NAME:
-				{
-					auto name = parseNameExplicit();
-					nextTag = getTag(it);
-					tuple.at(name) = parseTemplateContainer(params, params.at(name));
-					break;
-				}
-				default:
-					tuple.at(index) = parseTemplateContainer(params, params.at(index));
-					break;
-				}
-				++index;
-			} while (checkNextElement());
-		}
-		checkDefaultValues(tuple, params);
-		return tuple;
-	}
-
-	template <class Parameters>
-	Tuple parseTemplateTupleText(const Parameters& params)
-	{
-		Tuple tuple(params.getSharedKeys());
-		Tuple::size_type index = 0;
-		ContainerSwitcher switcher(*this, ConType::TUPLE, true);
-		if (!containerEmpty())
-			do
-				tuple.at(index++) = parseLineString();
-			while (checkNextElement());
-		checkDefaultValues(tuple, params);
-		return tuple;
-	}
 };
 
 Webss Parser::parseTemplate()
@@ -331,4 +288,48 @@ Webss Parser::parseTemplateContainer(const TemplateHeadStandard::Parameters& par
 	default:
 		return parseValueOnly();
 	}
+}
+
+Tuple Parser::parseTemplateTupleStandard(const TemplateHeadStandard::Parameters& params)
+{
+	Tuple tuple(params.getSharedKeys());
+	Tuple::size_type index = 0;
+	ContainerSwitcher switcher(*this, ConType::TUPLE, true);
+	if (!containerEmpty())
+	{
+		do
+		{
+			switch (nextTag)
+			{
+			case Tag::SEPARATOR: //void
+				break;
+			case Tag::EXPLICIT_NAME:
+			{
+				auto name = parseNameExplicit();
+				nextTag = getTag(it);
+				tuple.at(name) = parseTemplateContainer(params, params.at(name));
+				break;
+			}
+			default:
+				tuple.at(index) = parseTemplateContainer(params, params.at(index));
+				break;
+			}
+			++index;
+		} while (checkNextElement());
+	}
+	checkDefaultValues(tuple, params);
+	return tuple;
+}
+
+Tuple Parser::parseTemplateTupleText(const TemplateHeadStandard::Parameters& params)
+{
+	Tuple tuple(params.getSharedKeys());
+	Tuple::size_type index = 0;
+	ContainerSwitcher switcher(*this, ConType::TUPLE, true);
+	if (!containerEmpty())
+		do
+			tuple.at(index++) = parseLineString();
+	while (checkNextElement());
+	checkDefaultValues(tuple, params);
+	return tuple;
 }

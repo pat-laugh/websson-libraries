@@ -324,10 +324,21 @@ ParamDocument Parser::parseUsingAll()
 	return ParamDocument::makeUsingAll(nameType.entity);
 }
 
+TemplateHeadStandard makeTheadImport()
+{
+	TemplateHeadStandard thead;
+	thead.attachEmpty("name");
+	thead.attach("location", ParamStandard("Standard"));
+	thead.attach("version", ParamStandard("1"));
+	return thead;
+}
+
 ImportedDocument Parser::parseImport()
 {
+	static const auto thead = makeTheadImport();
 	nextTag = getTag(++it);
-	auto importName = parseValueOnly();
+	auto importTuple = parseTemplateTupleText(thead.getParameters());
+	auto importName = importTuple["name"];
 	if (!importName.isString())
 		throw runtime_error("import must reference a string");
 	return ImportedDocument(move(importName));
