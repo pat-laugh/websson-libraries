@@ -327,9 +327,27 @@ Tuple Parser::parseTemplateTupleText(const TemplateHeadStandard::Parameters& par
 	Tuple::size_type index = 0;
 	ContainerSwitcher switcher(*this, ConType::TUPLE, true);
 	if (!containerEmpty())
+	{
 		do
-			tuple.at(index++) = parseLineString();
-	while (checkNextElement());
+		{
+			switch (nextTag)
+			{
+			case Tag::SEPARATOR: //void
+				break;
+			case Tag::EXPLICIT_NAME:
+			{
+				auto name = parseNameExplicit();
+				nextTag = getTag(it);
+				tuple.at(name) = parseLineString();
+				break;
+			}
+			default:
+				tuple.at(index) = parseLineString();
+				break;
+			}
+			++index;
+		} while (checkNextElement());
+	}
 	checkDefaultValues(tuple, params);
 	return tuple;
 }
