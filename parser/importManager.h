@@ -1,9 +1,11 @@
 #pragma once
 
+#include <mutex>
+#include <set>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 
-#include "entityManager.h"
 #include "structures/webss.h"
 
 //#define DISABLE_IMPORT
@@ -17,7 +19,9 @@ namespace webss
 	class ImportManager
 	{
 	private:
-		std::unordered_map<std::string, BasicEntityManager<Webss>> docs;
+		std::unordered_map<std::string, std::vector<Entity>> docs;
+		std::set<std::string> parsing;
+		std::mutex mDocs, mParsing;
 
 		ImportManager() {}
 	public:
@@ -27,20 +31,40 @@ namespace webss
 			return instance;
 		}
 
-		const BasicEntityManager<Webss>& importDocument(const std::string& link)
+		const std::vector<Entity>& importDocument(const std::string& link)
 		{
 #ifdef DISABLE_IMPORT
 			throw runtime_error("this parser cannot import documents");
 #else
-			auto doc = docs.find(link);
-			if (doc == docs.end())
+			{
+				//check if doc was already parsed
+				std::lock_guard<std::mutex> lockDocs(mDocs); //unlocks when out of scope
+				auto doc = docs.find(link);
+				if (doc != docs.end())
+					return doc->second;
+
+				//check if doc is being parsed
+				std::lock_guard<std::mutex> lockParsing(mParsing);
+				if (parsing.find(link) != parsing.end())
+					goto checkAgainLater; //unlocks both locks
+				parsing.insert(link);
+			}
+			try
 			{
 				Parser parser(Curl().readWebDocument(link));
 				parser.parseDocument();
-				doc = docs.insert({ link, parser.getEnts() }).first;
+				std::lock_guard<std::mutex> lockDocs(mDocs);
+				std::lock_guard<std::mutex> lockParsing(mParsing);
+				parsing.erase(link);
+				return docs.insert({ link, parser.getEnts().getLocalEnts() }).first->second;
 			}
-
-			return doc->second;
+			catch (const std::exception& e)
+			{
+				throw std::runtime_error(std::string("while parsing imported document \"") + link + "\", " + e.what());
+			}
+		checkAgainLater:
+			this_thread::yield();
+			return importDocument(link);
 #endif
 		}
 	};

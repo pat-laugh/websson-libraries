@@ -225,8 +225,8 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 		{
 			auto import = parseImport();
 			const auto& link = import.getLink();
-			for (auto& ent : ImportManager<Parser>::getInstance().importDocument(link).getLocalEnts())
-				ents.addLocalSafe(move(ent));
+			for (const auto& ent : ImportManager<Parser>::getInstance().importDocument(link))
+				ents.addLocalSafe(ent);
 			docHead.push_back(move(import));
 			break;
 		}
