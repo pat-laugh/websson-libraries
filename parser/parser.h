@@ -28,7 +28,6 @@ namespace webss
 		BasicEntityManager<Webss> getEnts() { return ents; }
 	protected:
 		BasicEntityManager<Webss> ents;
-		BasicEntityManager<void*> importedDocuments;
 		SmartIterator it;
 		Tag nextTag;
 		ConType con = ConType::DOCUMENT;

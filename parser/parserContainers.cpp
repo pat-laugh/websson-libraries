@@ -224,6 +224,9 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 		case Tag::IMPORT:
 		{
 			auto import = parseImport();
+			const auto& link = import.getLink();
+			for (auto& ent : ImportManager<Parser>::getInstance().importDocument(link).getLocalEnts())
+				ents.addLocalSafe(move(ent));
 			docHead.push_back(move(import));
 			break;
 		}
@@ -317,29 +320,13 @@ ParamDocument Parser::parseUsingAll()
 	return ParamDocument::makeUsingAll(nameType.entity);
 }
 
-auto importManager = ImportManager<Parser>::getInstance();
-
 ImportedDocument Parser::parseImport()
 {
 	nextTag = getTag(++it);
 	auto importName = parseValueOnly();
 	if (!importName.isString())
 		throw runtime_error("import must reference a string");
-	ImportedDocument import(move(importName));
-	const auto& link = import.getLink();
-	if (!importedDocuments.hasEntity(link))
-	{
-		try
-		{
-			importedDocuments.addLocalSafe(link, 0);
-			const auto& importedEnts = importManager.importDocument(link);
-			for (auto& ent : importedEnts.getLocalEnts())
-				ents.addLocalSafe(move(ent));
-		}
-		catch (const exception& e)
-			{ throw runtime_error(string("while parsing import, ") + e.what()); }
-	}
-	return import;
+	return ImportedDocument(move(importName));
 }
 
 void Parser::parseOption()
