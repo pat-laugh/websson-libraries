@@ -144,6 +144,7 @@
     <ClInclude Include="utilsSweepers.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="binaryIterator.cpp" />
     <ClCompile Include="curl.cpp" />
     <ClCompile Include="entityManager.cpp" />
     <ClCompile Include="importManager.cpp" />
