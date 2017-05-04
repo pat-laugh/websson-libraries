@@ -7,10 +7,22 @@ LIBRARY = libparser.a
 
 all: $(LIBRARY)
 
-$(LIBRARY): importManager.o parser.o parserBinary.o parserContainers.o parserEntities.o parserKeyValues.o parserNumbers.o parserStrings.o parserTemplateHead.o parserTemplates.o unicode.o utilsNumbers.o utilsSweepers.o
+$(LIBRARY): binaryIterator.o curl.o entityManager.o importManager.o paramDocumentIncluder.o parser.o parserBinary.o parserContainers.o parserEntities.o parserKeyValues.o parserNumbers.o parserStrings.o parserTemplateHead.o parserTemplates.o unicode.o utilsNumbers.o utilsSweepers.o
 	ar -rc $(LIBRARY) $^
 
+binaryIterator.o: binaryIterator.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+
+curl.o: curl.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+
+entityManager.o: entityManager.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+
 importManager.o: importManager.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+
+paramDocumentIncluder.o: paramDocumentIncluder.cpp
 	$(CC) $(OPTIONS) -o $@ -c $<
 
 parser.o: parser.cpp

@@ -8,7 +8,7 @@
 
 using namespace std;
 
-size_t function(char* ptr, size_t size, size_t nmemb, stringstream* ss)
+size_t functionCurl(char* ptr, size_t size, size_t nmemb, stringstream* ss)
 {
 	auto length = size * nmemb;
 	auto end = (char*)ptr + length;
@@ -21,7 +21,7 @@ Curl::Curl()
 {
 	if (!(curl = curl_easy_init()))
 		throw runtime_error("failed to init curl");
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, function);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, functionCurl);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
 }
 

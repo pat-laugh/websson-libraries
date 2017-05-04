@@ -19,7 +19,7 @@ COMPILE_LIBS:
 	cd $(DIR_SERIALIZER); make -s
 
 $(EXEC): tests.o
-	$(CC) -o $@ -L$(DIR_UTILS) -lutils -L$(DIR_STRUCTURES) -lstructures -L$(DIR_PARSER) -lparser -L$(DIR_SERIALIZER) -lserializer $^
+	$(CC) -o $@ -L$(DIR_UTILS) -lutils -L$(DIR_STRUCTURES) -lstructures -L$(DIR_PARSER) -lcurl -lparser -L$(DIR_SERIALIZER) -lserializer $^
 
 tests.o: tests.cpp
 	$(CC) $(OPTIONS) -o $@ -c $<

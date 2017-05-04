@@ -100,7 +100,7 @@ void BinaryIterator::readBytes(string::size_type num, char* value)
 		*value++ = readByte();
 }
 
-inline char BinaryIterator::readByte()
+char BinaryIterator::readByte()
 {
 	if (!++it)
 		throw runtime_error("expected character");

@@ -33,7 +33,7 @@ namespace webss
 		//REQUIREMENT: the char pointer must point to sufficient memory space
 		void readBytes(std::string::size_type num, char* value);
 
-		inline char readByte();
+		char readByte();
 
 		std::string readString(std::string::size_type num);
 	};

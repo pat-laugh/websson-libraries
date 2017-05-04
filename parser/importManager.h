@@ -4,6 +4,7 @@
 
 #include <mutex>
 #include <string>
+#include <thread>
 #include <unordered_map>
 
 #include "structures/webss.h"
