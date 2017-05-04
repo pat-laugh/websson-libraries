@@ -46,7 +46,6 @@ namespace webss
 		{
 			readStart();
 		}
-		~This() {}
 
 		This& operator=(This&& o)
 		{

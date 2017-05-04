@@ -23,8 +23,6 @@ namespace webss
 		using TheadScoped = BasicTemplateHeadScoped<Webss>;
 		using DocHead = BasicDocumentHead<Webss>;
 
-		~BasicScopedDocument() {}
-
 		TheadScoped head;
 		DocHead body;
 	};
@@ -34,7 +32,6 @@ namespace webss
 	{
 	public:
 		BasicImportedDocument(Webss&& name) : name(std::move(name)) { assert(this->name.isString() && "import must reference a string"); }
-		~BasicImportedDocument() {}
 
 		const Webss& getName() const { return name; }
 		const std::string& getLink() const { return name.getStringSafe(); }
