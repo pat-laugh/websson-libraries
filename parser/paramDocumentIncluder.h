@@ -31,7 +31,7 @@ namespace webss
 
 			//make sure they're the exact same entity, not just two different entities with the same name
 			const auto& content = ents[name].getContent();
-			return content.isNamespace() && content.getNamespaceSafe() == nspace;
+			return content.isNamespace() && content.getNamespace() == nspace;
 		}
 	};
 }

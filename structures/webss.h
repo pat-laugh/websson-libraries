@@ -115,87 +115,85 @@ namespace webss
 		const Webss& at(int index) const;
 		const Webss& at(const std::string& key) const;
 
-		WebssType getType() const { return type; }
-		WebssType getTypeSafe() const;
-
 		const Webss& getWebssLast() const;
 
-		bool getBoolSafe() const;
-		WebssInt getIntSafe() const;
-		double getDoubleSafe() const;
-		const std::string& getStringSafe() const;
-		const Document& getDocumentSafe() const;
-		const Dictionary& getDictionarySafe() const;
-		const List& getListSafe() const;
-		const Tuple& getTupleSafe() const;
-		const TemplateHeadBinary& getTemplateHeadBinarySafe() const;
-		const TemplateHeadScoped& getTemplateHeadScopedSafe() const;
-		const TemplateHeadStandard& getTemplateHeadStandardSafe() const;
-		const TemplateBinary& getTemplateBinarySafe() const;
-		const TemplateScoped& getTemplateScopedSafe() const;
-		const TemplateStandard& getTemplateStandardSafe() const;
-		const Namespace& getNamespaceSafe() const;
-		const Enum& getEnumSafe() const;
-		const BlockHead& getBlockHeadSafe() const;
-		const Block& getBlockSafe() const;
+		WebssType getType() const;
+		bool getBool() const;
+		WebssInt getInt() const;
+		double getDouble() const;
+		const std::string& getString() const;
+		const Document& getDocument() const;
+		const Dictionary& getDictionary() const;
+		const List& getList() const;
+		const Tuple& getTuple() const;
+		const TemplateHeadBinary& getTemplateHeadBinary() const;
+		const TemplateHeadScoped& getTemplateHeadScoped() const;
+		const TemplateHeadStandard& getTemplateHeadStandard() const;
+		const TemplateBinary& getTemplateBinary() const;
+		const TemplateScoped& getTemplateScoped() const;
+		const TemplateStandard& getTemplateStandard() const;
+		const Namespace& getNamespace() const;
+		const Enum& getEnum() const;
+		const BlockHead& getBlockHead() const;
+		const Block& getBlock() const;
 
-		bool getBool() const { assert(getType() == WebssType::PRIMITIVE_BOOL); return tBool; }
-		WebssInt getInt() const { assert(getType() == WebssType::PRIMITIVE_INT); return tInt; }
-		double getDouble() const { assert(getType() == WebssType::PRIMITIVE_DOUBLE); return tDouble; }
+		WebssType getTypeRaw() const { return type; }
+		bool getBoolRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_BOOL); return tBool; }
+		WebssInt getIntRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_INT); return tInt; }
+		double getDoubleRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_DOUBLE); return tDouble; }
+		const std::string& getStringRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_STRING); return *tString; }
+		const Document& getDocumentRaw() const { assert(getTypeRaw() == WebssType::DOCUMENT); return *document; }
+		const Dictionary& getDictionaryRaw() const { assert(getTypeRaw() == WebssType::DICTIONARY); return *dict; }
+		const List& getListRaw() const { assert(getTypeRaw() == WebssType::LIST || getTypeRaw() == WebssType::LIST_TEXT); return *list; }
+		const Tuple& getTupleRaw() const { assert(getTypeRaw() == WebssType::TUPLE || getTypeRaw() == WebssType::TUPLE_TEXT); return *tuple; }
+		const TemplateHeadBinary& getTemplateHeadBinaryRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_BINARY); return *theadBinary; }
+		const TemplateHeadScoped& getTemplateHeadScopedRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_SCOPED); return *theadScoped; }
+		const TemplateHeadStandard& getTemplateHeadStandardRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_STANDARD || getTypeRaw() == WebssType::TEMPLATE_HEAD_TEXT); return *theadStandard; }
+		const TemplateBinary& getTemplateBinaryRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_BINARY); return *templBinary; }
+		const TemplateScoped& getTemplateScopedRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_SCOPED); return *templScoped; }
+		const TemplateStandard& getTemplateStandardRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_STANDARD || getTypeRaw() == WebssType::TEMPLATE_TEXT); return *templStandard; }
+		const Namespace& getNamespaceRaw() const { assert(getTypeRaw() == WebssType::NAMESPACE); return *nspace; }
+		const Enum& getEnumRaw() const { assert(getTypeRaw() == WebssType::ENUM); return *tEnum; }
+		const BlockHead& getBlockHeadRaw() const { assert(getTypeRaw() == WebssType::BLOCK_HEAD); return *blockHead; }
+		const Block& getBlockRaw() const { assert(getTypeRaw() == WebssType::BLOCK); return *block; }
 
-		const std::string& getString() const { assert(getType() == WebssType::PRIMITIVE_STRING); return *tString; }
-		const Document& getDocument() const { assert(getType() == WebssType::DOCUMENT); return *document; }
-		const Dictionary& getDictionary() const { assert(getType() == WebssType::DICTIONARY); return *dict; }
-		const List& getList() const { assert(getType() == WebssType::LIST || getType() == WebssType::LIST_TEXT); return *list; }
-		const Tuple& getTuple() const { assert(getType() == WebssType::TUPLE || getType() == WebssType::TUPLE_TEXT); return *tuple; }
-		const TemplateHeadBinary& getTemplateHeadBinary() const { assert(getType() == WebssType::TEMPLATE_HEAD_BINARY); return *theadBinary; }
-		const TemplateHeadScoped& getTemplateHeadScoped() const { assert(getType() == WebssType::TEMPLATE_HEAD_SCOPED); return *theadScoped; }
-		const TemplateHeadStandard& getTemplateHeadStandard() const { assert(getType() == WebssType::TEMPLATE_HEAD_STANDARD || getType() == WebssType::TEMPLATE_HEAD_TEXT); return *theadStandard; }
-		const TemplateBinary& getTemplateBinary() const { assert(getType() == WebssType::TEMPLATE_BINARY); return *templBinary; }
-		const TemplateScoped& getTemplateScoped() const { assert(getType() == WebssType::TEMPLATE_SCOPED); return *templScoped; }
-		const TemplateStandard& getTemplateStandard() const { assert(getType() == WebssType::TEMPLATE_STANDARD || getType() == WebssType::TEMPLATE_TEXT); return *templStandard; }
-		const Namespace& getNamespace() const { assert(getType() == WebssType::NAMESPACE); return *nspace; }
-		const Enum& getEnum() const { assert(getType() == WebssType::ENUM); return *tEnum; }
-		const BlockHead& getBlockHead() const { assert(getType() == WebssType::BLOCK_HEAD); return *blockHead; }
-		const Block& getBlock() const { assert(getType() == WebssType::BLOCK); return *block; }
+		const Entity& getEntityRaw() const { assert(getTypeRaw() == WebssType::ENTITY); return ent; }
+		const Default& getDefaultRaw() const { assert(getTypeRaw() == WebssType::DEFAULT); return tDefault; }
 
-		const Entity& getEntity() const { assert(getType() == WebssType::ENTITY); return ent; }
-		const Default& getDefault() const { assert(getType() == WebssType::DEFAULT); return tDefault; }
+		std::string& getStringRaw() { assert(getTypeRaw() == WebssType::PRIMITIVE_STRING); return *tString; }
+		Document& getDocumentRaw() { assert(getTypeRaw() == WebssType::DOCUMENT); return *document; }
+		Dictionary& getDictionaryRaw() { assert(getTypeRaw() == WebssType::DICTIONARY); return *dict; }
+		List& getListRaw() { assert(getTypeRaw() == WebssType::LIST || getTypeRaw() == WebssType::LIST_TEXT); return *list; }
+		Tuple& getTupleRaw() { assert(getTypeRaw() == WebssType::TUPLE || getTypeRaw() == WebssType::TUPLE_TEXT); return *tuple; }
+		TemplateHeadBinary& getTemplateHeadBinaryRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_BINARY); return *theadBinary; }
+		TemplateHeadScoped& getTemplateHeadScopedRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_SCOPED); return *theadScoped; }
+		TemplateHeadStandard& getTemplateHeadStandardRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_STANDARD || getTypeRaw() == WebssType::TEMPLATE_HEAD_TEXT); return *theadStandard; }
+		TemplateBinary& getTemplateBinaryRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_BINARY); return *templBinary; }
+		TemplateScoped& getTemplateScopedRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_SCOPED); return *templScoped; }
+		TemplateStandard& getTemplateStandardRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_STANDARD || getTypeRaw() == WebssType::TEMPLATE_TEXT); return *templStandard; }
+		Namespace& getNamespaceRaw() { assert(getTypeRaw() == WebssType::NAMESPACE); return *nspace; }
+		Enum& getEnumRaw() { assert(getTypeRaw() == WebssType::ENUM); return *tEnum; }
+		BlockHead& getBlockHeadRaw() { assert(getTypeRaw() == WebssType::BLOCK_HEAD); return *blockHead; }
+		Block& getBlockRaw() { assert(getTypeRaw() == WebssType::BLOCK); return *block; }
 
-		std::string& getString() { assert(getType() == WebssType::PRIMITIVE_STRING); return *tString; }
-		Document& getDocument() { assert(getType() == WebssType::DOCUMENT); return *document; }
-		Dictionary& getDictionary() { assert(getType() == WebssType::DICTIONARY); return *dict; }
-		List& getList() { assert(getType() == WebssType::LIST || getType() == WebssType::LIST_TEXT); return *list; }
-		Tuple& getTuple() { assert(getType() == WebssType::TUPLE || getType() == WebssType::TUPLE_TEXT); return *tuple; }
-		TemplateHeadBinary& getTemplateHeadBinary() { assert(getType() == WebssType::TEMPLATE_HEAD_BINARY); return *theadBinary; }
-		TemplateHeadScoped& getTemplateHeadScoped() { assert(getType() == WebssType::TEMPLATE_HEAD_SCOPED); return *theadScoped; }
-		TemplateHeadStandard& getTemplateHeadStandard() { assert(getType() == WebssType::TEMPLATE_HEAD_STANDARD || getType() == WebssType::TEMPLATE_HEAD_TEXT); return *theadStandard; }
-		TemplateBinary& getTemplateBinary() { assert(getType() == WebssType::TEMPLATE_BINARY); return *templBinary; }
-		TemplateScoped& getTemplateScoped() { assert(getType() == WebssType::TEMPLATE_SCOPED); return *templScoped; }
-		TemplateStandard& getTemplateStandard() { assert(getType() == WebssType::TEMPLATE_STANDARD || getType() == WebssType::TEMPLATE_TEXT); return *templStandard; }
-		Namespace& getNamespace() { assert(getType() == WebssType::NAMESPACE); return *nspace; }
-		Enum& getEnum() { assert(getType() == WebssType::ENUM); return *tEnum; }
-		BlockHead& getBlockHead() { assert(getType() == WebssType::BLOCK_HEAD); return *blockHead; }
-		Block& getBlock() { assert(getType() == WebssType::BLOCK); return *block; }
-
-		explicit operator bool() const { return getBoolSafe(); }
-		explicit operator WebssInt() const { return getIntSafe(); }
-		explicit operator double() const { return getDoubleSafe(); }
-		explicit operator const std::string&() const { return getStringSafe(); }
-		explicit operator const Document&() const { return getDocumentSafe(); }
-		explicit operator const Dictionary&() const { return getDictionarySafe(); }
-		explicit operator const List&() const { return getListSafe(); }
-		explicit operator const Tuple&() const { return getTupleSafe(); }
-		explicit operator const TemplateHeadBinary&() const { return getTemplateHeadBinarySafe(); }
-		explicit operator const TemplateHeadScoped&() const { return getTemplateHeadScopedSafe(); }
-		explicit operator const TemplateHeadStandard&() const { return getTemplateHeadStandardSafe(); }
-		explicit operator const TemplateBinary&() const { return getTemplateBinarySafe(); }
-		explicit operator const TemplateScoped&() const { return getTemplateScopedSafe(); }
-		explicit operator const TemplateStandard&() const { return getTemplateStandardSafe(); }
-		explicit operator const Namespace&() const { return getNamespaceSafe(); }
-		explicit operator const Enum&() const { return getEnumSafe(); }
-		explicit operator const BlockHead&() const { return getBlockHeadSafe(); }
-		explicit operator const Block&() const { return getBlockSafe(); }
+		explicit operator bool() const { return getBool(); }
+		explicit operator WebssInt() const { return getInt(); }
+		explicit operator double() const { return getDouble(); }
+		explicit operator const std::string&() const { return getString(); }
+		explicit operator const Document&() const { return getDocument(); }
+		explicit operator const Dictionary&() const { return getDictionary(); }
+		explicit operator const List&() const { return getList(); }
+		explicit operator const Tuple&() const { return getTuple(); }
+		explicit operator const TemplateHeadBinary&() const { return getTemplateHeadBinary(); }
+		explicit operator const TemplateHeadScoped&() const { return getTemplateHeadScoped(); }
+		explicit operator const TemplateHeadStandard&() const { return getTemplateHeadStandard(); }
+		explicit operator const TemplateBinary&() const { return getTemplateBinary(); }
+		explicit operator const TemplateScoped&() const { return getTemplateScoped(); }
+		explicit operator const TemplateStandard&() const { return getTemplateStandard(); }
+		explicit operator const Namespace&() const { return getNamespace(); }
+		explicit operator const Enum&() const { return getEnum(); }
+		explicit operator const BlockHead&() const { return getBlockHead(); }
+		explicit operator const Block&() const { return getBlock(); }
 
 		template <class Element>
 		const Element& getElement() const { return static_cast<const Element&>(*this); }

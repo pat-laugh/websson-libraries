@@ -76,13 +76,13 @@ void putFuncBodyBinary(StringBuilder& out, const TemplateHeadBinary::Parameters&
 			assert(!binary.getSizeHead().isSelf());
 			putBinary(out, binary, webss);
 		}
-		else if (webss.getType() == WebssType::DEFAULT || webss.getType() == WebssType::NONE)
+		else if (webss.getTypeRaw() == WebssType::DEFAULT || webss.getTypeRaw() == WebssType::NONE)
 			out += CHAR_BINARY_DEFAULT_TRUE;
 		else
 		{
 			out += CHAR_BINARY_DEFAULT_FALSE;
 			if (binary.getSizeHead().isSelf())
-				putFuncBodyBinary(out, params, webss.getTupleSafe());
+				putFuncBodyBinary(out, params, webss.getTuple());
 			else
 				putBinary(out, binary, webss);
 		}
@@ -97,7 +97,7 @@ void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data)
 	else
 	{
 		const auto& params = sizeHead.getTemplateHead().getParameters();
-		putBinary(out, param, data, [&](const Webss& webss) { putFuncBodyBinary(out, params, webss.getTupleSafe()); });
+		putBinary(out, param, data, [&](const Webss& webss) { putFuncBodyBinary(out, params, webss.getTuple()); });
 	}
 }
 
@@ -112,7 +112,7 @@ void serializeBitList(StringBuilder& out, const List& list)
 			out += c;
 			shift = c = 0;
 		}
-		if (webss.getBoolSafe())
+		if (webss.getBool())
 			c |= 1 << shift;
 		++shift;
 	}
@@ -127,7 +127,7 @@ void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data, 
 		return;
 	}
 
-	const auto& list = data.getListSafe();
+	const auto& list = data.getList();
 	if (param.getSizeList().isEmpty())
 		writeBinarySize(out, list.size());
 
@@ -152,36 +152,36 @@ void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, co
 		switch (bhead.getKeyword())
 		{
 		case Keyword::BOOL:
-			assert(webss.getType() == WebssType::PRIMITIVE_BOOL);
-			out += webss.getBool() ? 1 : 0;
+			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_BOOL);
+			out += webss.getBoolRaw() ? 1 : 0;
 			break;
 		case Keyword::INT8:
-			assert(webss.getType() == WebssType::PRIMITIVE_INT);
-			out += (char)webss.getInt();
+			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_INT);
+			out += (char)webss.getIntRaw();
 			break;
 		case Keyword::INT16:
-			assert(webss.getType() == WebssType::PRIMITIVE_INT);
-			tInt = webss.getInt();
+			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_INT);
+			tInt = webss.getIntRaw();
 			writeBytes(out, 2, reinterpret_cast<char*>(&tInt));
 			break;
 		case Keyword::INT32:
-			assert(webss.getType() == WebssType::PRIMITIVE_INT);
-			tInt = webss.getInt();
+			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_INT);
+			tInt = webss.getIntRaw();
 			writeBytes(out, 4, reinterpret_cast<char*>(&tInt));
 			break;
 		case Keyword::INT64:
-			assert(webss.getType() == WebssType::PRIMITIVE_INT);
-			tInt = webss.getInt();
+			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_INT);
+			tInt = webss.getIntRaw();
 			writeBytes(out, 8, reinterpret_cast<char*>(&tInt));
 			break;
 		case Keyword::FLOAT:
-			assert(webss.getType() == WebssType::PRIMITIVE_DOUBLE);
-			tFloat = static_cast<float>(webss.getDouble());
+			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_DOUBLE);
+			tFloat = static_cast<float>(webss.getDoubleRaw());
 			writeBytes(out, 4, reinterpret_cast<char*>(&tFloat));
 			break;
 		case Keyword::DOUBLE:
-			assert(webss.getType() == WebssType::PRIMITIVE_DOUBLE);
-			tDouble = webss.getDouble();
+			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_DOUBLE);
+			tDouble = webss.getDoubleRaw();
 			writeBytes(out, 8, reinterpret_cast<char*>(&tDouble));
 			break;
 		default:
@@ -190,8 +190,8 @@ void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, co
 	}
 	else
 	{
-		assert(webss.getType() == WebssType::PRIMITIVE_STRING);
-		const auto& s = webss.getString();
+		assert(webss.getTypeRaw() == WebssType::PRIMITIVE_STRING);
+		const auto& s = webss.getStringRaw();
 		if (bhead.isEmpty())
 			writeBinarySize(out, s.length());
 #ifdef assert

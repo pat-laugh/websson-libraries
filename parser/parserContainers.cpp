@@ -311,7 +311,7 @@ ParamDocument Parser::parseUsingOne()
 	auto import = parseImport();
 	const Entity* ent = &ImportManager::getInstance().importDocument(import.getLink()).at(names[0]);
 	for (decltype(names.size()) i = 1; i < names.size(); ++i)
-		ent = &ent->getContent().getNamespaceSafe().at(names[i]);
+		ent = &ent->getContent().getNamespace().at(names[i]);
 	return ParamDocument::makeUsingOne(*ent, move(import));
 }
 

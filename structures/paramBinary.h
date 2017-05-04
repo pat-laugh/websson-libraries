@@ -17,7 +17,7 @@ namespace webss
 	class BasicParamBinary
 	{
 	public:
-#define entNumInt entNumber.getContent().getIntSafe()
+#define entNumInt entNumber.getContent().getInt()
 #define This BasicSizeHead
 		template <class Webss>
 		class This
@@ -124,7 +124,7 @@ namespace webss
 				switch (type)
 				{
 				case Type::ENTITY_NUMBER: case Type::ENTITY_BITS:
-					return static_cast<WebssBinarySize>(ent.getContent().getIntSafe());
+					return static_cast<WebssBinarySize>(ent.getContent().getInt());
 				case Type::NUMBER: case Type::BITS:
 					return number;
 #ifdef assert
@@ -290,7 +290,7 @@ namespace webss
 				if (type == Type::NUMBER)
 					return number;
 				else
-					return static_cast<WebssBinarySize>(ent.getContent().getIntSafe());
+					return static_cast<WebssBinarySize>(ent.getContent().getInt());
 			}
 
 			const Entity& getEntity() const

@@ -34,7 +34,7 @@ namespace webss
 		BasicImportedDocument(Webss&& name) : name(std::move(name)) { assert(this->name.isString() && "import must reference a string"); }
 
 		const Webss& getName() const { return name; }
-		const std::string& getLink() const { return name.getStringSafe(); }
+		const std::string& getLink() const { return name.getString(); }
 	private:
 		Webss name;
 	};
@@ -86,7 +86,7 @@ namespace webss
 		Type getType() const { return type; }
 		bool hasNamespace() const { return type == Type::USING_ALL; }
 		const Entity& getEntity() const { return ent; }
-		const Namespace& getNamespace() const { return ent.getContent().getNamespaceSafe(); }
+		const Namespace& getNamespace() const { return ent.getContent().getNamespace(); }
 		const Import& getImport() const { return *import; }
 		const ScopedDoc& getScopedDoc() const { return *scopedDoc; }
 	private:

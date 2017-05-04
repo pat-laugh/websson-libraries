@@ -64,14 +64,14 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 			}
 		}
 		else if (nextTag == Tag::NUMBER_START)
-			bhead = Bhead(checkBinarySize(parseNumber().getIntSafe()));
+			bhead = Bhead(checkBinarySize(parseNumber().getInt()));
 		else if (nextTag == Tag::START_TEMPLATE)
 		{
 			auto headWebss = parseTemplateHead();
-			switch (headWebss.getType())
+			switch (headWebss.getTypeRaw())
 			{
 			case WebssType::TEMPLATE_HEAD_BINARY:
-				bhead = Bhead(move(headWebss.getTemplateHeadBinary()));
+				bhead = Bhead(move(headWebss.getTemplateHeadBinaryRaw()));
 				break;
 			case WebssType::TEMPLATE_HEAD_SELF:
 				bhead = Bhead(TemplateHeadSelf());
@@ -98,7 +98,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 				}
 			}
 			else if (nextTag == Tag::NUMBER_START)
-				bhead = Bhead::makeSizeBits(checkBinarySizeBits(parseNumber().getIntSafe()));
+				bhead = Bhead::makeSizeBits(checkBinarySizeBits(parseNumber().getInt()));
 			else
 				throw runtime_error(ERROR_UNEXPECTED);
 		}
@@ -145,7 +145,7 @@ ParamBinary::SizeList Parser::parseBinarySizeList()
 			blist = Blist(checkEntTypeBinarySize(nameType.entity));
 		}
 		else if (nextTag == Tag::NUMBER_START)
-			blist = Blist(checkBinarySize(parseNumber().getIntSafe()));
+			blist = Blist(checkBinarySize(parseNumber().getInt()));
 		else
 			throw;
 
@@ -161,7 +161,7 @@ ParamBinary::SizeList Parser::parseBinarySizeList()
 
 const Entity& Parser::checkEntTypeBinarySize(const Entity& ent)
 {
-	try { checkBinarySize(ent.getContent().getIntSafe()); }
+	try { checkBinarySize(ent.getContent().getInt()); }
 	catch (const exception& e) { throw runtime_error(e.what()); }
 	return ent;
 }
@@ -177,7 +177,7 @@ WebssBinarySize checkBinarySize(WebssInt sizeInt)
 
 const Entity& Parser::checkEntTypeBinarySizeBits(const Entity& ent)
 {
-	try { checkBinarySizeBits(ent.getContent().getIntSafe()); }
+	try { checkBinarySizeBits(ent.getContent().getInt()); }
 	catch (const exception& e) { throw runtime_error(e.what()); }
 	return ent;
 }

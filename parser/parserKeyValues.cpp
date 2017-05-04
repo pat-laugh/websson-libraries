@@ -26,8 +26,8 @@ scopeLoop:
 		skipJunkToTag(++it, Tag::NAME_START);
 		const auto& content = ent->getContent();
 		if (content.isEnum())
-			return content.getEnumSafe().at(parseName(it));
-		ent = &content.getNamespaceSafe().at(parseName(it));
+			return content.getEnum().at(parseName(it));
+		ent = &content.getNamespace().at(parseName(it));
 		goto scopeLoop;
 	}
 	catch (const exception&) { throw runtime_error("could not get scoped value"); }
@@ -103,30 +103,30 @@ Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 {
 	const auto& content = ent.getContent();
 	nextTag = getTag(it);
-	switch (content.getTypeSafe())
+	switch (content.getType())
 	{
 	case WebssType::BLOCK_HEAD:
 		return{ Block(ent, parseValueOnly()) };
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		if (isTemplateBodyStart(nextTag))
-			return{ Webss(TemplateHeadBinary(ent), parseTemplateBodyBinary(content.getTemplateHeadBinarySafe().getParameters())) };
+			return{ Webss(TemplateHeadBinary(ent), parseTemplateBodyBinary(content.getTemplateHeadBinary().getParameters())) };
 		break;
 	case WebssType::TEMPLATE_HEAD_SCOPED:
 		switch (nextTag)
 		{
 		case CASE_TAG_KEY_CHAR: case Tag::NAME_START: case Tag::NUMBER_START:
-			return{ TemplateScoped(ent, parseTemplateBodyScoped(ent.getContent().getTemplateHeadScopedSafe().getParameters())) };
+			return{ TemplateScoped(ent, parseTemplateBodyScoped(ent.getContent().getTemplateHeadScoped().getParameters())) };
 		default:
 			break;
 		}
 		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD:
 		if (isTemplateBodyStart(nextTag))
-			return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyStandard(content.getTemplateHeadStandardSafe().getParameters())) };
+			return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyStandard(content.getTemplateHeadStandard().getParameters())) };
 		break;
 	case WebssType::TEMPLATE_HEAD_TEXT:
 		if (isTemplateBodyStart(nextTag))
-			return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyText(content.getTemplateHeadStandardSafe().getParameters()), true) };
+			return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyText(content.getTemplateHeadStandard().getParameters()), true) };
 		break;
 	default:
 		break;

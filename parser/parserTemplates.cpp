@@ -38,7 +38,7 @@ template <class Parameters>
 void checkDefaultValues(Tuple& tuple, const Parameters& params)
 {
 	for (Tuple::size_type index = 0; index < tuple.size(); ++index)
-		if (tuple.at(index).getType() == WebssType::NONE)
+		if (tuple.at(index).getTypeRaw() == WebssType::NONE)
 			setDefaultValue(tuple[index], params[index]);
 }
 
@@ -134,18 +134,18 @@ private:
 	Webss checkTemplateBodyEntity(const Parameters& params, WebssType filter)
 	{
 		auto value = parseValueOnly();
-		switch (value.getTypeSafe())
+		switch (value.getType())
 		{
 		case WebssType::DICTIONARY:
 			if (filter != WebssType::DICTIONARY)
 				throw runtime_error(ERROR_UNEXPECTED);
-			return checkTemplateBodyEntityDict(params, value.getDictionarySafe());
+			return checkTemplateBodyEntityDict(params, value.getDictionary());
 		case WebssType::LIST:
 			if (filter == WebssType::TUPLE)
 				throw runtime_error(ERROR_UNEXPECTED);
-			return checkTemplateBodyEntityList(params, value.getListSafe());
+			return checkTemplateBodyEntityList(params, value.getList());
 		case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
-			return checkTemplateBodyEntityTuple(params, value.getTupleSafe());
+			return checkTemplateBodyEntityTuple(params, value.getTuple());
 		default:
 			throw runtime_error("expected entity with template body structure");
 		}
@@ -158,9 +158,9 @@ private:
 		for (const auto& keyValue : entityDict)
 		{
 			if (keyValue.second.isList())
-				dict.add(keyValue.first, checkTemplateBodyEntityList(params, keyValue.second.getListSafe()));
+				dict.add(keyValue.first, checkTemplateBodyEntityList(params, keyValue.second.getList()));
 			else
-				dict.add(keyValue.first, checkTemplateBodyEntityTuple(params, keyValue.second.getTupleSafe()));
+				dict.add(keyValue.first, checkTemplateBodyEntityTuple(params, keyValue.second.getTuple()));
 		}
 		return dict;
 	}
@@ -170,7 +170,7 @@ private:
 	{
 		List list;
 		for (const auto& elem : entityList)
-			list.add(checkTemplateBodyEntityTuple(params, elem.getTupleSafe()));
+			list.add(checkTemplateBodyEntityTuple(params, elem.getTuple()));
 		return list;
 	}
 
@@ -235,20 +235,20 @@ private:
 Webss Parser::parseTemplate()
 {
 	auto headWebss = parseTemplateHead();
-	switch (headWebss.getType())
+	switch (headWebss.getTypeRaw())
 	{
 	case WebssType::BLOCK_HEAD:
 		nextTag = getTag(it);
-		return Block(move(headWebss.getBlockHead()), parseValueOnly());
+		return Block(move(headWebss.getBlockHeadRaw()), parseValueOnly());
 	case WebssType::TEMPLATE_HEAD_BINARY:
 	{
-		auto head = move(headWebss.getTemplateHeadBinary());
+		auto head = move(headWebss.getTemplateHeadBinaryRaw());
 		auto body = parseTemplateBodyBinary(head.getParameters());
 		return{ move(head), move(body) };
 	}
 	case WebssType::TEMPLATE_HEAD_SCOPED:
 	{
-		auto head = move(headWebss.getTemplateHeadScoped());
+		auto head = move(headWebss.getTemplateHeadScopedRaw());
 		auto body = parseTemplateBodyScoped(head.getParameters());
 		return TemplateScoped(move(head), move(body));
 	}
@@ -256,13 +256,13 @@ Webss Parser::parseTemplate()
 		throw runtime_error("self in a thead must be within a non-empty thead");
 	case WebssType::TEMPLATE_HEAD_STANDARD:
 	{
-		auto head = move(headWebss.getTemplateHeadStandard());
+		auto head = move(headWebss.getTemplateHeadStandardRaw());
 		auto body = parseTemplateBodyStandard(head.getParameters());
 		return{ move(head), move(body) };
 	}
 	case WebssType::TEMPLATE_HEAD_TEXT:
 	{
-		auto head = move(headWebss.getTemplateHeadStandard());
+		auto head = move(headWebss.getTemplateHeadStandardRaw());
 		auto body = parseTemplateBodyText(head.getParameters());
 		return{ move(head), move(body), true };
 	}

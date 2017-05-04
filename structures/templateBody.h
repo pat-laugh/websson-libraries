@@ -30,13 +30,12 @@ namespace webss
 		This(const Tuple& tuple) : body(tuple) {}
 		This(const Tuple& tuple, bool) : body(tuple, true) {}
 
-		WebssType getType() const { return body.getType(); }
+		WebssType getType() const { return body.getTypeRaw(); }
 
 		const Webss& getWebss() const { return body; }
-		const Dictionary& getDictionary() const { return body.getDictionary(); }
-		const List& getList() const { return body.getList(); }
-		const Tuple& getTuple() const { return body.getTuple(); }
-		const Tuple& getTupleText() const { return body.getTupleText(); }
+		const Dictionary& getDictionary() const { return body.getDictionaryRaw(); }
+		const List& getList() const { return body.getListRaw(); }
+		const Tuple& getTuple() const { return body.getTupleRaw(); }
 
 		bool isDictionary() const { return body.isDictionary(); }
 		bool isList() const { return body.isList(); }
