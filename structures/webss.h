@@ -102,8 +102,8 @@ namespace webss
 		Webss(TemplateHeadStandard&& head, Webss&& body);
 		Webss(TemplateHeadStandard&& head, Webss&& body, bool);
 
-		Webss(const Entity& ent) : type(WebssType::ENTITY), ent(ent) {}
-		Webss(const Default& tDefault) : type(WebssType::DEFAULT), tDefault(tDefault) {}
+		Webss(const Entity& ent);
+		Webss(const Default& tDefault);
 
 		~Webss();
 
@@ -137,44 +137,44 @@ namespace webss
 		const BlockHead& getBlockHead() const;
 		const Block& getBlock() const;
 
-		WebssType getTypeRaw() const { return type; }
-		bool getBoolRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_BOOL); return tBool; }
-		WebssInt getIntRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_INT); return tInt; }
-		double getDoubleRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_DOUBLE); return tDouble; }
-		const std::string& getStringRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_STRING); return *tString; }
-		const Document& getDocumentRaw() const { assert(getTypeRaw() == WebssType::DOCUMENT); return *document; }
-		const Dictionary& getDictionaryRaw() const { assert(getTypeRaw() == WebssType::DICTIONARY); return *dict; }
-		const List& getListRaw() const { assert(getTypeRaw() == WebssType::LIST || getTypeRaw() == WebssType::LIST_TEXT); return *list; }
-		const Tuple& getTupleRaw() const { assert(getTypeRaw() == WebssType::TUPLE || getTypeRaw() == WebssType::TUPLE_TEXT); return *tuple; }
-		const TemplateHeadBinary& getTemplateHeadBinaryRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_BINARY); return *theadBinary; }
-		const TemplateHeadScoped& getTemplateHeadScopedRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_SCOPED); return *theadScoped; }
-		const TemplateHeadStandard& getTemplateHeadStandardRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_STANDARD || getTypeRaw() == WebssType::TEMPLATE_HEAD_TEXT); return *theadStandard; }
-		const TemplateBinary& getTemplateBinaryRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_BINARY); return *templBinary; }
-		const TemplateScoped& getTemplateScopedRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_SCOPED); return *templScoped; }
-		const TemplateStandard& getTemplateStandardRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_STANDARD || getTypeRaw() == WebssType::TEMPLATE_TEXT); return *templStandard; }
-		const Namespace& getNamespaceRaw() const { assert(getTypeRaw() == WebssType::NAMESPACE); return *nspace; }
-		const Enum& getEnumRaw() const { assert(getTypeRaw() == WebssType::ENUM); return *tEnum; }
-		const BlockHead& getBlockHeadRaw() const { assert(getTypeRaw() == WebssType::BLOCK_HEAD); return *blockHead; }
-		const Block& getBlockRaw() const { assert(getTypeRaw() == WebssType::BLOCK); return *block; }
+		WebssType getTypeRaw() const;
+		bool getBoolRaw() const;
+		WebssInt getIntRaw() const;
+		double getDoubleRaw() const;
+		const std::string& getStringRaw() const;
+		const Document& getDocumentRaw() const;
+		const Dictionary& getDictionaryRaw() const;
+		const List& getListRaw() const;
+		const Tuple& getTupleRaw() const;
+		const TemplateHeadBinary& getTemplateHeadBinaryRaw() const;
+		const TemplateHeadScoped& getTemplateHeadScopedRaw() const;
+		const TemplateHeadStandard& getTemplateHeadStandardRaw() const;
+		const TemplateBinary& getTemplateBinaryRaw() const;
+		const TemplateScoped& getTemplateScopedRaw() const;
+		const TemplateStandard& getTemplateStandardRaw() const;
+		const Namespace& getNamespaceRaw() const;
+		const Enum& getEnumRaw() const;
+		const BlockHead& getBlockHeadRaw() const;
+		const Block& getBlockRaw() const;
 
-		const Entity& getEntityRaw() const { assert(getTypeRaw() == WebssType::ENTITY); return ent; }
-		const Default& getDefaultRaw() const { assert(getTypeRaw() == WebssType::DEFAULT); return tDefault; }
+		const Entity& getEntityRaw() const;
+		const Default& getDefaultRaw() const;
 
-		std::string& getStringRaw() { assert(getTypeRaw() == WebssType::PRIMITIVE_STRING); return *tString; }
-		Document& getDocumentRaw() { assert(getTypeRaw() == WebssType::DOCUMENT); return *document; }
-		Dictionary& getDictionaryRaw() { assert(getTypeRaw() == WebssType::DICTIONARY); return *dict; }
-		List& getListRaw() { assert(getTypeRaw() == WebssType::LIST || getTypeRaw() == WebssType::LIST_TEXT); return *list; }
-		Tuple& getTupleRaw() { assert(getTypeRaw() == WebssType::TUPLE || getTypeRaw() == WebssType::TUPLE_TEXT); return *tuple; }
-		TemplateHeadBinary& getTemplateHeadBinaryRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_BINARY); return *theadBinary; }
-		TemplateHeadScoped& getTemplateHeadScopedRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_SCOPED); return *theadScoped; }
-		TemplateHeadStandard& getTemplateHeadStandardRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_STANDARD || getTypeRaw() == WebssType::TEMPLATE_HEAD_TEXT); return *theadStandard; }
-		TemplateBinary& getTemplateBinaryRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_BINARY); return *templBinary; }
-		TemplateScoped& getTemplateScopedRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_SCOPED); return *templScoped; }
-		TemplateStandard& getTemplateStandardRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_STANDARD || getTypeRaw() == WebssType::TEMPLATE_TEXT); return *templStandard; }
-		Namespace& getNamespaceRaw() { assert(getTypeRaw() == WebssType::NAMESPACE); return *nspace; }
-		Enum& getEnumRaw() { assert(getTypeRaw() == WebssType::ENUM); return *tEnum; }
-		BlockHead& getBlockHeadRaw() { assert(getTypeRaw() == WebssType::BLOCK_HEAD); return *blockHead; }
-		Block& getBlockRaw() { assert(getTypeRaw() == WebssType::BLOCK); return *block; }
+		std::string& getStringRaw();
+		Document& getDocumentRaw();
+		Dictionary& getDictionaryRaw();
+		List& getListRaw();
+		Tuple& getTupleRaw();
+		TemplateHeadBinary& getTemplateHeadBinaryRaw();
+		TemplateHeadScoped& getTemplateHeadScopedRaw();
+		TemplateHeadStandard& getTemplateHeadStandardRaw();
+		TemplateBinary& getTemplateBinaryRaw();
+		TemplateScoped& getTemplateScopedRaw();
+		TemplateStandard& getTemplateStandardRaw();
+		Namespace& getNamespaceRaw();
+		Enum& getEnumRaw();
+		BlockHead& getBlockHeadRaw();
+		Block& getBlockRaw();
 
 		explicit operator bool() const { return getBool(); }
 		explicit operator WebssInt() const { return getInt(); }
