@@ -27,7 +27,7 @@ bool checkDigit(SmartIterator& it, const function<bool(char c)>& isDigit)
 	return false;
 }
 
-WebssInt getNumber(SmartIterator& it, NumberBase base, const function<bool(char c)>& isDigit, const function<int(char c)>& charToInt)
+WebssInt getNumber(SmartIterator& it, NumberBase base, const function<bool(char c)>& isDigit)
 {
 	StringBuilder sb;
 	do
@@ -84,10 +84,10 @@ double checkDecimals(SmartIterator& it, NumberBase base, int maxDigits, const fu
 	return dec / std::pow((double)base, (double)power);
 }
 
-WebssInt webss::parseIntBin(SmartIterator& it) { return getNumber(it, NumberBase::BIN, isDigitBin, binToInt); }
-WebssInt webss::parseIntOct(SmartIterator& it) { return getNumber(it, NumberBase::OCT, isDigitOct, octToInt); }
-WebssInt webss::parseIntDec(SmartIterator& it) { return getNumber(it, NumberBase::DEC, isDigitDec, decToInt); }
-WebssInt webss::parseIntHex(SmartIterator& it) { return getNumber(it, NumberBase::HEX, isDigitHex, hexToInt); }
+WebssInt webss::parseIntBin(SmartIterator& it) { return getNumber(it, NumberBase::BIN, isDigitBin); }
+WebssInt webss::parseIntOct(SmartIterator& it) { return getNumber(it, NumberBase::OCT, isDigitOct); }
+WebssInt webss::parseIntDec(SmartIterator& it) { return getNumber(it, NumberBase::DEC, isDigitDec); }
+WebssInt webss::parseIntHex(SmartIterator& it) { return getNumber(it, NumberBase::HEX, isDigitHex); }
 
 WebssInt webss::parseInt(SmartIterator& it, NumberBase base)
 {

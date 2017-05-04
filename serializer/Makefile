@@ -2,7 +2,7 @@
 # Copyright(c) 2017 Patrick Laughrea
 
 CC = g++
-OPTIONS = -std=c++11 -Wall -iquote ..
+OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers -iquote ..
 LIBRARY = libserializer.a
 
 all: $(LIBRARY)

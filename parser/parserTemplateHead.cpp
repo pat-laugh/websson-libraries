@@ -203,7 +203,7 @@ TemplateHeadStandard Parser::parseTemplateHeadStandard(TemplateHeadStandard&& th
 			parseOtherValue(
 				CaseKeyValue{ thead.attach(move(key), move(value)); },
 				CaseKeyOnly{ thead.attachEmpty(move(key)); },
-				CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
+				ErrorValueOnly(ERROR_ANONYMOUS_KEY),
 				CaseAbstractEntity
 				{
 					if (!abstractEntity.getContent().isTemplateHeadStandard())
@@ -250,7 +250,7 @@ void Parser::parseOtherValuesTheadStandardAfterThead(TemplateHeadStandard& thead
 	parseOtherValue(
 		CaseKeyValue{ thead.attach(move(key), move(value)); },
 		CaseKeyOnly{ thead.attachEmpty(move(key)); },
-		CaseValueOnly{ throw runtime_error(ERROR_ANONYMOUS_KEY); },
-		CaseAbstractEntity{ throw runtime_error(ERROR_UNEXPECTED); });
+		ErrorValueOnly(ERROR_ANONYMOUS_KEY),
+		ErrorAbstractEntity(ERROR_UNEXPECTED));
 }
 

@@ -109,7 +109,7 @@ namespace webss
 			theadStd = new TheadStandard(std::move(o));
 			typeThead = WebssType::TEMPLATE_HEAD_STANDARD;
 		}
-		void setTemplateHead(TheadStandard&& o, bool isText)
+		void setTemplateHead(TheadStandard&& o, bool)
 		{
 			assert(!hasTemplateHead());
 			theadStd = new TheadStandard(std::move(o));

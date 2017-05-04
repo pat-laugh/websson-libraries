@@ -24,11 +24,11 @@ namespace webss
 		This(Dictionary&& dict) : body(std::move(dict)) {}
 		This(List&& list) : body(std::move(list)) {}
 		This(Tuple&& tuple) : body(std::move(tuple)) {}
-		This(Tuple&& tuple, bool isText) : body(std::move(tuple), true) {}
+		This(Tuple&& tuple, bool) : body(std::move(tuple), true) {}
 		This(const Dictionary& dict) : body(dict) {}
 		This(const List& list) : body(list) {}
 		This(const Tuple& tuple) : body(tuple) {}
-		This(const Tuple& tuple, bool isText) : body(tuple, true) {}
+		This(const Tuple& tuple, bool) : body(tuple, true) {}
 
 		WebssType getType() const { return body.getType(); }
 

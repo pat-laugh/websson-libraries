@@ -152,16 +152,16 @@ namespace webss
 			{
 				assert(entThead.getContent().isTemplateHeadBinary());
 			}
-			This(const Entity& entNumber, bool isNumber)
+			This(const Entity& entNumber, bool)
 				: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
 			{
 				assert(entNumInt >= 0 && static_cast<WebssBinarySize>(entNumInt) <= std::numeric_limits<WebssBinarySize>::max());
 			}
-			This(WebssBinarySize num, bool bits) : type(Type::BITS), number(num)
+			This(WebssBinarySize num, bool) : type(Type::BITS), number(num)
 			{
 				assert(num > 0 && num <= 8);
 			}
-			This(const Entity& entNumber, bool isNumber, bool bits) : type(Type::ENTITY_BITS), ent(entNumber)
+			This(const Entity& entNumber, bool, bool) : type(Type::ENTITY_BITS), ent(entNumber)
 			{
 				assert(entNumInt > 0 && entNumInt <= 8);
 			}

@@ -43,7 +43,7 @@ void checkDefaultValues(Tuple& tuple, const Parameters& params)
 }
 
 template <>
-void checkDefaultValues<TemplateHeadBinary::Parameters>(Tuple& tuple, const TemplateHeadBinary::Parameters& params) {} //already checked while parsing binary
+void checkDefaultValues<TemplateHeadBinary::Parameters>(Tuple&, const TemplateHeadBinary::Parameters&) {} //already checked while parsing binary
 
 class ParserTemplates : public Parser
 {
@@ -283,7 +283,7 @@ Webss Parser::parseTemplateText()
 
 Webss Parser::parseTemplateBodyBinary(const TemplateHeadBinary::Parameters& params)
 {
-	return static_cast<ParserTemplates*>(this)->parseTemplateBodyBinary(params, [&](const TemplateHeadBinary::Parameters& params) { return parseTemplateTupleBinary(params); }, [&](const TemplateHeadBinary::Parameters& params) -> Webss { throw runtime_error(ERROR_UNEXPECTED); });
+	return static_cast<ParserTemplates*>(this)->parseTemplateBodyBinary(params, [&](const TemplateHeadBinary::Parameters& params) { return parseTemplateTupleBinary(params); }, [&](const TemplateHeadBinary::Parameters&) -> Webss { throw runtime_error(ERROR_UNEXPECTED); });
 }
 
 Webss Parser::parseTemplateBodyScoped(const TemplateHeadScoped::Parameters& params)

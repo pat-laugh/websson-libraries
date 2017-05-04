@@ -23,8 +23,8 @@ namespace webss
 		This(const Head& head, const typename Body::List& body) : Head(head), Body(body) {}
 		This(Head&& head, typename Body::Tuple&& body) : Head(std::move(head)), Body(std::move(body)) {}
 		This(const Head& head, const typename Body::Tuple& body) : Head(head), Body(body) {}
-		This(Head&& head, typename Body::Tuple&& body, bool isText) : Head(std::move(head)), Body(std::move(body), true) {}
-		This(const Head& head, const typename Body::Tuple& body, bool isText) : Head(head), Body(body, true) {}
+		This(Head&& head, typename Body::Tuple&& body, bool) : Head(std::move(head)), Body(std::move(body), true) {}
+		This(const Head& head, const typename Body::Tuple& body, bool) : Head(head), Body(body, true) {}
 	};
 #undef This
 

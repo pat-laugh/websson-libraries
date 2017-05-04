@@ -86,9 +86,8 @@ namespace webss
 	private:
 		bool hasBody() const { return ptrBody.get() != nullptr; }
 
-		class NamespaceBody
+		struct NamespaceBody
 		{
-		public:
 			std::string name;
 			Namespaces nspaces;
 			Data data;

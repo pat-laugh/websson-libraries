@@ -2,7 +2,7 @@
 # Copyright(c) 2017 Patrick Laughrea
 
 CC = g++
-OPTIONS = -std=c++11 -Wall
+OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers
 LIBRARY = libutils.a
 
 all: $(LIBRARY)

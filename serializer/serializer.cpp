@@ -14,15 +14,15 @@
 using namespace std;
 using namespace webss;
 
-template <ConType::Enum CON> void putContainerStart(StringBuilder& out) { assert(false); }
-template <> void putContainerStart<ConType::DOCUMENT>(StringBuilder& out) {}
+template <ConType::Enum CON> void putContainerStart(StringBuilder&) { assert(false); }
+template <> void putContainerStart<ConType::DOCUMENT>(StringBuilder&) {}
 template <> void putContainerStart<ConType::DICTIONARY>(StringBuilder& out) { out += OPEN_DICTIONARY; }
 template <> void putContainerStart<ConType::LIST>(StringBuilder& out) { out += OPEN_LIST; }
 template <> void putContainerStart<ConType::TUPLE>(StringBuilder& out) { out += OPEN_TUPLE; }
 template <> void putContainerStart<ConType::TEMPLATE_HEAD>(StringBuilder& out) { out += OPEN_TEMPLATE; }
 
-template <ConType::Enum CON> void putContainerEnd(StringBuilder& out) { assert(false); }
-template <> void putContainerEnd<ConType::DOCUMENT>(StringBuilder& out) {}
+template <ConType::Enum CON> void putContainerEnd(StringBuilder&) { assert(false); }
+template <> void putContainerEnd<ConType::DOCUMENT>(StringBuilder&) {}
 template <> void putContainerEnd<ConType::DICTIONARY>(StringBuilder& out) { out += CLOSE_DICTIONARY; }
 template <> void putContainerEnd<ConType::LIST>(StringBuilder& out) { out += CLOSE_LIST; }
 template <> void putContainerEnd<ConType::TUPLE>(StringBuilder& out) { out += CLOSE_TUPLE; }
@@ -66,7 +66,7 @@ public:
 			switch (it->getType())
 			{
 			case Type::ENTITY_ABSTRACT:
-				putAbstractEntity(out, it->getEntity(), CON);
+				putAbstractEntity(out, it->getEntity());
 				break;
 			case Type::ENTITY_CONCRETE:
 				putConcreteEntity(out, it->getEntity(), CON);
@@ -302,7 +302,7 @@ void Serializer::putEntityName(StringBuilder& out, const Entity& ent)
 	out += ent.getName();
 }
 
-void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss, ConType con)
+void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 {
 	switch (webss.getType())
 	{
@@ -547,13 +547,13 @@ void Serializer::putDocumentHead(StringBuilder& out, const DocumentHead& docHead
 	static_cast<SerializerTemplate*>(this)->putDocumentHead<ConType::DOCUMENT>(out, docHead);
 }
 
-void Serializer::putAbstractEntity(StringBuilder& out, const Entity& ent, ConType con)
+void Serializer::putAbstractEntity(StringBuilder& out, const Entity& ent)
 {
 	const auto& content = ent.getContent();
 	assert(content.isAbstract());
 	out += CHAR_ABSTRACT_ENTITY;
 	putEntityName(out, ent);
-	putAbstractValue(out, content, con);
+	putAbstractValue(out, content);
 }
 
 void Serializer::putConcreteEntity(StringBuilder& out, const Entity& ent, ConType con)
@@ -598,7 +598,7 @@ void Serializer::putNamespace(StringBuilder& out, const Namespace& nspace)
 	putSeparatedValues<Namespace, CON>(out, nspace, [&](Namespace::const_iterator it)
 	{
 		if (it->getContent().isAbstract())
-			putAbstractEntity(out, *it, CON);
+			putAbstractEntity(out, *it);
 		else
 			putConcreteEntity(out, *it, CON);
 	});
@@ -673,7 +673,7 @@ void Serializer::putTheadScoped(StringBuilder& out, const TemplateHeadScoped& th
 			switch (it->getType())
 			{
 			case ParamType::ENTITY_ABSTRACT:
-				putAbstractEntity(out, it->getEntity(), CON);
+				putAbstractEntity(out, it->getEntity());
 				break;
 			case ParamType::ENTITY_CONCRETE:
 				putConcreteEntity(out, it->getEntity(), CON);

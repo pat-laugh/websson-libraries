@@ -49,7 +49,7 @@ namespace webss
 		bool namespaceCurrentScope(const Namespace& nspace);
 		void putEntityName(StringBuilder& out, const Entity& ent);
 
-		void putAbstractValue(StringBuilder& out, const Webss& webss, ConType con);
+		void putAbstractValue(StringBuilder& out, const Webss& webss);
 
 		void putConcreteValue(StringBuilder& out, const Webss& webss, ConType con);
 
@@ -82,7 +82,7 @@ namespace webss
 		void putBlockHead(StringBuilder& out, const BlockHead& blockHead);
 		void putBlock(StringBuilder& out, const Block& block, ConType con);
 
-		void putAbstractEntity(StringBuilder& out, const Entity& ent, ConType con);
+		void putAbstractEntity(StringBuilder& out, const Entity& ent);
 		void putConcreteEntity(StringBuilder& out, const Entity& ent, ConType con);
 
 		void putFuncBinary(StringBuilder& out, const TemplateBinary& templ);

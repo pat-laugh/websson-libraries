@@ -61,16 +61,16 @@ namespace webss
 		Webss(Dictionary&& dict);
 		Webss(List&& list);
 		Webss(Tuple&& tuple);
-		Webss(List&& list, bool isText);
-		Webss(Tuple&& tuple, bool isText);
+		Webss(List&& list, bool);
+		Webss(Tuple&& tuple, bool);
 		Webss(TemplateHeadBinary&& theadBinary);
 		Webss(TemplateHeadScoped&& theadScoped);
 		Webss(TemplateHeadStandard&& theadStandard);
-		Webss(TemplateHeadStandard&& theadStandard, bool isText);
+		Webss(TemplateHeadStandard&& theadStandard, bool);
 		Webss(TemplateBinary&& templBinary);
 		Webss(TemplateScoped&& templScoped);
 		Webss(TemplateStandard&& templStandard);
-		Webss(TemplateStandard&& templStandard, bool isText);
+		Webss(TemplateStandard&& templStandard, bool);
 		Webss(Namespace&& nspace);
 		Webss(Enum&& tEnum);
 		Webss(BlockHead&& blockHead);
@@ -81,16 +81,16 @@ namespace webss
 		Webss(const Dictionary& dict);
 		Webss(const List& list);
 		Webss(const Tuple& tuple);
-		Webss(const List& list, bool isText);
-		Webss(const Tuple& tuple, bool isText);
+		Webss(const List& list, bool);
+		Webss(const Tuple& tuple, bool);
 		Webss(const TemplateHeadBinary& theadBinary);
 		Webss(const TemplateHeadScoped& theadScoped);
 		Webss(const TemplateHeadStandard& theadStandard);
-		Webss(const TemplateHeadStandard& theadStandard, bool isText);
+		Webss(const TemplateHeadStandard& theadStandard, bool);
 		Webss(const TemplateBinary& templBinary);
 		Webss(const TemplateScoped& templScoped);
 		Webss(const TemplateStandard& templStandard);
-		Webss(const TemplateStandard& templStandard, bool isText);
+		Webss(const TemplateStandard& templStandard, bool);
 		Webss(const Namespace& nspace);
 		Webss(const Enum& tEnum);
 		Webss(const BlockHead& blockHead);
@@ -100,7 +100,7 @@ namespace webss
 
 		Webss(TemplateHeadBinary&& head, Webss&& body);
 		Webss(TemplateHeadStandard&& head, Webss&& body);
-		Webss(TemplateHeadStandard&& head, Webss&& body, bool isText);
+		Webss(TemplateHeadStandard&& head, Webss&& body, bool);
 
 		Webss(const Entity& ent) : type(WebssType::ENTITY), ent(ent) {}
 		Webss(const Default& tDefault) : type(WebssType::DEFAULT), tDefault(tDefault) {}

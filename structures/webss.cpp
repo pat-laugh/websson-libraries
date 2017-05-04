@@ -39,17 +39,17 @@ PATTERN_CONSTRUCT_MOVE(string, tString, PRIMITIVE_STRING)
 PATTERN_CONSTRUCT_MOVE(Document, document, DOCUMENT)
 PATTERN_CONSTRUCT_MOVE(Dictionary, dict, DICTIONARY)
 PATTERN_CONSTRUCT_MOVE(List, list, LIST)
-Webss::Webss(List&& list, bool isText) : type(WebssType::LIST_TEXT), list(new List(move(list))) {}
+Webss::Webss(List&& list, bool) : type(WebssType::LIST_TEXT), list(new List(move(list))) {}
 PATTERN_CONSTRUCT_MOVE(Tuple, tuple, TUPLE)
-Webss::Webss(Tuple&& tuple, bool isText) : type(WebssType::TUPLE_TEXT), tuple(new Tuple(move(tuple))) {}
+Webss::Webss(Tuple&& tuple, bool) : type(WebssType::TUPLE_TEXT), tuple(new Tuple(move(tuple))) {}
 PATTERN_CONSTRUCT_MOVE(TemplateHeadBinary, theadBinary, TEMPLATE_HEAD_BINARY)
 PATTERN_CONSTRUCT_MOVE(TemplateHeadScoped, theadScoped, TEMPLATE_HEAD_SCOPED)
 PATTERN_CONSTRUCT_MOVE(TemplateHeadStandard, theadStandard, TEMPLATE_HEAD_STANDARD)
-Webss::Webss(TemplateHeadStandard&& theadStandard, bool isText) : type(WebssType::TEMPLATE_HEAD_TEXT), theadStandard(new TemplateHeadStandard(move(theadStandard))) {}
+Webss::Webss(TemplateHeadStandard&& theadStandard, bool) : type(WebssType::TEMPLATE_HEAD_TEXT), theadStandard(new TemplateHeadStandard(move(theadStandard))) {}
 PATTERN_CONSTRUCT_MOVE(TemplateBinary, templBinary, TEMPLATE_BINARY)
 PATTERN_CONSTRUCT_MOVE(TemplateScoped, templScoped, TEMPLATE_SCOPED)
 PATTERN_CONSTRUCT_MOVE(TemplateStandard, templStandard, TEMPLATE_STANDARD)
-Webss::Webss(TemplateStandard&& templStandard, bool isText) : type(WebssType::TEMPLATE_TEXT), theadStandard(new TemplateStandard(move(templStandard))) {}
+Webss::Webss(TemplateStandard&& templStandard, bool) : type(WebssType::TEMPLATE_TEXT), theadStandard(new TemplateStandard(move(templStandard))) {}
 PATTERN_CONSTRUCT_MOVE(Namespace, nspace, NAMESPACE)
 PATTERN_CONSTRUCT_MOVE(Enum, tEnum, ENUM)
 PATTERN_CONSTRUCT_MOVE(BlockHead, blockHead, BLOCK_HEAD)
@@ -62,17 +62,17 @@ PATTERN_CONSTRUCT_CONST(string, tString, PRIMITIVE_STRING)
 PATTERN_CONSTRUCT_CONST(Document, document, DOCUMENT)
 PATTERN_CONSTRUCT_CONST(Dictionary, dict, DICTIONARY)
 PATTERN_CONSTRUCT_CONST(List, list, LIST)
-Webss::Webss(const List& list, bool isText) : type(WebssType::LIST_TEXT), list(new List(list)) {}
+Webss::Webss(const List& list, bool) : type(WebssType::LIST_TEXT), list(new List(list)) {}
 PATTERN_CONSTRUCT_CONST(Tuple, tuple, TUPLE)
-Webss::Webss(const Tuple& tuple, bool isText) : type(WebssType::TUPLE_TEXT), tuple(new Tuple(tuple)) {}
+Webss::Webss(const Tuple& tuple, bool) : type(WebssType::TUPLE_TEXT), tuple(new Tuple(tuple)) {}
 PATTERN_CONSTRUCT_CONST(TemplateHeadBinary, theadBinary, TEMPLATE_HEAD_BINARY)
 PATTERN_CONSTRUCT_CONST(TemplateHeadScoped, theadScoped, TEMPLATE_HEAD_SCOPED)
 PATTERN_CONSTRUCT_CONST(TemplateHeadStandard, theadStandard, TEMPLATE_HEAD_STANDARD)
-Webss::Webss(const TemplateHeadStandard& theadStandard, bool isText) : type(WebssType::TEMPLATE_HEAD_TEXT), theadStandard(new TemplateHeadStandard(theadStandard)) {}
+Webss::Webss(const TemplateHeadStandard& theadStandard, bool) : type(WebssType::TEMPLATE_HEAD_TEXT), theadStandard(new TemplateHeadStandard(theadStandard)) {}
 PATTERN_CONSTRUCT_CONST(TemplateBinary, templBinary, TEMPLATE_BINARY)
 PATTERN_CONSTRUCT_CONST(TemplateScoped, templScoped, TEMPLATE_SCOPED)
 PATTERN_CONSTRUCT_CONST(TemplateStandard, templStandard, TEMPLATE_STANDARD)
-Webss::Webss(const TemplateStandard& templStandard, bool isText) : type(WebssType::TEMPLATE_TEXT), theadStandard(new TemplateStandard(templStandard)) {}
+Webss::Webss(const TemplateStandard& templStandard, bool) : type(WebssType::TEMPLATE_TEXT), theadStandard(new TemplateStandard(templStandard)) {}
 PATTERN_CONSTRUCT_CONST(Namespace, nspace, NAMESPACE)
 PATTERN_CONSTRUCT_CONST(Enum, tEnum, ENUM)
 PATTERN_CONSTRUCT_CONST(BlockHead, blockHead, BLOCK_HEAD)
@@ -106,7 +106,7 @@ Webss::Webss(TemplateHead##Type&& head, Webss&& body) \
 PatternConstructTemplate(Binary, BINARY)
 PatternConstructTemplate(Standard, STANDARD)
 
-Webss::Webss(TemplateHeadStandard&& head, Webss&& body, bool isText)
+Webss::Webss(TemplateHeadStandard&& head, Webss&& body, bool)
 {
 	switch (body.type)
 	{

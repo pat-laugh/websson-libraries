@@ -49,9 +49,8 @@ namespace webss
 			ptr->nspace = nspace;
 		}
 	private:
-		class EntityBody
+		struct EntityBody
 		{
-		public:
 			std::string name;
 			T content;
 			std::shared_ptr<BasicNamespace<T>> nspace;
