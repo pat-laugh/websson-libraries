@@ -125,5 +125,11 @@
     <ClCompile Include="paramBinary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="paramStandard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="typeWebss.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

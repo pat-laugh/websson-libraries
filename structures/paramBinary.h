@@ -15,7 +15,6 @@ namespace webss
 	class ParamBinary
 	{
 	public:
-#define entNumInt entNumber.getContent().getInt()
 		class SizeHead
 		{
 		public:
@@ -128,7 +127,6 @@ namespace webss
 			void copyUnion(SizeList&& o);
 			void copyUnion(const SizeList& o);
 		};
-#undef entNumInt
 
 		ParamBinary();
 		ParamBinary(SizeHead&& sizeHead, SizeList&& sizeList);

@@ -13,173 +13,49 @@ namespace webss
 	class ParamStandard
 	{
 	private:
-		using TheadBinary = BasicTemplateHead<ParamBinary>;
-		using TheadScoped = TemplateHeadScoped;
-		using TheadStandard = BasicTemplateHead<ParamStandard>;
-
 		WebssType typeThead = WebssType::NONE;
 		union
 		{
-			TheadBinary* theadBin;
-			TheadScoped* theadScoped;
-			TheadStandard* theadStd;
+			TemplateHeadBinary* theadBin;
+			TemplateHeadScoped* theadScoped;
+			TemplateHeadStandard* theadStd;
 		};
 
 		std::shared_ptr<Webss> defaultValue;
 	public:
-		ParamStandard() {}
-		ParamStandard(Webss&& webss) : defaultValue(new Webss(std::move(webss))) {}
-		~ParamStandard() { destroyUnion(); }
+		ParamStandard();
+		ParamStandard(Webss&& webss);
+		~ParamStandard();
 
-		ParamStandard(ParamStandard&& o) { copyUnion(std::move(o)); }
-		ParamStandard(const ParamStandard& o) { copyUnion(o); }
+		ParamStandard(ParamStandard&& o);
+		ParamStandard(const ParamStandard& o);
 
-		ParamStandard& operator=(ParamStandard&& o)
-		{
-			destroyUnion();
-			copyUnion(std::move(o));
-			return *this;
-		}
-		ParamStandard& operator=(const ParamStandard& o)
-		{
-			if (this != &o)
-			{
-				destroyUnion();
-				copyUnion(o);
-			}
-			return *this;
-		}
+		ParamStandard& operator=(ParamStandard&& o);
+		ParamStandard& operator=(const ParamStandard& o);
 
-		bool hasDefaultValue() const { return defaultValue.get() != nullptr; }
-		bool hasTemplateHead() const { return typeThead != WebssType::NONE; }
+		bool hasDefaultValue() const;
+		bool hasTemplateHead() const;
 
-		const Webss& getDefaultValue() const
-		{
-			assert(hasDefaultValue());
-			return *defaultValue;
-		}
-		const std::shared_ptr<Webss>& getDefaultPointer() const
-		{
-			assert(hasDefaultValue());
-			return defaultValue;
-		}
+		const Webss& getDefaultValue() const;
+		const std::shared_ptr<Webss>& getDefaultPointer() const;
 
 		//returns WebssType::NONE if has no thead
-		WebssType getTypeThead() const
-		{
-			return typeThead;
-		}
+		WebssType getTypeThead() const;
 
-		const TheadBinary& getTemplateHeadBinary() const
-		{
-			assert(typeThead == WebssType::TEMPLATE_HEAD_BINARY);
-			return *theadBin;
-		}
-		const TheadScoped& getTemplateHeadScoped() const
-		{
-			assert(typeThead == WebssType::TEMPLATE_HEAD_SCOPED);
-			return *theadScoped;
-		}
-		const TheadStandard& getTemplateHeadStandard() const
-		{
-			assert(typeThead == WebssType::TEMPLATE_HEAD_STANDARD || typeThead == WebssType::TEMPLATE_HEAD_TEXT);
-			return *theadStd;
-		}
+		const TemplateHeadBinary& getTemplateHeadBinary() const;
+		const TemplateHeadScoped& getTemplateHeadScoped() const;
+		const TemplateHeadStandard& getTemplateHeadStandard() const;
 
-		void removeTemplateHead() { destroyUnion(); }
-		void setTemplateHead(TheadBinary&& o)
-		{
-			assert(!hasTemplateHead());
-			theadBin = new TheadBinary(std::move(o));
-			typeThead = WebssType::TEMPLATE_HEAD_BINARY;
-		}
-		void setTemplateHead(TheadScoped&& o)
-		{
-			assert(!hasTemplateHead());
-			theadScoped = new TheadScoped(std::move(o));
-			typeThead = WebssType::TEMPLATE_HEAD_SCOPED;
-		}
-		void setTemplateHead(TheadStandard&& o)
-		{
-			assert(!hasTemplateHead());
-			theadStd = new TheadStandard(std::move(o));
-			typeThead = WebssType::TEMPLATE_HEAD_STANDARD;
-		}
-		void setTemplateHead(TheadStandard&& o, bool)
-		{
-			assert(!hasTemplateHead());
-			theadStd = new TheadStandard(std::move(o));
-			typeThead = WebssType::TEMPLATE_HEAD_TEXT;
-		}
-		void setTemplateHead(TemplateHeadSelf)
-		{
-			assert(!hasTemplateHead());
-			typeThead = WebssType::TEMPLATE_HEAD_SELF;
-		}
+		void removeTemplateHead();
+		void setTemplateHead(TemplateHeadBinary&& o);
+		void setTemplateHead(TemplateHeadScoped&& o);
+		void setTemplateHead(TemplateHeadStandard&& o);
+		void setTemplateHead(TemplateHeadStandard&& o, bool);
+		void setTemplateHead(TemplateHeadSelf);
 	private:
-		void destroyUnion()
-		{
-			switch (typeThead)
-			{
-			case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
-				break;
-			case WebssType::TEMPLATE_HEAD_BINARY:
-				delete theadBin;
-				break;
-			case WebssType::TEMPLATE_HEAD_SCOPED:
-				delete theadScoped;
-				break;
-			case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
-				delete theadStd;
-				break;
-			default:
-				assert(false); throw std::domain_error("");
-			}
-			typeThead = WebssType::NONE;
-		}
+		void destroyUnion();
 
-		void copyUnion(ParamStandard&& o)
-		{
-			switch (o.typeThead)
-			{
-			case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
-				break;
-			case WebssType::TEMPLATE_HEAD_BINARY:
-				theadBin = o.theadBin;
-				break;
-			case WebssType::TEMPLATE_HEAD_SCOPED:
-				theadScoped = o.theadScoped;
-				break;
-			case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
-				theadStd = o.theadStd;
-				break;
-			default:
-				assert(false); throw std::domain_error("");
-			}
-			typeThead = o.typeThead;
-			o.typeThead = WebssType::NONE;
-			defaultValue = std::move(o.defaultValue);
-		}
-		void copyUnion(const ParamStandard& o)
-		{
-			switch (o.typeThead)
-			{
-			case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
-				break;
-			case WebssType::TEMPLATE_HEAD_BINARY:
-				theadBin = new TheadBinary(*o.theadBin);
-				break;
-			case WebssType::TEMPLATE_HEAD_SCOPED:
-				theadScoped = new TheadScoped(*o.theadScoped);
-				break;
-			case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
-				theadStd = new TheadStandard(*o.theadStd);
-				break;
-			default:
-				assert(false); throw std::domain_error("");
-			}
-			typeThead = o.typeThead;
-			defaultValue = o.defaultValue;
-		}
+		void copyUnion(ParamStandard&& o);
+		void copyUnion(const ParamStandard& o);
 	};
 }
