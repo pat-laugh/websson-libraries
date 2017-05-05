@@ -31,8 +31,8 @@ namespace webss
 		constexpr bool operator!=(ConType o) const { return e != o.e; }
 		constexpr operator Enum() const { return e; }
 
-		ConType& operator=(Enum o) { const_cast<Enum&>(this->e) = o; return *this; }
-		ConType& operator=(ConType o) { const_cast<Enum&>(this->e) = o.e; return *this; }
+		ConType& operator=(Enum o);
+		ConType& operator=(ConType o);
 
 		std::string toString() const;
 

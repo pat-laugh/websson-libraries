@@ -139,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="conType.cpp" />
+    <ClCompile Include="iterators.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="utilsWebss.cpp" />
   </ItemGroup>

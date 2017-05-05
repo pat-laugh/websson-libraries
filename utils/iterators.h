@@ -8,146 +8,53 @@
 
 namespace webss
 {
-#define This SmartIterator
-	class This
+	class SmartIterator
 	{
 	public:
-		This(This&& it) : in(std::move(it.in)), c1(it.c1), c2(it.c2), isValid(it.isValid), hasPeek(it.hasPeek), line(it.line), charCount(it.charCount) {}
-		This(const This& it)
-		{
-			this->in << it.in.rdbuf();
-			readStart();
-		}
-		This(std::istream&& in)
-		{
-			this->in << in.rdbuf();
-			readStart();
-		}
-		This(const std::istream& in)
-		{
-			this->in << in.rdbuf();
-			readStart();
-		}
-		This(std::stringstream&& in) : in(std::move(in))
-		{
-			readStart();
-		}
-		This(const std::stringstream& in)
-		{
-			this->in << in.rdbuf();
-			readStart();
-		}
+		SmartIterator(SmartIterator&& it);
+		SmartIterator(const SmartIterator& it);
+		SmartIterator(std::istream&& in);
+		SmartIterator(const std::istream& in);
+		SmartIterator(std::stringstream&& in);
+		SmartIterator(const std::stringstream& in);
 
-		This(std::string&& in) : in(std::move(in))
-		{
-			readStart();
-		}
-		This(const std::string& in) : in(in)
-		{
-			readStart();
-		}
+		SmartIterator(std::string&& in);
+		SmartIterator(const std::string& in);
 
-		This& operator=(This&& o)
-		{
-			in = std::move(o.in);
-			c1 = o.c1;
-			c2 = o.c2;
-			isValid = o.isValid;
-			hasPeek = o.hasPeek;
-			line = o.line;
-			charCount = o.charCount;
-			return *this;
-		}
-		This& operator=(const This& o)
-		{
-			if (this != &o)
-			{
-				in << o.in.rdbuf();
-				readStart();
-			}
-			return *this;
-		}
+		SmartIterator& operator=(SmartIterator&& o);
+		SmartIterator& operator=(const SmartIterator& o);
 
-		This& operator++() //prefix
-		{
-			checkChar(c1);
-			if (hasPeek)
-			{
-				c1 = c2;
-				getPeek();
-			}
-			else
-				isValid = false;
-			return *this;
-		}
-		This& incTwo()
-		{
-			checkChar(c1);
-			checkChar(c2);
-			readStart();
-			return *this;
-		}
-		char operator*() const { return c1; }
+		SmartIterator& operator++(); //prefix
+		SmartIterator& incTwo();
+		char operator*() const;
 
-		bool good() const { return isValid; }
-		bool end() const { return !good(); }
+		bool good() const;
+		bool end() const;
 
-		operator bool() const { return good(); }
-		bool operator!() const { return end(); }
+		operator bool() const;
+		bool operator!() const;
 
-		bool operator==(char c) const { return good() && c == operator*(); }
-		bool operator!=(char c) const { return !operator==(c); }
+		bool operator==(char c) const;
+		bool operator!=(char c) const;
 
-		char peek() { return c2; }
-		bool peekGood() { return hasPeek; }
-		bool peekEnd() { return !peekGood(); }
+		char peek();
+		bool peekGood();
+		bool peekEnd();
 
-		int getLine() { return line; }
-		int getCharCount() { return charCount; }
+		int getLine();
+		int getCharCount();
 	private:
 		std::stringstream in;
 		char c1, c2;
 		bool isValid = true, hasPeek = true;
 		int line = 1, charCount = 1;
 
-		void addLine()
-		{
-			++line;
-			charCount = 1;
-		}
+		void addLine();
 
-		void checkChar(char c)
-		{
-			if (c == '\n')
-				addLine();
-			else
-				++charCount;
-		}
+		void checkChar(char c);
 
-		void readStart()
-		{
-			c1 = in.get();
-			if (in.good())
-				getPeek();
-			else
-			{
-				isValid = false;
-				hasPeek = false;
-				if (!in.eof())
-					throw std::ios_base::failure("io error");
-			}
-		}
+		void readStart();
 
-		void getPeek()
-		{
-			c2 = in.get();
-			if (!in.good())
-			{
-				hasPeek = false;
-				if (!in.eof())
-					throw std::ios_base::failure("io error");
-			}
-		}
+		void getPeek();
 	};
-#undef This
 }
