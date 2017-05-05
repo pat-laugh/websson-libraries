@@ -7,6 +7,16 @@
 #include <set>
 
 #include "structures/webss.h"
+#include "structures/documentHead.h"
+#include "structures/paramBinary.h"
+#include "structures/tuple.h"
+#include "structures/list.h"
+#include "structures/document.h"
+#include "structures/dictionary.h"
+#include "structures/paramStandard.h"
+#include "structures/block.h"
+#include "structures/templateScoped.h"
+#include "structures/template.h"
 #include "utils/conType.h"
 #include "utils/stringBuilder.h"
 

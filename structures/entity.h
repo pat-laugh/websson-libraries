@@ -5,58 +5,26 @@
 #include <memory>
 #include <string>
 
-#include "base.h"
+#include "namespace.h"
 
 namespace webss
 {
-	template <class Webss>
-	class BasicNamespace;
-
-	template <class T>
-	class BasicEntity
+	class Entity
 	{
 	public:
-		BasicEntity() {}
-		BasicEntity(std::string&& name, T&& content) : ptr(new EntityBody{ std::move(name), std::move(content) }) {}
-		BasicEntity(const std::string& name, const T& content) : ptr(new EntityBody{ name, content }) {}
+		Entity();
+		Entity(std::string name, Webss content);
 
-		const std::string& getName() const
-		{
-			assert(hasBody());
-			return ptr->name;
-		}
-		const T& getContent() const
-		{
-			assert(hasBody());
-			return ptr->content;
-		}
+		const std::string& getName() const;
+		const Webss& getContent() const;
 
-		bool operator==(const BasicEntity& o) const { return ptr == o.ptr; }
+		bool operator==(const Entity& o) const;
 
-		bool hasNamespace() const
-		{
-			assert(hasBody());
-			return ptr->nspace.get() != nullptr;
-		}
-		const BasicNamespace<T>& getNamespace() const
-		{
-			assert(hasNamespace());
-			return *ptr->nspace;
-		}
-		void setNamespace(const std::shared_ptr<BasicNamespace<T>>& nspace)
-		{
-			assert(hasBody() && !hasNamespace());
-			ptr->nspace = nspace;
-		}
+		bool hasNamespace() const;
+		const Namespace& getNamespace() const;
+		void setNamespace(const std::shared_ptr<Namespace>& nspace);
 	private:
-		struct EntityBody
-		{
-			std::string name;
-			T content;
-			std::shared_ptr<BasicNamespace<T>> nspace;
-		};
-
-		bool hasBody() const { return ptr.get() != nullptr; }
+		struct EntityBody;
 
 		std::shared_ptr<EntityBody> ptr;
 	};

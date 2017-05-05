@@ -5,36 +5,35 @@
 #include <map>
 #include <string>
 
-#include "base.h"
+#include "webss.h"
 
 namespace webss
 {
-	template<class T>
-	class BasicDictionary
+	class Dictionary
 	{
 	public:
-		using Data = std::map<std::string, T>;
-		using size_type = typename Data::size_type;
-		using iterator = typename Data::iterator;
-		using const_iterator = typename Data::const_iterator;
+		using Data = std::map<std::string, Webss>;
+		using size_type = Data::size_type;
+		using iterator = Data::iterator;
+		using const_iterator = Data::const_iterator;
 
-		bool empty() const { return data.empty(); }
-		size_type size() const { return data.size(); }
+		bool empty() const;
+		size_type size() const;
 
-		void add(std::string key, T value) { containerAddUnsafe(data, std::move(key), std::move(value)); }
-		void addSafe(std::string key, T value) { containerAddSafe(data, std::move(key), std::move(value)); }
+		void add(std::string key, Webss value);
+		void addSafe(std::string key, Webss value);
 
-		bool has(const std::string& key) const { return data.find(key) != data.end(); }
+		bool has(const std::string& key) const;
 
-		T& operator[](const std::string& key) { return accessKeyUnsafe<Data, T>(data, key); }
-		const T& operator[](const std::string& key) const { return accessKeyUnsafe<Data, T>(data, key); }
-		T& at(const std::string& key) { return accessKeySafe<Data, T>(data, key); }
-		const T& at(const std::string& key) const { return accessKeySafe<Data, T>(data, key); }
+		Webss& operator[](const std::string& key);
+		const Webss& operator[](const std::string& key) const;
+		Webss& at(const std::string& key);
+		const Webss& at(const std::string& key) const;
 
-		iterator begin() { return data.begin(); }
-		iterator end() { return data.end(); }
-		const_iterator begin() const { return data.begin(); }
-		const_iterator end() const { return data.end(); }
+		iterator begin();
+		iterator end();
+		const_iterator begin() const;
+		const_iterator end() const;
 	private:
 		Data data;
 	};

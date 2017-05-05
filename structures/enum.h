@@ -6,47 +6,42 @@
 
 namespace webss
 {
-#define This BasicEnum
-	template <class Webss>
-	class This
+	class Enum
 	{
-	private:
-		using Namespace = BasicNamespace<Webss>;
-		Namespace nspace;
 	public:
-		using Entity = typename Namespace::Entity;
-		using size_type = typename Namespace::size_type;
-		using PtrThis = typename Namespace::PtrThis;
-		using Namespaces = typename Namespace::Namespaces;
-		using iterator = typename Namespace::iterator;
-		using const_iterator = typename Namespace::const_iterator;
+		using size_type = Namespace::size_type;
+		using PtrThis = Namespace::PtrThis;
+		using Namespaces = Namespace::Namespaces;
+		using iterator = Namespace::iterator;
+		using const_iterator = Namespace::const_iterator;
 
-		This(std::string name) : nspace(std::move(name)) {}
-		This(std::string name, const This& previousNspace) : nspace(std::move(name), previousNspace) {}
+		Enum(std::string name);
+		Enum(std::string name, const Namespace& previousNspace);
 
-		bool empty() const { return nspace.empty(); }
-		size_type size() const { return nspace.size(); }
+		bool empty() const;
+		size_type size() const;
 
-		void add(std::string key) { nspace.add(Entity(std::move(key), size())); }
-		void addSafe(std::string key) { nspace.addSafe(Entity(std::move(key), size())); }
+		void add(std::string key);
+		void addSafe(std::string key);
 
-		bool has(const std::string& key) const { return nspace.has(key); }
+		bool has(const std::string& key) const;
 
-		bool operator==(const This& o) const { return nspace == o.nspace; }
+		bool operator==(const Enum& o) const;
 
-		Entity& operator[](const std::string& key) { return nspace[key]; }
-		const Entity& operator[](const std::string& key) const { return nspace[key]; }
-		Entity& at(const std::string& key) { return nspace.at(key); }
-		const Entity& at(const std::string& key) const { return nspace.at(key); }
+		Entity& operator[](const std::string& key);
+		const Entity& operator[](const std::string& key) const;
+		Entity& at(const std::string& key);
+		const Entity& at(const std::string& key) const;
 
-		const std::string& getName() const { return nspace.getName(); }
-		const Namespaces& getNamespaces() const { return nspace.getNamespaces(); }
-		const PtrThis& getPointer() const { return nspace.getPointer(); }
+		const std::string& getName() const;
+		const Namespaces& getNamespaces() const;
+		const PtrThis& getPointer() const;
 
-		iterator begin() { return nspace.begin(); }
-		iterator end() { return nspace.end(); }
-		const_iterator begin() const { return nspace.begin(); }
-		const_iterator end() const { return nspace.end(); }
+		iterator begin();
+		iterator end();
+		const_iterator begin() const;
+		const_iterator end() const;
+	private:
+		Namespace nspace;
 	};
-#undef This
 }

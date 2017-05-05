@@ -13,22 +13,18 @@
 
 namespace webss
 {
-	template <class Webss2>
-	class BasicParamBinary
+	class ParamBinary
 	{
 	public:
 #define entNumInt entNumber.getContent().getInt()
-#define This BasicSizeHead
-		template <class Webss>
-		class This
+		class SizeHead
 		{
 		public:
-			using TemplateHead = BasicTemplateHead<BasicParamBinary, Webss>;
-			using Entity = BasicEntity<Webss>;
+			using TemplateHead = BasicTemplateHead<ParamBinary>;
 			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, SELF, KEYWORD, NUMBER, TEMPLATE_HEAD, ENTITY_NUMBER, ENTITY_TEMPLATE_HEAD, BITS, ENTITY_BITS };
 
-			This() {}
-			This(Keyword keyword) : type(Type::KEYWORD)
+			SizeHead() {}
+			SizeHead(Keyword keyword) : type(Type::KEYWORD)
 			{
 				switch (keyword)
 				{
@@ -43,33 +39,33 @@ namespace webss
 				}
 			}
 
-			static This makeEntityThead(const Entity& entThead) { return This(entThead); }
-			static This makeEntityNumber(const Entity& entNumber) { return This(entNumber, true); }
-			static This makeSizeBits(WebssBinarySize num) { return This(num, true); }
-			static This makeEntityBits(const Entity& entNumber) { return This(entNumber, true, true); }
+			static SizeHead makeEntityThead(const Entity& entThead) { return SizeHead(entThead); }
+			static SizeHead makeEntityNumber(const Entity& entNumber) { return SizeHead(entNumber, true); }
+			static SizeHead makeSizeBits(WebssBinarySize num) { return SizeHead(num, true); }
+			static SizeHead makeEntityBits(const Entity& entNumber) { return SizeHead(entNumber, true, true); }
 
-			This(WebssBinarySize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
-			This(TemplateHeadSelf) : type(Type::SELF) {}
-			This(Type type) : type(type)
+			SizeHead(WebssBinarySize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
+			SizeHead(TemplateHeadSelf) : type(Type::SELF) {}
+			SizeHead(Type type) : type(type)
 			{
 				assert(type == Type::NONE || type == Type::EMPTY || type == Type::SELF);
 			}
 
-			~This() { destroyUnion(); }
+			~SizeHead() { destroyUnion(); }
 
-			This(TemplateHead&& o) : type(Type::TEMPLATE_HEAD), thead(new TemplateHead(std::move(o))) {}
-			This(const TemplateHead& o) : type(Type::TEMPLATE_HEAD), thead(new TemplateHead(o)) {}
+			SizeHead(TemplateHead&& o) : type(Type::TEMPLATE_HEAD), thead(new TemplateHead(std::move(o))) {}
+			SizeHead(const TemplateHead& o) : type(Type::TEMPLATE_HEAD), thead(new TemplateHead(o)) {}
 
-			This(This&& o) { copyUnion(std::move(o)); }
-			This(const This& o) { copyUnion(o); }
+			SizeHead(SizeHead&& o) { copyUnion(std::move(o)); }
+			SizeHead(const SizeHead& o) { copyUnion(o); }
 
-			This& operator=(This&& o)
+			SizeHead& operator=(SizeHead&& o)
 			{
 				destroyUnion();
 				copyUnion(std::move(o));
 				return *this;
 			}
-			This& operator=(const This& o)
+			SizeHead& operator=(const SizeHead& o)
 			{
 				if (this != &o)
 				{
@@ -116,7 +112,7 @@ namespace webss
 			const TemplateHead& getTemplateHead() const
 			{
 				assert(isTemplateHead());
-				return type == Type::ENTITY_TEMPLATE_HEAD ? ent.getContent(). template getElement<TemplateHead>() : *thead;
+				return type == Type::ENTITY_TEMPLATE_HEAD ? ent.getContent(). template getElement<TemplateHeadBinary>() : *thead;
 			}
 
 			WebssBinarySize size() const
@@ -148,20 +144,20 @@ namespace webss
 
 			std::shared_ptr<Webss> defaultValue;
 
-			This(const Entity& entThead) : type(Type::ENTITY_TEMPLATE_HEAD), ent(entThead)
+			SizeHead(const Entity& entThead) : type(Type::ENTITY_TEMPLATE_HEAD), ent(entThead)
 			{
 				assert(entThead.getContent().isTemplateHeadBinary());
 			}
-			This(const Entity& entNumber, bool)
+			SizeHead(const Entity& entNumber, bool)
 				: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
 			{
 				assert(entNumInt >= 0 && static_cast<WebssBinarySize>(entNumInt) <= std::numeric_limits<WebssBinarySize>::max());
 			}
-			This(WebssBinarySize num, bool) : type(Type::BITS), number(num)
+			SizeHead(WebssBinarySize num, bool) : type(Type::BITS), number(num)
 			{
 				assert(num > 0 && num <= 8);
 			}
-			This(const Entity& entNumber, bool, bool) : type(Type::ENTITY_BITS), ent(entNumber)
+			SizeHead(const Entity& entNumber, bool, bool) : type(Type::ENTITY_BITS), ent(entNumber)
 			{
 				assert(entNumInt > 0 && entNumInt <= 8);
 			}
@@ -174,7 +170,7 @@ namespace webss
 					delete thead;
 					break;
 				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD: case Type::ENTITY_BITS:
-					ent.~BasicEntity();
+					ent.~Entity();
 					break;
 				default:
 					break;
@@ -182,7 +178,7 @@ namespace webss
 				type = Type::NONE;
 			}
 
-			void copyUnion(This&& o)
+			void copyUnion(SizeHead&& o)
 			{
 				switch (o.type)
 				{
@@ -199,7 +195,7 @@ namespace webss
 					break;
 				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD: case Type::ENTITY_BITS:
 					new (&ent) Entity(std::move(o.ent));
-					o.ent.~BasicEntity();
+					o.ent.~Entity();
 					break;
 				default:
 					assert(false); throw std::domain_error("");
@@ -210,7 +206,7 @@ namespace webss
 				if (o.hasDefaultValue())
 					defaultValue = std::move(o.defaultValue);
 			}
-			void copyUnion(const This& o)
+			void copyUnion(const SizeHead& o)
 			{
 				switch (o.type)
 				{
@@ -237,38 +233,36 @@ namespace webss
 					defaultValue = o.defaultValue;
 			}
 		};
-#undef This
 
-		class BasicSizeList
+		class SizeList
 		{
 		public:
-			using Entity = BasicEntity<Webss2>;
 			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, ONE, NUMBER, ENTITY_NUMBER };
 
-			BasicSizeList() {}
-			BasicSizeList(Type type) : type(type)
+			SizeList() {}
+			SizeList(Type type) : type(type)
 			{
 				assert(type == Type::NONE || type == Type::EMPTY || type == Type::ONE);
 			}
-			BasicSizeList(const Entity& entNumber)
+			SizeList(const Entity& entNumber)
 				: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
 			{
 				assert(entNumInt >= 0 && static_cast<WebssBinarySize>(entNumInt) <= std::numeric_limits<WebssBinarySize>::max());
 			}
-			BasicSizeList(WebssBinarySize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
+			SizeList(WebssBinarySize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
 
-			~BasicSizeList() { destroyUnion(); }
+			~SizeList() { destroyUnion(); }
 
-			BasicSizeList(BasicSizeList&& o) { copyUnion(std::move(o)); }
-			BasicSizeList(const BasicSizeList& o) { copyUnion(o); }
+			SizeList(SizeList&& o) { copyUnion(std::move(o)); }
+			SizeList(const SizeList& o) { copyUnion(o); }
 
-			BasicSizeList& operator=(BasicSizeList&& o)
+			SizeList& operator=(SizeList&& o)
 			{
 				destroyUnion();
 				copyUnion(std::move(o));
 				return *this;
 			}
-			BasicSizeList& operator=(const BasicSizeList& o)
+			SizeList& operator=(const SizeList& o)
 			{
 				if (this != &o)
 				{
@@ -311,11 +305,11 @@ namespace webss
 			void destroyUnion()
 			{
 				if (hasEntity())
-					ent.~BasicEntity();
+					ent.~Entity();
 				type = Type::NONE;
 			}
 
-			void copyUnion(BasicSizeList&& o)
+			void copyUnion(SizeList&& o)
 			{
 				switch (o.type)
 				{
@@ -326,7 +320,7 @@ namespace webss
 					break;
 				case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
 					new (&ent) Entity(std::move(o.ent));
-					o.ent.~BasicEntity();
+					o.ent.~Entity();
 					break;
 				default:
 					assert(false); throw std::domain_error("");
@@ -334,7 +328,7 @@ namespace webss
 				type = o.type;
 				o.type = Type::NONE;
 			}
-			void copyUnion(const BasicSizeList& o)
+			void copyUnion(const SizeList& o)
 			{
 				switch (o.type)
 				{
@@ -354,24 +348,24 @@ namespace webss
 		};
 #undef entNumInt
 
-		using SizeHead = BasicSizeHead<Webss2>;
-		using SizeList = BasicSizeList;
+		using SizeHead = SizeHead;
+		using SizeList = SizeList;
 
-		BasicParamBinary() {}
-		BasicParamBinary(SizeHead&& sizeHead, SizeList&& sizeList) : sizeHead(std::move(sizeHead)), sizeList(std::move(sizeList)) {}
-		BasicParamBinary(const SizeHead& sizeHead, const SizeList& sizeList) : sizeHead(sizeHead), sizeList(sizeList) {}
-		~BasicParamBinary() {}
+		ParamBinary() {}
+		ParamBinary(SizeHead&& sizeHead, SizeList&& sizeList) : sizeHead(std::move(sizeHead)), sizeList(std::move(sizeList)) {}
+		ParamBinary(const SizeHead& sizeHead, const SizeList& sizeList) : sizeHead(sizeHead), sizeList(sizeList) {}
+		~ParamBinary() {}
 
-		BasicParamBinary(BasicParamBinary&& o) : sizeHead(std::move(o.sizeHead)), sizeList(std::move(o.sizeList)) {}
-		BasicParamBinary(const BasicParamBinary& o) : sizeHead(o.sizeHead), sizeList(o.sizeList) {}
+		ParamBinary(ParamBinary&& o) : sizeHead(std::move(o.sizeHead)), sizeList(std::move(o.sizeList)) {}
+		ParamBinary(const ParamBinary& o) : sizeHead(o.sizeHead), sizeList(o.sizeList) {}
 
-		BasicParamBinary& operator=(BasicParamBinary&& o)
+		ParamBinary& operator=(ParamBinary&& o)
 		{
 			sizeHead = std::move(o.sizeHead);
 			sizeList = std::move(o.sizeList);
 			return *this;
 		}
-		BasicParamBinary& operator=(const BasicParamBinary& o)
+		ParamBinary& operator=(const ParamBinary& o)
 		{
 			if (this != &o)
 			{

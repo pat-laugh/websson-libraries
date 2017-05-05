@@ -7,10 +7,34 @@ LIBRARY = libstructures.a
 
 all: $(LIBRARY)
 
-$(LIBRARY): keywords.o webss.o
+$(LIBRARY): block.o dictionary.o entity.o enum.o keywords.o list.o namespace.o templateBody.o tuple.o webss.o
 	ar -rc $(LIBRARY) $^
 
+block.o: block.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+
+dictionary.o: dictionary.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+	
+entity.o: entity.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+	
+enum.o: enum.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+	
 keywords.o: keywords.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+	
+list.o: list.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+	
+namespace.o: namespace.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+
+templateBody.o: templateBody.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+
+tuple.o: tuple.cpp
 	$(CC) $(OPTIONS) -o $@ -c $<
 
 webss.o: webss.cpp

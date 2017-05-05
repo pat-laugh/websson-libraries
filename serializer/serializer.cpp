@@ -92,16 +92,16 @@ public:
 
 	void putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
 	{
-		putThead<TemplateHeadBinary, TemplateHeadBinary::Param>(out, thead, [&](StringBuilder& out, const string& key, const TemplateHeadBinary::Param& param) { putParamBinary(out, key, param); });
+		putThead<TemplateHeadBinary, ParamBinary>(out, thead, [&](StringBuilder& out, const string& key, const ParamBinary& param) { putParamBinary(out, key, param); });
 	}
 	void putTheadStandard(StringBuilder& out, const TemplateHeadStandard& thead)
 	{
-		putThead<TemplateHeadStandard, TemplateHeadStandard::Param>(out, thead, [&](StringBuilder& out, const string& key, const TemplateHeadStandard::Param& param) { putParamStandard(out, key, param); });
+		putThead<TemplateHeadStandard, ParamStandard>(out, thead, [&](StringBuilder& out, const string& key, const ParamStandard& param) { putParamStandard(out, key, param); });
 	}
 	void putTheadText(StringBuilder& out, const TemplateHeadStandard& thead)
 	{
 		out += ASSIGN_CONTAINER_STRING;
-		putThead<TemplateHeadStandard, TemplateHeadStandard::Param>(out, thead, [&](StringBuilder& out, const string& key, const TemplateHeadStandard::Param& param) { putParamText(out, key, param); });
+		putThead<TemplateHeadStandard, ParamStandard>(out, thead, [&](StringBuilder& out, const string& key, const ParamStandard& param) { putParamText(out, key, param); });
 	}
 
 	template <class Parameters>

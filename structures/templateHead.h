@@ -8,13 +8,11 @@
 namespace webss
 {
 #define This BasicTemplateHead
-	template <class Parameter, class Webss>
+	template <class Param>
 	class This
 	{
 	public:
-		using Param = Parameter;
 		using Parameters = BasicParameters<Param>;
-		using Entity = BasicEntity<Webss>;
 		using size_type = typename Parameters::size_type;
 
 		class Builder;
@@ -157,7 +155,7 @@ namespace webss
 		void removeEntity()
 		{
 			auto newParameters = ent.getContent(). template getElement<This>().getParameters().makeCompleteCopy();
-			ent.~BasicEntity();
+			ent.~Entity();
 			type = Type::NONE;
 			setParameters(std::move(newParameters));
 		}
@@ -173,7 +171,7 @@ namespace webss
 			if (type == Type::PARAMS)
 				delete params;
 			else if (type == Type::ENTITY)
-				ent.~BasicEntity();
+				ent.~Entity();
 			type = Type::NONE;
 		}
 
@@ -184,7 +182,7 @@ namespace webss
 			else if (o.type == Type::ENTITY)
 			{
 				new (&ent) Entity(std::move(o.ent));
-				o.ent.~BasicEntity();
+				o.ent.~Entity();
 			}
 			type = o.type;
 			o.type = Type::NONE;
@@ -200,13 +198,11 @@ namespace webss
 	};
 
 
-	template <class Parameter, class Webss>
-	class This<Parameter, Webss>::Builder
+	template <class Param>
+	class This<Param>::Builder
 	{
 	public:
-		using Param = Parameter;
 		using Parameters = BasicParameters<Param>;
-		using Entity = BasicEntity<Webss>;
 		using size_type = typename Parameters::size_type;
 
 		Builder() : type(Type::PARAMS), params(new Parameters()) {}
@@ -225,7 +221,7 @@ namespace webss
 			else
 			{
 				t = This(std::move(ent));
-				ent.~BasicEntity();
+				ent.~Entity();
 			}
 			type = Type::NONE;
 			return t;
@@ -358,7 +354,7 @@ namespace webss
 		void removeEntity()
 		{
 			auto newParameters = ent.getContent(). template getElement<This>().getParameters().makeCompleteCopy();
-			ent.~BasicEntity();
+			ent.~Entity();
 			type = Type::NONE;
 			setParameters(std::move(newParameters));
 		}
@@ -377,7 +373,7 @@ namespace webss
 			if (type == Type::PARAMS)
 				delete params;
 			else
-				ent.~BasicEntity();
+				ent.~Entity();
 			type = Type::NONE;
 		}
 
@@ -391,7 +387,7 @@ namespace webss
 			else
 			{
 				new (&ent) Entity(std::move(o.ent));
-				o.ent.~BasicEntity();
+				o.ent.~Entity();
 			}
 			type = o.type;
 			o.type = Type::NONE;

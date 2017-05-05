@@ -4,22 +4,18 @@
 
 #include <memory>
 
-#include "base.h"
 #include "paramBinary.h"
-#include "templateHead.h"
-#include "templateScoped.h"
+#include "documentHead.h"
 #include "typeWebss.h"
 
 namespace webss
 {
-#define This BasicParamStandard
-	template <class Webss>
-	class This
+	class ParamStandard
 	{
 	private:
-		using TheadBinary = BasicTemplateHead<BasicParamBinary<Webss>, Webss>;
-		using TheadScoped = BasicTemplateHeadScoped<Webss>;
-		using TheadStandard = BasicTemplateHead<This<Webss>, Webss>;
+		using TheadBinary = BasicTemplateHead<ParamBinary>;
+		using TheadScoped = TemplateHeadScoped;
+		using TheadStandard = BasicTemplateHead<ParamStandard>;
 
 		WebssType typeThead = WebssType::NONE;
 		union
@@ -31,20 +27,20 @@ namespace webss
 
 		std::shared_ptr<Webss> defaultValue;
 	public:
-		This() {}
-		This(Webss&& webss) : defaultValue(new Webss(std::move(webss))) {}
-		~This() { destroyUnion(); }
+		ParamStandard() {}
+		ParamStandard(Webss&& webss) : defaultValue(new Webss(std::move(webss))) {}
+		~ParamStandard() { destroyUnion(); }
 
-		This(This&& o) { copyUnion(std::move(o)); }
-		This(const This& o) { copyUnion(o); }
+		ParamStandard(ParamStandard&& o) { copyUnion(std::move(o)); }
+		ParamStandard(const ParamStandard& o) { copyUnion(o); }
 
-		This& operator=(This&& o)
+		ParamStandard& operator=(ParamStandard&& o)
 		{
 			destroyUnion();
 			copyUnion(std::move(o));
 			return *this;
 		}
-		This& operator=(const This& o)
+		ParamStandard& operator=(const ParamStandard& o)
 		{
 			if (this != &o)
 			{
@@ -82,7 +78,7 @@ namespace webss
 		const TheadScoped& getTemplateHeadScoped() const
 		{
 			assert(typeThead == WebssType::TEMPLATE_HEAD_SCOPED);
-			return *theadScoped; 
+			return *theadScoped;
 		}
 		const TheadStandard& getTemplateHeadStandard() const
 		{
@@ -142,7 +138,7 @@ namespace webss
 			typeThead = WebssType::NONE;
 		}
 
-		void copyUnion(This&& o)
+		void copyUnion(ParamStandard&& o)
 		{
 			switch (o.typeThead)
 			{
@@ -164,7 +160,7 @@ namespace webss
 			o.typeThead = WebssType::NONE;
 			defaultValue = std::move(o.defaultValue);
 		}
-		void copyUnion(const This& o)
+		void copyUnion(const ParamStandard& o)
 		{
 			switch (o.typeThead)
 			{
@@ -186,5 +182,4 @@ namespace webss
 			defaultValue = o.defaultValue;
 		}
 	};
-#undef This
 }

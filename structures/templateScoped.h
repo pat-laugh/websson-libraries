@@ -3,15 +3,20 @@
 #pragma once
 
 #include "base.h"
-#include "entity.h"
-#include "namespace.h"
 #include "templateHead.h"
 
 namespace webss
 {
-	template <class Webss>
-	using BasicParamScoped = BasicParamDocument<Webss>;
+	class TemplateScoped : public TemplateHeadScoped
+	{
+	private:
+		Webss value;
+	public:
+		using Head = TemplateHeadScoped;
 
-	template <class Webss>
-	using BasicTemplateHeadScoped = BasicTemplateHead<BasicParamDocument<Webss>, Webss>;
+		TemplateScoped(Head&& head, Webss&& value) : Head(std::move(head)), value(std::move(value)) {}
+		TemplateScoped(const Head& head, const Webss& value) : Head(head), value(value) {}
+
+		const Webss& getValue() const { return value; }
+	};
 }

@@ -3,20 +3,20 @@
 #pragma once
 
 #include "sharedMap.h"
+#include "webss.h"
 
 namespace webss
 {
-	template <class Webss>
-	class BasicTuple : public BasicSharedMap<Webss>
+	class Tuple : public BasicSharedMap<Webss>
 	{
 	private:
 		using base = BasicSharedMap<Webss>;
-		using Data = typename base::Data;
-		using Keymap = typename base::Keymap;
 	public:
-		BasicTuple() : base() {}
-		BasicTuple(Data&& data) : base(std::move(data)) {}
-		BasicTuple(const std::shared_ptr<Keymap>& keys) : base(keys) {}
-		BasicTuple(const std::shared_ptr<Keymap>& keys, const Data& data) : base(keys, data) {}
+		using Data = base::Data;
+		using Keymap = base::Keymap;
+		Tuple();
+		Tuple(Data&& data);
+		Tuple(const std::shared_ptr<Keymap>& keys);
+		Tuple(const std::shared_ptr<Keymap>& keys, const Data& data);
 	};
 }

@@ -4,45 +4,36 @@
 
 #include "base.h"
 #include "entity.h"
+#include "webss.h"
 
 namespace webss
 {
-#define This BasicBlockHead
-	template <class Webss>
-	class This
+	class BlockHead
 	{
 	public:
-		using Entity = BasicEntity<Webss>;
+		BlockHead();
+		BlockHead(const Entity& ent);
 
-		This() {}
-		This(const Entity& ent) : hasEnt(true), ent(ent) {}
-
-		bool hasEntity() const { return hasEnt; }
-		const Entity& getEntity() const { return ent; }
+		bool hasEntity() const;
+		const Entity& getEntity() const;
 	private:
 		bool hasEnt = false;
 		Entity ent;
 	};
-#undef This
 
-#define This BasicBlock
-	template <class Webss>
-	class This : public BasicBlockHead<Webss>
+	class Block : public BlockHead
 	{
 	private:
-		using Head = BasicBlockHead<Webss>;
+		using Head = BlockHead;
 		Webss value;
 	public:
-		using Entity = BasicEntity<Webss>;
+		Block(Webss&& value);
+		Block(const Webss& value);
+		Block(const Entity& ent, Webss&& value);
+		Block(const Entity& ent, const Webss& value);
+		Block(Head&& head, Webss&& value);
+		Block(const Head& head, const Webss& value);
 
-		This(Webss&& value) : Head(), value(std::move(value)) {}
-		This(const Webss& value) : Head(), value(value) {}
-		This(const Entity& ent, Webss&& value) : Head(ent), value(std::move(value)) {}
-		This(const Entity& ent, const Webss& value) : Head(ent), value(value) {}
-		This(Head&& head, Webss&& value) : Head(std::move(head)), value(std::move(value)) {}
-		This(const Head& head, const Webss& value) : Head(head), value(value) {}
-
-		const Webss& getValue() const { return value; }
+		const Webss& getValue() const;
 	};
-#undef This
 }

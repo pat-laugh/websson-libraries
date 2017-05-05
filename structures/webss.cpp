@@ -2,10 +2,37 @@
 //Copyright(c) 2017 Patrick Laughrea
 #include "webss.h"
 
+#include <assert.h>
+
+#include "dictionary.h"
+#include "list.h"
+#include "tuple.h"
+#include "block.h"
+#include "template.h"
+#include "templateScoped.h"
+#include "document.h"
+#include "paramStandard.h"
+
 using namespace std;
 using namespace webss;
 
 Webss::Webss() {}
+Webss::~Webss() { destroyUnion(); }
+
+Webss::Webss(Webss&& o) { copyUnion(move(o)); }
+Webss::Webss(const Webss& o) { copyUnion(o); }
+
+Webss& Webss::operator=(Webss o)
+{
+	destroyUnion();
+	copyUnion(move(o));
+	return *this;
+}
+
+Webss::Webss(const Entity& ent) : type(WebssType::ENTITY), ent(ent) {}
+Webss::Webss(const Default& tDefault) : type(WebssType::DEFAULT), tDefault(tDefault) {}
+Webss::Webss(const Namespace& nspace) : type(WebssType::NAMESPACE), nspace(nspace) {}
+Webss::Webss(const Enum& tEnum) : type(WebssType::ENUM), tEnum(tEnum) {}
 
 Webss::Webss(bool tBool) : type(WebssType::PRIMITIVE_BOOL), tBool(tBool) {}
 Webss::Webss(Keyword keyword) : type(WebssType::PRIMITIVE_BOOL)
@@ -31,80 +58,70 @@ Webss::Webss(size_t tInt) : type(WebssType::PRIMITIVE_INT), tInt(tInt) {}
 Webss::Webss(double tDouble) : type(WebssType::PRIMITIVE_DOUBLE), tDouble(tDouble) {}
 
 Webss::Webss(const char* s) : type(WebssType::PRIMITIVE_STRING), tString(new string(s)) {}
+Webss::Webss(string s) : type(WebssType::PRIMITIVE_STRING), tString(new string(move(s))) {}
 
-#define PATTERN_CONSTRUCT_MOVE(T, name, con) \
-Webss::Webss(T&& name) : type(WebssType::con), name(new T(move(name))) {}
-
-PATTERN_CONSTRUCT_MOVE(string, tString, PRIMITIVE_STRING)
-PATTERN_CONSTRUCT_MOVE(Document, document, DOCUMENT)
-PATTERN_CONSTRUCT_MOVE(Dictionary, dict, DICTIONARY)
-PATTERN_CONSTRUCT_MOVE(List, list, LIST)
-Webss::Webss(List&& list, bool) : type(WebssType::LIST_TEXT), list(new List(move(list))) {}
-PATTERN_CONSTRUCT_MOVE(Tuple, tuple, TUPLE)
-Webss::Webss(Tuple&& tuple, bool) : type(WebssType::TUPLE_TEXT), tuple(new Tuple(move(tuple))) {}
-PATTERN_CONSTRUCT_MOVE(TemplateHeadBinary, theadBinary, TEMPLATE_HEAD_BINARY)
-PATTERN_CONSTRUCT_MOVE(TemplateHeadScoped, theadScoped, TEMPLATE_HEAD_SCOPED)
-PATTERN_CONSTRUCT_MOVE(TemplateHeadStandard, theadStandard, TEMPLATE_HEAD_STANDARD)
-Webss::Webss(TemplateHeadStandard&& theadStandard, bool) : type(WebssType::TEMPLATE_HEAD_TEXT), theadStandard(new TemplateHeadStandard(move(theadStandard))) {}
-PATTERN_CONSTRUCT_MOVE(TemplateBinary, templBinary, TEMPLATE_BINARY)
-PATTERN_CONSTRUCT_MOVE(TemplateScoped, templScoped, TEMPLATE_SCOPED)
-PATTERN_CONSTRUCT_MOVE(TemplateStandard, templStandard, TEMPLATE_STANDARD)
-Webss::Webss(TemplateStandard&& templStandard, bool) : type(WebssType::TEMPLATE_TEXT), theadStandard(new TemplateStandard(move(templStandard))) {}
-PATTERN_CONSTRUCT_MOVE(Namespace, nspace, NAMESPACE)
-PATTERN_CONSTRUCT_MOVE(Enum, tEnum, ENUM)
-PATTERN_CONSTRUCT_MOVE(BlockHead, blockHead, BLOCK_HEAD)
-PATTERN_CONSTRUCT_MOVE(Block, block, BLOCK)
-
-#define PATTERN_CONSTRUCT_CONST(T, name, con) \
-Webss::Webss(const T& name) : type(WebssType::con), name(new T(name)) {}
-
-PATTERN_CONSTRUCT_CONST(string, tString, PRIMITIVE_STRING)
-PATTERN_CONSTRUCT_CONST(Document, document, DOCUMENT)
-PATTERN_CONSTRUCT_CONST(Dictionary, dict, DICTIONARY)
-PATTERN_CONSTRUCT_CONST(List, list, LIST)
-Webss::Webss(const List& list, bool) : type(WebssType::LIST_TEXT), list(new List(list)) {}
-PATTERN_CONSTRUCT_CONST(Tuple, tuple, TUPLE)
-Webss::Webss(const Tuple& tuple, bool) : type(WebssType::TUPLE_TEXT), tuple(new Tuple(tuple)) {}
-PATTERN_CONSTRUCT_CONST(TemplateHeadBinary, theadBinary, TEMPLATE_HEAD_BINARY)
-PATTERN_CONSTRUCT_CONST(TemplateHeadScoped, theadScoped, TEMPLATE_HEAD_SCOPED)
-PATTERN_CONSTRUCT_CONST(TemplateHeadStandard, theadStandard, TEMPLATE_HEAD_STANDARD)
-Webss::Webss(const TemplateHeadStandard& theadStandard, bool) : type(WebssType::TEMPLATE_HEAD_TEXT), theadStandard(new TemplateHeadStandard(theadStandard)) {}
-PATTERN_CONSTRUCT_CONST(TemplateBinary, templBinary, TEMPLATE_BINARY)
-PATTERN_CONSTRUCT_CONST(TemplateScoped, templScoped, TEMPLATE_SCOPED)
-PATTERN_CONSTRUCT_CONST(TemplateStandard, templStandard, TEMPLATE_STANDARD)
-Webss::Webss(const TemplateStandard& templStandard, bool) : type(WebssType::TEMPLATE_TEXT), theadStandard(new TemplateStandard(templStandard)) {}
-PATTERN_CONSTRUCT_CONST(Namespace, nspace, NAMESPACE)
-PATTERN_CONSTRUCT_CONST(Enum, tEnum, ENUM)
-PATTERN_CONSTRUCT_CONST(BlockHead, blockHead, BLOCK_HEAD)
-PATTERN_CONSTRUCT_CONST(Block, block, BLOCK)
+Webss::Webss(Document document) : type(WebssType::DOCUMENT), document(new Document(move(document))) {}
+Webss::Webss(Dictionary dict) : type(WebssType::DICTIONARY), dict(new Dictionary(move(dict))) {}
+Webss::Webss(List list) : type(WebssType::LIST), list(new List(move(list))) {}
+Webss::Webss(List list, bool) : type(WebssType::LIST_TEXT), list(new List(move(list))) {}
+Webss::Webss(Tuple tuple) : type(WebssType::TUPLE), tuple(new Tuple(move(tuple))) {}
+Webss::Webss(Tuple tuple, bool) : type(WebssType::TUPLE_TEXT), tuple(new Tuple(move(tuple))) {}
+Webss::Webss(TemplateHeadBinary theadBinary) : type(WebssType::TEMPLATE_HEAD_BINARY), theadBinary(new TemplateHeadBinary(move(theadBinary))) {}
+Webss::Webss(TemplateHeadScoped theadScoped) : type(WebssType::TEMPLATE_HEAD_SCOPED), theadScoped(new TemplateHeadScoped(move(theadScoped))) {}
+Webss::Webss(TemplateHeadStandard theadStandard) : type(WebssType::TEMPLATE_HEAD_STANDARD), theadStandard(new TemplateHeadStandard(move(theadStandard))) {}
+Webss::Webss(TemplateHeadStandard theadStandard, bool) : type(WebssType::TEMPLATE_HEAD_TEXT), theadStandard(new TemplateHeadStandard(move(theadStandard))) {}
+Webss::Webss(TemplateBinary templBinary) : type(WebssType::TEMPLATE_BINARY), templBinary(new TemplateBinary(move(templBinary))) {}
+Webss::Webss(TemplateScoped templScoped) : type(WebssType::TEMPLATE_SCOPED), templScoped(new TemplateScoped(move(templScoped))) {}
+Webss::Webss(TemplateStandard templStandard) : type(WebssType::TEMPLATE_STANDARD), templStandard(new TemplateStandard(move(templStandard))) {}
+Webss::Webss(TemplateStandard templStandard, bool) : type(WebssType::TEMPLATE_TEXT), templStandard(new TemplateStandard(move(templStandard))) {}
+Webss::Webss(BlockHead bhead) : type(WebssType::BLOCK_HEAD), bhead(new BlockHead(move(bhead))) {}
+Webss::Webss(Block block) : type(WebssType::BLOCK), block(new Block(move(block))) {}
 
 Webss::Webss(TemplateHeadSelf) : type(WebssType::TEMPLATE_HEAD_SELF) {}
 
-#define PatternConstructTemplate(Type, TypeCaps) \
-Webss::Webss(TemplateHead##Type&& head, Webss&& body) \
-{ \
-	switch (body.type) \
-	{ \
-	case WebssType::DICTIONARY: \
-		templ##Type = new Template##Type(move(head), move(*body.dict)); \
-		break; \
-	case WebssType::LIST: \
-		templ##Type = new Template##Type(move(head), move(*body.list)); \
-		break; \
-	case WebssType::TUPLE: \
-		templ##Type = new Template##Type(move(head), move(*body.tuple)); \
-		break; \
-	case WebssType::TUPLE_TEXT: \
-		templ##Type = new Template##Type(move(head), move(*body.tuple), true); \
-		break; \
-	default: \
-		assert(false); throw domain_error(""); \
-	} \
-	type = WebssType::TEMPLATE_##TypeCaps; \
+Webss::Webss(TemplateHeadBinary&& head, Webss&& body)
+{
+	switch (body.type)
+	{
+	case WebssType::DICTIONARY:
+		templBinary = new TemplateBinary(move(head), move(*body.dict));
+		break;
+	case WebssType::LIST:
+		templBinary = new TemplateBinary(move(head), move(*body.list));
+		break;
+	case WebssType::TUPLE:
+		templBinary = new TemplateBinary(move(head), move(*body.tuple));
+		break;
+	case WebssType::TUPLE_TEXT:
+		templBinary = new TemplateBinary(move(head), move(*body.tuple), true);
+		break;
+	default:
+		assert(false);
+	}
+	type = WebssType::TEMPLATE_BINARY;
 }
 
-PatternConstructTemplate(Binary, BINARY)
-PatternConstructTemplate(Standard, STANDARD)
+Webss::Webss(TemplateHeadStandard&& head, Webss&& body)
+{
+	switch (body.type)
+	{
+	case WebssType::DICTIONARY:
+		templStandard = new TemplateStandard(move(head), move(*body.dict));
+		break;
+	case WebssType::LIST:
+		templStandard = new TemplateStandard(move(head), move(*body.list));
+		break;
+	case WebssType::TUPLE:
+		templStandard = new TemplateStandard(move(head), move(*body.tuple));
+		break;
+	case WebssType::TUPLE_TEXT:
+		templStandard = new TemplateStandard(move(head), move(*body.tuple), true);
+		break;
+	default:
+		assert(false);
+	}
+	type = WebssType::TEMPLATE_STANDARD;
+}
 
 Webss::Webss(TemplateHeadStandard&& head, Webss&& body, bool)
 {
@@ -123,17 +140,10 @@ Webss::Webss(TemplateHeadStandard&& head, Webss&& body, bool)
 		templStandard = new TemplateStandard(move(head), move(*body.tuple), true);
 		break;
 	default:
-		assert(false); throw domain_error("");
+		assert(false);
 	}
 	type = WebssType::TEMPLATE_TEXT;
 }
-
-Webss::Webss(const Entity& ent) : type(WebssType::ENTITY), ent(ent) {}
-Webss::Webss(const Default& tDefault) : type(WebssType::DEFAULT), tDefault(tDefault) {}
-
-Webss::Webss(Webss&& o) { copyUnion(move(o)); }
-Webss::Webss(const Webss& o) { copyUnion(o); }
-Webss::~Webss() { destroyUnion(); }
 
 void Webss::destroyUnion()
 {
@@ -142,7 +152,7 @@ void Webss::destroyUnion()
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
 		break;
 	case WebssType::ENTITY:
-		ent.~BasicEntity();
+		ent.~Entity();
 		break;
 	case WebssType::DEFAULT:
 		tDefault.~shared_ptr();
@@ -181,38 +191,21 @@ void Webss::destroyUnion()
 		delete templStandard;
 		break;
 	case WebssType::NAMESPACE:
-		delete nspace;
+		nspace.~Namespace();
 		break;
 	case WebssType::ENUM:
-		delete tEnum;
+		tEnum.~Enum();
 		break;
 	case WebssType::BLOCK_HEAD:
-		delete blockHead;
+		delete bhead;
 		break;
 	case WebssType::BLOCK:
 		delete block;
 		break;
 	default:
-		assert(false); throw domain_error("");
+		assert(false);
 	}
 	type = WebssType::NONE;
-}
-
-Webss& Webss::operator=(Webss&& o)
-{
-	destroyUnion();
-	copyUnion(move(o));
-	return *this;
-}
-
-Webss& Webss::operator=(const Webss& o)
-{
-	if (this != &o)
-	{
-		destroyUnion();
-		copyUnion(o);
-	}
-	return *this;
 }
 
 void Webss::copyUnion(Webss&& o)
@@ -223,7 +216,7 @@ void Webss::copyUnion(Webss&& o)
 		break;
 	case WebssType::ENTITY:
 		new (&ent) Entity(move(o.ent));
-		o.ent.~BasicEntity();
+		o.ent.~Entity();
 		break;
 	case WebssType::DEFAULT:
 		new (&tDefault) Default(move(o.tDefault));
@@ -243,7 +236,7 @@ void Webss::copyUnion(Webss&& o)
 		tString = o.tString;
 		break;
 	case WebssType::DOCUMENT:
-		document= o.document;
+		document = o.document;
 		break;
 	case WebssType::DICTIONARY:
 		dict = o.dict;
@@ -273,19 +266,21 @@ void Webss::copyUnion(Webss&& o)
 		templStandard = o.templStandard;
 		break;
 	case WebssType::NAMESPACE:
-		nspace = o.nspace;
+		new (&nspace) Namespace(move(o.nspace));
+		o.nspace.~Namespace();
 		break;
 	case WebssType::ENUM:
-		tEnum = o.tEnum;
+		new (&tEnum) Enum(move(o.tEnum));
+		o.tEnum.~Enum();
 		break;
 	case WebssType::BLOCK_HEAD:
-		blockHead = o.blockHead;
+		bhead = o.bhead;
 		break;
 	case WebssType::BLOCK:
 		block = o.block;
 		break;
 	default:
-		assert(false); throw domain_error("");
+		assert(false);
 	}
 	type = o.type;
 	o.type = WebssType::NONE;
@@ -347,19 +342,19 @@ void Webss::copyUnion(const Webss& o)
 		templStandard = new TemplateStandard(*o.templStandard);
 		break;
 	case WebssType::NAMESPACE:
-		nspace = new Namespace(*o.nspace);
+		new (&nspace) Namespace(o.nspace);
 		break;
 	case WebssType::ENUM:
-		tEnum = new Enum(*o.tEnum);
+		new (&tEnum) Enum(o.tEnum);
 		break;
 	case WebssType::BLOCK_HEAD:
-		blockHead = new BlockHead(*o.blockHead);
+		bhead = new BlockHead(*o.bhead);
 		break;
 	case WebssType::BLOCK:
 		block = new Block(*o.block);
 		break;
 	default:
-		assert(false); throw domain_error("");
+		assert(false);
 	}
 	type = o.type;
 }
@@ -587,7 +582,7 @@ bool Webss::isAbstract() const
 	switch (type)
 	{
 	case WebssType::NONE:
-		assert(false); throw domain_error("");
+		assert(false);
 	case WebssType::ENTITY:
 		return ent.getContent().isAbstract();
 	case WebssType::DEFAULT:
@@ -606,6 +601,13 @@ bool Webss::isConcrete() const
 }
 
 WebssType Webss::getTypeRaw() const { return type; }
+
+
+const Entity& Webss::getEntityRaw() const { assert(getTypeRaw() == WebssType::ENTITY); return ent; }
+const Default& Webss::getDefaultRaw() const { assert(getTypeRaw() == WebssType::DEFAULT); return tDefault; }
+const Namespace& Webss::getNamespaceRaw() const { assert(getTypeRaw() == WebssType::NAMESPACE); return nspace; }
+const Enum& Webss::getEnumRaw() const { assert(getTypeRaw() == WebssType::ENUM); return tEnum; }
+
 bool Webss::getBoolRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_BOOL); return tBool; }
 WebssInt Webss::getIntRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_INT); return tInt; }
 double Webss::getDoubleRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_DOUBLE); return tDouble; }
@@ -620,13 +622,13 @@ const TemplateHeadStandard& Webss::getTemplateHeadStandardRaw() const { assert(g
 const TemplateBinary& Webss::getTemplateBinaryRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_BINARY); return *templBinary; }
 const TemplateScoped& Webss::getTemplateScopedRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_SCOPED); return *templScoped; }
 const TemplateStandard& Webss::getTemplateStandardRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_STANDARD || getTypeRaw() == WebssType::TEMPLATE_TEXT); return *templStandard; }
-const Namespace& Webss::getNamespaceRaw() const { assert(getTypeRaw() == WebssType::NAMESPACE); return *nspace; }
-const Enum& Webss::getEnumRaw() const { assert(getTypeRaw() == WebssType::ENUM); return *tEnum; }
-const BlockHead& Webss::getBlockHeadRaw() const { assert(getTypeRaw() == WebssType::BLOCK_HEAD); return *blockHead; }
+const BlockHead& Webss::getBlockHeadRaw() const { assert(getTypeRaw() == WebssType::BLOCK_HEAD); return *bhead; }
 const Block& Webss::getBlockRaw() const { assert(getTypeRaw() == WebssType::BLOCK); return *block; }
 
-const Entity& Webss::getEntityRaw() const { assert(getTypeRaw() == WebssType::ENTITY); return ent; }
-const Default& Webss::getDefaultRaw() const { assert(getTypeRaw() == WebssType::DEFAULT); return tDefault; }
+Entity& Webss::getEntityRaw() { assert(getTypeRaw() == WebssType::ENTITY); return ent; }
+Default& Webss::getDefaultRaw() { assert(getTypeRaw() == WebssType::DEFAULT); return tDefault; }
+Namespace& Webss::getNamespaceRaw() { assert(getTypeRaw() == WebssType::NAMESPACE); return nspace; }
+Enum& Webss::getEnumRaw() { assert(getTypeRaw() == WebssType::ENUM); return tEnum; }
 
 std::string& Webss::getStringRaw() { assert(getTypeRaw() == WebssType::PRIMITIVE_STRING); return *tString; }
 Document& Webss::getDocumentRaw() { assert(getTypeRaw() == WebssType::DOCUMENT); return *document; }
@@ -639,7 +641,5 @@ TemplateHeadStandard& Webss::getTemplateHeadStandardRaw() { assert(getTypeRaw() 
 TemplateBinary& Webss::getTemplateBinaryRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_BINARY); return *templBinary; }
 TemplateScoped& Webss::getTemplateScopedRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_SCOPED); return *templScoped; }
 TemplateStandard& Webss::getTemplateStandardRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_STANDARD || getTypeRaw() == WebssType::TEMPLATE_TEXT); return *templStandard; }
-Namespace& Webss::getNamespaceRaw() { assert(getTypeRaw() == WebssType::NAMESPACE); return *nspace; }
-Enum& Webss::getEnumRaw() { assert(getTypeRaw() == WebssType::ENUM); return *tEnum; }
-BlockHead& Webss::getBlockHeadRaw() { assert(getTypeRaw() == WebssType::BLOCK_HEAD); return *blockHead; }
+BlockHead& Webss::getBlockHeadRaw() { assert(getTypeRaw() == WebssType::BLOCK_HEAD); return *bhead; }
 Block& Webss::getBlockRaw() { assert(getTypeRaw() == WebssType::BLOCK); return *block; }

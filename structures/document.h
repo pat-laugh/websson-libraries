@@ -8,14 +8,12 @@
 
 namespace webss
 {
-	template <class Webss>
-	class BasicDocument : public BasicSharedMap<Webss>
+	class Document : public BasicSharedMap<Webss>
 	{
 	public:
-		using Head = BasicDocumentHead<Webss>;
-		Head& getHead() { return head; }
-		const Head& getHead() const { return head; }
+		DocumentHead& getHead() { return head; }
+		const DocumentHead& getHead() const { return head; }
 	private:
-		Head head;
+		DocumentHead head;
 	};
 }

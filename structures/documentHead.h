@@ -6,74 +6,56 @@
 
 #include "base.h"
 #include "entity.h"
-#include "templateScoped.h"
+#include "namespace.h"
+#include "templateHead.h"
 
 namespace webss
 {
-	template <class Webss>
-	class BasicParamDocument;
-
-	template <class Webss>
-	using BasicDocumentHead = std::vector<BasicParamDocument<Webss>>;
-
-	template <class Webss>
-	class BasicScopedDocument
+	class ImportedDocument
 	{
 	public:
-		using TheadScoped = BasicTemplateHeadScoped<Webss>;
-		using DocHead = BasicDocumentHead<Webss>;
-
-		TheadScoped head;
-		DocHead body;
-	};
-
-	template <class Webss>
-	class BasicImportedDocument
-	{
-	public:
-		BasicImportedDocument(Webss&& name) : name(std::move(name)) { assert(this->name.isString() && "import must reference a string"); }
+		ImportedDocument(Webss&& name) : name(std::move(name)) { assert(this->name.isString() && "import must reference a string"); }
 
 		const Webss& getName() const { return name; }
 		const std::string& getLink() const { return name.getString(); }
 	private:
 		Webss name;
 	};
-
-#define This BasicParamDocument
-	template <class Webss>
-	class This
+	
+	struct ScopedDocument
+	{
+		BasicTemplateHead<ParamDocument> head;
+		DocumentHead body;
+	};
+	
+	class ParamDocument
 	{
 	public:
-		using Entity = BasicEntity<Webss>;
-		using Namespace = BasicNamespace<Webss>;
-		using ScopedDoc = BasicScopedDocument<Webss>;
-		using Import = BasicImportedDocument<Webss>;
-
 		enum class Type
 		{
 			NONE, ENTITY_ABSTRACT, ENTITY_CONCRETE, SCOPED_DOCUMENT,
 			USING_ALL, USING_ONE, IMPORT
 		};
 
-		This() {}
-		static This makeEntityAbstract(Entity ent) { return This(ent, Type::ENTITY_ABSTRACT); }
-		static This makeEntityConcrete(Entity ent) { return This(ent, Type::ENTITY_CONCRETE); }
-		static This makeUsingAll(Entity ent) { assert(ent.getContent().isNamespace()); return This(ent, Type::USING_ALL); }
-		static This makeUsingOne(Entity ent, Import import) { return This(ent, Type::USING_ONE, std::move(import)); }
-		This(Import import) : type(Type::IMPORT), import(new Import(std::move(import))) {}
-		This(ScopedDoc scopedDoc) : type(Type::SCOPED_DOCUMENT), scopedDoc(new ScopedDoc(std::move(scopedDoc))) {}
-		~This() { destroyUnion(); }
+		ParamDocument() {}
+		static ParamDocument makeEntityAbstract(Entity ent) { return ParamDocument(ent, Type::ENTITY_ABSTRACT); }
+		static ParamDocument makeEntityConcrete(Entity ent) { return ParamDocument(ent, Type::ENTITY_CONCRETE); }
+		static ParamDocument makeUsingAll(Entity ent) { assert(ent.getContent().isNamespace()); return ParamDocument(ent, Type::USING_ALL); }
+		static ParamDocument makeUsingOne(Entity ent, ImportedDocument import) { return ParamDocument(ent, Type::USING_ONE, std::move(import)); }
+		ParamDocument(ImportedDocument import) : type(Type::IMPORT), import(new ImportedDocument(std::move(import))) {}
+		ParamDocument(ScopedDocument scopedDoc) : type(Type::SCOPED_DOCUMENT), scopedDoc(new ScopedDocument(std::move(scopedDoc))) {}
+		~ParamDocument() { destroyUnion(); }
 
-		This(This&& o) { copyUnion(std::move(o)); }
-		This(const This& o) { copyUnion(o); }
+		ParamDocument(ParamDocument&& o) { copyUnion(std::move(o)); }
+		ParamDocument(const ParamDocument& o) { copyUnion(o); }
 
-		This& operator=(This&& o)
+		ParamDocument& operator=(ParamDocument&& o)
 		{
 			destroyUnion();
 			copyUnion(std::move(o));
 			return *this;
 		}
-		This& operator=(const This& o)
+		ParamDocument& operator=(const ParamDocument& o)
 		{
 			if (this != &o)
 			{
@@ -87,30 +69,30 @@ namespace webss
 		bool hasNamespace() const { return type == Type::USING_ALL; }
 		const Entity& getEntity() const { return ent; }
 		const Namespace& getNamespace() const { return ent.getContent().getNamespace(); }
-		const Import& getImport() const { return *import; }
-		const ScopedDoc& getScopedDoc() const { return *scopedDoc; }
+		const ImportedDocument& getImport() const { return *import; }
+		const ScopedDocument& getScopedDoc() const { return *scopedDoc; }
 	private:
 		Type type = Type::NONE;
 		union
 		{
 			Entity ent;
-			ScopedDoc* scopedDoc;
+			ScopedDocument* scopedDoc;
 		};
 
-		Import* import;
+		ImportedDocument* import;
 
-		This(Entity ent, Type type) : type(type), ent(std::move(ent)) {}
-		This(Entity ent, Type type, Import import) : type(type), ent(std::move(ent)), import(new Import(std::move(import))) {}
+		ParamDocument(Entity ent, Type type) : type(type), ent(std::move(ent)) {}
+		ParamDocument(Entity ent, Type type, ImportedDocument import) : type(type), ent(std::move(ent)), import(new ImportedDocument(std::move(import))) {}
 
 		void destroyUnion()
 		{
 			switch (type)
 			{
 			case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ALL:
-				ent.~BasicEntity();
+				ent.~Entity();
 				break;
 			case Type::USING_ONE:
-				ent.~BasicEntity();
+				ent.~Entity();
 				delete import;
 				break;
 			case Type::IMPORT:
@@ -125,17 +107,17 @@ namespace webss
 			type = Type::NONE;
 		}
 
-		void copyUnion(This&& o)
+		void copyUnion(ParamDocument&& o)
 		{
 			switch (o.type)
 			{
 			case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ALL:
 				new (&ent) Entity(std::move(o.ent));
-				o.ent.~BasicEntity();
+				o.ent.~Entity();
 				break;
 			case Type::USING_ONE:
 				new (&ent) Entity(std::move(o.ent));
-				o.ent.~BasicEntity();
+				o.ent.~Entity();
 				import = o.import;
 				break;
 			case Type::IMPORT:
@@ -152,7 +134,7 @@ namespace webss
 			o.type = Type::NONE;
 		}
 
-		void copyUnion(const This& o)
+		void copyUnion(const ParamDocument& o)
 		{
 			switch (o.type)
 			{
@@ -161,13 +143,13 @@ namespace webss
 				break;
 			case Type::USING_ONE:
 				new (&ent) Entity(o.ent);
-				import = new Import(*o.import);
+				import = new ImportedDocument(*o.import);
 				break;
 			case Type::IMPORT:
-				import = new Import(*o.import);
+				import = new ImportedDocument(*o.import);
 				break;
 			case Type::SCOPED_DOCUMENT:
-				scopedDoc = new ScopedDoc(*o.scopedDoc);
+				scopedDoc = new ScopedDocument(*o.scopedDoc);
 				break;
 			default:
 				break;
@@ -176,5 +158,4 @@ namespace webss
 			type = o.type;
 		}
 	};
-#undef This
 }

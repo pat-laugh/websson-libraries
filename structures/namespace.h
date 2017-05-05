@@ -2,108 +2,75 @@
 //Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 #include "base.h"
-#include "entity.h"
 
 namespace webss
 {
-#define This BasicNamespace
-	template <class Webss>
-	class This
+	class Namespace
 	{
 	public:
-		using Entity = BasicEntity<Webss>;
 		using Data = std::vector<Entity>;
-		using size_type = typename Data::size_type;
+		using size_type = Data::size_type;
 		using Keymap = std::unordered_map<std::string, size_type>;
-		using PtrThis = std::shared_ptr<This>;
+		using PtrThis = std::shared_ptr<Namespace>;
 		using Namespaces = std::vector<PtrThis>;
-		using iterator = typename Data::iterator;
-		using const_iterator = typename Data::const_iterator;
+		using iterator = Data::iterator;
+		using const_iterator = Data::const_iterator;
 
-		static const This& getEmptyInstance()
+		static const Namespace& getEmptyInstance()
 		{
-			static This nspace;
+			static Namespace nspace;
 			return nspace;
 		}
 
-		This(std::string name) : ptrBody(new NamespaceBody{ std::move(name) })
-		{
-			ptrBody->ptrThis = PtrThis(new This(*this));
-		}
+		Namespace(std::string name);
 
-		This(std::string name, const This& previousNspace) : ptrBody(new NamespaceBody{ std::move(name), previousNspace.getNamespaces() })
-		{
-			ptrBody->ptrThis = PtrThis(new This(*this));
-		}
+		Namespace(std::string name, const Namespace& previousNspace);
 
-		bool empty() const
-		{
-			return getData().empty();
-		}
-		size_type size() const
-		{
-			return getData().size();
-		}
+		bool empty() const;
+		size_type size() const;
 
-		void add(std::string key, Webss value) { add(Entity(std::move(key), std::move(value))); }
-		void addSafe(std::string key, Webss value) { addSafe(Entity(std::move(key), std::move(value))); }
+		void add(std::string key, Webss value);
+		void addSafe(std::string key, Webss value);
 
-		void add(Entity&& ent)
-		{
-			ent.setNamespace(getPointer());
-			containerAddUnsafe(getKeys(), std::string(ent.getName()), size());
-			getData().push_back(std::move(ent));
-		}
-		void addSafe(Entity&& ent)
-		{
-			ent.setNamespace(getPointer());
-			containerAddSafe(getKeys(), std::string(ent.getName()), size());
-			getData().push_back(std::move(ent));
-		}
+		void add(Entity&& ent);
+		void addSafe(Entity&& ent);
 
-		bool has(const std::string& key) const { return getKeys().find(key) != getKeys().end(); }
+		bool has(const std::string& key) const;
 
-		bool operator==(const This& o) const { return ptrBody == o.ptrBody; }
+		bool operator==(const Namespace& o) const;
 
-		Entity& operator[](const std::string& key) { return getData()[accessKeyUnsafe<Keymap, size_type>(getKeys(), key)]; }
-		const Entity& operator[](const std::string& key) const { return getData()[accessKeyUnsafe<Keymap, size_type>(getKeys(), key)]; }
-		Entity& at(const std::string& key) { return getData()[accessKeySafe<Keymap, size_type>(getKeys(), key)]; }
-		const Entity& at(const std::string& key) const { return getData()[accessKeySafe<Keymap, size_type>(getKeys(), key)]; }
+		Entity& operator[](const std::string& key);
+		const Entity& operator[](const std::string& key) const;
+		Entity& at(const std::string& key);
+		const Entity& at(const std::string& key) const;
 
-		const std::string& getName() const { return getBody().name; }
-		const Namespaces& getNamespaces() const { return getBody().nspaces; }
-		const PtrThis& getPointer() const { return getBody().ptrThis; }
+		const std::string& getName() const;
+		const Namespaces& getNamespaces() const;
+		const PtrThis& getPointer() const;
 
-		iterator begin() { return getData().begin(); }
-		iterator end() { return getData().end(); }
-		const_iterator begin() const { return getData().begin(); }
-		const_iterator end() const { return getData().end(); }
+		iterator begin();
+		iterator end();
+		const_iterator begin() const;
+		const_iterator end() const;
 	private:
-		bool hasBody() const { return ptrBody.get() != nullptr; }
+		bool hasBody() const;
 
-		struct NamespaceBody
-		{
-			std::string name;
-			Namespaces nspaces;
-			Data data;
-			Keymap keys;
-			PtrThis ptrThis;
-		};
+		struct NamespaceBody;
 		std::shared_ptr<NamespaceBody> ptrBody;
 
-		NamespaceBody& getBody() { assert(hasBody()); return *ptrBody; }
-		const NamespaceBody& getBody() const  { assert(hasBody()); return *ptrBody; }
-		Data& getData() { return getBody().data; }
-		const Data& getData() const { return getBody().data; }
-		Keymap& getKeys() { return getBody().keys; }
-		const Keymap& getKeys() const { return getBody().keys; }
+		NamespaceBody& getBody();
+		const NamespaceBody& getBody() const;
+		Data& getData();
+		const Data& getData() const;
+		Keymap& getKeys();
+		const Keymap& getKeys() const;
 
-		This() : ptrBody(new NamespaceBody{}) {}
+		Namespace();
 	};
-#undef This
 }
