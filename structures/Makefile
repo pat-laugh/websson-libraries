@@ -7,7 +7,7 @@ LIBRARY = libstructures.a
 
 all: $(LIBRARY)
 
-$(LIBRARY): block.o dictionary.o documentHead.o entity.o enum.o keywords.o list.o namespace.o paramBinary.o templateBody.o tuple.o webss.o
+$(LIBRARY): block.o dictionary.o documentHead.o entity.o enum.o keywords.o list.o namespace.o paramBinary.o paramStandard.o templateBody.o tuple.o typeWebss.o webss.o
 	ar -rc $(LIBRARY) $^
 
 block.o: block.cpp
@@ -37,10 +37,16 @@ namespace.o: namespace.cpp
 paramBinary.o: paramBinary.cpp
 	$(CC) $(OPTIONS) -o $@ -c $<
 
+paramStandard.o: paramStandard.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+
 templateBody.o: templateBody.cpp
 	$(CC) $(OPTIONS) -o $@ -c $<
 
 tuple.o: tuple.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+
+typeWebss.o: typeWebss.cpp
 	$(CC) $(OPTIONS) -o $@ -c $<
 
 webss.o: webss.cpp

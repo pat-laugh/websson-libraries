@@ -7,8 +7,11 @@ LIBRARY = libutils.a
 
 all: $(LIBRARY)
 
-$(LIBRARY): conType.o utils.o utilsWebss.o
+$(LIBRARY): conType.o iterators.o utils.o utilsWebss.o
 	ar -rc $(LIBRARY) $^
+
+iterators.o: iterators.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
 
 conType.o: conType.cpp
 	$(CC) $(OPTIONS) -o $@ -c $<
