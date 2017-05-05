@@ -6,7 +6,6 @@ DIR_STRUCTURES = ../structures
 DIR_PARSER = ../parser
 DIR_SERIALIZER = ../serializer
 
-CC = g++
 OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers -iquote ..
 EXEC = tests.out
 
@@ -19,10 +18,10 @@ COMPILE_LIBS:
 	cd $(DIR_SERIALIZER); make -s
 
 $(EXEC): tests.o
-	$(CC) -o $@ -L$(DIR_UTILS) -lutils -L$(DIR_STRUCTURES) -lstructures -L$(DIR_PARSER) -lparser -L$(DIR_SERIALIZER) -lserializer $^ -lcurl
+	$(CXX) -o $@ -L$(DIR_UTILS) -lutils -L$(DIR_STRUCTURES) -lstructures -L$(DIR_PARSER) -lparser -L$(DIR_SERIALIZER) -lserializer $^ -lcurl
 
 tests.o: tests.cpp
-	$(CC) $(OPTIONS) -o $@ -c $<
+	$(CXX) $(OPTIONS) -o $@ -c $<
 
 clean:
 	cd $(DIR_UTILS); make clean -s
