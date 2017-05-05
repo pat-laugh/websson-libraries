@@ -4,6 +4,7 @@
 
 #include "entity.h"
 #include "parameters.h"
+#include "webss.h"
 
 namespace webss
 {

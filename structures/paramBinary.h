@@ -9,7 +9,6 @@
 #include "keywords.h"
 #include "templateHead.h"
 #include "types.h"
-#include "webss.h"
 
 namespace webss
 {

@@ -7,7 +7,7 @@ LIBRARY = libstructures.a
 
 all: $(LIBRARY)
 
-$(LIBRARY): block.o dictionary.o entity.o enum.o keywords.o list.o namespace.o templateBody.o tuple.o webss.o
+$(LIBRARY): block.o dictionary.o documentHead.o entity.o enum.o keywords.o list.o namespace.o paramBinary.o templateBody.o tuple.o webss.o
 	ar -rc $(LIBRARY) $^
 
 block.o: block.cpp
@@ -15,7 +15,10 @@ block.o: block.cpp
 
 dictionary.o: dictionary.cpp
 	$(CC) $(OPTIONS) -o $@ -c $<
-	
+
+documentHead.o: documentHead.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+
 entity.o: entity.cpp
 	$(CC) $(OPTIONS) -o $@ -c $<
 	
@@ -29,6 +32,9 @@ list.o: list.cpp
 	$(CC) $(OPTIONS) -o $@ -c $<
 	
 namespace.o: namespace.cpp
+	$(CC) $(OPTIONS) -o $@ -c $<
+
+paramBinary.o: paramBinary.cpp
 	$(CC) $(OPTIONS) -o $@ -c $<
 
 templateBody.o: templateBody.cpp
