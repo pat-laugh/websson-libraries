@@ -151,10 +151,21 @@
     <ClInclude Include="tuple.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="typeWebss.h" />
+    <ClInclude Include="utils.h" />
     <ClInclude Include="webss.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="block.cpp" />
+    <ClCompile Include="dictionary.cpp" />
+    <ClCompile Include="documentHead.cpp" />
+    <ClCompile Include="entity.cpp" />
+    <ClCompile Include="enum.cpp" />
     <ClCompile Include="keywords.cpp" />
+    <ClCompile Include="list.cpp" />
+    <ClCompile Include="namespace.cpp" />
+    <ClCompile Include="paramBinary.cpp" />
+    <ClCompile Include="templateBody.cpp" />
+    <ClCompile Include="tuple.cpp" />
     <ClCompile Include="webss.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

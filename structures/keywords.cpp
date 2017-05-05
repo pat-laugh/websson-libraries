@@ -65,3 +65,6 @@ string Keyword::toString() const
 		return "unknown";
 	}
 }
+
+Keyword& Keyword::operator=(Enum o) { const_cast<Enum&>(this->e) = o; return *this; }
+Keyword& Keyword::operator=(Keyword o) { const_cast<Enum&>(this->e) = o.e; return *this; }

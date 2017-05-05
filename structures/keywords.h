@@ -26,8 +26,8 @@ namespace webss
 		constexpr bool operator==(Keyword o) const { return e == o.e; }
 		constexpr operator Enum() const { return e; }
 
-		Keyword& operator=(Enum o) { const_cast<Enum&>(this->e) = o; return *this; }
-		Keyword& operator=(Keyword o) { const_cast<Enum&>(this->e) = o.e; return *this; }
+		Keyword& operator=(Enum o);
+		Keyword& operator=(Keyword o);
 
 		//REQUIREMENT: s must be associated with a valid Keyword
 		Keyword(std::string s);
