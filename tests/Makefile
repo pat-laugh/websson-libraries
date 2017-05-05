@@ -30,3 +30,12 @@ clean:
 	cd $(DIR_PARSER); make clean -s
 	cd $(DIR_SERIALIZER); make clean -s
 	rm -rf $(EXEC) *.o
+
+debug: OPTIONS += -DNDEBUG -g3
+debug: COMPILE_LIBS_DEBUG $(EXEC)
+
+COMPILE_LIBS_DEBUG:
+	cd $(DIR_UTILS); make debug -s
+	cd $(DIR_STRUCTURES); make debug -s
+	cd $(DIR_PARSER); make debug -s
+	cd $(DIR_SERIALIZER); make debug -s

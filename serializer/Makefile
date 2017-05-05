@@ -18,3 +18,6 @@ serializerBinary.o: serializerBinary.cpp
 
 clean:
 	rm -rf $(LIBRARY) *.o
+
+debug: OPTIONS += -DNDEBUG -g3
+debug: all

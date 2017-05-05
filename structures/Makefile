@@ -54,3 +54,6 @@ webss.o: webss.cpp
 
 clean:
 	rm -rf $(LIBRARY) *.o
+
+debug: OPTIONS += -DNDEBUG -g3
+debug: all
