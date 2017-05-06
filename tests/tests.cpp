@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 
 #include "parser/parser.h"
@@ -12,42 +13,49 @@ int main()
 {
 	char inChar;
 
-//#define TEST
-#ifdef TEST
+//#define TEST_PERFORMANCE
+#ifdef TEST_PERFORMANCE
 	for (int i = 0; i < 2000; ++i)
 #else
 	do
 #endif
 	{
-		string filename("testWebsson");
+		string filename("strings");
 		Document data;
-		string path("C:\\Users\\Pat-Laugh\\Desktop\\");
-		string filenameIn = filename + ".txt";
-		string filenameOut = filename + "Out.txt";
-		string fileInName(path + filenameIn);
-		string fileOutName(path + filenameOut);
+		string filenameIn("files-in/" + filename + ".wbsn");
+		string filenameOut(filename + ".wbsnout");
+		string filenameExpected("files-expected/" + filename + ".wbsn");
 
-		cout << endl << fileInName << endl;
+		cout << "Input: " << filenameIn << endl;
 
-		ifstream fileIn(fileInName, ios::binary);
-		if (fileIn.fail()) { cerr << "Error: failed to open file \"" << fileInName << "\"" << endl; cin >> inChar; exit(EXIT_FAILURE); }
+		ifstream fileIn(filenameIn, ios::binary);
+		if (fileIn.fail()) { cerr << "Error: failed to open file \"" << filenameIn << "\"" << endl; cin >> inChar; exit(EXIT_FAILURE); }
 		try
 		{
 			Parser parser(fileIn);
 			data = parser.parseDocument();
 			cout << "No errors while parsing" << endl;
 
-			ofstream fileOut(fileOutName, ios::binary);
-			if (fileOut.fail()) { cerr << "Error: failed to open file \"" << fileOutName << "\"" << endl; cin >> inChar; exit(EXIT_FAILURE); }
+			ofstream fileOut(filenameOut, ios::binary);
+			if (fileOut.fail()) { cerr << "Error: failed to open file \"" << filenameOut << "\"" << endl; cin >> inChar; exit(EXIT_FAILURE); }
 			try
 			{
-				fileOut << Serializer::serialize(data);
+				auto output = Serializer::serialize(data);
+				fileOut << output;
 				fileOut.flush();
-				cout << "No errors while deserializing" << endl;
+				ifstream fileExpected(filenameExpected, ios::binary);
+				if (fileExpected.fail()) { cerr << "Error: failed to open file \"" << filenameExpected << "\"" << endl; cin >> inChar; exit(EXIT_FAILURE); }
+				stringstream ss;
+				ss << fileExpected.rdbuf();
+				if (ss.str() != output)
+					cout << "Serialization is not as expected" << endl;
+				else
+					cout << "No errors while serializing" << endl;
+				fileExpected.close();
 			}
 			catch (const exception& e)
 			{
-				cout << "Deserialization failed: " << e.what() << endl;
+				cout << "Serialization failed: " << e.what() << endl;
 			}
 			fileOut.close();
 		}
@@ -56,7 +64,7 @@ int main()
 			cout << "Parse failed: " << e.what() << endl;
 		}
 		fileIn.close();
-#ifdef TEST
+#ifdef TEST_PERFORMANCE
 	}
 #else
 		cin >> inChar;

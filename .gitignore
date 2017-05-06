@@ -1,3 +1,5 @@
+*.wbsnout
+
 ##gitignore-start:Global/Linux
 *~
 
