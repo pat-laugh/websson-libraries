@@ -14,3 +14,5 @@ See the README files in each libary for more information.
 
 The directory `tests` contains fonctional tests for the Parser and the
 Serializer.
+
+Documentation for the language is available [here](https://pat-laugh.ca/websson-doc/).
