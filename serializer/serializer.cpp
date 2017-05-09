@@ -292,9 +292,8 @@ void Serializer::putPreviousNamespaceNames(StringBuilder& out, const Namespace& 
 	const auto& nspaces = nspace.getNamespaces();
 	if (!nspaces.empty())
 	{
-		//check the list of namespaces that the entity has in a reverse order until
-		//there is an namespace that is in the current scope
-		//then precede the entity's name with all the namespaces that were not in the current scope
+		//check the list of namespaces in reverse order until there is an namespace that is in
+		//the current scope, then put all the namespaces that were not in the current scope
 
 		auto i = nspaces.size();
 		while (i > 0 && !namespaceCurrentScope(*nspaces[i - 1]))
@@ -318,8 +317,7 @@ void Serializer::putEntityName(StringBuilder& out, const Entity& ent)
 		if (!namespaceCurrentScope(nspace))
 		{
 			putPreviousNamespaceNames(out, nspace);
-			out += nspace.getName();
-			out += CHAR_SCOPE;
+			out += nspace.getName() + CHAR_SCOPE;
 		}
 	}
 	out += ent.getName();
@@ -355,7 +353,7 @@ void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 		putBlockHead(out, webss.getBlockHeadRaw());
 		break;
 	default:
-		assert(false && "type is not an abstract value"); throw domain_error("");
+		assert(false && "type is not an abstract value");
 	}
 }
 
@@ -414,7 +412,7 @@ void Serializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConTyp
 		putBlock(out, webss.getBlockRaw(), con);
 		break;
 	default:
-		assert(false && "type is not a concrete value"); throw domain_error("");
+		assert(false && "type is not a concrete value");
 	}
 }
 
@@ -584,7 +582,7 @@ void Serializer::putScopedDocument(StringBuilder& out, const ScopedDocument& sco
 
 void Serializer::putUsingAll(StringBuilder& out, const Namespace& nspace)
 {
-	out += CHAR_USING_ONE;
+	out += CHAR_USING_ALL;
 	putPreviousNamespaceNames(out, nspace);
 	out += nspace.getName();
 }
