@@ -52,8 +52,10 @@ namespace webss
 	protected:
 		std::set<void*> currentNamespaces;
 
-		Serializer() {}
+		Serializer();
 
+		void putDocumentHead(StringBuilder& out, const DocumentHead& docHead);
+		void putDocument(StringBuilder& out, const Document& doc);
 
 		void putPreviousNamespaceNames(StringBuilder& out, const Namespace& nspace);
 		bool namespaceCurrentScope(const Namespace& nspace);
@@ -76,10 +78,8 @@ namespace webss
 		void putListText(StringBuilder& out, const List& list);
 		void putTuple(StringBuilder& out, const Tuple& tuple);
 		void putTupleText(StringBuilder& out, const Tuple& tuple);
-		void putDocumentHead(StringBuilder& out, const DocumentHead& docHead);
-		void putDocument(StringBuilder& out, const Document& doc);
 
-		void putImportedDocument(StringBuilder& out, const ImportedDocument& importDoc, ConType con);
+		void putImport(StringBuilder& out, const ImportedDocument& import);
 
 		void putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc);
 

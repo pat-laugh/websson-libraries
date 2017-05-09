@@ -48,7 +48,7 @@ void putSeparatedValues(StringBuilder& out, const Container& cont, function<void
 		output(it);
 		while (++it != cont.end())
 		{
-			out += CHAR_SEPARATOR;
+			out += '\n';
 			output(it);
 		}
 	}
@@ -72,14 +72,13 @@ public:
 				putConcreteEntity(out, it->getEntity(), CON);
 				break;
 			case Type::IMPORT:
-				putImportedDocument(out, it->getImport(), CON);
+				putImport(out, it->getImport());
 				break;
 			case Type::USING_ONE:
-				//TODO
-			//	putImportedDocument(out, it->getImportedDoc(), CON);
-			//	break;
+				putUsingOne(out, it->getEntity(), it->getImport());
+				break;
 			case Type::USING_ALL:
-				putUsingNamespace(out, it->getNamespace());
+				putUsingAll(out, it->getNamespace());
 				break;
 			case Type::SCOPED_DOCUMENT:
 				putScopedDocument(out, it->getScopedDoc());
@@ -263,6 +262,30 @@ private:
 		}
 	}
 };
+
+Serializer::Serializer() {}
+
+void Serializer::putDocumentHead(StringBuilder& out, const DocumentHead& docHead)
+{
+	static_cast<SerializerTemplate*>(this)->putDocumentHead<ConType::DOCUMENT>(out, docHead);
+}
+
+void Serializer::putDocument(StringBuilder& out, const Document& doc)
+{
+	static const auto CON = ConType::DOCUMENT;
+
+	if (doc.getHead().size() > 0)
+		putDocumentHead(out, doc.getHead());
+
+	using Type = decltype(doc.getOrderedKeyValues());
+	putSeparatedValues<Type, CON>(out, doc.getOrderedKeyValues(), [&](Type::const_iterator it)
+	{
+		if (it->first == nullptr)
+			putConcreteValue(out, *it->second, CON);
+		else
+			putKeyValue(out, *it->first, *it->second, CON);
+	});
+}
 
 void Serializer::putPreviousNamespaceNames(StringBuilder& out, const Namespace& nspace)
 {
@@ -522,31 +545,6 @@ void Serializer::putCstring(StringBuilder& out, const string& str)
 	out += CHAR_CSTRING;
 }
 
-void Serializer::putDocument(StringBuilder& out, const Document& doc)
-{
-	static const auto CON = ConType::DOCUMENT;
-
-	if (doc.getHead().size() > 0)
-	{
-		putDocumentHead(out, doc.getHead());
-		out += '\n';
-	}
-
-	using Type = decltype(doc.getOrderedKeyValues());
-	putSeparatedValues<Type, CON>(out, doc.getOrderedKeyValues(), [&](Type::const_iterator it)
-	{
-		if (it->first == nullptr)
-			putConcreteValue(out, *it->second, CON);
-		else
-			putKeyValue(out, *it->first, *it->second, CON);
-	});
-}
-
-void Serializer::putDocumentHead(StringBuilder& out, const DocumentHead& docHead)
-{
-	static_cast<SerializerTemplate*>(this)->putDocumentHead<ConType::DOCUMENT>(out, docHead);
-}
-
 void Serializer::putAbstractEntity(StringBuilder& out, const Entity& ent)
 {
 	const auto& content = ent.getContent();
@@ -565,9 +563,9 @@ void Serializer::putConcreteEntity(StringBuilder& out, const Entity& ent, ConTyp
 	putCharValue(out, content, con);
 }
 
-void Serializer::putImportedDocument(StringBuilder& out, const ImportedDocument& importDoc, ConType con)
+void Serializer::putImport(StringBuilder& out, const ImportedDocument& import)
 {
-	const auto& name = importDoc.getName();
+	const auto& name = import.getName();
 	assert(name.isString());
 	out += CHAR_IMPORT;
 	if (name.getTypeRaw() == WebssType::PRIMITIVE_STRING)
@@ -584,7 +582,7 @@ void Serializer::putScopedDocument(StringBuilder& out, const ScopedDocument& sco
 	static_cast<SerializerTemplate*>(this)->putDocumentHead<ConType::DICTIONARY>(out, scopedDoc.body);
 }
 
-void Serializer::putUsingNamespace(StringBuilder& out, const Namespace& nspace)
+void Serializer::putUsingAll(StringBuilder& out, const Namespace& nspace)
 {
 	out += CHAR_USING_ONE;
 	putPreviousNamespaceNames(out, nspace);
@@ -683,7 +681,7 @@ void Serializer::putTheadScoped(StringBuilder& out, const TemplateHeadScoped& th
 			//	putConcreteEntity(out, it->getConcreteEntity(), CON);
 			//	break;
 			case ParamType::USING_ALL:
-				putUsingNamespace(out, it->getNamespace());
+				putUsingAll(out, it->getNamespace());
 				break;
 			default:
 				assert(false); throw domain_error("");
