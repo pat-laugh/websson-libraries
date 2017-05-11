@@ -15,8 +15,10 @@ const Keyword::Enum Keyword::KEY_TRUE;
 const unordered_map<string, Keyword> KEYWORDS = {
 	{ "N", Keyword::KEY_NULL },
 	{ "Nil", Keyword::KEY_NULL },
+	{ "None", Keyword::KEY_NULL },
 	{ "Null", Keyword::KEY_NULL },
 	{ "nil", Keyword::KEY_NULL },
+	{ "none", Keyword::KEY_NULL },
 	{ "null", Keyword::KEY_NULL },
 
 	{ "F", Keyword::KEY_FALSE },
