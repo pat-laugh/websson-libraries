@@ -18,7 +18,7 @@ void addGlobalEntities(EntityManager& ents, vector<string> names, Entity ent)
 
 void addEntityKeywords(EntityManager& ents)
 {
-	addGlobalEntities(ents, { "N", "Nil", "Null", "nil", "null", "F", "False", "false", "T", "True", "true" }, Entity("", Webss()));
+	addGlobalEntities(ents, { "N", "Nil", "None", "Null", "nil", "none", "null", "F", "False", "false", "T", "True", "true" }, Entity("", Webss()));
 }
 
 TemplateHeadBinary makeTheadBinaryKeyword(Keyword keyword)
