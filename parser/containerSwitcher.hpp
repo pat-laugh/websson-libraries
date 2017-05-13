@@ -14,19 +14,8 @@ namespace webss
 		bool oldAllowVoid;
 		bool oldMultilineContainer;
 	public:
-		ContainerSwitcher(Parser& parser, ConType newCon, bool newAllowVoid) : parser(parser), oldCon(parser.con), oldAllowVoid(parser.allowVoid), oldMultilineContainer(parser.multilineContainer)
-		{
-			parser.con = newCon;
-			parser.allowVoid = newAllowVoid;
-			parser.multilineContainer = checkLineEmpty(++parser.it);
-		}
-
-		~ContainerSwitcher()
-		{
-			parser.con = oldCon;
-			parser.allowVoid = oldAllowVoid;
-			parser.multilineContainer = oldMultilineContainer;
-		}
+		ContainerSwitcher(Parser& parser, ConType newCon, bool newAllowVoid);
+		~ContainerSwitcher();
 	};
 
 	template <class Container, ConType::Enum CON>
@@ -36,7 +25,7 @@ namespace webss
 		if (!containerEmpty())
 			do
 				func(cont);
-		while (checkNextElement());
+			while (checkNextElement());
 		return std::move(cont);
 	}
 }
