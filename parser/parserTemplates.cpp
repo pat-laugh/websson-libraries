@@ -187,10 +187,7 @@ private:
 	{
 		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
 		{
-			string name;
-			if (!parseNameAny(name))
-				throw runtime_error(ERROR_UNEXPECTED);
-
+			string name = parseNameDictionary();
 			switch (nextTag = getTag(it))
 			{
 			case Tag::START_LIST:

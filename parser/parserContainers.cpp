@@ -55,58 +55,23 @@ string getItCurrentChar(SmartIterator& it)
 	return out;
 }
 
-bool Parser::parseNameAny(string& name)
+string Parser::parseNameDictionary()
 {
 	if (nextTag == Tag::NAME_START)
-		name = parseName(it);
+		return parseName(it);
 	else if (nextTag == Tag::EXPLICIT_NAME)
-		name = parseNameExplicit();
-	else
-		return false;
-	return true;
+		return parseNameExplicit();
+	throw runtime_error(ERROR_INPUT_DICTIONARY);
 }
 
 Dictionary Parser::parseDictionary()
 {
 	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
 	{
-		string name;
-		if (parseNameAny(name))
-		{
-			nextTag = getTag(it);
-			dict.addSafe(move(name), parseValueOnly());
-		}
-		else if (nextTag == Tag::C_STRING)
-			addJsonKeyvalue(dict);
-		else
-			throw runtime_error(ERROR_INPUT_DICTIONARY);
+		string name = parseNameDictionary();
+		nextTag = getTag(it);
+		dict.addSafe(move(name), parseValueOnly());
 	});
-}
-
-string Parser::parseNameJson()
-{
-	nextTag = getTag(++it);
-	string name;
-	if (!parseNameAny(name))
-		throw runtime_error("expected name in supposed Json key-value");
-	skipJunkToTag(it, Tag::C_STRING);
-	++it;
-	return name;
-}
-
-void Parser::addJsonKeyvalue(Dictionary& dict)
-{
-	try
-	{
-		auto name = parseNameJson();
-		skipJunkToTag(it, Tag::LINE_STRING);
-		++it;
-		dict.addSafe(move(name), parseValueEqual());
-	}
-	catch (const runtime_error&)
-	{
-		throw runtime_error("could not parse supposed Json key-value");
-	}
 }
 
 List Parser::parseList()

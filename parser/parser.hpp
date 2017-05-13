@@ -87,11 +87,9 @@ namespace webss
 		//returns true if end of container is met, else false
 		bool parseDocumentHead(std::vector<ParamDocument>& docHead, const Namespace& nspace);
 
-		bool parseNameAny(std::string& name);
+		std::string parseNameDictionary();
 
 		Dictionary parseDictionary();
-		std::string parseNameJson();
-		void addJsonKeyvalue(Dictionary& dict);
 		List parseList();
 		Tuple parseTuple();
 		List parseListText();
