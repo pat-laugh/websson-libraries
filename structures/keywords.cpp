@@ -1,5 +1,5 @@
 //MIT License
-//Copyright(c) 2017 Patrick Laughrea
+//Copyright 2017 Patrick Laughrea
 #include "keywords.hpp"
 
 #include <cassert>
