@@ -83,7 +83,7 @@ namespace webss
 
 		void putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc);
 
-		void putUsingNamespace(StringBuilder& out, const Namespace& nspace);
+		void putUsingAll(StringBuilder& out, const Namespace& nspace);
 
 		void putNamespace(StringBuilder& out, const Namespace& nspace);
 
