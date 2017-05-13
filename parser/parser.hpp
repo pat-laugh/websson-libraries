@@ -89,10 +89,12 @@ namespace webss
 
 		Dictionary parseDictionary();
 		std::string parseNameJson();
+		void addJsonKeyvalue(Dictionary& dict);
 		List parseList();
 		Tuple parseTuple();
 		List parseListText();
 		Tuple parseTupleText();
+
 		Namespace parseNamespace(const std::string& name, const Namespace& previousNamespace);
 		Enum parseEnum(const std::string& name);
 		TemplateHeadScoped parseScopedDocumentHead();
@@ -106,7 +108,6 @@ namespace webss
 
 		//parserKeyValues.cpp
 		NameType parseNameType();
-		void addJsonKeyvalue(Dictionary& dict);
 		Webss parseValueEqual();
 		OtherValue parseOtherValue();
 		OtherValue parseOtherValueName(std::string&& name);
