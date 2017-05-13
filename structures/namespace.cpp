@@ -1,10 +1,10 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "webss.h"
+#include "webss.hpp"
 
-#include <assert.h>
+#include <cassert>
 
-#include "utils.h"
+#include "utils.hpp"
 
 using namespace std;
 using namespace webss;

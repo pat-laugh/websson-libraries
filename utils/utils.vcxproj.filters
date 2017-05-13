@@ -15,25 +15,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="constants.h">
+    <ClInclude Include="constants.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="conType.h">
+    <ClInclude Include="conType.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="iterators.h">
+    <ClInclude Include="iterators.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stringBuilder.h">
+    <ClInclude Include="stringBuilder.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils.h">
+    <ClInclude Include="utils.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utilsWebss.h">
+    <ClInclude Include="utilsWebss.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

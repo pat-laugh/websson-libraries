@@ -128,10 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="serializer.h" />
+    <ClInclude Include="serializer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="serializer.cpp" />

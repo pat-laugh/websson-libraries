@@ -1,12 +1,12 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "utilsSweepers.h"
+#include "utilsSweepers.hpp"
 
-#include <assert.h>
+#include <cassert>
 
-#include "errors.h"
-#include "utils/constants.h"
-#include "utils/utilsWebss.h"
+#include "errors.hpp"
+#include "utils/constants.hpp"
+#include "utils/utilsWebss.hpp"
 
 using namespace std;
 using namespace webss;

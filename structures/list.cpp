@@ -1,8 +1,8 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "list.h"
+#include "list.hpp"
 
-#include "utils.h"
+#include "utils.hpp"
 
 using namespace std;
 using namespace webss;

@@ -127,32 +127,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="base.h" />
-    <ClInclude Include="block.h" />
-    <ClInclude Include="dictionary.h" />
-    <ClInclude Include="document.h" />
-    <ClInclude Include="documentHead.h" />
-    <ClInclude Include="entity.h" />
-    <ClInclude Include="enum.h" />
-    <ClInclude Include="keywords.h" />
-    <ClInclude Include="list.h" />
-    <ClInclude Include="namespace.h" />
-    <ClInclude Include="paramBinary.h" />
-    <ClInclude Include="parameters.h" />
-    <ClInclude Include="paramStandard.h" />
-    <ClInclude Include="sharedMap.h" />
-    <ClInclude Include="template.h" />
-    <ClInclude Include="templateBody.h" />
-    <ClInclude Include="templateHead.h" />
-    <ClInclude Include="templateScoped.h" />
-    <ClInclude Include="tuple.h" />
-    <ClInclude Include="types.h" />
-    <ClInclude Include="typeWebss.h" />
-    <ClInclude Include="utils.h" />
-    <ClInclude Include="webss.h" />
+    <ClInclude Include="base.hpp" />
+    <ClInclude Include="block.hpp" />
+    <ClInclude Include="dictionary.hpp" />
+    <ClInclude Include="document.hpp" />
+    <ClInclude Include="documentHead.hpp" />
+    <ClInclude Include="entity.hpp" />
+    <ClInclude Include="enum.hpp" />
+    <ClInclude Include="keywords.hpp" />
+    <ClInclude Include="list.hpp" />
+    <ClInclude Include="namespace.hpp" />
+    <ClInclude Include="paramBinary.hpp" />
+    <ClInclude Include="parameters.hpp" />
+    <ClInclude Include="paramStandard.hpp" />
+    <ClInclude Include="sharedMap.hpp" />
+    <ClInclude Include="template.hpp" />
+    <ClInclude Include="templateBody.hpp" />
+    <ClInclude Include="templateHead.hpp" />
+    <ClInclude Include="templateScoped.hpp" />
+    <ClInclude Include="tuple.hpp" />
+    <ClInclude Include="types.hpp" />
+    <ClInclude Include="typeWebss.hpp" />
+    <ClInclude Include="utils.hpp" />
+    <ClInclude Include="webss.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="block.cpp" />

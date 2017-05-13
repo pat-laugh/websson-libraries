@@ -127,15 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="constants.h" />
-    <ClInclude Include="conType.h" />
-    <ClInclude Include="iterators.h" />
-    <ClInclude Include="stringBuilder.h" />
-    <ClInclude Include="utils.h" />
-    <ClInclude Include="utilsWebss.h" />
+    <ClInclude Include="constants.hpp" />
+    <ClInclude Include="conType.hpp" />
+    <ClInclude Include="iterators.hpp" />
+    <ClInclude Include="stringBuilder.hpp" />
+    <ClInclude Include="utils.hpp" />
+    <ClInclude Include="utilsWebss.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="conType.cpp" />

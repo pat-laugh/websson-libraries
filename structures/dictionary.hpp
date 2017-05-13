@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 
-#include "webss.h"
+#include "webss.hpp"
 
 namespace webss
 {

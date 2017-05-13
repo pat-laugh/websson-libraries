@@ -15,43 +15,40 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="binaryIterator.h">
+    <ClInclude Include="binaryIterator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="curl.h">
+    <ClInclude Include="containerSwitcher.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="entityManager.h">
+    <ClInclude Include="curl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="errors.h">
+    <ClInclude Include="entityManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="parser.h">
+    <ClInclude Include="errors.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="patternsContainers.h">
+    <ClInclude Include="importManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="unicode.h">
+    <ClInclude Include="paramDocumentIncluder.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utilsNumbers.h">
+    <ClInclude Include="parser.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utilsSweepers.h">
+    <ClInclude Include="patternsContainers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="importManager.h">
+    <ClInclude Include="unicode.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="paramDocumentIncluder.h">
+    <ClInclude Include="utilsNumbers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="containerSwitcher.h">
+    <ClInclude Include="utilsSweepers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

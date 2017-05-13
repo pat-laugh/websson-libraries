@@ -1,10 +1,10 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "parser.h"
+#include "parser.hpp"
 
-#include "errors.h"
-#include "utilsNumbers.h"
-#include "utils/utilsWebss.h"
+#include "errors.hpp"
+#include "utilsNumbers.hpp"
+#include "utils/utilsWebss.hpp"
 
 using namespace std;
 using namespace webss;

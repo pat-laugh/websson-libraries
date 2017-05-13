@@ -4,9 +4,9 @@
 
 #include <memory>
 
-#include "paramBinary.h"
-#include "documentHead.h"
-#include "typeWebss.h"
+#include "paramBinary.hpp"
+#include "documentHead.hpp"
+#include "typeWebss.hpp"
 
 namespace webss
 {

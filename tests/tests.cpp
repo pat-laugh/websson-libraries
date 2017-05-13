@@ -3,8 +3,8 @@
 #include <sstream>
 #include <string>
 
-#include "parser/parser.h"
-#include "serializer/serializer.h"
+#include "parser/parser.hpp"
+#include "serializer/serializer.hpp"
 
 using namespace std;
 using namespace webss;

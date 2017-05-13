@@ -2,9 +2,9 @@
 //Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include "base.h"
-#include "documentHead.h"
-#include "sharedMap.h"
+#include "base.hpp"
+#include "documentHead.hpp"
+#include "sharedMap.hpp"
 
 namespace webss
 {

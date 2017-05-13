@@ -6,19 +6,19 @@
 #include <memory>
 #include <set>
 
-#include "structures/webss.h"
-#include "structures/documentHead.h"
-#include "structures/paramBinary.h"
-#include "structures/tuple.h"
-#include "structures/list.h"
-#include "structures/document.h"
-#include "structures/dictionary.h"
-#include "structures/paramStandard.h"
-#include "structures/block.h"
-#include "structures/templateScoped.h"
-#include "structures/template.h"
-#include "utils/conType.h"
-#include "utils/stringBuilder.h"
+#include "structures/webss.hpp"
+#include "structures/documentHead.hpp"
+#include "structures/paramBinary.hpp"
+#include "structures/tuple.hpp"
+#include "structures/list.hpp"
+#include "structures/document.hpp"
+#include "structures/dictionary.hpp"
+#include "structures/paramStandard.hpp"
+#include "structures/block.hpp"
+#include "structures/templateScoped.hpp"
+#include "structures/template.hpp"
+#include "utils/conType.hpp"
+#include "utils/stringBuilder.hpp"
 
 namespace webss
 {
@@ -82,6 +82,8 @@ namespace webss
 		void putImport(StringBuilder& out, const ImportedDocument& import);
 
 		void putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc);
+
+		void putUsingOne(StringBuilder& out, const Entity& ent, const ImportedDocument& import);
 
 		void putUsingAll(StringBuilder& out, const Namespace& nspace);
 

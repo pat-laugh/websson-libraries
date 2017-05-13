@@ -1,11 +1,11 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "parser.h"
+#include "parser.hpp"
 
 #include <cassert>
 
-#include "utils/constants.h"
-#include "errors.h"
+#include "utils/constants.hpp"
+#include "errors.hpp"
 
 using namespace std;
 using namespace webss;

@@ -1,17 +1,17 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "parser.h"
+#include "parser.hpp"
 
 #include <limits>
 #include <cstdint>
 #include <cmath>
 
-#include "containerSwitcher.h"
-#include "errors.h"
-#include "patternsContainers.h"
-#include "utils/constants.h"
-#include "utils/utilsWebss.h"
-#include "binaryIterator.h"
+#include "containerSwitcher.hpp"
+#include "errors.hpp"
+#include "patternsContainers.hpp"
+#include "utils/constants.hpp"
+#include "utils/utilsWebss.hpp"
+#include "binaryIterator.hpp"
 
 using namespace std;
 using namespace webss;

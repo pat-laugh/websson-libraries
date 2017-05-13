@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "importManager.h"
-#include "parser.h"
+#include "importManager.hpp"
+#include "parser.hpp"
 
 namespace webss
 {

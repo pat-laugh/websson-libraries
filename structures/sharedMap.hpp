@@ -2,13 +2,13 @@
 //Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include <assert.h>
+#include <cassert>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-#include "utils.h"
+#include "utils.hpp"
 
 namespace webss
 {

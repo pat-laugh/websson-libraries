@@ -1,15 +1,15 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "serializer.h"
+#include "serializer.hpp"
 
 #include <cmath>
 #include <cstdio>
 #include <limits>
 #include <type_traits>
 
-#include "utils/constants.h"
-#include "utils/utils.h"
-#include "utils/utilsWebss.h"
+#include "utils/constants.hpp"
+#include "utils/utils.hpp"
+#include "utils/utilsWebss.hpp"
 
 using namespace std;
 using namespace webss;
@@ -569,7 +569,7 @@ void Serializer::putImport(StringBuilder& out, const ImportedDocument& import)
 	if (name.getTypeRaw() == WebssType::PRIMITIVE_STRING)
 		putCstring(out, name.getStringRaw());
 	else
-		putConcreteValue(out, name, con);
+		putConcreteValue(out, name, ConType::DOCUMENT);
 }
 
 void Serializer::putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc)
@@ -578,6 +578,11 @@ void Serializer::putScopedDocument(StringBuilder& out, const ScopedDocument& sco
 	putTheadScoped(out, scopedDoc.head);
 	NamespaceIncluder includer(currentNamespaces, scopedDoc.head.getParameters());
 	static_cast<SerializerTemplate*>(this)->putDocumentHead<ConType::DICTIONARY>(out, scopedDoc.body);
+}
+
+void Serializer::putUsingOne(StringBuilder& out, const Entity& ent, const ImportedDocument& import)
+{
+	//TODO
 }
 
 void Serializer::putUsingAll(StringBuilder& out, const Namespace& nspace)

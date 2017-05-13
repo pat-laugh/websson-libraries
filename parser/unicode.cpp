@@ -1,14 +1,14 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "unicode.h"
+#include "unicode.hpp"
 
 #include <cassert>
 #include <limits>
 
-#include "errors.h"
-#include "utilsNumbers.h"
-#include "utilsSweepers.h"
-#include "utils/utils.h"
+#include "errors.hpp"
+#include "utilsNumbers.hpp"
+#include "utilsSweepers.hpp"
+#include "utils/utils.hpp"
 
 using namespace std;
 using namespace webss;

@@ -1,6 +1,6 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "importManager.h"
+#include "importManager.hpp"
 
 #include <mutex>
 #include <set>
@@ -8,11 +8,11 @@
 #include <string>
 #include <unordered_map>
 
-#include "parser.h"
+#include "parser.hpp"
 
 //#define DISABLE_IMPORT
 #ifndef DISABLE_IMPORT
-#include "curl.h"
+#include "curl.hpp"
 #endif
 
 using namespace std;

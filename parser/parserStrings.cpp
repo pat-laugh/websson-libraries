@@ -1,13 +1,13 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "parser.h"
+#include "parser.hpp"
 
-#include "containerSwitcher.h"
-#include "unicode.h"
-#include "utils/constants.h"
-#include "utils/utils.h"
-#include "utils/utilsWebss.h"
-#include "errors.h"
+#include "containerSwitcher.hpp"
+#include "unicode.hpp"
+#include "utils/constants.hpp"
+#include "utils/utils.hpp"
+#include "utils/utilsWebss.hpp"
+#include "errors.hpp"
 
 using namespace std;
 using namespace webss;

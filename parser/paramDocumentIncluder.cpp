@@ -1,10 +1,10 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "paramDocumentIncluder.h"
+#include "paramDocumentIncluder.hpp"
 
 #include <stdexcept>
 
-#include "parser.h"
+#include "parser.hpp"
 
 using namespace std;
 using namespace webss;

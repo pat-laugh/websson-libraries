@@ -15,76 +15,73 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="base.h">
+    <ClInclude Include="base.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="block.h">
+    <ClInclude Include="block.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dictionary.h">
+    <ClInclude Include="dictionary.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="document.h">
+    <ClInclude Include="document.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="documentHead.h">
+    <ClInclude Include="documentHead.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="entity.h">
+    <ClInclude Include="entity.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="enum.h">
+    <ClInclude Include="enum.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="keywords.h">
+    <ClInclude Include="keywords.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="list.h">
+    <ClInclude Include="list.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="namespace.h">
+    <ClInclude Include="namespace.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="paramBinary.h">
+    <ClInclude Include="paramBinary.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="parameters.h">
+    <ClInclude Include="parameters.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="paramStandard.h">
+    <ClInclude Include="paramStandard.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sharedMap.h">
+    <ClInclude Include="sharedMap.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="template.h">
+    <ClInclude Include="template.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="templateBody.h">
+    <ClInclude Include="templateBody.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="templateHead.h">
+    <ClInclude Include="templateHead.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="templateScoped.h">
+    <ClInclude Include="templateScoped.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tuple.h">
+    <ClInclude Include="tuple.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="types.h">
+    <ClInclude Include="types.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="typeWebss.h">
+    <ClInclude Include="typeWebss.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="webss.h">
+    <ClInclude Include="utils.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils.h">
+    <ClInclude Include="webss.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

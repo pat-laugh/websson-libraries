@@ -4,13 +4,13 @@
 
 #include <string>
 
-#include "base.h"
-#include "enum.h"
-#include "entity.h"
-#include "keywords.h"
-#include "namespace.h"
-#include "types.h"
-#include "typeWebss.h"
+#include "base.hpp"
+#include "enum.hpp"
+#include "entity.hpp"
+#include "keywords.hpp"
+#include "namespace.hpp"
+#include "types.hpp"
+#include "typeWebss.hpp"
 
 namespace webss
 {

@@ -1,6 +1,6 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "paramStandard.h"
+#include "paramStandard.hpp"
 
 using namespace std;
 using namespace webss;

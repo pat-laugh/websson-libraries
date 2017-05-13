@@ -2,21 +2,21 @@
 //Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include "entityManager.h"
-#include "utilsSweepers.h"
-#include "structures/webss.h"
-#include "structures/documentHead.h"
-#include "structures/paramBinary.h"
-#include "structures/tuple.h"
-#include "structures/list.h"
-#include "structures/document.h"
-#include "structures/dictionary.h"
-#include "structures/paramStandard.h"
-#include "structures/block.h"
-#include "structures/templateScoped.h"
-#include "structures/template.h"
-#include "utils/stringBuilder.h"
-#include "utils/constants.h"
+#include "entityManager.hpp"
+#include "utilsSweepers.hpp"
+#include "structures/webss.hpp"
+#include "structures/documentHead.hpp"
+#include "structures/paramBinary.hpp"
+#include "structures/tuple.hpp"
+#include "structures/list.hpp"
+#include "structures/document.hpp"
+#include "structures/dictionary.hpp"
+#include "structures/paramStandard.hpp"
+#include "structures/block.hpp"
+#include "structures/templateScoped.hpp"
+#include "structures/template.hpp"
+#include "utils/stringBuilder.hpp"
+#include "utils/constants.hpp"
 
 namespace webss
 {

@@ -2,7 +2,7 @@
 //Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include "webss.h"
+#include "webss.hpp"
 
 namespace webss
 {

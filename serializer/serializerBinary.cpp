@@ -1,9 +1,9 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "serializer.h"
+#include "serializer.hpp"
 
-#include "utils/constants.h"
-#include "utils/utils.h"
+#include "utils/constants.hpp"
+#include "utils/utils.hpp"
 
 using namespace std;
 using namespace webss;

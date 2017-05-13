@@ -2,7 +2,7 @@
 //Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include "parser.h"
+#include "parser.hpp"
 
 namespace webss
 {

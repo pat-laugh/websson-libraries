@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 
-#include "namespace.h"
+#include "namespace.hpp"
 
 namespace webss
 {

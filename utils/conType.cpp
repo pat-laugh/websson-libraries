@@ -1,8 +1,8 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "conType.h"
+#include "conType.hpp"
 
-#include <assert.h>
+#include <cassert>
 #include <stdexcept>
 
 using namespace std;

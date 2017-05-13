@@ -2,13 +2,13 @@
 //Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include <assert.h>
+#include <cassert>
 #include <limits>
 #include <memory>
 
-#include "keywords.h"
-#include "templateHead.h"
-#include "types.h"
+#include "keywords.hpp"
+#include "templateHead.hpp"
+#include "types.hpp"
 
 namespace webss
 {

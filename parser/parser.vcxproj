@@ -128,21 +128,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="binaryIterator.h" />
-    <ClInclude Include="containerSwitcher.h" />
-    <ClInclude Include="curl.h" />
-    <ClInclude Include="entityManager.h" />
-    <ClInclude Include="errors.h" />
-    <ClInclude Include="importManager.h" />
-    <ClInclude Include="paramDocumentIncluder.h" />
-    <ClInclude Include="parser.h" />
-    <ClInclude Include="patternsContainers.h" />
-    <ClInclude Include="unicode.h" />
-    <ClInclude Include="utilsNumbers.h" />
-    <ClInclude Include="utilsSweepers.h" />
+    <ClInclude Include="binaryIterator.hpp" />
+    <ClInclude Include="containerSwitcher.hpp" />
+    <ClInclude Include="curl.hpp" />
+    <ClInclude Include="entityManager.hpp" />
+    <ClInclude Include="errors.hpp" />
+    <ClInclude Include="importManager.hpp" />
+    <ClInclude Include="paramDocumentIncluder.hpp" />
+    <ClInclude Include="parser.hpp" />
+    <ClInclude Include="patternsContainers.hpp" />
+    <ClInclude Include="unicode.hpp" />
+    <ClInclude Include="utilsNumbers.hpp" />
+    <ClInclude Include="utilsSweepers.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="binaryIterator.cpp" />

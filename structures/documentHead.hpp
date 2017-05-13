@@ -4,11 +4,11 @@
 
 #include <vector>
 
-#include "base.h"
-#include "entity.h"
-#include "namespace.h"
-#include "templateHead.h"
-#include "webss.h"
+#include "base.hpp"
+#include "entity.hpp"
+#include "namespace.hpp"
+#include "templateHead.hpp"
+#include "webss.hpp"
 
 namespace webss
 {

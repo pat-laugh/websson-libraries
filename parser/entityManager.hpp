@@ -6,8 +6,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "structures/entity.h"
-#include "structures/webss.h"
+#include "structures/entity.hpp"
+#include "structures/webss.hpp"
 
 namespace webss
 {

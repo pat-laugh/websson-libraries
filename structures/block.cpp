@@ -1,6 +1,6 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "block.h"
+#include "block.hpp"
 
 using namespace std;
 using namespace webss;

@@ -1,17 +1,17 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "utilsNumbers.h"
+#include "utilsNumbers.hpp"
 
 #include <cassert>
 #include <cmath>
 #include <functional>
 
-#include "errors.h"
-#include "utilsSweepers.h"
-#include "utils/constants.h"
-#include "utils/stringBuilder.h"
-#include "utils/utils.h"
-#include "utils/utilsWebss.h"
+#include "errors.hpp"
+#include "utilsSweepers.hpp"
+#include "utils/constants.hpp"
+#include "utils/stringBuilder.hpp"
+#include "utils/utils.hpp"
+#include "utils/utilsWebss.hpp"
 
 using namespace std;
 using namespace webss;

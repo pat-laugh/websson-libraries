@@ -1,6 +1,6 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "curl.h"
+#include "curl.hpp"
 
 #define CURL_STATICLIB
 

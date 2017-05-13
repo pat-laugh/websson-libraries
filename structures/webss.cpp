@@ -1,17 +1,17 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "webss.h"
+#include "webss.hpp"
 
-#include <assert.h>
+#include <cassert>
 
-#include "dictionary.h"
-#include "list.h"
-#include "tuple.h"
-#include "block.h"
-#include "template.h"
-#include "templateScoped.h"
-#include "document.h"
-#include "paramStandard.h"
+#include "dictionary.hpp"
+#include "list.hpp"
+#include "tuple.hpp"
+#include "block.hpp"
+#include "template.hpp"
+#include "templateScoped.hpp"
+#include "document.hpp"
+#include "paramStandard.hpp"
 
 using namespace std;
 using namespace webss;

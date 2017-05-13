@@ -7,7 +7,7 @@
 #include <thread>
 #include <unordered_map>
 
-#include "structures/webss.h"
+#include "structures/webss.hpp"
 
 namespace webss
 {

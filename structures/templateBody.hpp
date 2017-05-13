@@ -4,12 +4,12 @@
 
 #include <cassert>
 
-#include "base.h"
-#include "dictionary.h"
-#include "list.h"
-#include "tuple.h"
-#include "typeWebss.h"
-#include "webss.h"
+#include "base.hpp"
+#include "dictionary.hpp"
+#include "list.hpp"
+#include "tuple.hpp"
+#include "typeWebss.hpp"
+#include "webss.hpp"
 
 namespace webss
 {

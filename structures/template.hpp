@@ -2,9 +2,9 @@
 //Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include "base.h"
-#include "templateBody.h"
-#include "templateHead.h"
+#include "base.hpp"
+#include "templateBody.hpp"
+#include "templateHead.hpp"
 
 namespace webss
 {

@@ -2,8 +2,8 @@
 //Copyright(c) 2017 Patrick Laughrea
 #pragma once
 
-#include "structures/types.h"
-#include "utils/iterators.h"
+#include "structures/types.hpp"
+#include "utils/iterators.hpp"
 
 namespace webss
 {

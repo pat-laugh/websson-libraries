@@ -1,11 +1,11 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "utilsWebss.h"
+#include "utilsWebss.hpp"
 
 #include <limits>
 
-#include "constants.h"
-#include "utils.h"
+#include "constants.hpp"
+#include "utils.hpp"
 
 using namespace std;
 using namespace webss;

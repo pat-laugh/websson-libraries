@@ -1,6 +1,6 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "typeWebss.h"
+#include "typeWebss.hpp"
 
 using namespace std;
 using namespace webss;

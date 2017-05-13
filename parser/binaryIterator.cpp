@@ -1,11 +1,11 @@
 //MIT License
 //Copyright(c) 2017 Patrick Laughrea
-#include "binaryIterator.h"
+#include "binaryIterator.hpp"
 
-#include <assert.h>
+#include <cassert>
 #include <stdexcept>
 
-#include "utils/stringBuilder.h"
+#include "utils/stringBuilder.hpp"
 
 using namespace std;
 using namespace webss;
