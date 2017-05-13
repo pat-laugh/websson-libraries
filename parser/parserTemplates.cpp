@@ -188,11 +188,7 @@ private:
 		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
 		{
 			string name;
-			if (nextTag == Tag::NAME_START)
-				name = parseName(it);
-			else if (nextTag == Tag::EXPLICIT_NAME)
-				name = parseNameExplicit();
-			else
+			if (!parseNameAny(name))
 				throw runtime_error(ERROR_UNEXPECTED);
 
 			switch (nextTag = getTag(it))

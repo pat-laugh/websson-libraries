@@ -55,39 +55,41 @@ string getItCurrentChar(SmartIterator& it)
 	return out;
 }
 
+bool Parser::parseNameAny(string& name)
+{
+	if (nextTag == Tag::NAME_START)
+		name = parseName(it);
+	else if (nextTag == Tag::EXPLICIT_NAME)
+		name = parseNameExplicit();
+	else
+		return false;
+	return true;
+}
+
 Dictionary Parser::parseDictionary()
 {
 	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
 	{
 		string name;
-		if (nextTag == Tag::NAME_START)
-			name = parseName(it);
-		else if (nextTag == Tag::EXPLICIT_NAME)
-			name = parseNameExplicit();
-		else if (nextTag == Tag::C_STRING)
+		if (parseNameAny(name))
 		{
-			addJsonKeyvalue(dict);
-			return;
+			nextTag = getTag(it);
+			dict.addSafe(move(name), parseValueOnly());
 		}
+		else if (nextTag == Tag::C_STRING)
+			addJsonKeyvalue(dict);
 		else
 			throw runtime_error(ERROR_INPUT_DICTIONARY);
-		nextTag = getTag(it);
-		dict.addSafe(move(name), parseValueOnly());
 	});
 }
 
 string Parser::parseNameJson()
 {
+	nextTag = getTag(++it);
 	string name;
-	auto tag = getTag(++it);
-	if (tag == Tag::NAME_START)
-		name = parseName(it);
-	else if (tag == Tag::EXPLICIT_NAME)
-		name = parseNameExplicit();
-	else
+	if (!parseNameAny(name))
 		throw runtime_error("expected name in supposed Json key-value");
-	if (getTag(it) != Tag::C_STRING)
-		throw runtime_error("expected end quote in supposed Json key-value");
+	skipJunkToTag(it, Tag::C_STRING);
 	++it;
 	return name;
 }
