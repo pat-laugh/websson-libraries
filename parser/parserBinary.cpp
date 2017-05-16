@@ -60,7 +60,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 				bhead = Bhead::makeEntityNumber(checkEntTypeBinarySize(nameType.entity));
 				break;
 			default:
-				throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(nameType.name));
+				throw runtime_error(ERROR_UNDEFINED_KEYNAME(nameType.name));
 			}
 		}
 		else if (nextTag == Tag::NUMBER_START)
@@ -94,7 +94,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 					bhead = Bhead::makeEntityBits(checkEntTypeBinarySizeBits(nameType.entity));
 					break;
 				default:
-					throw runtime_error(webss_ERROR_UNDEFINED_KEYNAME(nameType.name));
+					throw runtime_error(ERROR_UNDEFINED_KEYNAME(nameType.name));
 				}
 			}
 			else if (nextTag == Tag::NUMBER_START)
@@ -195,7 +195,7 @@ Tuple Parser::parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& par
 	BinaryIterator itBin(it);
 	auto tuple = parseBinaryTemplate(itBin, params);
 	if (++it != CLOSE_TUPLE)
-		throw runtime_error(webss_ERROR_EXPECTED_CHAR(CLOSE_TUPLE));
+		throw runtime_error("binary tuple is not closed");
 	++it;
 	return tuple;
 }
