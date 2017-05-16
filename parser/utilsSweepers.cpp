@@ -167,7 +167,7 @@ loopStart:
 		goto loopStart;
 	}
 	if (checkJunkOperators(it))
-		continue;
+		goto loopStart;
 	throw runtime_error(ERROR_UNEXPECTED);
 }
 
