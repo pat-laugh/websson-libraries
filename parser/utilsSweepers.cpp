@@ -161,11 +161,13 @@ loopStart:
 		skipLineJunk(++it);
 		return;
 	}
-	if (isLineJunk(*it)) //only chars allowed between /~ and \n are line-junk
+	if (isLineJunk(*it))
 	{
 		++it;
 		goto loopStart;
 	}
+	if (checkJunkOperators(it))
+		continue;
 	throw runtime_error(ERROR_UNEXPECTED);
 }
 
