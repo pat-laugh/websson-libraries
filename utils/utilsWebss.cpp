@@ -2,12 +2,8 @@
 //Copyright 2017 Patrick Laughrea
 #include "utilsWebss.hpp"
 
-#include <limits>
-
-#include "constants.hpp"
 #include "utils.hpp"
 
-using namespace std;
 using namespace webss;
 
 bool webss::isNameStart(char c)
