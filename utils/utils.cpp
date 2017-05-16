@@ -46,7 +46,7 @@ int webss::hexToInt(char c)
 
 char webss::hexToChar(int c)
 {
-	return (char)c + (c <= 9 ? '0' : 'A' - 10);
+	return (char)c + (c <= 9 ? '0' : 'a' - 10);
 }
 
 bool webss::isControlAscii(char c)
