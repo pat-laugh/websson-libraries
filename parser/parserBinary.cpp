@@ -60,7 +60,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 				bhead = Bhead::makeEntityNumber(checkEntTypeBinarySize(nameType.entity));
 				break;
 			default:
-				throw runtime_error(ERROR_UNDEFINED_KEYNAME(nameType.name));
+				throw runtime_error("undefined entity: " + nameType.name);
 			}
 		}
 		else if (nextTag == Tag::NUMBER_START)
@@ -94,7 +94,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 					bhead = Bhead::makeEntityBits(checkEntTypeBinarySizeBits(nameType.entity));
 					break;
 				default:
-					throw runtime_error(ERROR_UNDEFINED_KEYNAME(nameType.name));
+					throw runtime_error("undefined entity: " + nameType.name);
 				}
 			}
 			else if (nextTag == Tag::NUMBER_START)

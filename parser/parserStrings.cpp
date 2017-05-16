@@ -12,6 +12,8 @@
 using namespace std;
 using namespace webss;
 
+void checkEscapedChar(SmartIterator& it, StringBuilder& line);
+
 inline void putChar(SmartIterator& it, StringBuilder& s)
 {
 	s += *it;
@@ -57,7 +59,7 @@ string Parser::parseLineString()
 		{
 			if (*it == CHAR_ESCAPE)
 			{
-				checkEscapedChar(line);
+				checkEscapedChar(it, line);
 				continue;
 			}
 			else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(line))
@@ -72,7 +74,7 @@ string Parser::parseLineString()
 		{
 			if (*it == CHAR_ESCAPE)
 			{
-				checkEscapedChar(line);
+				checkEscapedChar(it, line);
 				continue;
 			}
 			else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(line))
@@ -101,7 +103,7 @@ loopStart:
 		{
 			if (*it == CHAR_ESCAPE)
 			{
-				checkEscapedChar(text);
+				checkEscapedChar(it, text);
 				addSpace = false;
 				continue;
 			}
@@ -120,7 +122,7 @@ loopStart:
 		{
 			if (*it == CHAR_ESCAPE)
 			{
-				checkEscapedChar(text);
+				checkEscapedChar(it, text);
 				addSpace = false;
 				continue;
 			}
@@ -172,7 +174,7 @@ string Parser::parseCString()
 				continue;
 			break;
 		case CHAR_ESCAPE:
-			checkEscapedChar(cstr);
+			checkEscapedChar(it, cstr);
 			continue;
 		default:
 			break;
@@ -184,7 +186,7 @@ string Parser::parseCString()
 	throw runtime_error("cstring is not closed");
 }
 
-void Parser::checkEscapedChar(StringBuilder& line)
+void checkEscapedChar(SmartIterator& it, StringBuilder& line)
 {
 	if (!++it)
 		throw runtime_error(ERROR_EXPECTED);
