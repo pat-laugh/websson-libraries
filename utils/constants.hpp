@@ -10,6 +10,7 @@ namespace webss
 	const char CHAR_CONCRETE_ENTITY = '?';
 	const char CHAR_CSTRING = '"';
 	const char CHAR_DECIMAL_SEPARATOR = '.';
+	const char CHAR_ENTITY_ESCAPE = '|';
 	const char CHAR_EQUAL = '=';
 	const char CHAR_ESCAPE = '\\';
 	const char CHAR_EXPLICIT_NAME = '$';

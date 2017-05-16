@@ -62,7 +62,7 @@ string Parser::parseLineString()
 				checkEscapedChar(it, sb);
 				continue;
 			}
-			else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(sb))
+			else if (*it == CHAR_ENTITY_ESCAPE && checkStringEntity(sb))
 				continue;
 			putChar(it, sb);
 		}
@@ -77,7 +77,7 @@ string Parser::parseLineString()
 				checkEscapedChar(it, sb);
 				continue;
 			}
-			else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(sb))
+			else if (*it == CHAR_ENTITY_ESCAPE && checkStringEntity(sb))
 				continue;
 			else if (con.isStart(*it))
 				++countStartEnd;
@@ -107,7 +107,7 @@ loopStart:
 				addSpace = false;
 				continue;
 			}
-			else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(sb))
+			else if (*it == CHAR_ENTITY_ESCAPE && checkStringEntity(sb))
 			{
 				addSpace = true;
 				continue;
@@ -128,7 +128,7 @@ loopStart:
 			}
 			else if (*it == OPEN_DICTIONARY)
 				++countStartEnd;
-			else if (*it == CHAR_CONCRETE_ENTITY && checkStringEntity(sb))
+			else if (*it == CHAR_ENTITY_ESCAPE && checkStringEntity(sb))
 			{
 				addSpace = true;
 				continue;
@@ -169,7 +169,7 @@ string Parser::parseCString()
 		case CHAR_CSTRING:
 			++it;
 			return sb;
-		case CHAR_CONCRETE_ENTITY:
+		case CHAR_ENTITY_ESCAPE:
 			if (checkStringEntity(sb))
 				continue;
 			break;
