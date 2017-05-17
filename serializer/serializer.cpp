@@ -460,6 +460,7 @@ void addCharEscape(StringBuilder& out, char c)
 	case '\0': out += '0'; break;
 	case '\a': out += 'a'; break;
 	case '\b': out += 'b'; break;
+	case 0x1b: out += 'c'; break;
 	case '\f': out += 'f'; break;
 	case '\n': out += 'n'; break;
 	case '\r': out += 'r'; break;

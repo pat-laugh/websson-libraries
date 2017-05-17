@@ -200,6 +200,7 @@ void checkEscapedChar(SmartIterator& it, StringBuilder& sb)
 	case '0': sb += '\0'; break;
     case 'a': sb += '\a'; break;
     case 'b': sb += '\b'; break;
+	case 'c': sb += 0x1b; break;
 	case 'e': /* empty */ break;
     case 'f': sb += '\f'; break;
 	case 'n': sb += '\n'; break;
