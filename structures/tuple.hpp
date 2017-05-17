@@ -15,7 +15,6 @@ namespace webss
 		using Data = base::Data;
 		using Keymap = base::Keymap;
 		Tuple();
-		Tuple(Data&& data);
 		Tuple(const std::shared_ptr<Keymap>& keys);
 		Tuple(const std::shared_ptr<Keymap>& keys, const Data& data);
 	};
