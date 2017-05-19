@@ -114,6 +114,7 @@ namespace webss
 		OtherValue checkAbstractEntity(const Entity& ent);
 		void parseOtherValue(std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Entity& abstractEntity)> funcAbstractEntity);
 		Webss parseValueOnly();
+		Entity parseExpandEntity();
 
 		//parserNumbers.cpp
 		Webss parseNumber();

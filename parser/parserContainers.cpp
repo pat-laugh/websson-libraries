@@ -78,7 +78,16 @@ List Parser::parseList()
 {
 	return parseContainer<List, ConType::LIST>(List(), [&](List& list)
 	{
-		list.add(parseValueOnly());
+		if (nextTag == Tag::EXPAND)
+		{
+			auto ent = parseExpandEntity();
+			if (ent.getContent().getType() != WebssType::LIST)
+				throw runtime_error("expand entity in list must be a list");
+			for (const auto& item : ent.getContent().getList())
+				list.add(item);
+		}
+		else
+			list.add(parseValueOnly());
 	});
 }
 
@@ -98,9 +107,19 @@ List Parser::parseListText()
 {
 	return parseContainer<List, ConType::LIST>(List(), [&](List& list)
 	{
-		list.add(parseLineString());
+		if (nextTag == Tag::EXPAND)
+		{
+			auto ent = parseExpandEntity();
+			if (ent.getContent().getType() != WebssType::LIST)
+				throw runtime_error("expand entity in list must be a list");
+			for (const auto& item : ent.getContent().getList())
+				list.add(item);
+		}
+		else
+			list.add(parseLineString());
 	});
 }
+
 Tuple Parser::parseTupleText()
 {
 	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple)
