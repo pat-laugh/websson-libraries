@@ -118,6 +118,41 @@ public:
 					tuple.at(name) = isText ? Webss(parseLineString()) : parseTemplateContainer(params, params.at(name));
 					break;
 				}
+				case Tag::NAME_START:
+					if (isText)
+						tuple.at(index) = Webss(parseLineString());
+					else
+					{
+						auto nameType = parseNameType();
+						if (nameType.type == NameType::NAME)
+						{
+							nextTag = getTag(it);
+							tuple.at(nameType.name) = parseTemplateContainer(params, params.at(nameType.name));
+						}
+						else
+						{
+							if (params.at(index).hasTemplateHead())
+								throw runtime_error(ERROR_UNEXPECTED);
+							switch (nameType.type)
+							{
+							case NameType::KEYWORD:
+								tuple.at(index) = move(nameType.keyword);
+								break;
+							case NameType::ENTITY_ABSTRACT:
+							{
+								auto otherValue = checkAbstractEntity(nameType.entity);
+								if (otherValue.type != OtherValue::VALUE_ONLY)
+									throw runtime_error(ERROR_UNEXPECTED);
+								tuple.at(index) = move(otherValue.value);
+								break;
+							}
+							case NameType::ENTITY_CONCRETE:
+								tuple.at(index) = move(nameType.entity);
+								break;
+							}
+						}
+					}
+					break;
 				default:
 					tuple.at(index) = isText ? Webss(parseLineString()) : parseTemplateContainer(params, params.at(index));
 					break;
