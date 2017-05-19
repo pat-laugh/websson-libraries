@@ -105,7 +105,16 @@ Tuple Parser::parseTupleText()
 {
 	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple)
 	{
-		tuple.add(parseLineString());
+		if (nextTag == Tag::EXPLICIT_NAME)
+		{
+			parseOtherValue(
+				CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
+				ErrorKeyOnly(ERROR_INPUT_TUPLE),
+				ErrorValueOnly(ERROR_INPUT_TUPLE),
+				ErrorAbstractEntity(ERROR_INPUT_TUPLE));
+		}
+		else
+			tuple.add(parseLineString());
 	});
 }
 
