@@ -109,6 +109,40 @@ public:
 			{
 				switch (nextTag)
 				{
+				case Tag::EXPAND:
+				{
+					auto ent = parseExpandEntity();
+					switch (ent.getContent().getType())
+					{
+					case WebssType::DICTIONARY:
+						for (const auto& item : ent.getContent().getDictionary())
+						{
+							tuple.at(item.first) = parseTemplateContainer(params, params.at(item.first));
+							++index;
+						}
+						break;
+					case WebssType::LIST:
+						for (const auto& item : ent.getContent().getList())
+						{
+							tuple.at(index) = parseTemplateContainer(params, params.at(index));
+							++index;
+						}
+						break;
+					case WebssType::TUPLE:
+						for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
+						{
+							if (item.first == nullptr)
+								tuple.at(index) = parseTemplateContainer(params, params.at(index));
+							else
+								tuple.at(*item.first) = parseTemplateContainer(params, params.at(*item.first));
+							++index;
+						}
+						break;
+					default:
+						throw runtime_error("expand entity in tuple must be a dictionary, list, or tuple");
+					}
+					continue;
+				}
 				case Tag::SEPARATOR: //void
 					break;
 				case Tag::EXPLICIT_NAME:

@@ -87,14 +87,12 @@ void Parser::expandTuple(Tuple& tuple)
 			tuple.add(item);
 		break;
 	case WebssType::TUPLE:
-	{
 		for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
 			if (item.first == nullptr)
 				tuple.add(*item.second);
 			else
 				tuple.addSafe(*item.first, *item.second);
 		break;
-	}
 	default:
 		throw runtime_error("expand entity in tuple must be a dictionary, list, or tuple");
 	}
