@@ -73,6 +73,33 @@ void Parser::expandList(List& list)
 		list.add(item);
 }
 
+void Parser::expandTuple(Tuple& tuple)
+{
+	auto ent = parseExpandEntity();
+	switch (ent.getContent().getType())
+	{
+	case WebssType::DICTIONARY:
+		for (const auto& item : ent.getContent().getDictionary())
+			tuple.addSafe(item.first, item.second);
+		break;
+	case WebssType::LIST:
+		for (const auto& item : ent.getContent().getList())
+			tuple.add(item);
+		break;
+	case WebssType::TUPLE:
+	{
+		for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
+			if (item.first == nullptr)
+				tuple.add(*item.second);
+			else
+				tuple.addSafe(*item.first, *item.second);
+		break;
+	}
+	default:
+		throw runtime_error("expand entity in tuple must be a dictionary, list, or tuple");
+	}
+}
+
 string Parser::parseNameDictionary()
 {
 	if (nextTag == Tag::NAME_START)
@@ -112,11 +139,16 @@ Tuple Parser::parseTuple()
 {
 	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple)
 	{
-		parseOtherValue(
-			CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
-			ErrorKeyOnly(ERROR_INPUT_TUPLE),
-			CaseValueOnly{ tuple.add(move(value)); },
-			ErrorAbstractEntity(ERROR_INPUT_TUPLE));
+		if (nextTag == Tag::EXPAND)
+			expandTuple(tuple);
+		else
+		{
+			parseOtherValue(
+				CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
+				ErrorKeyOnly(ERROR_INPUT_TUPLE),
+				CaseValueOnly{ tuple.add(move(value)); },
+				ErrorAbstractEntity(ERROR_INPUT_TUPLE));
+		}
 	});
 }
 
@@ -135,7 +167,9 @@ Tuple Parser::parseTupleText()
 {
 	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple)
 	{
-		if (nextTag == Tag::EXPLICIT_NAME)
+		if (nextTag == Tag::EXPAND)
+			expandTuple(tuple);
+		else if (nextTag == Tag::EXPLICIT_NAME)
 		{
 			parseOtherValue(
 				CaseKeyValue{ tuple.addSafe(move(key), move(value)); },

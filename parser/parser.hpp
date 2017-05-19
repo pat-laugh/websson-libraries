@@ -89,6 +89,7 @@ namespace webss
 
 		void expandDictionary(Dictionary& dict);
 		void expandList(List& list);
+		void expandTuple(Tuple& tuple);
 
 		std::string parseNameDictionary();
 		Dictionary parseDictionary();
