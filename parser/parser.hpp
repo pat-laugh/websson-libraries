@@ -154,6 +154,7 @@ namespace webss
 		Webss parseTemplateBodyText(const TemplateHeadStandard::Parameters& params);
 
 		Webss parseTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue);
+		Webss checkTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue, const Webss& value);
 
 		Tuple parseTemplateTupleStandard(const TemplateHeadStandard::Parameters& params);
 		Tuple parseTemplateTupleText(const TemplateHeadStandard::Parameters& params);

@@ -117,24 +117,21 @@ public:
 					case WebssType::DICTIONARY:
 						for (const auto& item : ent.getContent().getDictionary())
 						{
-							tuple.at(item.first) = parseTemplateContainer(params, params.at(item.first));
+							tuple.at(item.first) = checkTemplateContainer(params, params.at(item.first), item.second);
 							++index;
 						}
 						break;
 					case WebssType::LIST:
 						for (const auto& item : ent.getContent().getList())
 						{
-							tuple.at(index) = parseTemplateContainer(params, params.at(index));
+							tuple.at(index) = checkTemplateContainer(params, params.at(index), item);
 							++index;
 						}
 						break;
 					case WebssType::TUPLE:
-						for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
+						for (const auto& item : ent.getContent().getTuple())
 						{
-							if (item.first == nullptr)
-								tuple.at(index) = parseTemplateContainer(params, params.at(index));
-							else
-								tuple.at(*item.first) = parseTemplateContainer(params, params.at(*item.first));
+							tuple.at(index) = checkTemplateContainer(params, params.at(index), item);
 							++index;
 						}
 						break;
@@ -406,4 +403,43 @@ Tuple Parser::parseTemplateTupleStandard(const TemplateHeadStandard::Parameters&
 Tuple Parser::parseTemplateTupleText(const TemplateHeadStandard::Parameters& params)
 {
 	return static_cast<ParserTemplates*>(this)->parseTemplateTuple<true>(params);
+}
+
+
+
+Webss Parser::checkTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& param, const Webss& value)
+{
+	switch (param.getTypeThead())
+	{
+	case WebssType::TEMPLATE_HEAD_BINARY:
+		throw runtime_error("can't expand for a binary template");
+	case WebssType::TEMPLATE_HEAD_SCOPED:
+		throw runtime_error("can't expand for a scoped template");
+	case WebssType::TEMPLATE_HEAD_SELF:
+		throw runtime_error("can't expand for a self template");
+	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
+		switch (value.getType())
+		{
+		case WebssType::DICTIONARY:
+			//...
+		case WebssType::LIST:
+			//...
+		case WebssType::TUPLE:
+		{
+			const auto& params2 = param.getTemplateHeadStandard().getParameters();
+			Tuple tuple(params2.getSharedKeys());
+			Tuple::size_type index = 0;
+			const auto& valueTuple = value.getTuple();
+			if (valueTuple.size() > tuple.size())
+				throw runtime_error("tuple to implement is too big");
+			for (Tuple::size_type i = 0; i < valueTuple.size(); ++i)
+				tuple[index] = checkTemplateContainer(params2, params2[i], valueTuple[i]);
+			return tuple;
+		}
+		default:
+			throw runtime_error("template head must be implemented");
+		}
+	default:
+		return value;
+	}
 }
