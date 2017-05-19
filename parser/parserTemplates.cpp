@@ -222,23 +222,28 @@ private:
 	{
 		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
 		{
-			string name = parseNameDictionary();
-			switch (nextTag = getTag(it))
+			if (nextTag == Tag::EXPAND)
+				expandDictionary(dict);
+			else
 			{
-			case Tag::START_LIST:
-				dict.addSafe(move(name), parseTemplateList<Parameters>(params, move(funcTemplTupleRegular), move(funcTemplTupleText)));
-				break;
-			case Tag::START_TUPLE:
-				dict.addSafe(move(name), funcTemplTupleRegular(params));
-				break;
-			case Tag::TEXT_TUPLE:
-				dict.addSafe(move(name), funcTemplTupleText(params));
-				break;
-			case Tag::NAME_START:
-				dict.addSafe(move(name), checkTemplateBodyEntity(params, WebssType::LIST));
-				break;
-			default:
-				throw runtime_error(ERROR_UNEXPECTED);
+				string name = parseNameDictionary();
+				switch (nextTag = getTag(it))
+				{
+				case Tag::START_LIST:
+					dict.addSafe(move(name), parseTemplateList<Parameters>(params, move(funcTemplTupleRegular), move(funcTemplTupleText)));
+					break;
+				case Tag::START_TUPLE:
+					dict.addSafe(move(name), funcTemplTupleRegular(params));
+					break;
+				case Tag::TEXT_TUPLE:
+					dict.addSafe(move(name), funcTemplTupleText(params));
+					break;
+				case Tag::NAME_START:
+					dict.addSafe(move(name), checkTemplateBodyEntity(params, WebssType::LIST));
+					break;
+				default:
+					throw runtime_error(ERROR_UNEXPECTED);
+				}
 			}
 		});
 	}
@@ -248,14 +253,23 @@ private:
 	{
 		return parseContainer<List, ConType::LIST>(List(), [&](List& list)
 		{
-			if (nextTag == Tag::START_TUPLE)
+			switch (nextTag)
+			{
+			case Tag::EXPAND:
+				expandList(list);
+				break;
+			case Tag::START_TUPLE:
 				list.add(funcTemplTupleRegular(params));
-			else if (nextTag == Tag::TEXT_TUPLE)
+				break;
+			case Tag::TEXT_TUPLE:
 				list.add(funcTemplTupleText(params));
-			else if (nextTag == Tag::NAME_START)
+				break;
+			case Tag::NAME_START:
 				list.add(checkTemplateBodyEntity(params, WebssType::TUPLE));
-			else
+				break;
+			default:
 				throw runtime_error(ERROR_UNEXPECTED);
+			}
 		});
 	}
 };

@@ -55,6 +55,24 @@ string getItCurrentChar(SmartIterator& it)
 	return out;
 }
 
+void Parser::expandDictionary(Dictionary& dict)
+{
+	auto ent = parseExpandEntity();
+	if (ent.getContent().getType() != WebssType::DICTIONARY)
+		throw runtime_error("expand entity in dictionary must be a dictionary");
+	for (const auto& item : ent.getContent().getDictionary())
+		dict.addSafe(item.first, item.second);
+}
+
+void Parser::expandList(List& list)
+{
+	auto ent = parseExpandEntity();
+	if (ent.getContent().getType() != WebssType::LIST)
+		throw runtime_error("expand entity in list must be a list");
+	for (const auto& item : ent.getContent().getList())
+		list.add(item);
+}
+
 string Parser::parseNameDictionary()
 {
 	if (nextTag == Tag::NAME_START)
@@ -68,9 +86,14 @@ Dictionary Parser::parseDictionary()
 {
 	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
 	{
-		string name = parseNameDictionary();
-		nextTag = getTag(it);
-		dict.addSafe(move(name), parseValueOnly());
+		if (nextTag == Tag::EXPAND)
+			expandDictionary(dict);
+		else
+		{
+			string name = parseNameDictionary();
+			nextTag = getTag(it);
+			dict.addSafe(move(name), parseValueOnly());
+		}
 	});
 }
 
@@ -79,13 +102,7 @@ List Parser::parseList()
 	return parseContainer<List, ConType::LIST>(List(), [&](List& list)
 	{
 		if (nextTag == Tag::EXPAND)
-		{
-			auto ent = parseExpandEntity();
-			if (ent.getContent().getType() != WebssType::LIST)
-				throw runtime_error("expand entity in list must be a list");
-			for (const auto& item : ent.getContent().getList())
-				list.add(item);
-		}
+			expandList(list);
 		else
 			list.add(parseValueOnly());
 	});
@@ -108,13 +125,7 @@ List Parser::parseListText()
 	return parseContainer<List, ConType::LIST>(List(), [&](List& list)
 	{
 		if (nextTag == Tag::EXPAND)
-		{
-			auto ent = parseExpandEntity();
-			if (ent.getContent().getType() != WebssType::LIST)
-				throw runtime_error("expand entity in list must be a list");
-			for (const auto& item : ent.getContent().getList())
-				list.add(item);
-		}
+			expandList(list);
 		else
 			list.add(parseLineString());
 	});
