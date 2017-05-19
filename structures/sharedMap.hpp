@@ -26,7 +26,6 @@ namespace webss
 		using const_reverse_iterator = typename Data::const_reverse_iterator;
 
 		This() : keys(new Keymap()) {}
-		This(Data&& data) : keys(nullptr), data(std::move(data)) {}
 		This(const std::shared_ptr<Keymap>& keys) : keys(keys), data(keys->size()) {}
 		This(const std::shared_ptr<Keymap>& keys, const Data& data) : keys(keys), data(data) {}
 
