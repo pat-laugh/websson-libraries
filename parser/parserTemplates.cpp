@@ -121,14 +121,14 @@ public:
 							++index;
 						}
 						break;
-					case WebssType::LIST:
+					case WebssType::LIST: case WebssType::LIST_TEXT:
 						for (const auto& item : ent.getContent().getList())
 						{
 							tuple.at(index) = checkTemplateContainer(params, params.at(index), item);
 							++index;
 						}
 						break;
-					case WebssType::TUPLE:
+					case WebssType::TUPLE: case WebssType::TUPLE_TEXT: case WebssType::TUPLE_ABSTRACT:
 						for (const auto& item : ent.getContent().getTuple())
 						{
 							tuple.at(index) = checkTemplateContainer(params, params.at(index), item);

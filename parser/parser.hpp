@@ -89,7 +89,7 @@ namespace webss
 
 		void expandDictionary(Dictionary& dict);
 		void expandList(List& list);
-		void expandTuple(Tuple& tuple);
+		void expandTuple(Tuple& tuple, bool isAbstract = false);
 
 		std::string parseNameDictionary();
 		Dictionary parseDictionary();
@@ -97,6 +97,7 @@ namespace webss
 		Tuple parseTuple();
 		List parseListText();
 		Tuple parseTupleText();
+		Tuple parseTupleAbstract();
 
 		Namespace parseNamespace(const std::string& name, const Namespace& previousNamespace);
 		Enum parseEnum(const std::string& name);

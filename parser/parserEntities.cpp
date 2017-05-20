@@ -23,9 +23,11 @@ Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 	switch (nextTag = getTag(it))
 	{
 	case Tag::START_DICTIONARY:
-		return Entity(move(name), parseNamespace(name, currentNamespace));
+		return Entity(name, parseNamespace(name, currentNamespace));
 	case Tag::START_LIST:
-		return Entity(move(name), parseEnum(name));
+		return Entity(name, parseEnum(name));
+	case Tag::START_TUPLE:
+		return Entity(move(name), Webss(parseTupleAbstract(), true, true));
 	case Tag::START_TEMPLATE:
 		return Entity(move(name), parseTemplateHead());
 	case Tag::TEXT_TEMPLATE:

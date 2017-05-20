@@ -67,13 +67,13 @@ void Parser::expandDictionary(Dictionary& dict)
 void Parser::expandList(List& list)
 {
 	auto ent = parseExpandEntity();
-	if (ent.getContent().getType() != WebssType::LIST)
+	if (ent.getContent().getType() != WebssType::LIST && ent.getContent().getType() != WebssType::LIST_TEXT)
 		throw runtime_error("expand entity in list must be a list");
 	for (const auto& item : ent.getContent().getList())
 		list.add(item);
 }
 
-void Parser::expandTuple(Tuple& tuple)
+void Parser::expandTuple(Tuple& tuple, bool isAbstract)
 {
 	auto ent = parseExpandEntity();
 	switch (ent.getContent().getType())
@@ -82,11 +82,14 @@ void Parser::expandTuple(Tuple& tuple)
 		for (const auto& item : ent.getContent().getDictionary())
 			tuple.addSafe(item.first, item.second);
 		break;
-	case WebssType::LIST:
+	case WebssType::LIST: case WebssType::LIST_TEXT:
 		for (const auto& item : ent.getContent().getList())
 			tuple.add(item);
 		break;
-	case WebssType::TUPLE:
+	case WebssType::TUPLE_ABSTRACT:
+		if (!isAbstract)
+			throw runtime_error("can't expand abstract tuple within a concrete tuple");
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
 			if (item.first == nullptr)
 				tuple.add(*item.second);
@@ -178,6 +181,35 @@ Tuple Parser::parseTupleText()
 		else
 			tuple.add(parseLineString());
 	});
+}
+
+Tuple Parser::parseTupleAbstract()
+{
+	ContainerSwitcher switcher(*this, ConType::TUPLE, true);
+	Tuple tuple;
+	if (!containerEmpty())
+	{
+		do
+		{
+			switch (nextTag)
+			{
+			case Tag::EXPAND:
+				expandTuple(tuple, true);
+				break;
+			case Tag::SEPARATOR: //void
+				tuple.add(Webss());
+				break;
+			default:
+				parseOtherValue(
+					CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
+					ErrorKeyOnly(ERROR_INPUT_TUPLE),
+					CaseValueOnly{ tuple.add(move(value)); },
+					ErrorAbstractEntity(ERROR_INPUT_TUPLE));
+				break;
+			}
+		} while (checkNextElement());
+	}
+	return tuple;
 }
 
 Namespace Parser::parseNamespace(const string& name, const Namespace& previousNamespace)
