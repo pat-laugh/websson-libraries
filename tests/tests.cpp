@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "parser/parser.hpp"
 #include "serializer/serializer.hpp"
@@ -20,50 +21,53 @@ int main()
 	do
 #endif
 	{
-		string filename("strings");
-		Document data;
-		string filenameIn("files-in/" + filename + ".wbsn");
-		string filenameOut(filename + ".wbsnout");
-		string filenameExpected("files-expected/" + filename + ".wbsn");
-
-		cout << "Input: " << filenameIn << endl;
-
-		ifstream fileIn(filenameIn, ios::binary);
-		if (fileIn.fail()) { cerr << "Error: failed to open file \"" << filenameIn << "\"" << endl; cin >> inChar; exit(EXIT_FAILURE); }
-		try
+		vector<string> filenames { "strings", "abstractTuple" };
+		for (const auto& filename : filenames)
 		{
-			Parser parser(fileIn);
-			data = parser.parseDocument();
-			cout << "No errors while parsing" << endl;
+			Document data;
+			string filenameIn("files-in/" + filename + ".wbsn");
+			string filenameOut(filename + ".wbsnout");
+			string filenameExpected("files-expected/" + filename + ".wbsn");
 
-			ofstream fileOut(filenameOut, ios::binary);
-			if (fileOut.fail()) { cerr << "Error: failed to open file \"" << filenameOut << "\"" << endl; cin >> inChar; exit(EXIT_FAILURE); }
+			cout << "Input: " << filenameIn << endl;
+
+			ifstream fileIn(filenameIn, ios::binary);
+			if (fileIn.fail()) { cerr << "Error: failed to open file \"" << filenameIn << "\"" << endl; cin >> inChar; exit(EXIT_FAILURE); }
 			try
 			{
-				auto output = Serializer::serialize(data);
-				fileOut << output;
-				fileOut.flush();
-				ifstream fileExpected(filenameExpected, ios::binary);
-				if (fileExpected.fail()) { cerr << "Error: failed to open file \"" << filenameExpected << "\"" << endl; cin >> inChar; exit(EXIT_FAILURE); }
-				stringstream ss;
-				ss << fileExpected.rdbuf();
-				if (ss.str() != output)
-					cout << "Serialization is not as expected" << endl;
-				else
-					cout << "No errors while serializing" << endl;
-				fileExpected.close();
+				Parser parser(fileIn);
+				data = parser.parseDocument();
+				cout << "No errors while parsing" << endl;
+
+				ofstream fileOut(filenameOut, ios::binary);
+				if (fileOut.fail()) { cerr << "Error: failed to open file \"" << filenameOut << "\"" << endl; cin >> inChar; exit(EXIT_FAILURE); }
+				try
+				{
+					auto output = Serializer::serialize(data);
+					fileOut << output;
+					fileOut.flush();
+					ifstream fileExpected(filenameExpected, ios::in);
+					if (fileExpected.fail()) { cerr << "Error: failed to open file \"" << filenameExpected << "\"" << endl; cin >> inChar; exit(EXIT_FAILURE); }
+					stringstream ss;
+					ss << fileExpected.rdbuf();
+					if (ss.str() != output)
+						cout << "Serialization is not as expected" << endl;
+					else
+						cout << "No errors while serializing" << endl;
+					fileExpected.close();
+				}
+				catch (const exception& e)
+				{
+					cout << "Serialization failed: " << e.what() << endl;
+				}
+				fileOut.close();
 			}
 			catch (const exception& e)
 			{
-				cout << "Serialization failed: " << e.what() << endl;
+				cout << "Parse failed: " << e.what() << endl;
 			}
-			fileOut.close();
+			fileIn.close();
 		}
-		catch (const exception& e)
-		{
-			cout << "Parse failed: " << e.what() << endl;
-		}
-		fileIn.close();
 #ifdef TEST_PERFORMANCE
 	}
 #else

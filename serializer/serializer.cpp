@@ -48,7 +48,7 @@ void putSeparatedValues(StringBuilder& out, const Container& cont, function<void
 		output(it);
 		while (++it != cont.end())
 		{
-			out += '\n';
+			out += CHAR_SEPARATOR;
 			output(it);
 		}
 	}
@@ -275,7 +275,10 @@ void Serializer::putDocument(StringBuilder& out, const Document& doc)
 	static const auto CON = ConType::DOCUMENT;
 
 	if (doc.getHead().size() > 0)
+	{
 		putDocumentHead(out, doc.getHead());
+		out += "\n\n";
+	}
 
 	using Type = decltype(doc.getOrderedKeyValues());
 	putSeparatedValues<Type, CON>(out, doc.getOrderedKeyValues(), [&](Type::const_iterator it)
@@ -351,6 +354,9 @@ void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 		break;
 	case WebssType::BLOCK_HEAD:
 		putBlockHead(out, webss.getBlockHeadRaw());
+		break;
+	case WebssType::TUPLE_ABSTRACT:
+		putTupleAbstract(out, webss.getTupleRaw());
 		break;
 	default:
 		assert(false && "type is not an abstract value");
@@ -658,6 +664,27 @@ void Serializer::putTupleText(StringBuilder& out, const Tuple& tuple)
 	static const auto CON = ConType::TUPLE;
 	out += ASSIGN_CONTAINER_STRING;
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it) { putLineString(out, it->getString(), CON); });
+}
+
+void Serializer::putTupleAbstract(StringBuilder& out, const Tuple& tuple)
+{
+	static const auto CON = ConType::TUPLE;
+	using Type = decltype(tuple.getOrderedKeyValues());
+	putSeparatedValues<Type, CON>(out, tuple.getOrderedKeyValues(), [&](Type::const_iterator it)
+	{
+		if (it->second->getTypeRaw() != WebssType::NONE)
+		{
+			if (it->second->isConcrete())
+			{
+				if (it->first == nullptr)
+					putConcreteValue(out, *it->second, CON);
+				else
+					putKeyValue(out, *it->first, *it->second, CON);
+			}
+			else if (it->second->getType() == WebssType::TUPLE_ABSTRACT)
+				putAbstractValue(out, *it->second);
+		}
+	});
 }
 
 void Serializer::putTheadScoped(StringBuilder& out, const TemplateHeadScoped& thead)

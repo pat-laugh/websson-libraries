@@ -78,6 +78,7 @@ namespace webss
 		void putListText(StringBuilder& out, const List& list);
 		void putTuple(StringBuilder& out, const Tuple& tuple);
 		void putTupleText(StringBuilder& out, const Tuple& tuple);
+		void putTupleAbstract(StringBuilder& out, const Tuple& tuple);
 
 		void putImport(StringBuilder& out, const ImportedDocument& import);
 
