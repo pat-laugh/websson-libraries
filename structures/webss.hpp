@@ -58,6 +58,7 @@ namespace webss
 		Webss(TemplateStandard templStandard, bool);
 		Webss(BlockHead bhead);
 		Webss(Block block);
+		Webss(Tuple tuple, bool, bool);
 
 		Webss(TemplateHeadSelf);
 
@@ -177,6 +178,7 @@ namespace webss
 		bool isEnum() const;
 		bool isBlockHead() const;
 		bool isBlock() const;
+		bool isTupleAbstract() const;
 
 		bool isAbstract() const;
 		bool isConcrete() const;

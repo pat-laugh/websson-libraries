@@ -66,6 +66,8 @@ string WebssType::toString() const
 		return "block head";
 	case WebssType::BLOCK:
 		return "block";
+	case WebssType::TUPLE_ABSTRACT:
+		return "tuple abstract";
 	default:
 		return "unknown";
 	}
