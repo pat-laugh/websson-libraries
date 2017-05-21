@@ -34,16 +34,12 @@ void setDefaultValue(Webss& value, const ParamStandard& defaultValue)
 		value = Webss(defaultValue.getDefaultPointer());
 }
 
-template <class Parameters>
-void checkDefaultValues(Tuple& tuple, const Parameters& params)
+void checkDefaultValues(Tuple& tuple, const TemplateHeadStandard::Parameters& params)
 {
 	for (Tuple::size_type index = 0; index < tuple.size(); ++index)
 		if (tuple.at(index).getTypeRaw() == WebssType::NONE)
 			setDefaultValue(tuple[index], params[index]);
 }
-
-template <>
-void checkDefaultValues<TemplateHeadBinary::Parameters>(Tuple&, const TemplateHeadBinary::Parameters&) {} //already checked while parsing binary
 
 class ParserTemplates : public Parser
 {
@@ -73,8 +69,6 @@ public:
 			return funcTemplTupleRegular(params);
 		case Tag::TEXT_TUPLE:
 			return funcTemplTupleText(params);
-		case Tag::NAME_START:
-			return checkTemplateBodyEntity(params, WebssType::DICTIONARY);
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
@@ -183,58 +177,6 @@ public:
 
 private:
 	template <class Parameters>
-	Webss checkTemplateBodyEntity(const Parameters& params, WebssType filter)
-	{
-		auto value = parseValueOnly();
-		switch (value.getType())
-		{
-		case WebssType::DICTIONARY:
-			if (filter != WebssType::DICTIONARY)
-				throw runtime_error(ERROR_UNEXPECTED);
-			return checkTemplateBodyEntityDict(params, value.getDictionary());
-		case WebssType::LIST:
-			if (filter == WebssType::TUPLE)
-				throw runtime_error(ERROR_UNEXPECTED);
-			return checkTemplateBodyEntityList(params, value.getList());
-		case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
-			return checkTemplateBodyEntityTuple(params, value.getTuple());
-		default:
-			throw runtime_error("expected entity with template body structure");
-		}
-	}
-
-	template <class Parameters>
-	Dictionary checkTemplateBodyEntityDict(const Parameters& params, const Dictionary& entityDict)
-	{
-		Dictionary dict;
-		for (const auto& keyValue : entityDict)
-		{
-			if (keyValue.second.isList())
-				dict.add(keyValue.first, checkTemplateBodyEntityList(params, keyValue.second.getList()));
-			else
-				dict.add(keyValue.first, checkTemplateBodyEntityTuple(params, keyValue.second.getTuple()));
-		}
-		return dict;
-	}
-
-	template <class Parameters>
-	List checkTemplateBodyEntityList(const Parameters& params, const List& entityList)
-	{
-		List list;
-		for (const auto& elem : entityList)
-			list.add(checkTemplateBodyEntityTuple(params, elem.getTuple()));
-		return list;
-	}
-
-	template <class Parameters>
-	Tuple checkTemplateBodyEntityTuple(const Parameters& params, const Tuple& entityTuple)
-	{
-		Tuple tuple(params.getSharedKeys(), entityTuple.getData());
-		checkDefaultValues(tuple, params);
-		return tuple;
-	}
-
-	template <class Parameters>
 	Dictionary parseTemplateDictionary(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
 		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
@@ -254,9 +196,6 @@ private:
 					break;
 				case Tag::TEXT_TUPLE:
 					dict.addSafe(move(name), funcTemplTupleText(params));
-					break;
-				case Tag::NAME_START:
-					dict.addSafe(move(name), checkTemplateBodyEntity(params, WebssType::LIST));
 					break;
 				default:
 					throw runtime_error(ERROR_UNEXPECTED);
@@ -280,9 +219,6 @@ private:
 				break;
 			case Tag::TEXT_TUPLE:
 				list.add(funcTemplTupleText(params));
-				break;
-			case Tag::NAME_START:
-				list.add(checkTemplateBodyEntity(params, WebssType::TUPLE));
 				break;
 			default:
 				throw runtime_error(ERROR_UNEXPECTED);
