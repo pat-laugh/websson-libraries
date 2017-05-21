@@ -133,6 +133,7 @@
     <ClInclude Include="curl.hpp" />
     <ClInclude Include="entityManager.hpp" />
     <ClInclude Include="errors.hpp" />
+    <ClInclude Include="utilsExpand.hpp" />
     <ClInclude Include="importManager.hpp" />
     <ClInclude Include="nameType.hpp" />
     <ClInclude Include="paramDocumentIncluder.hpp" />
@@ -160,6 +161,7 @@
     <ClCompile Include="parserTemplateHead.cpp" />
     <ClCompile Include="parserTemplates.cpp" />
     <ClCompile Include="unicode.cpp" />
+    <ClCompile Include="utilsExpand.cpp" />
     <ClCompile Include="utilsNumbers.cpp" />
     <ClCompile Include="utilsSweepers.cpp" />
   </ItemGroup>

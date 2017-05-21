@@ -11,7 +11,7 @@ NameType::NameType(string&& name) : type(Type::NAME), name(std::move(name)) {}
 NameType::NameType(Keyword keyword) : type(Type::KEYWORD), keyword(keyword) {}
 NameType::NameType(const Entity& entity) : type(entity.getContent().isAbstract() ? Type::ENTITY_ABSTRACT : Type::ENTITY_CONCRETE), entity(entity) {}
 
-NameType webss::parseNameType(SmartIterator& it, EntityManager& ents)
+NameType webss::parseNameType(SmartIterator& it, const EntityManager& ents)
 {
 	string name = parseName(it);
 	if (isKeyword(name))

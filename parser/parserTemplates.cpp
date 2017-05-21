@@ -7,6 +7,7 @@
 #include "nameType.hpp"
 #include "paramDocumentIncluder.hpp"
 #include "patternsContainers.hpp"
+#include "utilsExpand.hpp"
 #include "utils/utilsWebss.hpp"
 
 using namespace std;
@@ -108,7 +109,7 @@ public:
 					break;
 				case Tag::EXPAND:
 				{
-					auto ent = parseExpandEntity();
+					auto ent = parseExpandEntity(it, ents);
 					switch (ent.getContent().getType())
 					{
 					case WebssType::TUPLE: case WebssType::TUPLE_TEXT: case WebssType::TUPLE_ABSTRACT:
@@ -180,7 +181,7 @@ private:
 	template <class Parameters>
 	void expandTemplateDictionary(const Parameters& params, Dictionary& dict)
 	{
-		auto ent = parseExpandEntity();
+		auto ent = parseExpandEntity(it, ents);
 		if (ent.getContent().getType() != WebssType::DICTIONARY)
 			throw runtime_error("expand entity in dictionary must be a dictionary");
 		for (const auto& item : ent.getContent().getDictionary())
@@ -190,7 +191,7 @@ private:
 	template <class Parameters>
 	void expandTemplateList(const Parameters& params, List& list)
 	{
-		auto ent = parseExpandEntity();
+		auto ent = parseExpandEntity(it, ents);
 		if (ent.getContent().getType() != WebssType::LIST && ent.getContent().getType() != WebssType::LIST_TEXT)
 			throw runtime_error("expand entity in list must be a list");
 		for (const auto& item : ent.getContent().getList())

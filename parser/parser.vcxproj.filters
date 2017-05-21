@@ -54,6 +54,9 @@
     <ClInclude Include="nameType.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="utilsExpand.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="parser.cpp">
@@ -111,6 +114,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="nameType.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utilsExpand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -8,6 +8,7 @@
 #include "nameType.hpp"
 #include "paramDocumentIncluder.hpp"
 #include "patternsContainers.hpp"
+#include "utilsExpand.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
 
@@ -56,44 +57,6 @@ string getItCurrentChar(SmartIterator& it)
 	return out;
 }
 
-void Parser::expandDictionary(Dictionary& dict)
-{
-	auto ent = parseExpandEntity();
-	if (ent.getContent().getType() != WebssType::DICTIONARY)
-		throw runtime_error("expand entity in dictionary must be a dictionary");
-	for (const auto& item : ent.getContent().getDictionary())
-		dict.addSafe(item.first, item.second);
-}
-
-void Parser::expandList(List& list)
-{
-	auto ent = parseExpandEntity();
-	if (ent.getContent().getType() != WebssType::LIST && ent.getContent().getType() != WebssType::LIST_TEXT)
-		throw runtime_error("expand entity in list must be a list");
-	for (const auto& item : ent.getContent().getList())
-		list.add(item);
-}
-
-void Parser::expandTuple(Tuple& tuple, bool isAbstract)
-{
-	auto ent = parseExpandEntity();
-	switch (ent.getContent().getType())
-	{
-	case WebssType::TUPLE_ABSTRACT:
-		if (!isAbstract)
-			throw runtime_error("can't expand abstract tuple within a concrete tuple");
-	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
-		for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
-			if (item.first == nullptr)
-				tuple.add(*item.second);
-			else
-				tuple.addSafe(*item.first, *item.second);
-		break;
-	default:
-		throw runtime_error("expand entity in tuple must be a tuple");
-	}
-}
-
 string Parser::parseNameDictionary()
 {
 	if (nextTag == Tag::NAME_START)
@@ -108,7 +71,7 @@ Dictionary Parser::parseDictionary()
 	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
 	{
 		if (nextTag == Tag::EXPAND)
-			expandDictionary(dict);
+			expandDictionary(dict, it, ents);
 		else
 		{
 			string name = parseNameDictionary();
@@ -123,7 +86,7 @@ List Parser::parseList()
 	return parseContainer<List, ConType::LIST>(List(), [&](List& list)
 	{
 		if (nextTag == Tag::EXPAND)
-			expandList(list);
+			expandList(list, it, ents);
 		else
 			list.add(parseValueOnly());
 	});
@@ -134,7 +97,7 @@ Tuple Parser::parseTuple()
 	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple)
 	{
 		if (nextTag == Tag::EXPAND)
-			expandTuple(tuple);
+			expandTuple(tuple, it, ents);
 		else
 		{
 			parseOtherValue(
@@ -151,7 +114,7 @@ List Parser::parseListText()
 	return parseContainer<List, ConType::LIST>(List(), [&](List& list)
 	{
 		if (nextTag == Tag::EXPAND)
-			expandList(list);
+			expandList(list, it, ents);
 		else
 			list.add(parseLineString());
 	});
@@ -162,7 +125,7 @@ Tuple Parser::parseTupleText()
 	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple)
 	{
 		if (nextTag == Tag::EXPAND)
-			expandTuple(tuple);
+			expandTuple(tuple, it, ents);
 		else if (nextTag == Tag::EXPLICIT_NAME)
 		{
 			parseOtherValue(
@@ -190,7 +153,7 @@ Tuple Parser::parseTupleAbstract()
 				tuple.add(Webss());
 				break;
 			case Tag::EXPAND:
-				expandTuple(tuple, true);
+				expandTuple(tuple, it, ents, true);
 				break;
 			default:
 				parseOtherValue(

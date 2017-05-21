@@ -140,13 +140,3 @@ Webss Parser::parseValueOnly()
 		throw runtime_error("expected value-only");
 	return move(otherValue.value);
 }
-
-Entity Parser::parseExpandEntity()
-{
-	if (!++it || !isNameStart(*it))
-		throw runtime_error("expected entity");
-	auto nameType = parseNameType(it, ents);
-	if (nameType.type != NameType::Type::ENTITY_CONCRETE && nameType.type != NameType::Type::ENTITY_ABSTRACT)
-		throw runtime_error("expected entity");
-	return move(nameType.entity);
-}

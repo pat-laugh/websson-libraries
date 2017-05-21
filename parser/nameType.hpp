@@ -26,5 +26,5 @@ namespace webss
 		Entity entity;
 	};
 
-	NameType parseNameType(SmartIterator& it, EntityManager& ents);
+	NameType parseNameType(SmartIterator& it, const EntityManager& ents);
 }
