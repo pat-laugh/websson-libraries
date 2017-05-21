@@ -127,8 +127,6 @@ namespace webss
 		std::string parseLineString();
 		std::string parseMultilineString();
 		std::string parseCString();
-		bool checkStringEntity(StringBuilder& line);
-		const std::string& parseStringEntity();
 
 		//parserEntities.cpp
 		Entity parseConcreteEntity();

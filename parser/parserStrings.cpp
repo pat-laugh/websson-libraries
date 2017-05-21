@@ -13,41 +13,11 @@ using namespace std;
 using namespace webss;
 
 void checkEscapedChar(SmartIterator& it, StringBuilder& sb);
-
-inline void putChar(SmartIterator& it, StringBuilder& sb)
-{
-	sb += *it;
-	++it;
-}
-
-bool isEnd(SmartIterator& it, function<bool()> endCondition)
-{
-	return !it || *it == '\n' || endCondition();
-}
-
-bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondition = []() { return false; })
-{
-	if (isEnd(it, endCondition))
-		return false;
-
-	if (isLineJunk(*it))
-	{
-		int spaces = 0;
-		do
-		{
-			if (*it == ' ')
-				++spaces;
-			if (isEnd(++it, endCondition))
-				return false;
-		} while (isLineJunk(*it));
-		if (checkJunkOperators(it) && isEnd(it, endCondition))
-			return false;
-		while (spaces-- > 0)
-			sb += ' ';
-	}
-	
-	return true;
-}
+inline void putChar(SmartIterator& it, StringBuilder& sb);
+bool isEnd(SmartIterator& it, function<bool()> endCondition);
+bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondition = []() { return false; });
+bool checkStringExpand(SmartIterator& it, StringBuilder& sb, const EntityManager& ents);
+const string& expandString(SmartIterator& it, const EntityManager& ents);
 
 string Parser::parseLineString()
 {
@@ -62,7 +32,7 @@ string Parser::parseLineString()
 				checkEscapedChar(it, sb);
 				continue;
 			}
-			else if (*it == CHAR_EXPAND && checkStringEntity(sb))
+			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, ents))
 				continue;
 			putChar(it, sb);
 		}
@@ -77,7 +47,7 @@ string Parser::parseLineString()
 				checkEscapedChar(it, sb);
 				continue;
 			}
-			else if (*it == CHAR_EXPAND && checkStringEntity(sb))
+			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, ents))
 				continue;
 			else if (con.isStart(*it))
 				++countStartEnd;
@@ -107,7 +77,7 @@ loopStart:
 				addSpace = false;
 				continue;
 			}
-			else if (*it == CHAR_EXPAND && checkStringEntity(sb))
+			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, ents))
 			{
 				addSpace = true;
 				continue;
@@ -128,7 +98,7 @@ loopStart:
 			}
 			else if (*it == OPEN_DICTIONARY)
 				++countStartEnd;
-			else if (*it == CHAR_EXPAND && checkStringEntity(sb))
+			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, ents))
 			{
 				addSpace = true;
 				continue;
@@ -170,7 +140,7 @@ string Parser::parseCString()
 			++it;
 			return sb;
 		case CHAR_EXPAND:
-			if (checkStringEntity(sb))
+			if (checkStringExpand(it, sb, ents))
 				continue;
 			break;
 		case CHAR_ESCAPE:
@@ -198,16 +168,16 @@ void checkEscapedChar(SmartIterator& it, StringBuilder& sb)
 		return;
 
 	case '0': sb += '\0'; break;
-    case 'a': sb += '\a'; break;
-    case 'b': sb += '\b'; break;
+	case 'a': sb += '\a'; break;
+	case 'b': sb += '\b'; break;
 	case 'c': sb += 0x1b; break;
 	case 'e': /* empty */ break;
-    case 'f': sb += '\f'; break;
+	case 'f': sb += '\f'; break;
 	case 'n': sb += '\n'; break;
 	case 'r': sb += '\r'; break;
 	case 's': sb += ' '; break;
 	case 't': sb += '\t'; break;
-    case 'v': sb += '\v'; break;
+	case 'v': sb += '\v'; break;
 	default:
 		if (!isSpecialAscii(*it))
 			throw runtime_error("invalid char escape");
@@ -217,17 +187,52 @@ void checkEscapedChar(SmartIterator& it, StringBuilder& sb)
 	++it;
 }
 
-bool Parser::checkStringEntity(StringBuilder& sb)
+inline void putChar(SmartIterator& it, StringBuilder& sb)
+{
+	sb += *it;
+	++it;
+}
+
+bool isEnd(SmartIterator& it, function<bool()> endCondition)
+{
+	return !it || *it == '\n' || endCondition();
+}
+
+bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondition)
+{
+	if (isEnd(it, endCondition))
+		return false;
+
+	if (isLineJunk(*it))
+	{
+		int spaces = 0;
+		do
+		{
+			if (*it == ' ')
+				++spaces;
+			if (isEnd(++it, endCondition))
+				return false;
+		} while (isLineJunk(*it));
+		if (checkJunkOperators(it) && isEnd(it, endCondition))
+			return false;
+		while (spaces-- > 0)
+			sb += ' ';
+	}
+	
+	return true;
+}
+
+bool checkStringExpand(SmartIterator& it, StringBuilder& sb, const EntityManager& ents)
 {
 	if (it.peekEnd() || !isNameStart(it.peek()))
 		return false;
 
 	++it;
-	sb += parseStringEntity();
+	sb += expandString(it, ents);
 	return true;
 }
 
-const string& Parser::parseStringEntity()
+const string& expandString(SmartIterator& it, const EntityManager& ents)
 {
 	try
 	{
@@ -238,6 +243,6 @@ const string& Parser::parseStringEntity()
 	}
 	catch (const exception&)
 	{
-		throw runtime_error("could not get string entity");
+		throw runtime_error("could not expand string entity");
 	}
 }
