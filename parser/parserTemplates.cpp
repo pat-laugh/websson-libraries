@@ -177,12 +177,32 @@ public:
 
 private:
 	template <class Parameters>
+	void expandTemplateDictionary(const Parameters& params, Dictionary& dict)
+	{
+		auto ent = parseExpandEntity();
+		if (ent.getContent().getType() != WebssType::DICTIONARY)
+			throw runtime_error("expand entity in dictionary must be a dictionary");
+		for (const auto& item : ent.getContent().getDictionary())
+			dict.addSafe(item.first, item.second);
+	}
+
+	template <class Parameters>
+	void expandTemplateList(const Parameters& params, List& list)
+	{
+		auto ent = parseExpandEntity();
+		if (ent.getContent().getType() != WebssType::LIST && ent.getContent().getType() != WebssType::LIST_TEXT)
+			throw runtime_error("expand entity in list must be a list");
+		for (const auto& item : ent.getContent().getList())
+			list.add(item);
+	}
+
+	template <class Parameters>
 	Dictionary parseTemplateDictionary(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
 		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
 		{
 			if (nextTag == Tag::EXPAND)
-				expandDictionary(dict);
+				expandTemplateDictionary(params, dict);
 			else
 			{
 				string name = parseNameDictionary();
@@ -212,7 +232,7 @@ private:
 			switch (nextTag)
 			{
 			case Tag::EXPAND:
-				expandList(list);
+				expandTemplateList(params, list);
 				break;
 			case Tag::START_TUPLE:
 				list.add(funcTemplTupleRegular(params));
