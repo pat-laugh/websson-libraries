@@ -5,6 +5,7 @@
 #include "containerSwitcher.hpp"
 #include "errors.hpp"
 #include "importManager.hpp"
+#include "nameType.hpp"
 #include "paramDocumentIncluder.hpp"
 #include "patternsContainers.hpp"
 #include "utils/constants.hpp"
@@ -380,7 +381,7 @@ ParamDocument Parser::parseUsingOne()
 ParamDocument Parser::parseUsingAll()
 {
 	skipJunkToTag(++it, Tag::NAME_START);
-	auto nameType = parseNameType();
+	auto nameType = parseNameType(it, ents);
 	if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isNamespace())
 		throw runtime_error("expected namespace");
 	return ParamDocument::makeUsingAll(nameType.entity);

@@ -4,6 +4,7 @@
 
 #include "containerSwitcher.hpp"
 #include "errors.hpp"
+#include "nameType.hpp"
 #include "patternsContainers.hpp"
 #include "utils/constants.hpp"
 
@@ -96,7 +97,7 @@ TemplateHeadBinary Parser::parseTemplateHeadBinary(TemplateHeadBinary&& thead)
 			parseBinaryHead(thead);
 		else if (nextTag == Tag::NAME_START)
 		{
-			auto nameType = parseNameType();
+			auto nameType = parseNameType(it, ents);
 			if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isTemplateHeadBinary())
 				throw runtime_error(ERROR_BINARY_TEMPLATE);
 			thead.attach(nameType.entity);
@@ -153,7 +154,7 @@ TemplateHeadScoped Parser::parseTemplateHeadScoped(TemplateHeadScoped&& thead)
 		}
 		case Tag::NAME_START:
 		{
-			auto nameType = parseNameType();
+			auto nameType = parseNameType(it, ents);
 			if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isTemplateHeadScoped())
 				throw runtime_error(ERROR_UNEXPECTED);
 			for (const auto& param : nameType.entity.getContent().getTemplateHeadScoped().getParameters())

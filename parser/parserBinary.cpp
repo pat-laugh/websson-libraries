@@ -8,6 +8,7 @@
 
 #include "containerSwitcher.hpp"
 #include "errors.hpp"
+#include "nameType.hpp"
 #include "patternsContainers.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
@@ -46,7 +47,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 	{
 		if (nextTag == Tag::NAME_START)
 		{
-			auto nameType = parseNameType();
+			auto nameType = parseNameType(it, ents);
 			switch (nameType.type)
 			{
 			case NameType::KEYWORD:
@@ -85,7 +86,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 			nextTag = getTag(++it);
 			if (nextTag == Tag::NAME_START)
 			{
-				auto nameType = parseNameType();
+				auto nameType = parseNameType(it, ents);
 				switch (nameType.type)
 				{
 				case NameType::KEYWORD: case NameType::ENTITY_ABSTRACT:
@@ -139,7 +140,7 @@ ParamBinary::SizeList Parser::parseBinarySizeList()
 	{
 		if (nextTag == Tag::NAME_START)
 		{
-			auto nameType = parseNameType();
+			auto nameType = parseNameType(it, ents);
 			if (nameType.type != NameType::ENTITY_CONCRETE)
 				throw;
 			blist = Blist(checkEntTypeBinarySize(nameType.entity));

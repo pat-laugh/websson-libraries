@@ -3,35 +3,12 @@
 #include "parser.hpp"
 
 #include "errors.hpp"
+#include "nameType.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
 
 using namespace std;
 using namespace webss;
-
-Parser::NameType Parser::parseNameType()
-{
-	string name = parseName(it);
-	if (isKeyword(name))
-		return{ Keyword(name) };
-	else if (!ents.hasEntity(name))
-		return{ move(name) };
-
-	const Entity* ent = &ents[name];
-scopeLoop:
-	if (getTag(it) != Tag::SCOPE)
-		return{ *ent };
-	try
-	{
-		skipJunkToTag(++it, Tag::NAME_START);
-		const auto& content = ent->getContent();
-		if (content.isEnum())
-			return content.getEnum().at(parseName(it));
-		ent = &content.getNamespace().at(parseName(it));
-		goto scopeLoop;
-	}
-	catch (const exception&) { throw runtime_error("could not get scoped value"); }
-}
 
 Webss Parser::parseValueEqual()
 {
@@ -59,7 +36,7 @@ Parser::OtherValue Parser::parseOtherValue()
 	case Tag::TEXT_TEMPLATE: return Webss(parseTemplateText());
 	case Tag::NAME_START:
 	{
-		auto nameType = parseNameType();
+		auto nameType = parseNameType(it, ents);
 		switch (nameType.type)
 		{
 		case NameType::NAME:
@@ -168,7 +145,7 @@ Entity Parser::parseExpandEntity()
 {
 	if (!++it || !isNameStart(*it))
 		throw runtime_error("expected entity");
-	auto nameType = parseNameType();
+	auto nameType = parseNameType(it, ents);
 	if (nameType.type != NameType::Type::ENTITY_CONCRETE && nameType.type != NameType::Type::ENTITY_ABSTRACT)
 		throw runtime_error("expected entity");
 	return move(nameType.entity);

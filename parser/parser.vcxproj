@@ -134,6 +134,7 @@
     <ClInclude Include="entityManager.hpp" />
     <ClInclude Include="errors.hpp" />
     <ClInclude Include="importManager.hpp" />
+    <ClInclude Include="nameType.hpp" />
     <ClInclude Include="paramDocumentIncluder.hpp" />
     <ClInclude Include="parser.hpp" />
     <ClInclude Include="patternsContainers.hpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="curl.cpp" />
     <ClCompile Include="entityManager.cpp" />
     <ClCompile Include="importManager.cpp" />
+    <ClCompile Include="nameType.cpp" />
     <ClCompile Include="paramDocumentIncluder.cpp" />
     <ClCompile Include="parser.cpp" />
     <ClCompile Include="parserBinary.cpp" />

@@ -69,21 +69,6 @@ namespace webss
 			Entity abstractEntity;
 		};
 
-		class NameType
-		{
-		public:
-			enum Type { NAME, KEYWORD, ENTITY_ABSTRACT, ENTITY_CONCRETE };
-
-			NameType(std::string&& name) : type(Type::NAME), name(std::move(name)) {}
-			NameType(Keyword keyword) : type(Type::KEYWORD), keyword(keyword) {}
-			NameType(const Entity& entity) : type(entity.getContent().isAbstract() ? Type::ENTITY_ABSTRACT : Type::ENTITY_CONCRETE), entity(entity) {}
-
-			Type type;
-			std::string name;
-			Keyword keyword;
-			Entity entity;
-		};
-
 		//returns true if end of container is met, else false
 		bool parseDocumentHead(std::vector<ParamDocument>& docHead, const Namespace& nspace);
 
@@ -111,7 +96,6 @@ namespace webss
 		void parseOptionVersion();
 
 		//parserKeyValues.cpp
-		NameType parseNameType();
 		Webss parseValueEqual();
 		OtherValue parseOtherValue();
 		OtherValue parseOtherValueName(std::string&& name);

@@ -4,6 +4,7 @@
 
 #include "containerSwitcher.hpp"
 #include "errors.hpp"
+#include "nameType.hpp"
 #include "paramDocumentIncluder.hpp"
 #include "patternsContainers.hpp"
 #include "utils/utilsWebss.hpp"
@@ -134,7 +135,7 @@ public:
 						tuple.at(index) = Webss(parseLineString());
 					else
 					{
-						auto nameType = parseNameType();
+						auto nameType = parseNameType(it, ents);
 						if (nameType.type == NameType::NAME)
 						{
 							nextTag = getTag(it);
