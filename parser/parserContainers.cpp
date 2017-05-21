@@ -78,14 +78,6 @@ void Parser::expandTuple(Tuple& tuple, bool isAbstract)
 	auto ent = parseExpandEntity();
 	switch (ent.getContent().getType())
 	{
-	case WebssType::DICTIONARY:
-		for (const auto& item : ent.getContent().getDictionary())
-			tuple.addSafe(item.first, item.second);
-		break;
-	case WebssType::LIST: case WebssType::LIST_TEXT:
-		for (const auto& item : ent.getContent().getList())
-			tuple.add(item);
-		break;
 	case WebssType::TUPLE_ABSTRACT:
 		if (!isAbstract)
 			throw runtime_error("can't expand abstract tuple within a concrete tuple");
@@ -97,7 +89,7 @@ void Parser::expandTuple(Tuple& tuple, bool isAbstract)
 				tuple.addSafe(*item.first, *item.second);
 		break;
 	default:
-		throw runtime_error("expand entity in tuple must be a dictionary, list, or tuple");
+		throw runtime_error("expand entity in tuple must be a tuple");
 	}
 }
 
