@@ -166,7 +166,8 @@ Webss Parser::parseValueOnly()
 
 Entity Parser::parseExpandEntity()
 {
-	skipJunkToTag(++it, Tag::NAME_START);
+	if (!++it || !isNameStart(*it))
+		throw runtime_error("expected entity");
 	auto nameType = parseNameType();
 	if (nameType.type != NameType::Type::ENTITY_CONCRETE && nameType.type != NameType::Type::ENTITY_ABSTRACT)
 		throw runtime_error("expected entity");
