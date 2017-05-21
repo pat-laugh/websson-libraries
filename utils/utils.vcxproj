@@ -129,14 +129,14 @@
   <ItemGroup>
     <ClInclude Include="constants.hpp" />
     <ClInclude Include="conType.hpp" />
-    <ClInclude Include="iterators.hpp" />
+    <ClInclude Include="smartIterator.hpp" />
     <ClInclude Include="stringBuilder.hpp" />
     <ClInclude Include="utils.hpp" />
     <ClInclude Include="utilsWebss.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="conType.cpp" />
-    <ClCompile Include="iterators.cpp" />
+    <ClCompile Include="smartIterator.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="utilsWebss.cpp" />
   </ItemGroup>

@@ -1,6 +1,6 @@
 //MIT License
 //Copyright 2017 Patrick Laughrea
-#include "iterators.hpp"
+#include "smartIterator.hpp"
 
 using namespace std;
 using namespace webss;

@@ -7,7 +7,7 @@
 #include "structures/entity.hpp"
 #include "entityManager.hpp"
 #include "structures/keywords.hpp"
-#include "utils/iterators.hpp"
+#include "utils/smartIterator.hpp"
 
 namespace webss
 {

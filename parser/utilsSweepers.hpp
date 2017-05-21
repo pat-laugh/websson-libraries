@@ -6,7 +6,7 @@
 #include <set>
 
 #include "utils/conType.hpp"
-#include "utils/iterators.hpp"
+#include "utils/smartIterator.hpp"
 
 namespace webss
 {

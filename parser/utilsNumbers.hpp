@@ -3,7 +3,7 @@
 #pragma once
 
 #include "structures/types.hpp"
-#include "utils/iterators.hpp"
+#include "utils/smartIterator.hpp"
 
 namespace webss
 {

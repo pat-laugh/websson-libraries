@@ -2,7 +2,7 @@
 //Copyright 2017 Patrick Laughrea
 #pragma once
 
-#include "utils/iterators.hpp"
+#include "utils/smartIterator.hpp"
 
 namespace webss
 {
