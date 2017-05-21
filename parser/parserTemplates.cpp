@@ -103,6 +103,8 @@ public:
 			{
 				switch (nextTag)
 				{
+				case Tag::SEPARATOR: //void
+					break;
 				case Tag::EXPAND:
 				{
 					auto ent = parseExpandEntity();
@@ -120,8 +122,6 @@ public:
 					}
 					continue;
 				}
-				case Tag::SEPARATOR: //void
-					break;
 				case Tag::EXPLICIT_NAME:
 				{
 					auto name = parseNameExplicit();

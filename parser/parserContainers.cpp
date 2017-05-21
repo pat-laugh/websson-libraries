@@ -185,11 +185,11 @@ Tuple Parser::parseTupleAbstract()
 		{
 			switch (nextTag)
 			{
-			case Tag::EXPAND:
-				expandTuple(tuple, true);
-				break;
 			case Tag::SEPARATOR: //void
 				tuple.add(Webss());
+				break;
+			case Tag::EXPAND:
+				expandTuple(tuple, true);
 				break;
 			default:
 				parseOtherValue(
