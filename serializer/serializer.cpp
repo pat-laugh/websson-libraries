@@ -355,8 +355,20 @@ void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 	case WebssType::BLOCK_HEAD:
 		putBlockHead(out, webss.getBlockHeadRaw());
 		break;
+	case WebssType::DICTIONARY_ABSTRACT:
+		putDictionaryAbstract(out, webss.getDictionaryRaw());
+		break;
+	case WebssType::LIST_ABSTRACT:
+		putListAbstract(out, webss.getListRaw());
+		break;
 	case WebssType::TUPLE_ABSTRACT:
 		putTupleAbstract(out, webss.getTupleRaw());
+		break;
+	case WebssType::LIST_TEXT_ABSTRACT:
+		putListTextAbstract(out, webss.getListRaw());
+		break;
+	case WebssType::TUPLE_TEXT_ABSTRACT:
+		putTupleTextAbstract(out, webss.getTupleRaw());
 		break;
 	default:
 		assert(false && "type is not an abstract value");
@@ -556,6 +568,8 @@ void Serializer::putAbstractEntity(StringBuilder& out, const Entity& ent)
 	assert(content.isAbstract());
 	out += CHAR_ABSTRACT_ENTITY;
 	putEntityName(out, ent);
+	if (content.isAbtractContainer())
+		out += CHAR_EXPLICIT_NAME;
 	putAbstractValue(out, content);
 }
 
@@ -666,6 +680,59 @@ void Serializer::putTupleText(StringBuilder& out, const Tuple& tuple)
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it) { putLineString(out, it->getString(), CON); });
 }
 
+void Serializer::putDictionaryAbstract(StringBuilder& out, const Dictionary& dict)
+{
+	static const auto CON = ConType::DICTIONARY;
+	putSeparatedValues<Dictionary, CON>(out, dict, [&](Dictionary::const_iterator it)
+	{
+		if (it->second.getTypeRaw() != WebssType::NONE)
+		{
+			if (it->second.isConcrete())
+				putKeyValue(out, it->first, it->second, CON);
+			else
+			{
+				assert(it->second.isAbtractContainer());
+				out += it->first;
+				putAbstractValue(out, it->second);
+			}
+		}
+
+		putKeyValue(out, it->first, it->second, CON);
+	});
+}
+
+void Serializer::putListAbstract(StringBuilder& out, const List& list)
+{
+	static const auto CON = ConType::LIST;
+	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
+	{
+		if (it->getTypeRaw() != WebssType::NONE)
+		{
+			if (it->isConcrete())
+				putConcreteValue(out, *it, CON);
+			else
+			{
+				assert(it->isAbtractContainer());
+				putAbstractValue(out, *it);
+			}
+		}
+	});
+}
+
+void Serializer::putListTextAbstract(StringBuilder& out, const List& list)
+{
+	static const auto CON = ConType::LIST;
+	out += ASSIGN_CONTAINER_STRING;
+	putSeparatedValues<List, CON>(out, list, [&](List::const_iterator it)
+	{
+		if (it->getTypeRaw() != WebssType::NONE)
+		{
+			assert(it->isConcrete());
+			putLineString(out, it->getString(), CON);
+		}
+	});
+}
+
 void Serializer::putTupleAbstract(StringBuilder& out, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
@@ -681,8 +748,25 @@ void Serializer::putTupleAbstract(StringBuilder& out, const Tuple& tuple)
 				else
 					putKeyValue(out, *it->first, *it->second, CON);
 			}
-			else if (it->second->getType() == WebssType::TUPLE_ABSTRACT)
+			else
+			{
+				assert(it->second->isAbtractContainer());
 				putAbstractValue(out, *it->second);
+			}
+		}
+	});
+}
+
+void Serializer::putTupleTextAbstract(StringBuilder& out, const Tuple& tuple)
+{
+	static const auto CON = ConType::TUPLE;
+	out += ASSIGN_CONTAINER_STRING;
+	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
+	{
+		if (it->getTypeRaw() != WebssType::NONE)
+		{
+			assert(it->isConcrete());
+			putLineString(out, it->getString(), CON);
 		}
 	});
 }

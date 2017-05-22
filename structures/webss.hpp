@@ -190,6 +190,7 @@ namespace webss
 
 		bool isAbstract() const;
 		bool isConcrete() const;
+		bool isAbtractContainer() const;
 
 	private:
 		WebssType type = WebssType::NONE;

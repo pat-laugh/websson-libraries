@@ -616,6 +616,17 @@ bool Webss::isConcrete() const
 	return !isAbstract();
 }
 
+bool Webss::isAbtractContainer() const
+{
+	switch (type)
+	{
+	case WebssType::DICTIONARY_ABSTRACT: case WebssType::LIST_ABSTRACT: case WebssType::TUPLE_ABSTRACT: case WebssType::LIST_TEXT_ABSTRACT: case WebssType::TUPLE_TEXT_ABSTRACT:
+		return true;
+	default:
+		return false;
+	}
+}
+
 WebssType Webss::getTypeRaw() const { return type; }
 
 const Entity& Webss::getEntityRaw() const { assert(getTypeRaw() == WebssType::ENTITY); return ent; }
