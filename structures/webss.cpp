@@ -76,7 +76,11 @@ Webss::Webss(TemplateStandard templStandard) : type(WebssType::TEMPLATE_STANDARD
 Webss::Webss(TemplateStandard templStandard, bool) : type(WebssType::TEMPLATE_TEXT), templStandard(new TemplateStandard(move(templStandard))) {}
 Webss::Webss(BlockHead bhead) : type(WebssType::BLOCK_HEAD), bhead(new BlockHead(move(bhead))) {}
 Webss::Webss(Block block) : type(WebssType::BLOCK), block(new Block(move(block))) {}
+Webss::Webss(Dictionary dict, bool, bool) : type(WebssType::DICTIONARY_ABSTRACT), dict(new Dictionary(move(dict))) {}
+Webss::Webss(List list, bool, bool) : type(WebssType::LIST_ABSTRACT), list(new List(move(list))) {}
 Webss::Webss(Tuple tuple, bool, bool) : type(WebssType::TUPLE_ABSTRACT), tuple(new Tuple(move(tuple))) {}
+Webss::Webss(List list, bool, bool, bool) : type(WebssType::LIST_TEXT_ABSTRACT), list(new List(move(list))) {}
+Webss::Webss(Tuple tuple, bool, bool, bool) : type(WebssType::TUPLE_TEXT_ABSTRACT), tuple(new Tuple(move(tuple))) {}
 
 Webss::Webss(TemplateHeadSelf) : type(WebssType::TEMPLATE_HEAD_SELF) {}
 
@@ -164,13 +168,13 @@ void Webss::destroyUnion()
 	case WebssType::DOCUMENT:
 		delete document;
 		break;
-	case WebssType::DICTIONARY:
+	case WebssType::DICTIONARY: case WebssType::DICTIONARY_ABSTRACT:
 		delete dict;
 		break;
-	case WebssType::LIST: case WebssType::LIST_TEXT:
+	case WebssType::LIST: case WebssType::LIST_TEXT: case WebssType::LIST_ABSTRACT: case WebssType::LIST_TEXT_ABSTRACT:
 		delete list;
 		break;
-	case WebssType::TUPLE: case WebssType::TUPLE_TEXT: case WebssType::TUPLE_ABSTRACT:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT: case WebssType::TUPLE_ABSTRACT: case WebssType::TUPLE_TEXT_ABSTRACT:
 		delete tuple;
 		break;
 	case WebssType::TEMPLATE_HEAD_BINARY:
@@ -239,13 +243,13 @@ void Webss::copyUnion(Webss&& o)
 	case WebssType::DOCUMENT:
 		document = o.document;
 		break;
-	case WebssType::DICTIONARY:
+	case WebssType::DICTIONARY: case WebssType::DICTIONARY_ABSTRACT:
 		dict = o.dict;
 		break;
-	case WebssType::LIST: case WebssType::LIST_TEXT:
+	case WebssType::LIST: case WebssType::LIST_TEXT: case WebssType::LIST_ABSTRACT: case WebssType::LIST_TEXT_ABSTRACT:
 		list = o.list;
 		break;
-	case WebssType::TUPLE: case WebssType::TUPLE_TEXT: case WebssType::TUPLE_ABSTRACT:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT: case WebssType::TUPLE_ABSTRACT: case WebssType::TUPLE_TEXT_ABSTRACT:
 		tuple = o.tuple;
 		break;
 	case WebssType::TEMPLATE_HEAD_BINARY:
@@ -315,13 +319,13 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::DOCUMENT:
 		document = new Document(*o.document);
 		break;
-	case WebssType::DICTIONARY:
+	case WebssType::DICTIONARY: case WebssType::DICTIONARY_ABSTRACT:
 		dict = new Dictionary(*o.dict);
 		break;
-	case WebssType::LIST: case WebssType::LIST_TEXT:
+	case WebssType::LIST: case WebssType::LIST_TEXT: case WebssType::LIST_ABSTRACT: case WebssType::LIST_TEXT_ABSTRACT:
 		list = new List(*o.list);
 		break;
-	case WebssType::TUPLE: case WebssType::TUPLE_TEXT: case WebssType::TUPLE_ABSTRACT:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT: case WebssType::TUPLE_ABSTRACT: case WebssType::TUPLE_TEXT_ABSTRACT:
 		tuple = new Tuple(*o.tuple);
 		break;
 	case WebssType::TEMPLATE_HEAD_BINARY:
@@ -521,7 +525,7 @@ const List& Webss::getList() const
 {
 	const auto& webss = getWebssLast();
 	const auto type = webss.getTypeRaw();
-	if (type == WebssType::LIST || type == WebssType::LIST_TEXT)
+	if (type == WebssType::LIST || type == WebssType::LIST_TEXT || type == WebssType::LIST_ABSTRACT || type == WebssType::LIST_TEXT_ABSTRACT)
 		return webss.getListRaw();
 	else
 		throw runtime_error("could not get " + WebssType(WebssType::LIST).toString() + "; instead webss type was " + WebssType(type).toString());
@@ -530,7 +534,7 @@ const Tuple& Webss::getTuple() const
 {
 	const auto& webss = getWebssLast();
 	const auto type = webss.getTypeRaw();
-	if (type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT || type == WebssType::TUPLE_ABSTRACT)
+	if (type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT || type == WebssType::TUPLE_ABSTRACT || type == WebssType::TUPLE_TEXT_ABSTRACT)
 		return webss.getTupleRaw();
 	else
 		throw runtime_error("could not get " + WebssType(WebssType::TUPLE).toString() + "; instead webss type was " + WebssType(type).toString());
@@ -560,7 +564,12 @@ bool Webss::isNamespace() const { return getType() == WebssType::NAMESPACE; }
 bool Webss::isEnum() const { return getType() == WebssType::ENUM; }
 bool Webss::isBlockHead() const { return getType() == WebssType::BLOCK_HEAD; }
 bool Webss::isBlock() const { return getType() == WebssType::BLOCK; }
+
+bool Webss::isDictionaryAbstract() const { return getType() == WebssType::DICTIONARY_ABSTRACT; }
+bool Webss::isListAbstract() const { return getType() == WebssType::LIST_ABSTRACT; }
 bool Webss::isTupleAbstract() const { return getType() == WebssType::TUPLE_ABSTRACT; }
+bool Webss::isListTextAbstract() const { return getType() == WebssType::LIST_TEXT_ABSTRACT; }
+bool Webss::isTupleTextAbstract() const { return getType() == WebssType::TUPLE_TEXT_ABSTRACT; }
 
 bool Webss::isListText() const { return getType() == WebssType::LIST_TEXT; }
 bool Webss::isTupleText() const { return getType() == WebssType::TUPLE_TEXT; }
@@ -569,12 +578,12 @@ bool Webss::isTemplateHeadText() const { return getType() == WebssType::TEMPLATE
 bool Webss::isList() const
 {
 	const auto type = getType();
-	return type == WebssType::LIST || type == WebssType::LIST_TEXT;
+	return type == WebssType::LIST || type == WebssType::LIST_TEXT || type == WebssType::LIST_ABSTRACT || type == WebssType::LIST_TEXT_ABSTRACT;
 }
 bool Webss::isTuple() const
 {
 	const auto type = getType();
-	return type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT || type == WebssType::TUPLE_ABSTRACT;
+	return type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT || type == WebssType::TUPLE_ABSTRACT || type == WebssType::TUPLE_TEXT_ABSTRACT;
 }
 
 bool Webss::isTemplateHeadStandard() const
@@ -594,7 +603,8 @@ bool Webss::isAbstract() const
 	case WebssType::DEFAULT:
 		return tDefault->isAbstract();
 	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_SCOPED: case WebssType::TEMPLATE_HEAD_SELF: case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
-	case WebssType::NAMESPACE: case WebssType::ENUM: case WebssType::BLOCK_HEAD: case WebssType::TUPLE_ABSTRACT:
+	case WebssType::NAMESPACE: case WebssType::ENUM: case WebssType::BLOCK_HEAD:
+	case WebssType::DICTIONARY_ABSTRACT: case WebssType::LIST_ABSTRACT: case WebssType::TUPLE_ABSTRACT: case WebssType::LIST_TEXT_ABSTRACT: case WebssType::TUPLE_TEXT_ABSTRACT:
 		return true;
 	default:
 		return false;

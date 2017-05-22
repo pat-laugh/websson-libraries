@@ -58,7 +58,11 @@ namespace webss
 		Webss(TemplateStandard templStandard, bool);
 		Webss(BlockHead bhead);
 		Webss(Block block);
+		Webss(Dictionary dict, bool, bool);
+		Webss(List list, bool, bool);
 		Webss(Tuple tuple, bool, bool);
+		Webss(List list, bool, bool, bool);
+		Webss(Tuple tuple, bool, bool, bool);
 
 		Webss(TemplateHeadSelf);
 
@@ -178,7 +182,11 @@ namespace webss
 		bool isEnum() const;
 		bool isBlockHead() const;
 		bool isBlock() const;
+		bool isDictionaryAbstract() const;
+		bool isListAbstract() const;
 		bool isTupleAbstract() const;
+		bool isListTextAbstract() const;
+		bool isTupleTextAbstract() const;
 
 		bool isAbstract() const;
 		bool isConcrete() const;
