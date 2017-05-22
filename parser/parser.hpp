@@ -73,7 +73,7 @@ namespace webss
 		bool parseDocumentHead(std::vector<ParamDocument>& docHead, const Namespace& nspace);
 
 		std::string parseNameDictionary();
-		Dictionary parseDictionary();
+		Dictionary parseDictionary(bool isAbstract = false);
 		List parseListCommon(bool allowVoid, std::function<void(List&)> defaultFunc);
 		List parseList(bool isAbstract = false);
 		List parseListText(bool isAbstract = false);

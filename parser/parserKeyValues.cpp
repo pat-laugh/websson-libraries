@@ -55,6 +55,15 @@ Parser::OtherValue Parser::parseOtherValue()
 		return Webss(parseNumber());
 	case Tag::EXPLICIT_NAME:
 		return parseOtherValueName(parseNameExplicit());
+	case Tag::SEPARATOR:
+		if (!allowVoid)
+			throw runtime_error("cannot have void element");
+		return Webss();
+	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
+		if (!allowVoid)
+			throw runtime_error("cannot have void element");
+		if (con.isEnd(*it))
+			return Webss();
 	default:
 		throw runtime_error(nextTag == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
 	}
