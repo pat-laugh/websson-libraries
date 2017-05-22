@@ -81,92 +81,86 @@ Dictionary Parser::parseDictionary()
 	});
 }
 
-List Parser::parseList()
+List Parser::parseListCommon(bool allowVoid, function<void(List&)> defaultFunc)
 {
-	return parseContainer<List, ConType::LIST>(List(), false, [&](List& list)
-	{
-		if (nextTag == Tag::EXPAND)
-			expandList(list, it, ents);
-		else
-			list.add(parseValueOnly());
-	});
-}
-
-List Parser::parseListText()
-{
-	return parseContainer<List, ConType::LIST>(List(), false, [&](List& list)
-	{
-		if (nextTag == Tag::EXPAND)
-			expandList(list, it, ents);
-		else
-			list.add(parseLineString());
-	});
-}
-
-Tuple Parser::parseTuple()
-{
-	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), false, [&](Tuple& tuple)
-	{
-		if (nextTag == Tag::EXPAND)
-			expandTuple(tuple, it, ents);
-		else if (nextTag == Tag::EXPLICIT_NAME)
-		{
-			parseOtherValue(
-				CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
-				ErrorKeyOnly(ERROR_INPUT_TUPLE),
-				ErrorValueOnly(ERROR_INPUT_TUPLE),
-				ErrorAbstractEntity(ERROR_INPUT_TUPLE));
-		}
-		else
-		{
-			parseOtherValue(
-				CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
-				ErrorKeyOnly(ERROR_INPUT_TUPLE),
-				CaseValueOnly{ tuple.add(move(value)); },
-				ErrorAbstractEntity(ERROR_INPUT_TUPLE));
-		}
-	});
-}
-
-Tuple Parser::parseTupleText()
-{
-	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), false, [&](Tuple& tuple)
-	{
-		if (nextTag == Tag::EXPAND)
-			expandTuple(tuple, it, ents);
-		else if (nextTag == Tag::EXPLICIT_NAME)
-		{
-			parseOtherValue(
-				CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
-				ErrorKeyOnly(ERROR_INPUT_TUPLE),
-				ErrorValueOnly(ERROR_INPUT_TUPLE),
-				ErrorAbstractEntity(ERROR_INPUT_TUPLE));
-		}
-		else
-			tuple.add(parseLineString());
-	});
-}
-
-Tuple Parser::parseTupleAbstract()
-{
-	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), true, [&](Tuple& tuple)
+	return parseContainer<List, ConType::LIST>(List(), allowVoid, [&](List& list)
 	{
 		switch (nextTag)
 		{
-		case Tag::SEPARATOR: //void
+		case Tag::SEPARATOR: //void -- only reached if allowVoid == true
+			list.add(Webss());
+			break;
+		case Tag::EXPAND:
+			expandList(list, it, ents, allowVoid);
+			break;
+		case Tag::EXPLICIT_NAME:
+			throw runtime_error("list can only contain values");
+		default:
+			defaultFunc(list);
+			break;
+		}
+	});
+}
+
+List Parser::parseList(bool isAbstract)
+{
+	return parseListCommon(isAbstract, [&](List& list)
+	{
+		list.add(parseValueOnly());
+	});
+}
+
+List Parser::parseListText(bool isAbstract)
+{
+	return parseListCommon(isAbstract, [&](List& list)
+	{
+		list.add(parseLineString());
+	});
+}
+
+Tuple Parser::parseTupleCommon(bool allowVoid, function<void(Tuple&)> defaultFunc)
+{
+	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), allowVoid, [&](Tuple& tuple)
+	{
+		switch (nextTag)
+		{
+		case Tag::SEPARATOR: //void -- only reached if allowVoid == true
 			tuple.add(Webss());
 			break;
 		case Tag::EXPAND:
-			expandTuple(tuple, it, ents, true);
+			expandTuple(tuple, it, ents, allowVoid);
 			break;
-		default:
+		case Tag::EXPLICIT_NAME:
 			parseOtherValue(
 				CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
 				ErrorKeyOnly(ERROR_INPUT_TUPLE),
-				CaseValueOnly{ tuple.add(move(value)); },
+				ErrorValueOnly(ERROR_INPUT_TUPLE),
 				ErrorAbstractEntity(ERROR_INPUT_TUPLE));
 			break;
+		default:
+			defaultFunc(tuple);
+			break;
 		}
+	});
+}
+
+Tuple Parser::parseTuple(bool isAbstract)
+{
+	return parseTupleCommon(isAbstract, [&](Tuple& tuple)
+	{
+		parseOtherValue(
+			CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
+			ErrorKeyOnly(ERROR_INPUT_TUPLE),
+			CaseValueOnly{ tuple.add(move(value)); },
+			ErrorAbstractEntity(ERROR_INPUT_TUPLE));
+	});
+}
+
+Tuple Parser::parseTupleText(bool isAbstract)
+{
+	return parseTupleCommon(isAbstract, [&](Tuple& tuple)
+	{
+		tuple.add(parseLineString());
 	});
 }
 

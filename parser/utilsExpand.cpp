@@ -21,7 +21,7 @@ Entity webss::parseExpandEntity(SmartIterator& it, const EntityManager& ents)
 	return move(nameType.entity);
 }
 
-void webss::expandDictionary(Dictionary& dict, SmartIterator& it, const EntityManager& ents)
+void webss::expandDictionary(Dictionary& dict, SmartIterator& it, const EntityManager& ents, bool isAbstract)
 {
 	auto ent = parseExpandEntity(it, ents);
 	if (ent.getContent().getType() != WebssType::DICTIONARY)
@@ -30,7 +30,7 @@ void webss::expandDictionary(Dictionary& dict, SmartIterator& it, const EntityMa
 		dict.addSafe(item.first, item.second);
 }
 
-void webss::expandList(List& list, SmartIterator& it, const EntityManager& ents)
+void webss::expandList(List& list, SmartIterator& it, const EntityManager& ents, bool isAbstract)
 {
 	auto ent = parseExpandEntity(it, ents);
 	if (ent.getContent().getType() != WebssType::LIST && ent.getContent().getType() != WebssType::LIST_TEXT)

@@ -27,7 +27,7 @@ Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 	case Tag::START_LIST:
 		return Entity(name, parseEnum(name));
 	case Tag::START_TUPLE:
-		return Entity(move(name), Webss(parseTupleAbstract(), true, true));
+		return Entity(move(name), Webss(parseTuple(true), true, true));
 	case Tag::START_TEMPLATE:
 		return Entity(move(name), parseTemplateHead());
 	case Tag::TEXT_TEMPLATE:

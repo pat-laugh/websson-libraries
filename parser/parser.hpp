@@ -74,11 +74,12 @@ namespace webss
 
 		std::string parseNameDictionary();
 		Dictionary parseDictionary();
-		List parseList();
-		Tuple parseTuple();
-		List parseListText();
-		Tuple parseTupleText();
-		Tuple parseTupleAbstract();
+		List parseListCommon(bool allowVoid, std::function<void(List&)> defaultFunc);
+		List parseList(bool isAbstract = false);
+		List parseListText(bool isAbstract = false);
+		Tuple parseTupleCommon(bool allowVoid, std::function<void(Tuple&)> defaultFunc);
+		Tuple parseTuple(bool isAbstract = false);
+		Tuple parseTupleText(bool isAbstract = false);
 
 		Namespace parseNamespace(const std::string& name, const Namespace& previousNamespace);
 		Enum parseEnum(const std::string& name);
