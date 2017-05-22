@@ -96,83 +96,40 @@ public:
 	template <bool isText>
 	Tuple parseTemplateTuple(const TemplateHeadStandard::Parameters& params)
 	{
-		Tuple tuple(params.getSharedKeys());
 		Tuple::size_type index = 0;
-		ContainerSwitcher switcher(*this, ConType::TUPLE, true);
-		if (!containerEmpty())
+		Tuple tuple = parseContainer<Tuple, ConType::TUPLE>(Tuple(params.getSharedKeys()), true, [&](Tuple& tuple)
 		{
-			do
+			switch (nextTag)
 			{
-				switch (nextTag)
+			case Tag::SEPARATOR: //void
+				break;
+			case Tag::EXPAND:
+				expandTemplateTuple(params, tuple, index);
+				return;
+			case Tag::EXPLICIT_NAME:
+			{
+				auto name = parseNameExplicit();
+				if (isText)
+					tuple.at(name) = Webss(parseLineString());
+				else
 				{
-				case Tag::SEPARATOR: //void
-					break;
-				case Tag::EXPAND:
-				{
-					auto ent = parseExpandEntity(it, ents);
-					switch (ent.getContent().getType())
-					{
-					case WebssType::TUPLE: case WebssType::TUPLE_TEXT: case WebssType::TUPLE_ABSTRACT:
-						for (const auto& item : ent.getContent().getTuple())
-						{
-							tuple.at(index) = checkTemplateContainer(params, params.at(index), item);
-							++index;
-						}
-						break;
-					default:
-						throw runtime_error("expand entity in tuple must be a tuple");
-					}
-					continue;
-				}
-				case Tag::EXPLICIT_NAME:
-				{
-					auto name = parseNameExplicit();
 					nextTag = getTag(it);
-					tuple.at(name) = isText ? Webss(parseLineString()) : parseTemplateContainer(params, params.at(name));
-					break;
+					tuple.at(name) = parseTemplateContainer(params, params.at(name));
 				}
-				case Tag::NAME_START:
-					if (isText)
-						tuple.at(index) = Webss(parseLineString());
-					else
-					{
-						auto nameType = parseNameType(it, ents);
-						if (nameType.type == NameType::NAME)
-						{
-							nextTag = getTag(it);
-							tuple.at(nameType.name) = parseTemplateContainer(params, params.at(nameType.name));
-						}
-						else
-						{
-							if (params.at(index).hasTemplateHead())
-								throw runtime_error(ERROR_UNEXPECTED);
-							switch (nameType.type)
-							{
-							case NameType::KEYWORD:
-								tuple.at(index) = move(nameType.keyword);
-								break;
-							case NameType::ENTITY_ABSTRACT:
-							{
-								auto otherValue = checkAbstractEntity(nameType.entity);
-								if (otherValue.type != OtherValue::VALUE_ONLY)
-									throw runtime_error(ERROR_UNEXPECTED);
-								tuple.at(index) = move(otherValue.value);
-								break;
-							}
-							case NameType::ENTITY_CONCRETE:
-								tuple.at(index) = move(nameType.entity);
-								break;
-							}
-						}
-					}
-					break;
-				default:
-					tuple.at(index) = isText ? Webss(parseLineString()) : parseTemplateContainer(params, params.at(index));
-					break;
-				}
-				++index;
-			} while (checkNextElement());
-		}
+				break;
+			}
+			case Tag::NAME_START:
+				if (isText)
+					tuple.at(index) = Webss(parseLineString());
+				else
+					parseTemplateTupleName(params, tuple, index);
+				break;
+			default:
+				tuple.at(index) = isText ? Webss(parseLineString()) : parseTemplateContainer(params, params.at(index));
+				break;
+			}
+			++index;
+		});
 		checkDefaultValues(tuple, params);
 		return tuple;
 	}
@@ -196,6 +153,55 @@ private:
 			throw runtime_error("expand entity in list must be a list");
 		for (const auto& item : ent.getContent().getList())
 			list.add(item);
+	}
+
+	void expandTemplateTuple(const TemplateHeadStandard::Parameters& params, Tuple& tuple, Tuple::size_type& index)
+	{
+		auto ent = parseExpandEntity(it, ents);
+		switch (ent.getContent().getType())
+		{
+		case WebssType::TUPLE: case WebssType::TUPLE_TEXT: case WebssType::TUPLE_ABSTRACT:
+			for (const auto& item : ent.getContent().getTuple())
+			{
+				tuple.at(index) = checkTemplateContainer(params, params.at(index), item);
+				++index;
+			}
+			break;
+		default:
+			throw runtime_error("expand entity in tuple must be a tuple");
+		}
+	}
+
+	void parseTemplateTupleName(const TemplateHeadStandard::Parameters& params, Tuple& tuple, Tuple::size_type& index)
+	{
+		auto nameType = parseNameType(it, ents);
+		if (nameType.type == NameType::NAME)
+		{
+			nextTag = getTag(it);
+			tuple.at(nameType.name) = parseTemplateContainer(params, params.at(nameType.name));
+		}
+		else
+		{
+			if (params.at(index).hasTemplateHead())
+				throw runtime_error(ERROR_UNEXPECTED);
+			switch (nameType.type)
+			{
+			case NameType::KEYWORD:
+				tuple.at(index) = move(nameType.keyword);
+				break;
+			case NameType::ENTITY_ABSTRACT:
+			{
+				auto otherValue = checkAbstractEntity(nameType.entity);
+				if (otherValue.type != OtherValue::VALUE_ONLY)
+					throw runtime_error(ERROR_UNEXPECTED);
+				tuple.at(index) = move(otherValue.value);
+				break;
+			}
+			case NameType::ENTITY_CONCRETE:
+				tuple.at(index) = move(nameType.entity);
+				break;
+			}
+		}
 	}
 
 	template <class Parameters>
