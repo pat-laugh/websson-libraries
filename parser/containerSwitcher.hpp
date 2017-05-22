@@ -19,9 +19,9 @@ namespace webss
 	};
 
 	template <class Container, ConType::Enum CON>
-	Container Parser::parseContainer(Container&& cont, std::function<void(Container& cont)> func)
+	Container Parser::parseContainer(Container&& cont, bool allowVoid, std::function<void(Container& cont)> func)
 	{
-		ContainerSwitcher switcher(*this, CON, false);
+		ContainerSwitcher switcher(*this, CON, allowVoid);
 		if (!containerEmpty())
 			do
 				func(cont);

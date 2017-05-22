@@ -201,10 +201,12 @@ private:
 	template <class Parameters>
 	Dictionary parseTemplateDictionary(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
-		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
+		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), true, [&](Dictionary& dict)
 		{
 			if (nextTag == Tag::EXPAND)
 				expandTemplateDictionary(params, dict);
+			else if (nextTag == Tag::SEPARATOR)
+				; //...
 			else
 			{
 				string name = parseNameDictionary();
@@ -229,10 +231,13 @@ private:
 	template <class Parameters>
 	List parseTemplateList(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
-		return parseContainer<List, ConType::LIST>(List(), [&](List& list)
+		return parseContainer<List, ConType::LIST>(List(), true, [&](List& list)
 		{
 			switch (nextTag)
 			{
+			case Tag::SEPARATOR:
+				//...
+				break;
 			case Tag::EXPAND:
 				expandTemplateList(params, list);
 				break;

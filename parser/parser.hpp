@@ -45,7 +45,7 @@ namespace webss
 		class ContainerSwitcher;
 
 		template <class Container, ConType::Enum CON>
-		Container parseContainer(Container&& cont, std::function<void(Container& cont)> func);
+		Container parseContainer(Container&& cont, bool allowVoid, std::function<void(Container& cont)> func);
 
 		//returns true if container is empty, else false
 		bool containerEmpty();

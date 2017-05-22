@@ -68,7 +68,7 @@ string Parser::parseNameDictionary()
 
 Dictionary Parser::parseDictionary()
 {
-	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), [&](Dictionary& dict)
+	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), false, [&](Dictionary& dict)
 	{
 		if (nextTag == Tag::EXPAND)
 			expandDictionary(dict, it, ents);
@@ -83,7 +83,7 @@ Dictionary Parser::parseDictionary()
 
 List Parser::parseList()
 {
-	return parseContainer<List, ConType::LIST>(List(), [&](List& list)
+	return parseContainer<List, ConType::LIST>(List(), false, [&](List& list)
 	{
 		if (nextTag == Tag::EXPAND)
 			expandList(list, it, ents);
@@ -92,12 +92,31 @@ List Parser::parseList()
 	});
 }
 
+List Parser::parseListText()
+{
+	return parseContainer<List, ConType::LIST>(List(), false, [&](List& list)
+	{
+		if (nextTag == Tag::EXPAND)
+			expandList(list, it, ents);
+		else
+			list.add(parseLineString());
+	});
+}
+
 Tuple Parser::parseTuple()
 {
-	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple)
+	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), false, [&](Tuple& tuple)
 	{
 		if (nextTag == Tag::EXPAND)
 			expandTuple(tuple, it, ents);
+		else if (nextTag == Tag::EXPLICIT_NAME)
+		{
+			parseOtherValue(
+				CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
+				ErrorKeyOnly(ERROR_INPUT_TUPLE),
+				ErrorValueOnly(ERROR_INPUT_TUPLE),
+				ErrorAbstractEntity(ERROR_INPUT_TUPLE));
+		}
 		else
 		{
 			parseOtherValue(
@@ -109,20 +128,9 @@ Tuple Parser::parseTuple()
 	});
 }
 
-List Parser::parseListText()
-{
-	return parseContainer<List, ConType::LIST>(List(), [&](List& list)
-	{
-		if (nextTag == Tag::EXPAND)
-			expandList(list, it, ents);
-		else
-			list.add(parseLineString());
-	});
-}
-
 Tuple Parser::parseTupleText()
 {
-	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), [&](Tuple& tuple)
+	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), false, [&](Tuple& tuple)
 	{
 		if (nextTag == Tag::EXPAND)
 			expandTuple(tuple, it, ents);
@@ -141,36 +149,30 @@ Tuple Parser::parseTupleText()
 
 Tuple Parser::parseTupleAbstract()
 {
-	ContainerSwitcher switcher(*this, ConType::TUPLE, true);
-	Tuple tuple;
-	if (!containerEmpty())
+	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), true, [&](Tuple& tuple)
 	{
-		do
+		switch (nextTag)
 		{
-			switch (nextTag)
-			{
-			case Tag::SEPARATOR: //void
-				tuple.add(Webss());
-				break;
-			case Tag::EXPAND:
-				expandTuple(tuple, it, ents, true);
-				break;
-			default:
-				parseOtherValue(
-					CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
-					ErrorKeyOnly(ERROR_INPUT_TUPLE),
-					CaseValueOnly{ tuple.add(move(value)); },
-					ErrorAbstractEntity(ERROR_INPUT_TUPLE));
-				break;
-			}
-		} while (checkNextElement());
-	}
-	return tuple;
+		case Tag::SEPARATOR: //void
+			tuple.add(Webss());
+			break;
+		case Tag::EXPAND:
+			expandTuple(tuple, it, ents, true);
+			break;
+		default:
+			parseOtherValue(
+				CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
+				ErrorKeyOnly(ERROR_INPUT_TUPLE),
+				CaseValueOnly{ tuple.add(move(value)); },
+				ErrorAbstractEntity(ERROR_INPUT_TUPLE));
+			break;
+		}
+	});
 }
 
 Namespace Parser::parseNamespace(const string& name, const Namespace& previousNamespace)
 {
-	return parseContainer<Namespace, ConType::DICTIONARY>(Namespace(name, previousNamespace), [&](Namespace& nspace)
+	return parseContainer<Namespace, ConType::DICTIONARY>(Namespace(name, previousNamespace), false, [&](Namespace& nspace)
 	{
 		switch (*it)
 		{
@@ -192,7 +194,7 @@ Namespace Parser::parseNamespace(const string& name, const Namespace& previousNa
 
 Enum Parser::parseEnum(const string& name)
 {
-	return parseContainer<Enum, ConType::LIST>(Enum(name), [&](Enum& tEnum)
+	return parseContainer<Enum, ConType::LIST>(Enum(name), false, [&](Enum& tEnum)
 	{
 		string name;
 		if (nextTag == Tag::NAME_START)
