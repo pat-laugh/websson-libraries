@@ -6,10 +6,13 @@ LIBRARY = libparser.a
 
 all: $(LIBRARY)
 
-$(LIBRARY): binaryIterator.o curl.o entityManager.o importManager.o paramDocumentIncluder.o parser.o parserBinary.o parserContainers.o parserEntities.o parserKeyValues.o parserNumbers.o parserStrings.o parserTemplateHead.o parserTemplates.o unicode.o utilsNumbers.o utilsSweepers.o
+$(LIBRARY): binaryIterator.o containerSwitcher.o curl.o entityManager.o importManager.o nameType.o paramDocumentIncluder.o parser.o parserBinary.o parserContainers.o parserEntities.o parserKeyValues.o parserNumbers.o parserStrings.o parserTemplateHead.o parserTemplates.o unicode.o utilsExpand.o utilsNumbers.o utilsSweepers.o
 	ar -rc $(LIBRARY) $^
 
 binaryIterator.o: binaryIterator.cpp
+	$(CXX) $(OPTIONS) -o $@ -c $<
+
+containerSwitcher.o: containerSwitcher.cpp
 	$(CXX) $(OPTIONS) -o $@ -c $<
 
 curl.o: curl.cpp
@@ -19,6 +22,9 @@ entityManager.o: entityManager.cpp
 	$(CXX) $(OPTIONS) -o $@ -c $<
 
 importManager.o: importManager.cpp
+	$(CXX) $(OPTIONS) -o $@ -c $<
+
+nameType.o: nameType.cpp
 	$(CXX) $(OPTIONS) -o $@ -c $<
 
 paramDocumentIncluder.o: paramDocumentIncluder.cpp
@@ -52,6 +58,9 @@ parserTemplates.o: parserTemplates.cpp
 	$(CXX) $(OPTIONS) -o $@ -c $<
 
 unicode.o: unicode.cpp
+	$(CXX) $(OPTIONS) -o $@ -c $<
+
+utilsExpand.o: utilsExpand.cpp
 	$(CXX) $(OPTIONS) -o $@ -c $<
 
 utilsNumbers.o: utilsNumbers.cpp

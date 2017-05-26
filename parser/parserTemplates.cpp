@@ -175,32 +175,28 @@ private:
 	void parseTemplateTupleName(const TemplateHeadStandard::Parameters& params, Tuple& tuple, Tuple::size_type& index)
 	{
 		auto nameType = parseNameType(it, ents);
-		if (nameType.type == NameType::NAME)
+		if (nameType.type != NameType::NAME && params.at(index).hasTemplateHead())
+			throw runtime_error(ERROR_UNEXPECTED);
+		switch (nameType.type)
 		{
+		case NameType::NAME:
 			nextTag = getTag(it);
 			tuple.at(nameType.name) = parseTemplateContainer(params, params.at(nameType.name));
-		}
-		else
+			break;
+		case NameType::KEYWORD:
+			tuple.at(index) = move(nameType.keyword);
+			break;
+		case NameType::ENTITY_ABSTRACT:
 		{
-			if (params.at(index).hasTemplateHead())
+			auto otherValue = checkAbstractEntity(nameType.entity);
+			if (otherValue.type != OtherValue::VALUE_ONLY)
 				throw runtime_error(ERROR_UNEXPECTED);
-			switch (nameType.type)
-			{
-			case NameType::KEYWORD:
-				tuple.at(index) = move(nameType.keyword);
-				break;
-			case NameType::ENTITY_ABSTRACT:
-			{
-				auto otherValue = checkAbstractEntity(nameType.entity);
-				if (otherValue.type != OtherValue::VALUE_ONLY)
-					throw runtime_error(ERROR_UNEXPECTED);
-				tuple.at(index) = move(otherValue.value);
-				break;
-			}
-			case NameType::ENTITY_CONCRETE:
-				tuple.at(index) = move(nameType.entity);
-				break;
-			}
+			tuple.at(index) = move(otherValue.value);
+			break;
+		}
+		case NameType::ENTITY_CONCRETE:
+			tuple.at(index) = move(nameType.entity);
+			break;
 		}
 	}
 

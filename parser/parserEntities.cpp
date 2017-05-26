@@ -43,7 +43,8 @@ Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 			return Entity(move(name), Webss(parseListText(true), true, true, true));
 		case Tag::TEXT_TUPLE:
 			return Entity(move(name), Webss(parseTupleText(true), true, true, true));
-
+		default:
+			throw runtime_error(ERROR_UNEXPECTED);
 		}
 	default:
 		throw runtime_error(ERROR_UNEXPECTED);

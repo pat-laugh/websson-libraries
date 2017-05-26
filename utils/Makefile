@@ -6,10 +6,10 @@ LIBRARY = libutils.a
 
 all: $(LIBRARY)
 
-$(LIBRARY): conType.o iterators.o utils.o utilsWebss.o
+$(LIBRARY): conType.o smartIterator.o utils.o utilsWebss.o
 	ar -rc $(LIBRARY) $^
 
-iterators.o: iterators.cpp
+smartIterator.o: smartIterator.cpp
 	$(CXX) $(OPTIONS) -o $@ -c $<
 
 conType.o: conType.cpp
