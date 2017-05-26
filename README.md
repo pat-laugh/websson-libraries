@@ -1,4 +1,4 @@
-# Websson Libraries
+# WebSSON Libraries
 
 This is a set of libraries related to the WebSSON language:
 
@@ -10,9 +10,9 @@ This is a set of libraries related to the WebSSON language:
 Both the Parser and Serializer depend on the
 utils and structures libraries.
 
-See the README files in each libary for more information.
+See the README files in each library for more information.
 
-The directory `tests` contains fonctional tests for the Parser and the
+The directory `tests` contains functional tests for the Parser and the
 Serializer.
 
 Documentation for the language is available [here](https://pat-laugh.ca/websson-doc/).
