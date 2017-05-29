@@ -47,10 +47,6 @@ namespace webss
 		const EntityManager& getEnts() { return ents; }
 		ConType getCurrentContainer() { return con; }
 
-	protected:
-		SmartIterator it;
-		EntityManager ents;
-
 		//returns true if container is empty, else false
 		bool containerEmpty();
 
@@ -73,6 +69,28 @@ namespace webss
 			Entity abstractEntity;
 		};
 
+		OtherValue parseOtherValue();
+		void parseOtherValue(std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Entity& abstractEntity)> funcAbstractEntity);
+
+		//parserTemplates.cpp
+		Webss parseTemplateHead();
+		TemplateHeadStandard parseTemplateHeadText();
+
+		//parserBinary.cpp
+		void parseBinaryHead(TemplateHeadBinary& thead);
+
+		//parserEntities.cpp
+		Entity parseConcreteEntity();
+		Entity parseAbstractEntity(const Namespace& currentNamespace);
+
+		ParamDocument parseUsingOne();
+		ParamDocument parseUsingAll();
+		ImportedDocument parseImport();
+
+	protected:
+		SmartIterator it;
+		EntityManager ents;
+
 		//returns true if end of container is met, else false
 		bool parseDocumentHead(std::vector<ParamDocument>& docHead, const Namespace& nspace);
 
@@ -90,36 +108,17 @@ namespace webss
 		TemplateHeadScoped parseScopedDocumentHead();
 		DocumentHead parseScopedDocumentBody(const TemplateHeadScoped& head);
 		ParamDocument parseScopedDocument();
-		ParamDocument parseUsingOne();
-		ParamDocument parseUsingAll();
-		ImportedDocument parseImport();
 		void parseOption();
 		void parseOptionVersion();
 
 		//parserKeyValues.cpp
 		Webss parseValueEqual();
-		OtherValue parseOtherValue();
 		OtherValue parseOtherValueName(std::string&& name);
 		OtherValue checkAbstractEntity(const Entity& ent);
-		void parseOtherValue(std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Entity& abstractEntity)> funcAbstractEntity);
 		Webss parseValueOnly();
 
 		//parserEntities.cpp
-		Entity parseConcreteEntity();
-		Entity parseAbstractEntity(const Namespace& currentNamespace);
 		std::string parseNameExplicit();
-
-		//parserTemplates.cpp
-		Webss parseTemplateHead();
-		TemplateHeadStandard parseTemplateHeadText();
-
-		//only called from parseTemplateHead
-		TemplateHeadStandard parseTemplateHeadStandard(TemplateHeadStandard&& thead = TemplateHeadStandard());
-		TemplateHeadBinary parseTemplateHeadBinary(TemplateHeadBinary&& thead = TemplateHeadBinary());
-		TemplateHeadScoped parseTemplateHeadScoped(TemplateHeadScoped&& thead = TemplateHeadScoped());
-
-		void parseStandardParameterTemplateHead(TemplateHeadStandard& thead);
-		void parseOtherValuesTheadStandardAfterThead(TemplateHeadStandard& thead);
 
 		Webss parseTemplate();
 		Webss parseTemplateText();
@@ -135,7 +134,6 @@ namespace webss
 		Tuple parseTemplateTupleText(const TemplateHeadStandard::Parameters& params);
 
 		//parserBinary.cpp
-		void parseBinaryHead(TemplateHeadBinary& thead);
 		Tuple parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params);
 		ParamBinary::SizeList parseBinarySizeList();
 		const Entity& checkEntTypeBinarySize(const Entity& ent);

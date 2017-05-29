@@ -294,14 +294,6 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 	return true;
 }
 
-TemplateHeadScoped Parser::parseScopedDocumentHead()
-{
-	ContainerSwitcher switcher(*this, ConType::TEMPLATE_HEAD, false);
-	if (containerEmpty())
-		throw runtime_error("can't have empty scoped document head");
-	return parseTemplateHeadScoped();
-}
-
 DocumentHead Parser::parseScopedDocumentBody(const TemplateHeadScoped& head)
 {
 	DocumentHead body;
