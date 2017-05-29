@@ -16,12 +16,12 @@ void checkEscapedChar(SmartIterator& it, StringBuilder& sb);
 inline void putChar(SmartIterator& it, StringBuilder& sb);
 bool isEnd(SmartIterator& it, function<bool()> endCondition);
 bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondition = []() { return false; });
-bool checkStringExpand(SmartIterator& it, StringBuilder& sb, const EntityManager& ents);
-const string& expandString(SmartIterator& it, const EntityManager& ents);
+bool checkStringExpand(Parser& parser, StringBuilder& sb);
+const string& expandString(Parser& parser);
 
 string webss::parseLineString(Parser& parser)
 {
-	auto& it = parser.it;
+	auto& it = parser.getIt();
 	skipLineJunk(it);
 	StringBuilder sb;
 	if (parser.multilineContainer)
@@ -33,7 +33,7 @@ string webss::parseLineString(Parser& parser)
 				checkEscapedChar(it, sb);
 				continue;
 			}
-			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, parser.ents))
+			else if (*it == CHAR_EXPAND && checkStringExpand(parser, sb))
 				continue;
 			putChar(it, sb);
 		}
@@ -48,7 +48,7 @@ string webss::parseLineString(Parser& parser)
 				checkEscapedChar(it, sb);
 				continue;
 			}
-			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, parser.ents))
+			else if (*it == CHAR_EXPAND && checkStringExpand(parser, sb))
 				continue;
 			else if (parser.con.isStart(*it))
 				++countStartEnd;
@@ -60,7 +60,7 @@ string webss::parseLineString(Parser& parser)
 
 string webss::parseMultilineString(Parser& parser)
 {
-	auto& it = parser.it;
+	auto& it = parser.getIt();
 	Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, true);
 	StringBuilder sb;
 	if (*skipJunkToValid(it) == CLOSE_DICTIONARY)
@@ -79,7 +79,7 @@ loopStart:
 				addSpace = false;
 				continue;
 			}
-			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, parser.ents))
+			else if (*it == CHAR_EXPAND && checkStringExpand(parser, sb))
 			{
 				addSpace = true;
 				continue;
@@ -100,7 +100,7 @@ loopStart:
 			}
 			else if (*it == OPEN_DICTIONARY)
 				++countStartEnd;
-			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, parser.ents))
+			else if (*it == CHAR_EXPAND && checkStringExpand(parser, sb))
 			{
 				addSpace = true;
 				continue;
@@ -130,7 +130,7 @@ loopStart:
 
 string webss::parseCString(Parser& parser)
 {
-	auto& it = parser.it;
+	auto& it = parser.getIt();
 	++it;
 	StringBuilder sb;
 	while (it)
@@ -143,7 +143,7 @@ string webss::parseCString(Parser& parser)
 			++it;
 			return sb;
 		case CHAR_EXPAND:
-			if (checkStringExpand(it, sb, parser.ents))
+			if (checkStringExpand(parser, sb))
 				continue;
 			break;
 		case CHAR_ESCAPE:
@@ -225,21 +225,23 @@ bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondi
 	return true;
 }
 
-bool checkStringExpand(SmartIterator& it, StringBuilder& sb, const EntityManager& ents)
+bool checkStringExpand(Parser& parser, StringBuilder& sb)
 {
+	auto& it = parser.getIt();
 	if (it.peekEnd() || !isNameStart(it.peek()))
 		return false;
 
 	++it;
-	sb += expandString(it, ents);
+	sb += expandString(parser);
 	return true;
 }
 
-const string& expandString(SmartIterator& it, const EntityManager& ents)
+const string& expandString(Parser& parser)
 {
+	auto& it = parser.getIt();
 	try
 	{
-		const Webss* value = &ents.at(parseName(it)).getContent();
+		const Webss* value = &parser.getEnts().at(parseName(it)).getContent();
 		while (it == CHAR_SCOPE && it.peekGood() && isNameStart(it.peek()))
 			value = &value->getNamespace().at(parseName(++it)).getContent();
 		return value->getString();

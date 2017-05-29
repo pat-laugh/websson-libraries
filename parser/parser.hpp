@@ -33,10 +33,6 @@ namespace webss
 
 		Document parseDocument();
 
-		EntityManager getEnts() { return ents; }
-
-		EntityManager ents;
-		SmartIterator it;
 		Tag nextTag;
 		ConType con = ConType::DOCUMENT;
 		bool multilineContainer = true;
@@ -47,7 +43,14 @@ namespace webss
 		template <class Container, ConType::Enum CON>
 		Container parseContainer(Container&& cont, bool allowVoid, std::function<void(Container& cont)> func);
 
+		SmartIterator& getIt() { return it; }
+		const EntityManager& getEnts() { return ents; }
+		ConType getCurrentContainer() { return con; }
+
 	protected:
+		SmartIterator it;
+		EntityManager ents;
+
 		//returns true if container is empty, else false
 		bool containerEmpty();
 
