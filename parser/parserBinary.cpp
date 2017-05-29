@@ -25,6 +25,9 @@ Webss parseBinary(BinaryIterator& it, const ParamBinary& bhead);
 Webss parseBinary(BinaryIterator& it, const ParamBinary& bhead, function<Webss()> func);
 Webss parseBinaryElement(BinaryIterator& it, const ParamBinary::SizeHead& bhead);
 Webss parseBinaryKeyword(BinaryIterator& it, Keyword keyword);
+const Entity& checkEntTypeBinarySize(const Entity& ent);
+const Entity& checkEntTypeBinarySizeBits(const Entity& ent);
+ParamBinary::SizeList parseBinarySizeList(Parser& parser);
 
 void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 {
@@ -42,7 +45,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 	else if (nextTag == Tag::START_LIST)
 	{
 		bhead = Bhead(Bhead::Type::EMPTY);
-		blist = Blist(parseBinarySizeList());
+		blist = Blist(parseBinarySizeList(*this));
 	}
 	else
 	{
@@ -106,7 +109,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 		}
 
 		if (getTag(it) == Tag::START_LIST)
-			blist = Blist(parseBinarySizeList());
+			blist = Blist(parseBinarySizeList(*this));
 		else
 			blist = Blist(Blist::Type::ONE);
 	}
@@ -129,29 +132,29 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 		ErrorAbstractEntity(ERROR_ANONYMOUS_KEY));
 }
 
-ParamBinary::SizeList Parser::parseBinarySizeList()
+ParamBinary::SizeList parseBinarySizeList(Parser& parser)
 {
 	using Blist = ParamBinary::SizeList;
-	ContainerSwitcher switcher(*this, ConType::LIST, false);
-	if (containerEmpty())
+	Parser::ContainerSwitcher switcher(parser, ConType::LIST, false);
+	if (parser.containerEmpty())
 		return Blist(Blist::Type::EMPTY);
 
 	Blist blist;
 	try
 	{
-		if (nextTag == Tag::NAME_START)
+		if (parser.nextTag == Tag::NAME_START)
 		{
-			auto nameType = parseNameType(it, ents);
+			auto nameType = parseNameType(parser.getIt(), parser.getEnts());
 			if (nameType.type != NameType::ENTITY_CONCRETE)
 				throw;
 			blist = Blist(checkEntTypeBinarySize(nameType.entity));
 		}
-		else if (nextTag == Tag::NUMBER_START)
-			blist = Blist(checkBinarySize(parseNumber(*this).getInt()));
+		else if (parser.nextTag == Tag::NUMBER_START)
+			blist = Blist(checkBinarySize(parseNumber(parser).getInt()));
 		else
 			throw;
 
-		if (checkNextElement())
+		if (parser.checkNextElement())
 			throw;
 	}
 	catch (const exception&)
@@ -161,7 +164,7 @@ ParamBinary::SizeList Parser::parseBinarySizeList()
 	return blist;
 }
 
-const Entity& Parser::checkEntTypeBinarySize(const Entity& ent)
+const Entity& checkEntTypeBinarySize(const Entity& ent)
 {
 	try { checkBinarySize(ent.getContent().getInt()); }
 	catch (const exception& e) { throw runtime_error(e.what()); }
@@ -177,7 +180,7 @@ WebssBinarySize checkBinarySize(WebssInt sizeInt)
 	return static_cast<WebssBinarySize>(sizeInt);
 }
 
-const Entity& Parser::checkEntTypeBinarySizeBits(const Entity& ent)
+const Entity& checkEntTypeBinarySizeBits(const Entity& ent)
 {
 	try { checkBinarySizeBits(ent.getContent().getInt()); }
 	catch (const exception& e) { throw runtime_error(e.what()); }

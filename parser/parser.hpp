@@ -78,6 +78,7 @@ namespace webss
 
 		//parserBinary.cpp
 		void parseBinaryHead(TemplateHeadBinary& thead);
+		Tuple parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params);
 
 		//parserEntities.cpp
 		Entity parseConcreteEntity();
@@ -132,11 +133,5 @@ namespace webss
 
 		Tuple parseTemplateTupleStandard(const TemplateHeadStandard::Parameters& params);
 		Tuple parseTemplateTupleText(const TemplateHeadStandard::Parameters& params);
-
-		//parserBinary.cpp
-		Tuple parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params);
-		ParamBinary::SizeList parseBinarySizeList();
-		const Entity& checkEntTypeBinarySize(const Entity& ent);
-		const Entity& checkEntTypeBinarySizeBits(const Entity& ent);
 	};
 }
