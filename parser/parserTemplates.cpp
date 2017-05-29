@@ -109,7 +109,7 @@ public:
 				return;
 			case Tag::EXPLICIT_NAME:
 			{
-				auto name = parseNameExplicit();
+				auto name = parseNameExplicit(it);
 				if (isText)
 					tuple.at(name) = Webss(parseLineString(*this));
 				else

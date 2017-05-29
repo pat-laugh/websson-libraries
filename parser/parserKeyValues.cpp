@@ -56,7 +56,7 @@ Parser::OtherValue Parser::parseOtherValue()
 	case Tag::NUMBER_START:
 		return Webss(parseNumber(*this));
 	case Tag::EXPLICIT_NAME:
-		return parseOtherValueName(parseNameExplicit());
+		return parseOtherValueName(parseNameExplicit(it));
 	case Tag::SEPARATOR:
 		if (!allowVoid)
 			throw runtime_error("cannot have void element");

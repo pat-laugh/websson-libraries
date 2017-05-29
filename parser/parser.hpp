@@ -118,9 +118,6 @@ namespace webss
 		OtherValue checkAbstractEntity(const Entity& ent);
 		Webss parseValueOnly();
 
-		//parserEntities.cpp
-		std::string parseNameExplicit();
-
 		Webss parseTemplate();
 		Webss parseTemplateText();
 		Webss parseTemplateBodyBinary(const TemplateHeadBinary::Parameters& params);

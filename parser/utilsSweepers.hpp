@@ -46,5 +46,9 @@ namespace webss
 	//skips line-junk, then returns true if it is at the end or equals newline, else false
 	bool checkLineEmpty(SmartIterator& it);
 	
+	//returns a name; it must point to a name-start char
 	std::string parseName(SmartIterator& it);
+
+	//skips the char currently pointed by it, skips junk, then parses a name
+	std::string parseNameExplicit(SmartIterator& it);
 }

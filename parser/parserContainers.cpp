@@ -64,7 +64,7 @@ string Parser::parseNameDictionary()
 	if (nextTag == Tag::NAME_START)
 		return parseName(it);
 	else if (nextTag == Tag::EXPLICIT_NAME)
-		return parseNameExplicit();
+		return parseNameExplicit(it);
 	throw runtime_error(ERROR_INPUT_DICTIONARY);
 }
 
@@ -196,7 +196,7 @@ Enum Parser::parseEnum(const string& name)
 		if (nextTag == Tag::NAME_START)
 			name = parseName(it);
 		else if (nextTag == Tag::EXPLICIT_NAME)
-			name = parseNameExplicit();
+			name = parseNameExplicit(it);
 		else
 			throw runtime_error(ERROR_UNEXPECTED);
 		tEnum.addSafe(move(name));

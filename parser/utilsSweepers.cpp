@@ -242,3 +242,8 @@ string webss::parseName(SmartIterator& it)
 			break;
 	return name;
 }
+
+string webss::parseNameExplicit(SmartIterator& it)
+{
+	return parseName(skipJunkToTag(++it, Tag::NAME_START));
+}
