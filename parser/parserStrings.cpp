@@ -1,6 +1,6 @@
 //MIT License
 //Copyright 2017 Patrick Laughrea
-#include "parser.hpp"
+#include "parserStrings.hpp"
 
 #include "containerSwitcher.hpp"
 #include "unicode.hpp"
@@ -19,11 +19,12 @@ bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondi
 bool checkStringExpand(SmartIterator& it, StringBuilder& sb, const EntityManager& ents);
 const string& expandString(SmartIterator& it, const EntityManager& ents);
 
-string Parser::parseLineString()
+string webss::parseLineString(Parser& parser)
 {
+	auto& it = parser.it;
 	skipLineJunk(it);
 	StringBuilder sb;
-	if (multilineContainer)
+	if (parser.multilineContainer)
 	{
 		while (hasNextChar(it, sb))
 		{
@@ -32,7 +33,7 @@ string Parser::parseLineString()
 				checkEscapedChar(it, sb);
 				continue;
 			}
-			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, ents))
+			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, parser.ents))
 				continue;
 			putChar(it, sb);
 		}
@@ -40,16 +41,16 @@ string Parser::parseLineString()
 	else
 	{
 		int countStartEnd = 1;
-		while (hasNextChar(it, sb, [&]() { return *it == CHAR_SEPARATOR || (con.isEnd(*it) && --countStartEnd == 0); }))
+		while (hasNextChar(it, sb, [&]() { return *it == CHAR_SEPARATOR || (parser.con.isEnd(*it) && --countStartEnd == 0); }))
 		{
 			if (*it == CHAR_ESCAPE)
 			{
 				checkEscapedChar(it, sb);
 				continue;
 			}
-			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, ents))
+			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, parser.ents))
 				continue;
-			else if (con.isStart(*it))
+			else if (parser.con.isStart(*it))
 				++countStartEnd;
 			putChar(it, sb);
 		}
@@ -57,9 +58,10 @@ string Parser::parseLineString()
 	return sb;
 }
 
-string Parser::parseMultilineString()
+string webss::parseMultilineString(Parser& parser)
 {
-	ContainerSwitcher switcher(*this, ConType::DICTIONARY, true);
+	auto& it = parser.it;
+	Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, true);
 	StringBuilder sb;
 	if (*skipJunkToValid(it) == CLOSE_DICTIONARY)
 		return "";
@@ -67,7 +69,7 @@ string Parser::parseMultilineString()
 	int countStartEnd = 1;
 	bool addSpace = false;
 loopStart:
-	if (multilineContainer)
+	if (parser.multilineContainer)
 	{
 		while (hasNextChar(it, sb))
 		{
@@ -77,7 +79,7 @@ loopStart:
 				addSpace = false;
 				continue;
 			}
-			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, ents))
+			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, parser.ents))
 			{
 				addSpace = true;
 				continue;
@@ -98,7 +100,7 @@ loopStart:
 			}
 			else if (*it == OPEN_DICTIONARY)
 				++countStartEnd;
-			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, ents))
+			else if (*it == CHAR_EXPAND && checkStringExpand(it, sb, parser.ents))
 			{
 				addSpace = true;
 				continue;
@@ -108,7 +110,7 @@ loopStart:
 		}
 	}
 	if (!it)
-		throw runtime_error("multiline string is not closed");
+		throw runtime_error("multiline-string is not closed");
 	switch (countStartEnd)
 	{
 	default:
@@ -126,8 +128,9 @@ loopStart:
 	goto loopStart;
 }
 
-string Parser::parseCString()
+string webss::parseCString(Parser& parser)
 {
+	auto& it = parser.it;
 	++it;
 	StringBuilder sb;
 	while (it)
@@ -140,7 +143,7 @@ string Parser::parseCString()
 			++it;
 			return sb;
 		case CHAR_EXPAND:
-			if (checkStringExpand(it, sb, ents))
+			if (checkStringExpand(it, sb, parser.ents))
 				continue;
 			break;
 		case CHAR_ESCAPE:

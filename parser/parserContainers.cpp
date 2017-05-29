@@ -7,6 +7,7 @@
 #include "importManager.hpp"
 #include "nameType.hpp"
 #include "paramDocumentIncluder.hpp"
+#include "parserStrings.hpp"
 #include "patternsContainers.hpp"
 #include "utilsExpand.hpp"
 #include "utils/constants.hpp"
@@ -115,7 +116,7 @@ List Parser::parseListText(bool isAbstract)
 {
 	return parseListCommon(isAbstract, [&](List& list)
 	{
-		list.add(parseLineString());
+		list.add(parseLineString(*this));
 	});
 }
 
@@ -161,7 +162,7 @@ Tuple Parser::parseTupleText(bool isAbstract)
 {
 	return parseTupleCommon(isAbstract, [&](Tuple& tuple)
 	{
-		tuple.add(parseLineString());
+		tuple.add(parseLineString(*this));
 	});
 }
 
@@ -384,7 +385,7 @@ void Parser::parseOptionVersion()
 	if (it != ':')
 		throw runtime_error("expected line-string");
 	++it;
-	auto version = parseLineString();
+	auto version = parseLineString(*this);
 	if (version != "1.0.0")
 		throw runtime_error("this parser can only parse version 1.0.0");
 }

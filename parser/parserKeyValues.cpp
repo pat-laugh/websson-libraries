@@ -4,6 +4,7 @@
 
 #include "errors.hpp"
 #include "nameType.hpp"
+#include "parserStrings.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
 
@@ -27,10 +28,10 @@ Parser::OtherValue Parser::parseOtherValue()
 	case Tag::START_LIST: return Webss(parseList());
 	case Tag::START_TUPLE: return Webss(parseTuple());
 	case Tag::START_TEMPLATE: return Webss(parseTemplate());
-	case Tag::LINE_STRING: ++it; return Webss(parseLineString());
+	case Tag::LINE_STRING: ++it; return Webss(parseLineString(*this));
 	case Tag::EQUAL: ++it; return Webss(parseValueEqual());
-	case Tag::C_STRING: return Webss(parseCString());
-	case Tag::TEXT_DICTIONARY: return Webss(parseMultilineString());
+	case Tag::C_STRING: return Webss(parseCString(*this));
+	case Tag::TEXT_DICTIONARY: return Webss(parseMultilineString(*this));
 	case Tag::TEXT_LIST: return Webss(parseListText(), true);
 	case Tag::TEXT_TUPLE: return Webss(parseTupleText(), true);
 	case Tag::TEXT_TEMPLATE: return Webss(parseTemplateText());

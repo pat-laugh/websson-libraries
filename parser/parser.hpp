@@ -34,7 +34,7 @@ namespace webss
 		Document parseDocument();
 
 		EntityManager getEnts() { return ents; }
-	protected:
+
 		EntityManager ents;
 		SmartIterator it;
 		Tag nextTag;
@@ -47,6 +47,7 @@ namespace webss
 		template <class Container, ConType::Enum CON>
 		Container parseContainer(Container&& cont, bool allowVoid, std::function<void(Container& cont)> func);
 
+	protected:
 		//returns true if container is empty, else false
 		bool containerEmpty();
 
@@ -102,11 +103,6 @@ namespace webss
 
 		//parserNumbers.cpp
 		Webss parseNumber();
-
-		//parserStrings.cpp
-		std::string parseLineString();
-		std::string parseMultilineString();
-		std::string parseCString();
 
 		//parserEntities.cpp
 		Entity parseConcreteEntity();

@@ -6,6 +6,7 @@
 #include "errors.hpp"
 #include "nameType.hpp"
 #include "paramDocumentIncluder.hpp"
+#include "parserStrings.hpp"
 #include "patternsContainers.hpp"
 #include "utilsExpand.hpp"
 #include "utils/utilsWebss.hpp"
@@ -110,7 +111,7 @@ public:
 			{
 				auto name = parseNameExplicit();
 				if (isText)
-					tuple.at(name) = Webss(parseLineString());
+					tuple.at(name) = Webss(parseLineString(*this));
 				else
 				{
 					nextTag = getTag(it);
@@ -120,12 +121,12 @@ public:
 			}
 			case Tag::NAME_START:
 				if (isText)
-					tuple.at(index) = Webss(parseLineString());
+					tuple.at(index) = Webss(parseLineString(*this));
 				else
 					parseTemplateTupleName(params, tuple, index);
 				break;
 			default:
-				tuple.at(index) = isText ? Webss(parseLineString()) : parseTemplateContainer(params, params.at(index));
+				tuple.at(index) = isText ? Webss(parseLineString(*this)) : parseTemplateContainer(params, params.at(index));
 				break;
 			}
 			++index;
