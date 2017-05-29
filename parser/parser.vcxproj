@@ -133,6 +133,7 @@
     <ClInclude Include="curl.hpp" />
     <ClInclude Include="entityManager.hpp" />
     <ClInclude Include="errors.hpp" />
+    <ClInclude Include="parserNumbers.hpp" />
     <ClInclude Include="parserStrings.hpp" />
     <ClInclude Include="utilsExpand.hpp" />
     <ClInclude Include="importManager.hpp" />

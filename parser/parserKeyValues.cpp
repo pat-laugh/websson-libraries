@@ -4,6 +4,7 @@
 
 #include "errors.hpp"
 #include "nameType.hpp"
+#include "parserNumbers.hpp"
 #include "parserStrings.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
@@ -53,7 +54,7 @@ Parser::OtherValue Parser::parseOtherValue()
 		}
 	}
 	case Tag::NUMBER_START:
-		return Webss(parseNumber());
+		return Webss(parseNumber(*this));
 	case Tag::EXPLICIT_NAME:
 		return parseOtherValueName(parseNameExplicit());
 	case Tag::SEPARATOR:

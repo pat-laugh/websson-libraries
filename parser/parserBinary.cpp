@@ -9,6 +9,7 @@
 #include "containerSwitcher.hpp"
 #include "errors.hpp"
 #include "nameType.hpp"
+#include "parserNumbers.hpp"
 #include "patternsContainers.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
@@ -65,7 +66,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 			}
 		}
 		else if (nextTag == Tag::NUMBER_START)
-			bhead = Bhead(checkBinarySize(parseNumber().getInt()));
+			bhead = Bhead(checkBinarySize(parseNumber(*this).getInt()));
 		else if (nextTag == Tag::START_TEMPLATE)
 		{
 			auto headWebss = parseTemplateHead();
@@ -99,7 +100,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 				}
 			}
 			else if (nextTag == Tag::NUMBER_START)
-				bhead = Bhead::makeSizeBits(checkBinarySizeBits(parseNumber().getInt()));
+				bhead = Bhead::makeSizeBits(checkBinarySizeBits(parseNumber(*this).getInt()));
 			else
 				throw runtime_error(ERROR_UNEXPECTED);
 		}
@@ -146,7 +147,7 @@ ParamBinary::SizeList Parser::parseBinarySizeList()
 			blist = Blist(checkEntTypeBinarySize(nameType.entity));
 		}
 		else if (nextTag == Tag::NUMBER_START)
-			blist = Blist(checkBinarySize(parseNumber().getInt()));
+			blist = Blist(checkBinarySize(parseNumber(*this).getInt()));
 		else
 			throw;
 

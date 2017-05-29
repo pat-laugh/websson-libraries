@@ -1,6 +1,6 @@
 //MIT License
 //Copyright 2017 Patrick Laughrea
-#include "parser.hpp"
+#include "parserNumbers.hpp"
 
 #include "errors.hpp"
 #include "utilsNumbers.hpp"
@@ -9,8 +9,9 @@
 using namespace std;
 using namespace webss;
 
-Webss Parser::parseNumber()
+Webss webss::parseNumber(Parser& parser)
 {
+	auto& it = parser.getIt();
 	bool negative = checkNumberNegative(it);
 	auto base = checkNumberBase(it);
 	auto num = parseInt(it, base);
