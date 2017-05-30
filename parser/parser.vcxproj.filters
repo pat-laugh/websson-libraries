@@ -33,9 +33,6 @@
     <ClInclude Include="importManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="paramDocumentIncluder.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="parser.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -105,9 +102,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="importManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="paramDocumentIncluder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="entityManager.cpp">

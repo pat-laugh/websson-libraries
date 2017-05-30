@@ -53,11 +53,6 @@ const TemplateHeadBinary& ParamStandard::getTemplateHeadBinary() const
 	assert(typeThead == WebssType::TEMPLATE_HEAD_BINARY);
 	return *theadBin;
 }
-const TemplateHeadScoped& ParamStandard::getTemplateHeadScoped() const
-{
-	assert(typeThead == WebssType::TEMPLATE_HEAD_SCOPED);
-	return *theadScoped;
-}
 const TemplateHeadStandard& ParamStandard::getTemplateHeadStandard() const
 {
 	assert(typeThead == WebssType::TEMPLATE_HEAD_STANDARD || typeThead == WebssType::TEMPLATE_HEAD_TEXT);
@@ -70,12 +65,6 @@ void ParamStandard::setTemplateHead(TemplateHeadBinary&& o)
 	assert(!hasTemplateHead());
 	theadBin = new TemplateHeadBinary(move(o));
 	typeThead = WebssType::TEMPLATE_HEAD_BINARY;
-}
-void ParamStandard::setTemplateHead(TemplateHeadScoped&& o)
-{
-	assert(!hasTemplateHead());
-	theadScoped = new TemplateHeadScoped(move(o));
-	typeThead = WebssType::TEMPLATE_HEAD_SCOPED;
 }
 void ParamStandard::setTemplateHead(TemplateHeadStandard&& o)
 {
@@ -104,14 +93,11 @@ void ParamStandard::destroyUnion()
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		delete theadBin;
 		break;
-	case WebssType::TEMPLATE_HEAD_SCOPED:
-		delete theadScoped;
-		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
 		delete theadStd;
 		break;
 	default:
-		assert(false); throw domain_error("");
+		assert(false);
 	}
 	typeThead = WebssType::NONE;
 }
@@ -125,14 +111,11 @@ void ParamStandard::copyUnion(ParamStandard&& o)
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		theadBin = o.theadBin;
 		break;
-	case WebssType::TEMPLATE_HEAD_SCOPED:
-		theadScoped = o.theadScoped;
-		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
 		theadStd = o.theadStd;
 		break;
 	default:
-		assert(false); throw domain_error("");
+		assert(false);
 	}
 	typeThead = o.typeThead;
 	o.typeThead = WebssType::NONE;
@@ -147,14 +130,11 @@ void ParamStandard::copyUnion(const ParamStandard& o)
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		theadBin = new TemplateHeadBinary(*o.theadBin);
 		break;
-	case WebssType::TEMPLATE_HEAD_SCOPED:
-		theadScoped = new TemplateHeadScoped(*o.theadScoped);
-		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
 		theadStd = new TemplateHeadStandard(*o.theadStd);
 		break;
 	default:
-		assert(false); throw domain_error("");
+		assert(false);
 	}
 	typeThead = o.typeThead;
 	defaultValue = o.defaultValue;

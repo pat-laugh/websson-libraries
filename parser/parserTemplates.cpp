@@ -5,7 +5,6 @@
 #include "containerSwitcher.hpp"
 #include "errors.hpp"
 #include "nameType.hpp"
-#include "paramDocumentIncluder.hpp"
 #include "parserStrings.hpp"
 #include "patternsContainers.hpp"
 #include "utilsExpand.hpp"
@@ -271,12 +270,6 @@ Webss Parser::parseTemplate()
 		auto body = parseTemplateBodyBinary(head.getParameters());
 		return{ move(head), move(body) };
 	}
-	case WebssType::TEMPLATE_HEAD_SCOPED:
-	{
-		auto head = move(headWebss.getTemplateHeadScopedRaw());
-		auto body = parseTemplateBodyScoped(head.getParameters());
-		return TemplateScoped(move(head), move(body));
-	}
 	case WebssType::TEMPLATE_HEAD_SELF:
 		throw runtime_error("self in a thead must be within a non-empty thead");
 	case WebssType::TEMPLATE_HEAD_STANDARD:
@@ -311,13 +304,6 @@ Webss Parser::parseTemplateBodyBinary(const TemplateHeadBinary::Parameters& para
 	return static_cast<ParserTemplates*>(this)->parseTemplateBodyBinary(params, [&](const TemplateHeadBinary::Parameters& params) { return parseTemplateTupleBinary(params); }, [&](const TemplateHeadBinary::Parameters&) -> Webss { throw runtime_error(ERROR_UNEXPECTED); });
 }
 
-Webss Parser::parseTemplateBodyScoped(const TemplateHeadScoped::Parameters& params)
-{
-	ParamDocumentIncluder includer(ents, params);
-	nextTag = getTag(it);
-	return parseValueOnly();
-}
-
 Webss Parser::parseTemplateBodyStandard(const TemplateHeadStandard::Parameters& params)
 {
 	return static_cast<ParserTemplates*>(this)->parseTemplateBodyStandard(params);
@@ -334,8 +320,6 @@ Webss Parser::parseTemplateContainer(const TemplateHeadStandard::Parameters& par
 	{
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		return parseTemplateBodyBinary(defaultValue.getTemplateHeadBinary().getParameters());
-	case WebssType::TEMPLATE_HEAD_SCOPED:
-		return parseTemplateBodyScoped(defaultValue.getTemplateHeadScoped().getParameters());
 	case WebssType::TEMPLATE_HEAD_SELF:
 		return parseTemplateBodyStandard(params);
 	case WebssType::TEMPLATE_HEAD_STANDARD:
@@ -365,8 +349,6 @@ Webss Parser::checkTemplateContainer(const TemplateHeadStandard::Parameters& par
 	{
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		throw runtime_error("can't expand for a binary template");
-	case WebssType::TEMPLATE_HEAD_SCOPED:
-		throw runtime_error("can't expand for a scoped template");
 	case WebssType::TEMPLATE_HEAD_SELF:
 		throw runtime_error("can't expand for a self template");
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:

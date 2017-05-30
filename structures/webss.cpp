@@ -9,7 +9,6 @@
 #include "tuple.hpp"
 #include "block.hpp"
 #include "template.hpp"
-#include "templateScoped.hpp"
 #include "document.hpp"
 #include "paramStandard.hpp"
 
@@ -67,11 +66,9 @@ Webss::Webss(List list, bool) : type(WebssType::LIST_TEXT), list(new List(move(l
 Webss::Webss(Tuple tuple) : type(WebssType::TUPLE), tuple(new Tuple(move(tuple))) {}
 Webss::Webss(Tuple tuple, bool) : type(WebssType::TUPLE_TEXT), tuple(new Tuple(move(tuple))) {}
 Webss::Webss(TemplateHeadBinary theadBinary) : type(WebssType::TEMPLATE_HEAD_BINARY), theadBinary(new TemplateHeadBinary(move(theadBinary))) {}
-Webss::Webss(TemplateHeadScoped theadScoped) : type(WebssType::TEMPLATE_HEAD_SCOPED), theadScoped(new TemplateHeadScoped(move(theadScoped))) {}
 Webss::Webss(TemplateHeadStandard theadStandard) : type(WebssType::TEMPLATE_HEAD_STANDARD), theadStandard(new TemplateHeadStandard(move(theadStandard))) {}
 Webss::Webss(TemplateHeadStandard theadStandard, bool) : type(WebssType::TEMPLATE_HEAD_TEXT), theadStandard(new TemplateHeadStandard(move(theadStandard))) {}
 Webss::Webss(TemplateBinary templBinary) : type(WebssType::TEMPLATE_BINARY), templBinary(new TemplateBinary(move(templBinary))) {}
-Webss::Webss(TemplateScoped templScoped) : type(WebssType::TEMPLATE_SCOPED), templScoped(new TemplateScoped(move(templScoped))) {}
 Webss::Webss(TemplateStandard templStandard) : type(WebssType::TEMPLATE_STANDARD), templStandard(new TemplateStandard(move(templStandard))) {}
 Webss::Webss(TemplateStandard templStandard, bool) : type(WebssType::TEMPLATE_TEXT), templStandard(new TemplateStandard(move(templStandard))) {}
 Webss::Webss(BlockHead bhead) : type(WebssType::BLOCK_HEAD), bhead(new BlockHead(move(bhead))) {}
@@ -180,17 +177,11 @@ void Webss::destroyUnion()
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		delete theadBinary;
 		break;
-	case WebssType::TEMPLATE_HEAD_SCOPED:
-		delete theadScoped;
-		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
 		delete theadStandard;
 		break;
 	case WebssType::TEMPLATE_BINARY:
 		delete templBinary;
-		break;
-	case WebssType::TEMPLATE_SCOPED:
-		delete templScoped;
 		break;
 	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT:
 		delete templStandard;
@@ -255,17 +246,11 @@ void Webss::copyUnion(Webss&& o)
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		theadBinary = o.theadBinary;
 		break;
-	case WebssType::TEMPLATE_HEAD_SCOPED:
-		theadScoped = o.theadScoped;
-		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
 		theadStandard = o.theadStandard;
 		break;
 	case WebssType::TEMPLATE_BINARY:
 		templBinary = o.templBinary;
-		break;
-	case WebssType::TEMPLATE_SCOPED:
-		templScoped = o.templScoped;
 		break;
 	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT:
 		templStandard = o.templStandard;
@@ -331,17 +316,11 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		theadBinary = new TemplateHeadBinary(*o.theadBinary);
 		break;
-	case WebssType::TEMPLATE_HEAD_SCOPED:
-		theadScoped = new TemplateHeadScoped(*o.theadScoped);
-		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
 		theadStandard = new TemplateHeadStandard(*o.theadStandard);
 		break;
 	case WebssType::TEMPLATE_BINARY:
 		templBinary = new TemplateBinary(*o.templBinary);
-		break;
-	case WebssType::TEMPLATE_SCOPED:
-		templScoped = new TemplateScoped(*o.templScoped);
 		break;
 	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT:
 		templStandard = new TemplateStandard(*o.templStandard);
@@ -383,8 +362,6 @@ const Webss& Webss::operator[](int index) const
 		return (*tuple)[index];
 	case WebssType::TEMPLATE_BINARY:
 		return (*templBinary)[index];
-	case WebssType::TEMPLATE_SCOPED:
-		return templScoped->getValue()[index];
 	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT:
 		return (*templStandard)[index];
 	case WebssType::BLOCK:
@@ -409,8 +386,6 @@ const Webss& Webss::operator[](const std::string& key) const
 		return (*tuple)[key];
 	case WebssType::TEMPLATE_BINARY:
 		return (*templBinary)[key];
-	case WebssType::TEMPLATE_SCOPED:
-		return templScoped->getValue()[key];
 	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT:
 		return (*templStandard)[key];
 	case WebssType::BLOCK:
@@ -435,8 +410,6 @@ const Webss& Webss::at(int index) const
 		return tuple->at(index);
 	case WebssType::TEMPLATE_BINARY:
 		return templBinary->at(index);
-	case WebssType::TEMPLATE_SCOPED:
-		return templScoped->getValue().at(index);
 	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT:
 		return templStandard->at(index);
 	case WebssType::BLOCK:
@@ -461,8 +434,6 @@ const Webss& Webss::at(const std::string& key) const
 		return tuple->at(key);
 	case WebssType::TEMPLATE_BINARY:
 		return templBinary->at(key);
-	case WebssType::TEMPLATE_SCOPED:
-		return templScoped->getValue().at(key);
 	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT:
 		return templStandard->at(key);
 	case WebssType::BLOCK:
@@ -482,8 +453,6 @@ const Webss& Webss::getWebssLast() const
 		return tDefault->getWebssLast();
 	case WebssType::TEMPLATE_BINARY:
 		return templBinary->getWebss();
-	case WebssType::TEMPLATE_SCOPED:
-		return templScoped->getValue().getWebssLast();
 	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT:
 		return templStandard->getWebss();
 	case WebssType::BLOCK:
@@ -512,9 +481,7 @@ const std::string& Webss::getString() const { PATTERN_GET_CONST_SAFE(WebssType::
 const Document& Webss::getDocument() const { PATTERN_GET_CONST_SAFE(WebssType::DOCUMENT, getDocumentRaw); }
 const Dictionary& Webss::getDictionary() const { PATTERN_GET_CONST_SAFE(WebssType::DICTIONARY, getDictionaryRaw); }
 const TemplateHeadBinary& Webss::getTemplateHeadBinary() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_HEAD_BINARY, getTemplateHeadBinaryRaw); }
-const TemplateHeadScoped& Webss::getTemplateHeadScoped() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_HEAD_SCOPED, getTemplateHeadScopedRaw); }
 const TemplateBinary& Webss::getTemplateBinary() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_BINARY, getTemplateBinaryRaw); }
-const TemplateScoped& Webss::getTemplateScoped() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_SCOPED, getTemplateScopedRaw); }
 const TemplateStandard& Webss::getTemplateStandard() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_STANDARD, getTemplateStandardRaw); }
 const Namespace& Webss::getNamespace() const { PATTERN_GET_CONST_SAFE(WebssType::NAMESPACE, getNamespaceRaw); }
 const Enum& Webss::getEnum() const { PATTERN_GET_CONST_SAFE(WebssType::ENUM, getEnumRaw); }
@@ -559,7 +526,6 @@ bool Webss::isString() const { return getType() == WebssType::PRIMITIVE_STRING; 
 bool Webss::isDocument() const { return getType() == WebssType::DOCUMENT; }
 bool Webss::isDictionary() const { return getType() == WebssType::DICTIONARY; }
 bool Webss::isTemplateHeadBinary() const { return getType() == WebssType::TEMPLATE_HEAD_BINARY; }
-bool Webss::isTemplateHeadScoped() const { return getType() == WebssType::TEMPLATE_HEAD_SCOPED; }
 bool Webss::isNamespace() const { return getType() == WebssType::NAMESPACE; }
 bool Webss::isEnum() const { return getType() == WebssType::ENUM; }
 bool Webss::isBlockHead() const { return getType() == WebssType::BLOCK_HEAD; }
@@ -602,7 +568,7 @@ bool Webss::isAbstract() const
 		return ent.getContent().isAbstract();
 	case WebssType::DEFAULT:
 		return tDefault->isAbstract();
-	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_SCOPED: case WebssType::TEMPLATE_HEAD_SELF: case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
+	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_SELF: case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
 	case WebssType::NAMESPACE: case WebssType::ENUM: case WebssType::BLOCK_HEAD:
 	case WebssType::DICTIONARY_ABSTRACT: case WebssType::LIST_ABSTRACT: case WebssType::TUPLE_ABSTRACT: case WebssType::LIST_TEXT_ABSTRACT: case WebssType::TUPLE_TEXT_ABSTRACT:
 		return true;
@@ -643,10 +609,8 @@ const Dictionary& Webss::getDictionaryRaw() const { assert(getTypeRaw() == Webss
 const List& Webss::getListRaw() const { assert(getTypeRaw() == WebssType::LIST || getTypeRaw() == WebssType::LIST_TEXT); return *list; }
 const Tuple& Webss::getTupleRaw() const { assert(getTypeRaw() == WebssType::TUPLE || getTypeRaw() == WebssType::TUPLE_TEXT || getTypeRaw() == WebssType::TUPLE_ABSTRACT); return *tuple; }
 const TemplateHeadBinary& Webss::getTemplateHeadBinaryRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_BINARY); return *theadBinary; }
-const TemplateHeadScoped& Webss::getTemplateHeadScopedRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_SCOPED); return *theadScoped; }
 const TemplateHeadStandard& Webss::getTemplateHeadStandardRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_STANDARD || getTypeRaw() == WebssType::TEMPLATE_HEAD_TEXT); return *theadStandard; }
 const TemplateBinary& Webss::getTemplateBinaryRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_BINARY); return *templBinary; }
-const TemplateScoped& Webss::getTemplateScopedRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_SCOPED); return *templScoped; }
 const TemplateStandard& Webss::getTemplateStandardRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_STANDARD || getTypeRaw() == WebssType::TEMPLATE_TEXT); return *templStandard; }
 const BlockHead& Webss::getBlockHeadRaw() const { assert(getTypeRaw() == WebssType::BLOCK_HEAD); return *bhead; }
 const Block& Webss::getBlockRaw() const { assert(getTypeRaw() == WebssType::BLOCK); return *block; }
@@ -662,10 +626,8 @@ Dictionary& Webss::getDictionaryRaw() { assert(getTypeRaw() == WebssType::DICTIO
 List& Webss::getListRaw() { assert(getTypeRaw() == WebssType::LIST || getTypeRaw() == WebssType::LIST_TEXT); return *list; }
 Tuple& Webss::getTupleRaw() { assert(getTypeRaw() == WebssType::TUPLE || getTypeRaw() == WebssType::TUPLE_TEXT || getTypeRaw() == WebssType::TUPLE_ABSTRACT); return *tuple; }
 TemplateHeadBinary& Webss::getTemplateHeadBinaryRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_BINARY); return *theadBinary; }
-TemplateHeadScoped& Webss::getTemplateHeadScopedRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_SCOPED); return *theadScoped; }
 TemplateHeadStandard& Webss::getTemplateHeadStandardRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_STANDARD || getTypeRaw() == WebssType::TEMPLATE_HEAD_TEXT); return *theadStandard; }
 TemplateBinary& Webss::getTemplateBinaryRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_BINARY); return *templBinary; }
-TemplateScoped& Webss::getTemplateScopedRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_SCOPED); return *templScoped; }
 TemplateStandard& Webss::getTemplateStandardRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_STANDARD || getTypeRaw() == WebssType::TEMPLATE_TEXT); return *templStandard; }
 BlockHead& Webss::getBlockHeadRaw() { assert(getTypeRaw() == WebssType::BLOCK_HEAD); return *bhead; }
 Block& Webss::getBlockRaw() { assert(getTypeRaw() == WebssType::BLOCK); return *block; }

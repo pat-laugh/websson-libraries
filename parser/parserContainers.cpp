@@ -6,7 +6,6 @@
 #include "errors.hpp"
 #include "importManager.hpp"
 #include "nameType.hpp"
-#include "paramDocumentIncluder.hpp"
 #include "parserStrings.hpp"
 #include "patternsContainers.hpp"
 #include "utilsExpand.hpp"
@@ -20,6 +19,9 @@ const char ERROR_INPUT_DICTIONARY[] = "dictionary can only have key-values";
 const char ERROR_INPUT_TUPLE[] = "tuple can only have concrete value-onlys or key-values";
 const char ERROR_INPUT_NAMESPACE[] = "namespace can only have entity definitions";
 const char ERROR_INPUT_DOCUMENT[] = "document can only have concrete value-onlys or key-values";
+
+bool namespaceNameInCurrentScope(const EntityManager& ents, const Namespace& nspace);
+void useNamespace(EntityManager& ents, const Namespace& nspace);
 
 string getItPosition(SmartIterator& it)
 {
@@ -268,22 +270,10 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 		{
 			auto param = parseUsingAll();
 			const auto& nspace = param.getNamespace();
-
-			//first check the namespace entity is accessible; if so it has to be removed since
-			//it'll no longer be necessary and an entity with the same name could be inside
-			if (ParamDocumentIncluder::namespacePresentScope(ents, nspace))
-				ents.removeLocal(ents[nspace.getName()]);
-
-			for (const auto& ent : nspace)
-				ents.addLocalSafe(ent);
-
+			useNamespace(ents, nspace);
 			docHead.push_back(move(param));
-
 			break;
 		}
-		case Tag::SELF:
-			docHead.push_back(parseScopedDocument());
-			break;
 		case Tag::OPTION:
 			parseOption();
 			break;
@@ -292,28 +282,6 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 		}
 	} while (checkNextElement());
 	return true;
-}
-
-DocumentHead Parser::parseScopedDocumentBody(const TemplateHeadScoped& head)
-{
-	DocumentHead body;
-	ContainerSwitcher switcher(*this, ConType::DICTIONARY, false);
-	if (!containerEmpty())
-	{
-		ParamDocumentIncluder includer(ents, head.getParameters());
-		if (!parseDocumentHead(body, Namespace::getEmptyInstance()))
-			throw runtime_error(ERROR_UNEXPECTED);
-	}
-	return body;
-}
-
-ParamDocument Parser::parseScopedDocument()
-{
-	skipJunkToTag(++it, Tag::START_TEMPLATE);
-	auto head = parseScopedDocumentHead();
-	skipJunkToTag(it, Tag::START_DICTIONARY);
-	auto body = parseScopedDocumentBody(head);
-	return ScopedDocument{ move(head), move(body) };
 }
 
 ParamDocument Parser::parseUsingOne()
@@ -380,4 +348,26 @@ void Parser::parseOptionVersion()
 	auto version = parseLineString(*this);
 	if (version != "1.0.0")
 		throw runtime_error("this parser can only parse version 1.0.0");
+}
+
+bool namespaceNameInCurrentScope(const EntityManager& ents, const Namespace& nspace)
+{
+	const auto& name = nspace.getName();
+	if (!ents.hasEntity(name))
+		return false;
+
+	//make sure they're the exact same entity, not just two different entities with the same name
+	const auto& content = ents[name].getContent();
+	return content.isNamespace() && content.getNamespace() == nspace;
+}
+
+void useNamespace(EntityManager& ents, const Namespace& nspace)
+{
+	//if namespace entity is accessible, it has to be removed since
+	//it'll no longer be necessary and an entity with the same name could be inside
+	if (namespaceNameInCurrentScope(ents, nspace))
+		ents.removeLocal(ents[nspace.getName()]);
+
+	for (const auto& ent : nspace)
+		ents.addLocalSafe(ent);
 }

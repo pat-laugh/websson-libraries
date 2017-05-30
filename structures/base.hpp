@@ -18,7 +18,6 @@ namespace webss
 	class ParamBinary;
 	class ParamStandard;
 	class Document;
-	class TemplateScoped;
 
 	template <class Param>
 	class BasicTemplateHead;
@@ -28,8 +27,6 @@ namespace webss
 
 	class ParamDocument;
 	using DocumentHead = std::vector<ParamDocument>;
-	using ParamScoped = ParamDocument;
-	using TemplateHeadScoped = BasicTemplateHead<ParamScoped>;
 
 	class TemplateHeadSelf {}; //empty class
 

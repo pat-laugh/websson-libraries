@@ -17,7 +17,6 @@ namespace webss
 		union
 		{
 			TemplateHeadBinary* theadBin;
-			TemplateHeadScoped* theadScoped;
 			TemplateHeadStandard* theadStd;
 		};
 
@@ -43,12 +42,10 @@ namespace webss
 		WebssType getTypeThead() const;
 
 		const TemplateHeadBinary& getTemplateHeadBinary() const;
-		const TemplateHeadScoped& getTemplateHeadScoped() const;
 		const TemplateHeadStandard& getTemplateHeadStandard() const;
 
 		void removeTemplateHead();
 		void setTemplateHead(TemplateHeadBinary&& o);
-		void setTemplateHead(TemplateHeadScoped&& o);
 		void setTemplateHead(TemplateHeadStandard&& o);
 		void setTemplateHead(TemplateHeadStandard&& o, bool);
 		void setTemplateHead(TemplateHeadSelf);

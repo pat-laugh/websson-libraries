@@ -15,7 +15,6 @@
 #include "structures/dictionary.hpp"
 #include "structures/paramStandard.hpp"
 #include "structures/block.hpp"
-#include "structures/templateScoped.hpp"
 #include "structures/template.hpp"
 #include "utils/conType.hpp"
 #include "utils/stringBuilder.hpp"
@@ -87,8 +86,6 @@ namespace webss
 
 		void putImport(StringBuilder& out, const ImportedDocument& import);
 
-		void putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc);
-
 		void putUsingOne(StringBuilder& out, const Entity& ent, const ImportedDocument& import);
 
 		void putUsingAll(StringBuilder& out, const Namespace& nspace);
@@ -104,7 +101,6 @@ namespace webss
 		void putConcreteEntity(StringBuilder& out, const Entity& ent, ConType con);
 
 		void putFuncBinary(StringBuilder& out, const TemplateBinary& templ);
-		void putFuncScoped(StringBuilder& out, const TemplateScoped& templ, ConType con);
 		void putTheadSelf(StringBuilder& out);
 		void putFuncStandard(StringBuilder& out, const TemplateStandard& templ);
 		void putFuncStandardBody(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Webss& body);
@@ -117,7 +113,6 @@ namespace webss
 		void putFuncTextTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
 
 		void putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead);
-		void putTheadScoped(StringBuilder & out, const TemplateHeadScoped & thead);
 		void putTheadStandard(StringBuilder& out, const TemplateHeadStandard& thead);
 		void putTheadText(StringBuilder& out, const TemplateHeadStandard& thead);
 		
@@ -133,13 +128,6 @@ namespace webss
 				toRemove.insert(ptr);
 			}
 		public:
-			NamespaceIncluder(std::set<void*>& currentNamespaces, const TemplateHeadScoped::Parameters& params) : currentNamespaces(currentNamespaces)
-			{
-				for (const auto& param : params)
-					if (param.hasNamespace())
-						include(param.getNamespace().getPointer().get());
-			}
-
 			NamespaceIncluder(std::set<void*>& currentNamespaces, const Namespace& nspace) : currentNamespaces(currentNamespaces)
 			{
 				include(nspace.getPointer().get());

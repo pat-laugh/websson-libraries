@@ -40,8 +40,6 @@ string WebssType::toString() const
 		return "tuple text";
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		return "template head binary";
-	case WebssType::TEMPLATE_HEAD_SCOPED:
-		return "template head scoped";
 	case WebssType::TEMPLATE_HEAD_SELF:
 		return "template head self";
 	case WebssType::TEMPLATE_HEAD_STANDARD:
@@ -50,8 +48,6 @@ string WebssType::toString() const
 		return "template head text";
 	case WebssType::TEMPLATE_BINARY:
 		return "template binary";
-	case WebssType::TEMPLATE_SCOPED:
-		return "template scoped";
 	case WebssType::TEMPLATE_STANDARD:
 		return "template standard";
 	case WebssType::TEMPLATE_TEXT:

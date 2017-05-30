@@ -23,18 +23,12 @@ namespace webss
 		Webss name;
 	};
 	
-	struct ScopedDocument
-	{
-		BasicTemplateHead<ParamDocument> head;
-		DocumentHead body;
-	};
-	
 	class ParamDocument
 	{
 	public:
 		enum class Type
 		{
-			NONE, ENTITY_ABSTRACT, ENTITY_CONCRETE, SCOPED_DOCUMENT,
+			NONE, ENTITY_ABSTRACT, ENTITY_CONCRETE,
 			USING_ALL, USING_ONE, IMPORT
 		};
 
@@ -44,7 +38,6 @@ namespace webss
 		static ParamDocument makeUsingAll(Entity ent) { assert(ent.getContent().isNamespace()); return ParamDocument(ent, Type::USING_ALL); }
 		static ParamDocument makeUsingOne(Entity ent, ImportedDocument import) { return ParamDocument(ent, Type::USING_ONE, std::move(import)); }
 		ParamDocument(ImportedDocument import);
-		ParamDocument(ScopedDocument scopedDoc);
 		~ParamDocument();
 
 		ParamDocument(ParamDocument&& o);
@@ -58,15 +51,9 @@ namespace webss
 		const Entity& getEntity() const;
 		const Namespace& getNamespace() const;
 		const ImportedDocument& getImport() const;
-		const ScopedDocument& getScopedDoc() const;
 	private:
 		Type type = Type::NONE;
-		union
-		{
-			Entity ent;
-			ScopedDocument* scopedDoc;
-		};
-
+		Entity ent;
 		ImportedDocument* import;
 
 		ParamDocument(Entity ent, Type type);

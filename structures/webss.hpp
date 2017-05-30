@@ -49,11 +49,9 @@ namespace webss
 		Webss(Tuple tuple);
 		Webss(Tuple tuple, bool);
 		Webss(TemplateHeadBinary theadBinary);
-		Webss(TemplateHeadScoped theadScoped);
 		Webss(TemplateHeadStandard theadStandard);
 		Webss(TemplateHeadStandard theadStandard, bool);
 		Webss(TemplateBinary templBinary);
-		Webss(TemplateScoped templScoped);
 		Webss(TemplateStandard templStandard);
 		Webss(TemplateStandard templStandard, bool);
 		Webss(BlockHead bhead);
@@ -87,10 +85,8 @@ namespace webss
 		const List& getList() const;
 		const Tuple& getTuple() const;
 		const TemplateHeadBinary& getTemplateHeadBinary() const;
-		const TemplateHeadScoped& getTemplateHeadScoped() const;
 		const TemplateHeadStandard& getTemplateHeadStandard() const;
 		const TemplateBinary& getTemplateBinary() const;
-		const TemplateScoped& getTemplateScoped() const;
 		const TemplateStandard& getTemplateStandard() const;
 		const Namespace& getNamespace() const;
 		const Enum& getEnum() const;
@@ -113,10 +109,8 @@ namespace webss
 		const List& getListRaw() const;
 		const Tuple& getTupleRaw() const;
 		const TemplateHeadBinary& getTemplateHeadBinaryRaw() const;
-		const TemplateHeadScoped& getTemplateHeadScopedRaw() const;
 		const TemplateHeadStandard& getTemplateHeadStandardRaw() const;
 		const TemplateBinary& getTemplateBinaryRaw() const;
-		const TemplateScoped& getTemplateScopedRaw() const;
 		const TemplateStandard& getTemplateStandardRaw() const;
 		const BlockHead& getBlockHeadRaw() const;
 		const Block& getBlockRaw() const;
@@ -132,10 +126,8 @@ namespace webss
 		List& getListRaw();
 		Tuple& getTupleRaw();
 		TemplateHeadBinary& getTemplateHeadBinaryRaw();
-		TemplateHeadScoped& getTemplateHeadScopedRaw();
 		TemplateHeadStandard& getTemplateHeadStandardRaw();
 		TemplateBinary& getTemplateBinaryRaw();
-		TemplateScoped& getTemplateScopedRaw();
 		TemplateStandard& getTemplateStandardRaw();
 		BlockHead& getBlockHeadRaw();
 		Block& getBlockRaw();
@@ -149,10 +141,8 @@ namespace webss
 		explicit operator const List&() const { return getList(); }
 		explicit operator const Tuple&() const { return getTuple(); }
 		explicit operator const TemplateHeadBinary&() const { return getTemplateHeadBinary(); }
-		explicit operator const TemplateHeadScoped&() const { return getTemplateHeadScoped(); }
 		explicit operator const TemplateHeadStandard&() const { return getTemplateHeadStandard(); }
 		explicit operator const TemplateBinary&() const { return getTemplateBinary(); }
-		explicit operator const TemplateScoped&() const { return getTemplateScoped(); }
 		explicit operator const TemplateStandard&() const { return getTemplateStandard(); }
 		explicit operator const Namespace&() const { return getNamespace(); }
 		explicit operator const Enum&() const { return getEnum(); }
@@ -175,7 +165,6 @@ namespace webss
 		bool isListText() const;
 		bool isTupleText() const;
 		bool isTemplateHeadBinary() const;
-		bool isTemplateHeadScoped() const;
 		bool isTemplateHeadStandard() const;
 		bool isTemplateHeadText() const;
 		bool isNamespace() const;
@@ -205,10 +194,8 @@ namespace webss
 			List* list;
 			Tuple* tuple;
 			TemplateHeadBinary* theadBinary;
-			TemplateHeadScoped* theadScoped;
 			TemplateHeadStandard* theadStandard;
 			TemplateBinary* templBinary;
-			TemplateScoped* templScoped;
 			TemplateStandard* templStandard;
 			BlockHead* bhead;
 			Block* block;

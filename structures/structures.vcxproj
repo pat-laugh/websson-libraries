@@ -144,7 +144,6 @@
     <ClInclude Include="template.hpp" />
     <ClInclude Include="templateBody.hpp" />
     <ClInclude Include="templateHead.hpp" />
-    <ClInclude Include="templateScoped.hpp" />
     <ClInclude Include="tuple.hpp" />
     <ClInclude Include="types.hpp" />
     <ClInclude Include="typeWebss.hpp" />

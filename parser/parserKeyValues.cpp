@@ -99,15 +99,6 @@ Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 		if (isTemplateBodyStart(nextTag))
 			return{ Webss(TemplateHeadBinary(ent), parseTemplateBodyBinary(content.getTemplateHeadBinary().getParameters())) };
 		break;
-	case WebssType::TEMPLATE_HEAD_SCOPED:
-		switch (nextTag)
-		{
-		case CASE_TAG_KEY_CHAR: case Tag::NAME_START: case Tag::NUMBER_START:
-			return{ TemplateScoped(ent, parseTemplateBodyScoped(ent.getContent().getTemplateHeadScoped().getParameters())) };
-		default:
-			break;
-		}
-		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD:
 		if (isTemplateBodyStart(nextTag))
 			return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyStandard(content.getTemplateHeadStandard().getParameters())) };

@@ -66,9 +66,6 @@
     <ClInclude Include="templateHead.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="templateScoped.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tuple.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -15,7 +15,6 @@ const char ERROR_BINARY_TEMPLATE[] = "all values in a binary template must be bi
 
 TemplateHeadStandard parseTemplateHeadStandard(Parser& parser, TemplateHeadStandard&& thead = TemplateHeadStandard());
 TemplateHeadBinary parseTemplateHeadBinary(Parser& parser, TemplateHeadBinary&& thead = TemplateHeadBinary());
-TemplateHeadScoped parseTemplateHeadScoped(Parser& parser, TemplateHeadScoped&& thead = TemplateHeadScoped());
 void parseStandardParameterTemplateHead(Parser& parser, TemplateHeadStandard& thead);
 void parseOtherValuesTheadStandardAfterThead(Parser& parser, TemplateHeadStandard& thead);
 
@@ -31,8 +30,6 @@ Webss Parser::parseTemplateHead()
 		return parseTemplateHeadStandard(*this);
 	case Tag::START_TUPLE:
 		return parseTemplateHeadBinary(*this);
-	case Tag::ENTITY_ABSTRACT: case Tag::ENTITY_CONCRETE: case Tag::USING_ONE: case Tag::USING_ALL:
-		return parseTemplateHeadScoped(*this);
 	case Tag::SELF:
 		skipJunkToTag(++it, Tag::END_TEMPLATE);
 		++it;
@@ -66,11 +63,6 @@ Webss Parser::parseTemplateHead()
 		{
 			TemplateHeadBinary theadBinary(other.abstractEntity);
 			return isEnd ? move(theadBinary) : parseTemplateHeadBinary(*this, move(theadBinary));
-		}
-		case WebssType::TEMPLATE_HEAD_SCOPED:
-		{
-			TemplateHeadScoped theadScoped(other.abstractEntity);
-			return isEnd ? move(theadScoped) : parseTemplateHeadScoped(*this, move(theadScoped));
 		}
 		case WebssType::TEMPLATE_HEAD_STANDARD:
 			thead = TemplateHeadStandard(other.abstractEntity);
@@ -110,84 +102,6 @@ TemplateHeadBinary parseTemplateHeadBinary(Parser& parser, TemplateHeadBinary&& 
 		else
 			throw runtime_error(ERROR_BINARY_TEMPLATE);
 	while (parser.checkNextElement());
-	return move(thead);
-}
-
-TemplateHeadScoped parseTemplateHeadScoped(Parser& parser, TemplateHeadScoped&& thead)
-{
-	set<string> entNames, nspaceNames, imports;
-	do
-	{
-		switch (parser.nextTag)
-		{
-		case Tag::ENTITY_ABSTRACT:
-		{
-			auto ent = parser.parseAbstractEntity(Namespace::getEmptyInstance());
-			containerAddSafe(entNames, string(ent.getName()));
-			thead.attach(ParamScoped::makeEntityAbstract(move(ent)));
-			break;
-		}
-		case Tag::ENTITY_CONCRETE:
-		{
-			auto ent = parser.parseConcreteEntity();
-			containerAddSafe(entNames, string(ent.getName()));
-			thead.attach(ParamScoped::makeEntityConcrete(move(ent)));
-			break;
-		}
-		case Tag::USING_ONE:
-		{
-			auto param = parser.parseUsingOne();
-			containerAddSafe(entNames, string(param.getEntity().getName()));
-			thead.attach(move(param));
-			break;
-		}
-		case Tag::USING_ALL:
-		{
-			auto param = parser.parseUsingAll();
-			const auto& nspace = param.getNamespace();
-			containerAddSafe(nspaceNames, string(nspace.getName()));
-			thead.attach(move(param));
-			break;
-		}
-		case Tag::IMPORT:
-		{
-			auto import = parser.parseImport();
-			containerAddSafe(imports, string(import.getLink()));
-			thead.attach(ParamScoped(import));
-			break;
-		}
-		case Tag::NAME_START:
-		{
-			auto nameType = parseNameType(parser.getIt(), parser.getEnts());
-			if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isTemplateHeadScoped())
-				throw runtime_error(ERROR_UNEXPECTED);
-			for (const auto& param : nameType.entity.getContent().getTemplateHeadScoped().getParameters())
-			{
-				using Type = ParamScoped::Type;
-				switch (param.getType())
-				{
-				case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ONE:
-					containerAddSafe(entNames, string(param.getEntity().getName()));
-					thead.attach(ParamDocument(param));
-					break;
-				case Type::USING_ALL:
-					containerAddSafe(nspaceNames, string(param.getNamespace().getName()));
-					thead.attach(ParamDocument(param));
-					break;
-				case Type::IMPORT:
-					containerAddSafe(imports, string(param.getImport().getLink()));
-					thead.attach(ParamDocument(param));
-					break;
-				default:
-					assert(false);
-				}
-			}
-			break;
-		}
-		default:
-			throw runtime_error(ERROR_UNEXPECTED);
-		}	
-	} while (parser.checkNextElement());
 	return move(thead);
 }
 
@@ -231,9 +145,6 @@ void parseStandardParameterTemplateHead(Parser& parser, TemplateHeadStandard& th
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		lastParam.setTemplateHead(move(headWebss.getTemplateHeadBinaryRaw()));
 		break;
-	case WebssType::TEMPLATE_HEAD_SCOPED:
-		lastParam.setTemplateHead(move(headWebss.getTemplateHeadScopedRaw()));
-		break;
 	case WebssType::TEMPLATE_HEAD_SELF:
 		lastParam.setTemplateHead(TemplateHeadSelf());
 		break;
@@ -256,12 +167,4 @@ void parseOtherValuesTheadStandardAfterThead(Parser& parser, TemplateHeadStandar
 		CaseKeyOnly{ thead.attachEmpty(move(key)); },
 		ErrorValueOnly(ERROR_ANONYMOUS_KEY),
 		ErrorAbstractEntity(ERROR_UNEXPECTED));
-}
-
-TemplateHeadScoped Parser::parseScopedDocumentHead()
-{
-	ContainerSwitcher switcher(*this, ConType::TEMPLATE_HEAD, false);
-	if (containerEmpty())
-		throw runtime_error("can't have empty scoped document head");
-	return parseTemplateHeadScoped(*this);
 }

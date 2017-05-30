@@ -80,9 +80,6 @@ public:
 			case Type::USING_ALL:
 				putUsingAll(out, it->getNamespace());
 				break;
-			case Type::SCOPED_DOCUMENT:
-				putScopedDocument(out, it->getScopedDoc());
-				break;
 			default:
 				assert(false); throw domain_error("");
 			}
@@ -207,9 +204,6 @@ private:
 			case WebssType::TEMPLATE_HEAD_BINARY:
 				putTheadBinary(out, param.getTemplateHeadBinary());
 				break;
-			case WebssType::TEMPLATE_HEAD_SCOPED:
-				putTheadScoped(out, param.getTemplateHeadScoped());
-				break;
 			case WebssType::TEMPLATE_HEAD_SELF:
 				putTheadSelf(out);
 				break;
@@ -333,9 +327,6 @@ void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		putTheadBinary(out, webss.getTemplateHeadBinaryRaw());
 		break;
-	case WebssType::TEMPLATE_HEAD_SCOPED:
-		putTheadScoped(out, webss.getTemplateHeadScopedRaw());
-		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD:
 		putTheadStandard(out, webss.getTemplateHeadStandardRaw());
 		break;
@@ -412,9 +403,6 @@ void Serializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConTyp
 		break;
 	case WebssType::TEMPLATE_BINARY:
 		putFuncBinary(out, webss.getTemplateBinaryRaw());
-		break;
-	case WebssType::TEMPLATE_SCOPED:
-		putFuncScoped(out, webss.getTemplateScopedRaw(), con);
 		break;
 	case WebssType::TEMPLATE_STANDARD:
 		putFuncStandard(out, webss.getTemplateStandardRaw());
@@ -593,14 +581,6 @@ void Serializer::putImport(StringBuilder& out, const ImportedDocument& import)
 		putConcreteValue(out, name, ConType::DOCUMENT);
 }
 
-void Serializer::putScopedDocument(StringBuilder& out, const ScopedDocument& scopedDoc)
-{
-	out += CHAR_USING_ONE;
-	putTheadScoped(out, scopedDoc.head);
-	NamespaceIncluder includer(currentNamespaces, scopedDoc.head.getParameters());
-	static_cast<SerializerTemplate*>(this)->putDocumentHead<ConType::DICTIONARY>(out, scopedDoc.body);
-}
-
 void Serializer::putUsingOne(StringBuilder& out, const Entity& ent, const ImportedDocument& import)
 {
 	//TODO
@@ -771,39 +751,6 @@ void Serializer::putTupleTextAbstract(StringBuilder& out, const Tuple& tuple)
 	});
 }
 
-void Serializer::putTheadScoped(StringBuilder& out, const TemplateHeadScoped& thead)
-{
-	static const auto CON = ConType::TEMPLATE_HEAD;
-	ContainerIncluder<CON> includer(out);
-	if (thead.hasEntity())
-		putEntityName(out, thead.getEntity());
-	else
-	{
-		using Type = remove_reference<decltype(thead.getParameters())>::type;
-		putSeparatedValues<Type, CON>(out, thead.getParameters(), [&](Type::const_iterator it)
-		{
-			using ParamType = decltype(it->getType());
-			switch (it->getType())
-			{
-			case ParamType::ENTITY_ABSTRACT:
-				putAbstractEntity(out, it->getEntity());
-				break;
-			case ParamType::ENTITY_CONCRETE:
-				putConcreteEntity(out, it->getEntity(), CON);
-				break;
-			case ParamType::USING_ONE:
-				//TODO
-			//	putConcreteEntity(out, it->getConcreteEntity(), CON);
-			//	break;
-			case ParamType::USING_ALL:
-				putUsingAll(out, it->getNamespace());
-				break;
-			default:
-				assert(false); throw domain_error("");
-			}
-		});
-	}
-}
 void Serializer::putTheadSelf(StringBuilder& out)
 {
 	ContainerIncluder<ConType::TEMPLATE_HEAD> includer(out);
@@ -987,20 +934,5 @@ void Serializer::putBlock(StringBuilder& out, const Block& block, ConType con)
 		out += OPEN_TEMPLATE;
 		out += CLOSE_TEMPLATE;
 		putConcreteValue(out, block.getValue(), con);
-	}
-}
-
-void Serializer::putFuncScoped(StringBuilder& out, const TemplateScoped& templ, ConType con)
-{
-	NamespaceIncluder includer(currentNamespaces, templ.getParameters());
-	if (templ.hasEntity())
-	{
-		putEntityName(out, templ.getEntity());
-		putCharValue(out, templ.getValue(), con);
-	}
-	else
-	{
-		putTheadScoped(out, templ);
-		putConcreteValue(out, templ.getValue(), con);
 	}
 }

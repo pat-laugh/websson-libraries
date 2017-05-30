@@ -13,7 +13,6 @@
 #include "structures/dictionary.hpp"
 #include "structures/paramStandard.hpp"
 #include "structures/block.hpp"
-#include "structures/templateScoped.hpp"
 #include "structures/template.hpp"
 #include "utils/stringBuilder.hpp"
 #include "utils/constants.hpp"
@@ -106,9 +105,6 @@ namespace webss
 
 		Namespace parseNamespace(const std::string& name, const Namespace& previousNamespace);
 		Enum parseEnum(const std::string& name);
-		TemplateHeadScoped parseScopedDocumentHead();
-		DocumentHead parseScopedDocumentBody(const TemplateHeadScoped& head);
-		ParamDocument parseScopedDocument();
 		void parseOption();
 		void parseOptionVersion();
 
@@ -121,7 +117,6 @@ namespace webss
 		Webss parseTemplate();
 		Webss parseTemplateText();
 		Webss parseTemplateBodyBinary(const TemplateHeadBinary::Parameters& params);
-		Webss parseTemplateBodyScoped(const TemplateHeadScoped::Parameters& params);
 		Webss parseTemplateBodyStandard(const TemplateHeadStandard::Parameters& params);
 		Webss parseTemplateBodyText(const TemplateHeadStandard::Parameters& params);
 
