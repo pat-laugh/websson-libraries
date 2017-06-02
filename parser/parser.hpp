@@ -71,6 +71,8 @@ namespace webss
 		OtherValue parseOtherValue();
 		void parseOtherValue(std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Entity& abstractEntity)> funcAbstractEntity);
 
+		std::string parseNameDictionary();
+
 		//parserTemplates.cpp
 		Webss parseTemplateHead();
 		TemplateHeadStandard parseTemplateHeadText();
@@ -94,7 +96,7 @@ namespace webss
 		//returns true if end of container is met, else false
 		bool parseDocumentHead(std::vector<ParamDocument>& docHead, const Namespace& nspace);
 
-		std::string parseNameDictionary();
+		
 		Dictionary parseDictionary(bool isAbstract = false);
 		List parseListCommon(bool allowVoid, std::function<void(List&)> defaultFunc);
 		List parseList(bool isAbstract = false);
