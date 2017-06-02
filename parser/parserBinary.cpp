@@ -151,9 +151,9 @@ ParamBinary::SizeList parseBinarySizeList(Parser& parser)
 			blist = Blist(checkBinarySize(parseNumber(parser).getInt()));
 		else
 			throw;
-
-		if (parser.checkNextElement())
-			throw;
+		
+		skipJunkToTag(parser.getIt(), Tag::END_LIST);
+		++parser.getIt();
 	}
 	catch (const exception&)
 	{

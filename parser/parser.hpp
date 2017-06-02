@@ -49,9 +49,6 @@ namespace webss
 		//returns true if container is empty, else false
 		bool containerEmpty();
 
-		//returns true if has next element, else false
-		bool checkNextElement();
-
 		class OtherValue
 		{
 		public:
@@ -74,7 +71,6 @@ namespace webss
 
 		//parserTemplates.cpp
 		Webss parseTemplateHead();
-		TemplateHeadStandard parseTemplateHeadText();
 
 		//parserBinary.cpp
 		void parseBinaryHead(TemplateHeadBinary& thead);
@@ -92,10 +88,12 @@ namespace webss
 		SmartIterator it;
 		EntityManager ents;
 
+		//returns true if has next element, else false
+		bool checkNextElement();
+
 		//returns true if end of container is met, else false
 		bool parseDocumentHead(std::vector<ParamDocument>& docHead, const Namespace& nspace);
 
-		
 		Dictionary parseDictionary();
 		List parseListCommon(std::function<void(List&)> defaultFunc);
 		List parseList();
@@ -114,6 +112,11 @@ namespace webss
 		OtherValue parseOtherValueName(std::string&& name);
 		OtherValue checkAbstractEntity(const Entity& ent);
 		Webss parseValueOnly();
+
+		//parserTemplateHead.cpp
+		TemplateHeadStandard parseTemplateHeadStandard(TemplateHeadStandard&& thead = TemplateHeadStandard());
+		TemplateHeadBinary parseTemplateHeadBinary(TemplateHeadBinary&& thead = TemplateHeadBinary());
+		TemplateHeadStandard parseTemplateHeadText();
 
 		Webss parseTemplate();
 		Webss parseTemplateText();

@@ -14,8 +14,6 @@ using namespace webss;
 
 const char ERROR_BINARY_TEMPLATE[] = "all values in a binary template must be binary";
 
-TemplateHeadStandard parseTemplateHeadStandard(Parser& parser, TemplateHeadStandard&& thead = TemplateHeadStandard());
-TemplateHeadBinary parseTemplateHeadBinary(Parser& parser, TemplateHeadBinary&& thead = TemplateHeadBinary());
 void parseStandardParameterTemplateHead(Parser& parser, TemplateHeadStandard& thead);
 void parseOtherValuesTheadStandardAfterThead(Parser& parser, TemplateHeadStandard& thead);
 
@@ -29,9 +27,9 @@ Webss Parser::parseTemplateHead()
 	{
 	case Tag::START_TEMPLATE: case Tag::TEXT_TEMPLATE:
 	default:
-		return parseTemplateHeadStandard(*this);
+		return parseTemplateHeadStandard();
 	case Tag::START_TUPLE:
-		return parseTemplateHeadBinary(*this);
+		return parseTemplateHeadBinary();
 	case Tag::SELF:
 		skipJunkToTag(++it, Tag::END_TEMPLATE);
 		++it;
@@ -52,17 +50,17 @@ Webss Parser::parseTemplateHead()
 	case WebssType::TEMPLATE_HEAD_BINARY:
 	{
 		TemplateHeadBinary theadBinary(ent);
-		return isEnd ? move(theadBinary) : parseTemplateHeadBinary(*this, move(theadBinary));
+		return isEnd ? move(theadBinary) : parseTemplateHeadBinary(move(theadBinary));
 	}
 	case WebssType::TEMPLATE_HEAD_STANDARD:
 	{
 		TemplateHeadStandard thead(ent);
-		return isEnd ? move(thead) : parseTemplateHeadStandard(*this, move(thead));
+		return isEnd ? move(thead) : parseTemplateHeadStandard(move(thead));
 	}
 	case WebssType::TEMPLATE_HEAD_TEXT:
 	{
 		TemplateHeadStandard thead(ent);
-		return isEnd ? Webss(move(thead), true) : Webss(parseTemplateHeadStandard(*this, move(thead)), true);
+		return isEnd ? Webss(move(thead), true) : Webss(parseTemplateHeadStandard(move(thead)), true);
 	}
 	default:
 		throw runtime_error("expand entity in template head must be a template head");
@@ -77,49 +75,49 @@ TemplateHeadStandard Parser::parseTemplateHeadText()
 	throw runtime_error("expected standard template head");
 }
 
-TemplateHeadBinary parseTemplateHeadBinary(Parser& parser, TemplateHeadBinary&& thead)
+TemplateHeadBinary Parser::parseTemplateHeadBinary(TemplateHeadBinary&& thead)
 {
 	do
-		if (parser.nextTag == Tag::START_TUPLE)
-			parser.parseBinaryHead(thead);
-		else if (parser.nextTag == Tag::EXPAND)
+		if (nextTag == Tag::START_TUPLE)
+			parseBinaryHead(thead);
+		else if (nextTag == Tag::EXPAND)
 		{
-			auto ent = parseExpandEntity(parser.getIt(), parser.getEnts());
+			auto ent = parseExpandEntity(it, ents);
 			if (!ent.getContent().isTemplateHeadBinary())
 				throw runtime_error(ERROR_BINARY_TEMPLATE);
 			thead.attach(ent);
 		}
 		else
 			throw runtime_error(ERROR_BINARY_TEMPLATE);
-	while (parser.checkNextElement());
+	while (checkNextElement());
 	return move(thead);
 }
 
-TemplateHeadStandard parseTemplateHeadStandard(Parser& parser, TemplateHeadStandard&& thead)
+TemplateHeadStandard Parser::parseTemplateHeadStandard(TemplateHeadStandard&& thead)
 {
 	do
-		if (parser.nextTag == Tag::START_TEMPLATE)
-			parseStandardParameterTemplateHead(parser, thead);
-		else if (parser.nextTag == Tag::TEXT_TEMPLATE)
+		if (nextTag == Tag::START_TEMPLATE)
+			parseStandardParameterTemplateHead(*this, thead);
+		else if (nextTag == Tag::TEXT_TEMPLATE)
 		{
-			auto head = parser.parseTemplateHeadText();
-			parseOtherValuesTheadStandardAfterThead(parser, thead);
+			auto head = parseTemplateHeadText();
+			parseOtherValuesTheadStandardAfterThead(*this, thead);
 			thead.back().setTemplateHead(move(head), true);
 		}
-		else if (parser.nextTag == Tag::EXPAND)
+		else if (nextTag == Tag::EXPAND)
 		{
-			auto ent = parseExpandEntity(parser.getIt(), parser.getEnts());
+			auto ent = parseExpandEntity(it, ents);
 			if (!ent.getContent().isTemplateHeadStandard())
 				throw runtime_error("can't expand " + ent.getContent().getType().toString() + " within standard template head");
 			thead.attach(ent);
 		}
 		else
 		{
-			parser.parseExplicitKeyValue(
+			parseExplicitKeyValue(
 				CaseKeyValue{ thead.attach(move(key), move(value)); },
 				CaseKeyOnly{ thead.attachEmpty(move(key)); });
 		}
-	while (parser.checkNextElement());
+	while (checkNextElement());
 	return move(thead);
 }
 
