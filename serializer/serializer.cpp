@@ -77,8 +77,8 @@ public:
 			case Type::USING_ONE:
 				putUsingOne(out, it->getEntity(), it->getImport());
 				break;
-			case Type::USING_ALL:
-				putUsingAll(out, it->getNamespace());
+			case Type::EXPAND:
+				putExpandDocumentHead(out, it->getNamespace());
 				break;
 			default:
 				assert(false); throw domain_error("");
@@ -569,9 +569,9 @@ void Serializer::putUsingOne(StringBuilder& out, const Entity& ent, const Import
 	//TODO
 }
 
-void Serializer::putUsingAll(StringBuilder& out, const Namespace& nspace)
+void Serializer::putExpandDocumentHead(StringBuilder& out, const Namespace& nspace)
 {
-	out += CHAR_USING_ALL;
+	out += CHAR_EXPAND;
 	putPreviousNamespaceNames(out, nspace);
 	out += nspace.getName();
 }

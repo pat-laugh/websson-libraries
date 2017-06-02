@@ -55,7 +55,6 @@ Tag webss::getTag(SmartIterator& it)
 	case CHAR_CONCRETE_ENTITY: return Tag::ENTITY_CONCRETE;
 	case CHAR_EXPAND: return Tag::EXPAND;
 	case CHAR_USING_ONE: return Tag::USING_ONE;
-	case CHAR_USING_ALL: return Tag::USING_ALL;
 	case CHAR_IMPORT: return Tag::IMPORT;
 	case CHAR_OPTION: return Tag::OPTION;
 	case CHAR_SELF: return Tag::SELF;

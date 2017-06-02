@@ -29,13 +29,13 @@ namespace webss
 		enum class Type
 		{
 			NONE, ENTITY_ABSTRACT, ENTITY_CONCRETE,
-			USING_ALL, USING_ONE, IMPORT
+			EXPAND, USING_ONE, IMPORT
 		};
 
 		ParamDocument();
 		static ParamDocument makeEntityAbstract(Entity ent) { return ParamDocument(ent, Type::ENTITY_ABSTRACT); }
 		static ParamDocument makeEntityConcrete(Entity ent) { return ParamDocument(ent, Type::ENTITY_CONCRETE); }
-		static ParamDocument makeUsingAll(Entity ent) { assert(ent.getContent().isNamespace()); return ParamDocument(ent, Type::USING_ALL); }
+		static ParamDocument makeExpand(Entity ent) { assert(ent.getContent().isNamespace()); return ParamDocument(ent, Type::EXPAND); }
 		static ParamDocument makeUsingOne(Entity ent, ImportedDocument import) { return ParamDocument(ent, Type::USING_ONE, std::move(import)); }
 		ParamDocument(ImportedDocument import);
 		~ParamDocument();

@@ -82,7 +82,7 @@ namespace webss
 
 		void putUsingOne(StringBuilder& out, const Entity& ent, const ImportedDocument& import);
 
-		void putUsingAll(StringBuilder& out, const Namespace& nspace);
+		void putExpandDocumentHead(StringBuilder& out, const Namespace& nspace);
 
 		void putNamespace(StringBuilder& out, const Namespace& nspace);
 

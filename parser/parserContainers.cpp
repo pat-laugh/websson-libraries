@@ -255,9 +255,12 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 			docHead.push_back(move(param));
 			break;
 		}
-		case Tag::USING_ALL:
+		case Tag::EXPAND:
 		{
-			auto param = parseUsingAll();
+			auto ent = parseExpandEntity(it, ents);
+			if (ent.getContent().getType() != WebssType::NAMESPACE)
+				return false;
+			auto param = ParamDocument::makeExpand(ent);
 			const auto& nspace = param.getNamespace();
 			useNamespace(ents, nspace);
 			docHead.push_back(move(param));
@@ -286,15 +289,6 @@ ParamDocument Parser::parseUsingOne()
 	for (decltype(names.size()) i = 1; i < names.size(); ++i)
 		ent = &ent->getContent().getNamespace().at(names[i]);
 	return ParamDocument::makeUsingOne(*ent, move(import));
-}
-
-ParamDocument Parser::parseUsingAll()
-{
-	skipJunkToTag(++it, Tag::NAME_START);
-	auto nameType = parseNameType(it, ents);
-	if (nameType.type != NameType::ENTITY_ABSTRACT || !nameType.entity.getContent().isNamespace())
-		throw runtime_error("expected namespace");
-	return ParamDocument::makeUsingAll(nameType.entity);
 }
 
 TemplateHeadStandard makeTheadImport()

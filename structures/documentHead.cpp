@@ -35,7 +35,7 @@ ParamDocument& ParamDocument::operator=(const ParamDocument& o)
 }
 
 ParamDocument::Type ParamDocument::getType() const { return type; }
-bool ParamDocument::hasNamespace() const { return type == Type::USING_ALL; }
+bool ParamDocument::hasNamespace() const { return type == Type::EXPAND; }
 const Entity& ParamDocument::getEntity() const { return ent; }
 const Namespace& ParamDocument::getNamespace() const { return ent.getContent().getNamespace(); }
 const ImportedDocument& ParamDocument::getImport() const { return *import; }
@@ -60,7 +60,7 @@ void ParamDocument::copyUnion(ParamDocument&& o)
 {
 	switch (o.type)
 	{
-	case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ALL:
+	case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::EXPAND:
 		ent = move(o.ent);
 		break;
 	case Type::USING_ONE:
@@ -82,7 +82,7 @@ void ParamDocument::copyUnion(const ParamDocument& o)
 {
 	switch (o.type)
 	{
-	case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::USING_ALL:
+	case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::EXPAND:
 		ent = o.ent;
 		break;
 	case Type::USING_ONE:
