@@ -1,0 +1,4 @@
+?expandTuple(2017, 05, 20)
+!Date<year, month, day>
+
+date = Date(^expandTuple)

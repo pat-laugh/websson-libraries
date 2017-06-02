@@ -62,16 +62,6 @@ string WebssType::toString() const
 		return "block head";
 	case WebssType::BLOCK:
 		return "block";
-	case WebssType::DICTIONARY_ABSTRACT:
-		return "dictionary abstract";
-	case WebssType::LIST_ABSTRACT:
-		return "list abstract";
-	case WebssType::TUPLE_ABSTRACT:
-		return "tuple abstract";
-	case WebssType::LIST_TEXT_ABSTRACT:
-		return "list text abstract";
-	case WebssType::TUPLE_TEXT_ABSTRACT:
-		return "tuple text abstract";
 	default:
 		return "unknown";
 	}

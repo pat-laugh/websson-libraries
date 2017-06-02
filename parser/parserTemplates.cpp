@@ -160,7 +160,7 @@ private:
 		auto ent = parseExpandEntity(it, ents);
 		switch (ent.getContent().getType())
 		{
-		case WebssType::TUPLE: case WebssType::TUPLE_TEXT: case WebssType::TUPLE_ABSTRACT:
+		case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 			for (const auto& item : ent.getContent().getTuple())
 			{
 				tuple.at(index) = checkTemplateContainer(params, params.at(index), item);

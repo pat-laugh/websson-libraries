@@ -60,12 +60,12 @@ string getItCurrentChar(SmartIterator& it)
 	return out;
 }
 
-Dictionary Parser::parseDictionary(bool isAbstract)
+Dictionary Parser::parseDictionary()
 {
-	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), isAbstract, [&](Dictionary& dict)
+	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), false, [&](Dictionary& dict)
 	{
 		if (nextTag == Tag::EXPAND)
-			expandDictionary(dict, it, ents, isAbstract);
+			expandDictionary(dict, it, ents);
 		else
 			parseExplicitKeyValue(
 				CaseKeyValue{ dict.addSafe(move(key), move(value)); },
@@ -73,17 +73,14 @@ Dictionary Parser::parseDictionary(bool isAbstract)
 	});
 }
 
-List Parser::parseListCommon(bool allowVoid, function<void(List&)> defaultFunc)
+List Parser::parseListCommon(function<void(List&)> defaultFunc)
 {
-	return parseContainer<List, ConType::LIST>(List(), allowVoid, [&](List& list)
+	return parseContainer<List, ConType::LIST>(List(), false, [&](List& list)
 	{
 		switch (nextTag)
 		{
-		case Tag::SEPARATOR: //void -- only reached if allowVoid == true
-			list.add(Webss());
-			break;
 		case Tag::EXPAND:
-			expandList(list, it, ents, allowVoid);
+			expandList(list, it, ents);
 			break;
 		case Tag::EXPLICIT_NAME:
 			throw runtime_error("list can only contain values");
@@ -94,40 +91,35 @@ List Parser::parseListCommon(bool allowVoid, function<void(List&)> defaultFunc)
 	});
 }
 
-List Parser::parseList(bool isAbstract)
+List Parser::parseList()
 {
-	return parseListCommon(isAbstract, [&](List& list)
+	return parseListCommon([&](List& list)
 	{
 		list.add(parseValueOnly());
 	});
 }
 
-List Parser::parseListText(bool isAbstract)
+List Parser::parseListText()
 {
-	return parseListCommon(isAbstract, [&](List& list)
+	return parseListCommon([&](List& list)
 	{
 		list.add(parseLineString(*this));
 	});
 }
 
-Tuple Parser::parseTupleCommon(bool allowVoid, function<void(Tuple&)> defaultFunc)
+Tuple Parser::parseTupleCommon(function<void(Tuple&)> defaultFunc)
 {
-	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), allowVoid, [&](Tuple& tuple)
+	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), false, [&](Tuple& tuple)
 	{
 		switch (nextTag)
 		{
-		case Tag::SEPARATOR: //void -- only reached if allowVoid == true
-			tuple.add(Webss());
-			break;
 		case Tag::EXPAND:
-			expandTuple(tuple, it, ents, allowVoid);
+			expandTuple(tuple, it, ents);
 			break;
 		case Tag::EXPLICIT_NAME:
-			parseOtherValue(
+			parseExplicitKeyValue(
 				CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
-				ErrorKeyOnly(ERROR_INPUT_TUPLE),
-				ErrorValueOnly(ERROR_INPUT_TUPLE),
-				ErrorAbstractEntity(ERROR_INPUT_TUPLE));
+				ErrorKeyOnly(ERROR_INPUT_TUPLE));
 			break;
 		default:
 			defaultFunc(tuple);
@@ -136,9 +128,9 @@ Tuple Parser::parseTupleCommon(bool allowVoid, function<void(Tuple&)> defaultFun
 	});
 }
 
-Tuple Parser::parseTuple(bool isAbstract)
+Tuple Parser::parseTuple()
 {
-	return parseTupleCommon(isAbstract, [&](Tuple& tuple)
+	return parseTupleCommon([&](Tuple& tuple)
 	{
 		parseOtherValue(
 			CaseKeyValue{ tuple.addSafe(move(key), move(value)); },
@@ -148,9 +140,9 @@ Tuple Parser::parseTuple(bool isAbstract)
 	});
 }
 
-Tuple Parser::parseTupleText(bool isAbstract)
+Tuple Parser::parseTupleText()
 {
-	return parseTupleCommon(isAbstract, [&](Tuple& tuple)
+	return parseTupleCommon([&](Tuple& tuple)
 	{
 		tuple.add(parseLineString(*this));
 	});

@@ -96,13 +96,13 @@ namespace webss
 		bool parseDocumentHead(std::vector<ParamDocument>& docHead, const Namespace& nspace);
 
 		
-		Dictionary parseDictionary(bool isAbstract = false);
-		List parseListCommon(bool allowVoid, std::function<void(List&)> defaultFunc);
-		List parseList(bool isAbstract = false);
-		List parseListText(bool isAbstract = false);
-		Tuple parseTupleCommon(bool allowVoid, std::function<void(Tuple&)> defaultFunc);
-		Tuple parseTuple(bool isAbstract = false);
-		Tuple parseTupleText(bool isAbstract = false);
+		Dictionary parseDictionary();
+		List parseListCommon(std::function<void(List&)> defaultFunc);
+		List parseList();
+		List parseListText();
+		Tuple parseTupleCommon(std::function<void(Tuple&)> defaultFunc);
+		Tuple parseTuple();
+		Tuple parseTupleText();
 
 		Namespace parseNamespace(const std::string& name, const Namespace& previousNamespace);
 		Enum parseEnum(const std::string& name);

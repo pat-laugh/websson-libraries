@@ -21,7 +21,7 @@ Entity webss::parseExpandEntity(SmartIterator& it, const EntityManager& ents)
 	return move(nameType.entity);
 }
 
-void webss::expandDictionary(Dictionary& dict, SmartIterator& it, const EntityManager& ents, bool isAbstract)
+void webss::expandDictionary(Dictionary& dict, SmartIterator& it, const EntityManager& ents)
 {
 	auto ent = parseExpandEntity(it, ents);
 	if (ent.getContent().getType() != WebssType::DICTIONARY)
@@ -30,7 +30,7 @@ void webss::expandDictionary(Dictionary& dict, SmartIterator& it, const EntityMa
 		dict.addSafe(item.first, item.second);
 }
 
-void webss::expandList(List& list, SmartIterator& it, const EntityManager& ents, bool isAbstract)
+void webss::expandList(List& list, SmartIterator& it, const EntityManager& ents)
 {
 	auto ent = parseExpandEntity(it, ents);
 	if (ent.getContent().getType() != WebssType::LIST && ent.getContent().getType() != WebssType::LIST_TEXT)
@@ -39,14 +39,11 @@ void webss::expandList(List& list, SmartIterator& it, const EntityManager& ents,
 		list.add(item);
 }
 
-void webss::expandTuple(Tuple& tuple, SmartIterator& it, const EntityManager& ents, bool isAbstract)
+void webss::expandTuple(Tuple& tuple, SmartIterator& it, const EntityManager& ents)
 {
 	auto ent = parseExpandEntity(it, ents);
 	switch (ent.getContent().getType())
 	{
-	case WebssType::TUPLE_ABSTRACT:
-		if (!isAbstract)
-			throw runtime_error("can't expand abstract tuple within a concrete tuple");
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
 			if (item.first == nullptr)
