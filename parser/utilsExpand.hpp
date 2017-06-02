@@ -15,4 +15,5 @@ namespace webss
 	void expandTuple(Tuple& tuple, SmartIterator& it, const EntityManager& ents);
 	void expandNamespace(Namespace& nspace, SmartIterator& it, const EntityManager& ents);
 	void expandEnum(Enum& tEnum, SmartIterator& it, const EntityManager& ents);
+	void expandDocumentBody(Document& doc, SmartIterator& it, const EntityManager& ents);
 }

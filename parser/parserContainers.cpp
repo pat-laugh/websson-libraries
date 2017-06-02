@@ -199,15 +199,29 @@ Document Parser::parseDocument()
 	try
 	{
 		Document doc;
-		if (!containerEmpty() && !parseDocumentHead(doc.getHead(), Namespace::getEmptyInstance()))
+		if (!containerEmpty() && !parseDocumentHead(doc, Namespace::getEmptyInstance()))
 		{
 			do
-				parseOtherValue(
-					CaseKeyValue{ doc.addSafe(move(key), move(value)); },
-					ErrorKeyOnly(ERROR_INPUT_DOCUMENT),
-					CaseValueOnly{ doc.add(move(value)); },
-					ErrorAbstractEntity(ERROR_INPUT_DOCUMENT));
-			while (checkNextElement());
+			{
+				switch (nextTag)
+				{
+				case Tag::EXPAND:
+					expandDocumentBody(doc, it, ents);
+					break;
+				case Tag::EXPLICIT_NAME:
+					parseExplicitKeyValue(
+						CaseKeyValue{ doc.addSafe(move(key), move(value)); },
+						ErrorKeyOnly(ERROR_INPUT_DOCUMENT));
+					break;
+				default:
+					parseOtherValue(
+						CaseKeyValue{ doc.addSafe(move(key), move(value)); },
+						ErrorKeyOnly(ERROR_INPUT_DOCUMENT),
+						CaseValueOnly{ doc.add(move(value)); },
+						ErrorAbstractEntity(ERROR_INPUT_DOCUMENT));
+					break;
+				}
+			} while (checkNextElement());
 		}
 		return doc;
 	}
@@ -217,9 +231,9 @@ Document Parser::parseDocument()
 	}
 }
 
-bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& nspace)
+bool Parser::parseDocumentHead(Document& doc, const Namespace& nspace)
 {
-	assert(it);
+	auto& docHead = doc.getHead();
 	do
 	{
 		switch (nextTag)
@@ -259,7 +273,13 @@ bool Parser::parseDocumentHead(vector<ParamDocument>& docHead, const Namespace& 
 		{
 			auto ent = parseExpandEntity(it, ents);
 			if (ent.getContent().getType() != WebssType::NAMESPACE)
+			{
+				if (ent.getContent().getType() != WebssType::TUPLE && ent.getContent().getType() != WebssType::TUPLE_TEXT)
+					throw runtime_error("expand entity in document body must be a tuple");
+				for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
+					item.first == nullptr ? doc.add(*item.second) : doc.addSafe(*item.first, *item.second);
 				return false;
+			}
 			auto param = ParamDocument::makeExpand(ent);
 			const auto& nspace = param.getNamespace();
 			useNamespace(ents, nspace);

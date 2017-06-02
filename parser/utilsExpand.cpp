@@ -4,6 +4,7 @@
 
 #include "nameType.hpp"
 #include "structures/dictionary.hpp"
+#include "structures/document.hpp"
 #include "structures/list.hpp"
 #include "structures/tuple.hpp"
 #include "utils/utilsWebss.hpp"
@@ -65,4 +66,13 @@ void webss::expandEnum(Enum& tEnum, SmartIterator& it, const EntityManager& ents
 		throw runtime_error("expand entity in enum must be an enum");
 	for (const auto& item : ent.getContent().getEnum())
 		tEnum.addSafe(item.getName());
+}
+
+void webss::expandDocumentBody(Document& doc, SmartIterator& it, const EntityManager& ents)
+{
+	auto ent = parseExpandEntity(it, ents);
+	if (ent.getContent().getType() != WebssType::TUPLE && ent.getContent().getType() != WebssType::TUPLE_TEXT)
+		throw runtime_error("expand entity in document body must be a tuple");
+	for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
+		item.first == nullptr ? doc.add(*item.second) : doc.addSafe(*item.first, *item.second);
 }
