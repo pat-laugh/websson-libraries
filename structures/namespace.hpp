@@ -38,8 +38,8 @@ namespace webss
 		void add(std::string key, Webss value);
 		void addSafe(std::string key, Webss value);
 
-		void add(Entity&& ent);
-		void addSafe(Entity&& ent);
+		void add(Entity ent);
+		void addSafe(Entity ent);
 
 		bool has(const std::string& key) const;
 

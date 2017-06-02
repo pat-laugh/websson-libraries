@@ -42,16 +42,27 @@ void webss::expandList(List& list, SmartIterator& it, const EntityManager& ents)
 void webss::expandTuple(Tuple& tuple, SmartIterator& it, const EntityManager& ents)
 {
 	auto ent = parseExpandEntity(it, ents);
-	switch (ent.getContent().getType())
-	{
-	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
-		for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
-			if (item.first == nullptr)
-				tuple.add(*item.second);
-			else
-				tuple.addSafe(*item.first, *item.second);
-		break;
-	default:
+	if (ent.getContent().getType() != WebssType::TUPLE && ent.getContent().getType() != WebssType::TUPLE_TEXT)
 		throw runtime_error("expand entity in tuple must be a tuple");
-	}
+	for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
+		item.first == nullptr ? tuple.add(*item.second) : tuple.addSafe(*item.first, *item.second);
+}
+
+void webss::expandNamespace(Namespace& nspace, SmartIterator& it, const EntityManager& ents)
+{
+	auto ent = parseExpandEntity(it, ents);
+	if (ent.getContent().getType() != WebssType::NAMESPACE)
+		throw runtime_error("expand entity in namespace must be a namespace");
+	for (const auto& item : ent.getContent().getNamespace())
+		nspace.addSafe(item);
+}
+
+
+void webss::expandEnum(Enum& tEnum, SmartIterator& it, const EntityManager& ents)
+{
+	auto ent = parseExpandEntity(it, ents);
+	if (ent.getContent().getType() != WebssType::ENUM)
+		throw runtime_error("expand entity in enum must be an enum");
+	for (const auto& item : ent.getContent().getEnum())
+		tEnum.addSafe(item.getName());
 }

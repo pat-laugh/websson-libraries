@@ -13,4 +13,6 @@ namespace webss
 	void expandDictionary(Dictionary& dict, SmartIterator& it, const EntityManager& ents);
 	void expandList(List& list, SmartIterator& it, const EntityManager& ents);
 	void expandTuple(Tuple& tuple, SmartIterator& it, const EntityManager& ents);
+	void expandNamespace(Namespace& nspace, SmartIterator& it, const EntityManager& ents);
+	void expandEnum(Enum& tEnum, SmartIterator& it, const EntityManager& ents);
 }

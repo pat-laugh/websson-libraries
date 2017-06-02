@@ -40,13 +40,13 @@ Namespace::size_type Namespace::size() const
 void Namespace::add(string key, Webss value) { add(Entity(move(key), move(value))); }
 void Namespace::addSafe(string key, Webss value) { addSafe(Entity(move(key), move(value))); }
 
-void Namespace::add(Entity&& ent)
+void Namespace::add(Entity ent)
 {
 	ent.setNamespace(getPointer());
 	containerAddUnsafe(getKeys(), string(ent.getName()), size());
 	getData().push_back(move(ent));
 }
-void Namespace::addSafe(Entity&& ent)
+void Namespace::addSafe(Entity ent)
 {
 	ent.setNamespace(getPointer());
 	containerAddSafe(getKeys(), string(ent.getName()), size());

@@ -152,15 +152,18 @@ Namespace Parser::parseNamespace(const string& name, const Namespace& previousNa
 {
 	return parseContainer<Namespace, ConType::DICTIONARY>(Namespace(name, previousNamespace), false, [&](Namespace& nspace)
 	{
-		switch (*it)
+		switch (nextTag)
 		{
-		case CHAR_ABSTRACT_ENTITY:
+		case Tag::EXPAND:
+			expandNamespace(nspace, it, ents);
+			break;
+		case Tag::ENTITY_ABSTRACT:
 			nspace.addSafe(parseAbstractEntity(nspace));
 			break;
-		case CHAR_CONCRETE_ENTITY:
+		case Tag::ENTITY_CONCRETE:
 			nspace.addSafe(parseConcreteEntity());
 			break;
-		case CHAR_SELF:
+		case Tag::SELF:
 			skipJunkToTag(++it, Tag::START_TEMPLATE);
 			nspace.addSafe(Entity(string(name), parseTemplateHead()));
 			break;
@@ -174,14 +177,20 @@ Enum Parser::parseEnum(const string& name)
 {
 	return parseContainer<Enum, ConType::LIST>(Enum(name), false, [&](Enum& tEnum)
 	{
-		string name;
-		if (nextTag == Tag::NAME_START)
-			name = parseName(it);
-		else if (nextTag == Tag::EXPLICIT_NAME)
-			name = parseNameExplicit(it);
-		else
+		switch (nextTag)
+		{
+		case Tag::EXPAND:
+			expandEnum(tEnum, it, ents);
+			break;
+		case Tag::NAME_START:
+			tEnum.addSafe(parseName(it));
+			break;
+		case Tag::EXPLICIT_NAME:
+			tEnum.addSafe(parseNameExplicit(it));
+			break;
+		default:
 			throw runtime_error(ERROR_UNEXPECTED);
-		tEnum.addSafe(move(name));
+		}
 	});
 }
 
