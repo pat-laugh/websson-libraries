@@ -200,6 +200,15 @@ private:
 		}
 	}
 
+	string parseNameTemplateDictionary()
+	{
+		if (nextTag == Tag::NAME_START)
+			return parseName(it);
+		else if (nextTag == Tag::EXPLICIT_NAME)
+			return parseNameExplicit(it);
+		throw runtime_error("dictionary can only have key-values");
+	}
+
 	template <class Parameters>
 	Dictionary parseTemplateDictionary(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
@@ -211,7 +220,7 @@ private:
 				; //...
 			else
 			{
-				string name = parseNameDictionary();
+				string name = parseNameTemplateDictionary();
 				switch (nextTag = getTag(it))
 				{
 				case Tag::START_LIST:

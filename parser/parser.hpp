@@ -68,10 +68,9 @@ namespace webss
 			Entity abstractEntity;
 		};
 
-		OtherValue parseOtherValue();
+		OtherValue parseOtherValue(bool explicitName = false);
 		void parseOtherValue(std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Entity& abstractEntity)> funcAbstractEntity);
-
-		std::string parseNameDictionary();
+		void parseExplicitKeyValue(std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly);
 
 		//parserTemplates.cpp
 		Webss parseTemplateHead();

@@ -95,21 +95,6 @@ TemplateHeadBinary parseTemplateHeadBinary(Parser& parser, TemplateHeadBinary&& 
 	return move(thead);
 }
 
-Dictionary Parser::parseDictionary(bool isAbstract)
-{
-	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), isAbstract, [&](Dictionary& dict)
-	{
-		if (nextTag == Tag::EXPAND)
-			expandDictionary(dict, it, ents, isAbstract);
-		else
-		{
-			string name = parseNameDictionary();
-			nextTag = getTag(it);
-			dict.addSafe(move(name), parseValueOnly());
-		}
-	});
-}
-
 TemplateHeadStandard parseTemplateHeadStandard(Parser& parser, TemplateHeadStandard&& thead)
 {
 	do
@@ -130,11 +115,9 @@ TemplateHeadStandard parseTemplateHeadStandard(Parser& parser, TemplateHeadStand
 		}
 		else
 		{
-			parser.parseOtherValue(
+			parser.parseExplicitKeyValue(
 				CaseKeyValue{ thead.attach(move(key), move(value)); },
-				CaseKeyOnly{ thead.attachEmpty(move(key)); },
-				ErrorValueOnly(ERROR_ANONYMOUS_KEY),
-				ErrorAbstractEntity(ERROR_UNEXPECTED));
+				CaseKeyOnly{ thead.attachEmpty(move(key)); });
 		}
 	while (parser.checkNextElement());
 	return move(thead);
@@ -168,10 +151,8 @@ void parseStandardParameterTemplateHead(Parser& parser, TemplateHeadStandard& th
 
 void parseOtherValuesTheadStandardAfterThead(Parser& parser, TemplateHeadStandard& thead)
 {
-	parser.checkNextElement();
-	parser.parseOtherValue(
+	parser.nextTag = getTag(++parser.getIt());
+	parser.parseExplicitKeyValue(
 		CaseKeyValue{ thead.attach(move(key), move(value)); },
-		CaseKeyOnly{ thead.attachEmpty(move(key)); },
-		ErrorValueOnly(ERROR_ANONYMOUS_KEY),
-		ErrorAbstractEntity(ERROR_UNEXPECTED));
+		CaseKeyOnly{ thead.attachEmpty(move(key)); });
 }

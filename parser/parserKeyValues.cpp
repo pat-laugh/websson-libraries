@@ -21,7 +21,7 @@ Webss Parser::parseValueEqual()
 
 #define CASE_TAG_KEY_CHAR Tag::START_DICTIONARY: case Tag::START_LIST: case Tag::START_TUPLE: case Tag::START_TEMPLATE: case Tag::LINE_STRING: case Tag::EQUAL: case Tag::C_STRING: case Tag::TEXT_DICTIONARY: case Tag::TEXT_LIST: case Tag::TEXT_TUPLE: case Tag::TEXT_TEMPLATE
 
-Parser::OtherValue Parser::parseOtherValue()
+Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 {
 	switch (nextTag)
 	{
@@ -37,22 +37,25 @@ Parser::OtherValue Parser::parseOtherValue()
 	case Tag::TEXT_TUPLE: return Webss(parseTupleText(), true);
 	case Tag::TEXT_TEMPLATE: return Webss(parseTemplateText());
 	case Tag::NAME_START:
-	{
-		auto nameType = parseNameType(it, ents);
-		switch (nameType.type)
+		if (explicitName)
+			return parseOtherValueName(parseName(it));
+		else
 		{
-		case NameType::NAME:
-			return parseOtherValueName(move(nameType.name));
-		case NameType::KEYWORD:
-			return Webss(nameType.keyword);
-		case NameType::ENTITY_ABSTRACT:
-			return checkAbstractEntity(nameType.entity);
-		case NameType::ENTITY_CONCRETE:
-			return Webss(move(nameType.entity));
-		default:
-			assert(false);
+			auto nameType = parseNameType(it, ents);
+			switch (nameType.type)
+			{
+			case NameType::NAME:
+				return parseOtherValueName(move(nameType.name));
+			case NameType::KEYWORD:
+				return Webss(nameType.keyword);
+			case NameType::ENTITY_ABSTRACT:
+				return checkAbstractEntity(nameType.entity);
+			case NameType::ENTITY_CONCRETE:
+				return Webss(move(nameType.entity));
+			default:
+				assert(false);
+			}
 		}
-	}
 	case Tag::NUMBER_START:
 		return Webss(parseNumber(*this));
 	case Tag::EXPLICIT_NAME:
@@ -113,7 +116,7 @@ Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 	return{ ent };
 }
 
-void Parser::parseOtherValue(std::function<void(string&& key, Webss&& value)> funcKeyValue, function<void(string&& key)> funcKeyOnly, function<void(Webss&& value)> funcValueOnly, function<void(const Entity& abstractEntity)> funcAbstractEntity)
+void Parser::parseOtherValue(function<void(string&& key, Webss&& value)> funcKeyValue, function<void(string&& key)> funcKeyOnly, function<void(Webss&& value)> funcValueOnly, function<void(const Entity& abstractEntity)> funcAbstractEntity)
 {
 	auto other = parseOtherValue();
 	switch (other.type)
@@ -131,7 +134,25 @@ void Parser::parseOtherValue(std::function<void(string&& key, Webss&& value)> fu
 		funcAbstractEntity(other.abstractEntity);
 		break;
 	default:
-		assert(false); throw domain_error("");
+		assert(false);
+	}
+}
+
+void Parser::parseExplicitKeyValue(function<void(string&& key, Webss&& value)> funcKeyValue, function<void(string&& key)> funcKeyOnly)
+{
+	auto other = parseOtherValue(true);
+	switch (other.type)
+	{
+	case OtherValue::Type::KEY_VALUE:
+		funcKeyValue(move(other.key), move(other.value));
+		break;
+	case OtherValue::Type::KEY_ONLY:
+		funcKeyOnly(move(other.key));
+		break;
+	case OtherValue::Type::VALUE_ONLY:
+		throw runtime_error(ERROR_UNEXPECTED);
+	default:
+		assert(false);
 	}
 }
 

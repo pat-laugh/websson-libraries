@@ -60,16 +60,6 @@ string getItCurrentChar(SmartIterator& it)
 	return out;
 }
 
-//dictionary doesn't use parseOtherValue because the names are implicitly explicit
-string Parser::parseNameDictionary()
-{
-	if (nextTag == Tag::NAME_START)
-		return parseName(it);
-	else if (nextTag == Tag::EXPLICIT_NAME)
-		return parseNameExplicit(it);
-	throw runtime_error(ERROR_INPUT_DICTIONARY);
-}
-
 Dictionary Parser::parseDictionary(bool isAbstract)
 {
 	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), isAbstract, [&](Dictionary& dict)
@@ -77,11 +67,9 @@ Dictionary Parser::parseDictionary(bool isAbstract)
 		if (nextTag == Tag::EXPAND)
 			expandDictionary(dict, it, ents, isAbstract);
 		else
-		{
-			string name = parseNameDictionary();
-			nextTag = getTag(it);
-			dict.addSafe(move(name), parseValueOnly());
-		}
+			parseExplicitKeyValue(
+				CaseKeyValue{ dict.addSafe(move(key), move(value)); },
+				ErrorKeyOnly(ERROR_INPUT_DICTIONARY));
 	});
 }
 

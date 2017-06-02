@@ -116,7 +116,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 
 	skipJunkToTag(it, Tag::END_TUPLE);
 	nextTag = getTag(++it);
-	parseOtherValue(
+	parseExplicitKeyValue(
 		CaseKeyValue
 		{
 			bhead.setDefaultValue(move(value));
@@ -127,9 +127,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 			if (bhead.isSelf())
 				throw runtime_error("binary param declared with self must have a default value");
 			thead.attach(move(key), ParamBinary(move(bhead), move(blist)));
-		},
-		ErrorValueOnly(ERROR_ANONYMOUS_KEY),
-		ErrorAbstractEntity(ERROR_ANONYMOUS_KEY));
+		});
 }
 
 ParamBinary::SizeList parseBinarySizeList(Parser& parser)
