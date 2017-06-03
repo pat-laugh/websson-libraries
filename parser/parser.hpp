@@ -126,10 +126,15 @@ namespace webss
 		Webss parseTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue);
 		Webss checkTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue, const Webss& value);
 
+		Webss buildTemplateBodyStandard(const TemplateHeadStandard::Parameters& params, const Webss& defaultValue);
 		Tuple parseTemplateTupleStandard(const TemplateHeadStandard::Parameters& params);
 		Tuple parseTemplateTupleText(const TemplateHeadStandard::Parameters& params);
 		Tuple::size_type expandTemplateTuple(const TemplateHeadStandard::Parameters& params, Tuple& templateTuple, Tuple::size_type index);
-		Tuple::size_type fillTemplateTuple(const TemplateHeadStandard::Parameters& params, Tuple& templateTuple, const Tuple& expandTuple, Tuple::size_type index);
-		Webss fillTemplateBodyStandard(const TemplateHeadStandard::Parameters& params, const Webss& defaultValue);
+		Dictionary buildTemplateBodyDictionary(const TemplateHeadStandard::Parameters& params, const Dictionary& baseDictionary);
+		void fillTemplateBodyDictionary(const TemplateHeadStandard::Parameters& params, const Dictionary& baseDictionary, Dictionary& filledDictionary);
+		List buildTemplateBodyList(const TemplateHeadStandard::Parameters& params, const List& baseList);
+		void fillTemplateBodyList(const TemplateHeadStandard::Parameters& params, const List& baseList, List& filledList);
+		Tuple buildTemplateBodyTuple(const TemplateHeadStandard::Parameters& params, const Tuple& baseTuple);
+		Tuple::size_type fillTemplateBodyTuple(const TemplateHeadStandard::Parameters& params, const Tuple& baseTuple, Tuple& filledTuple, Tuple::size_type index = 0);
 	};
 }

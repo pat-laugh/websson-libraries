@@ -14,6 +14,9 @@ using namespace std;
 using namespace webss;
 
 const char ERROR_NO_DEFAULT[] = "no default value, so value must be implemented";
+const char ERROR_EXPAND_BINARY_TEMPLATE[] = "can't expand for a binary template";
+const char ERROR_EXPAND_TYPE[] = "expanded item in template body must contain tuple to implement template head";
+
 
 void setDefaultValue(Webss& value, const ParamBinary& defaultValue);
 void setDefaultValue(Webss& value, const ParamStandard& defaultValue);
@@ -151,24 +154,30 @@ public:
 	}
 
 private:
-	template <class Parameters>
-	void expandTemplateDictionary(const Parameters& params, Dictionary& dict)
+	void expandTemplateDictionary(const TemplateHeadBinary::Parameters& params, Dictionary& dict)
+	{
+		throw runtime_error(ERROR_EXPAND_BINARY_TEMPLATE);
+	}
+
+	void expandTemplateDictionary(const TemplateHeadStandard::Parameters& params, Dictionary& dict)
 	{
 		auto ent = parseExpandEntity(it, ents);
 		if (ent.getContent().getType() != WebssType::DICTIONARY)
 			throw runtime_error("expand entity within dictionary must be a dictionary");
-		for (const auto& item : ent.getContent().getDictionary())
-			dict.addSafe(item.first, item.second);
+		fillTemplateBodyDictionary(params, ent.getContent().getDictionary(), dict);
 	}
 
-	template <class Parameters>
-	void expandTemplateList(const Parameters& params, List& list)
+	void expandTemplateList(const TemplateHeadBinary::Parameters& params, List& list)
+	{
+		throw runtime_error(ERROR_EXPAND_BINARY_TEMPLATE);
+	}
+
+	void expandTemplateList(const TemplateHeadStandard::Parameters& params, List& list)
 	{
 		auto ent = parseExpandEntity(it, ents);
 		if (ent.getContent().getType() != WebssType::LIST && ent.getContent().getType() != WebssType::LIST_TEXT)
 			throw runtime_error("expand entity within list must be a list");
-		for (const auto& item : ent.getContent().getList())
-			list.add(item);
+		fillTemplateBodyList(params, ent.getContent().getList(), list);
 	}
 
 	void parseTemplateTupleName(const TemplateHeadStandard::Parameters& params, Tuple& tuple, Tuple::size_type& index)
@@ -211,12 +220,10 @@ private:
 	template <class Parameters>
 	Dictionary parseTemplateDictionary(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
-		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), true, [&](Dictionary& dict)
+		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), false, [&](Dictionary& dict)
 		{
 			if (nextTag == Tag::EXPAND)
 				expandTemplateDictionary(params, dict);
-			else if (nextTag == Tag::SEPARATOR)
-				; //...
 			else
 			{
 				string name = parseNameTemplateDictionary();
@@ -241,13 +248,10 @@ private:
 	template <class Parameters>
 	List parseTemplateList(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
-		return parseContainer<List, ConType::LIST>(List(), true, [&](List& list)
+		return parseContainer<List, ConType::LIST>(List(), false, [&](List& list)
 		{
 			switch (nextTag)
 			{
-			case Tag::SEPARATOR:
-				//...
-				break;
 			case Tag::EXPAND:
 				expandTemplateList(params, list);
 				break;
@@ -354,41 +358,65 @@ Tuple::size_type Parser::expandTemplateTuple(const TemplateHeadStandard::Paramet
 	auto ent = parseExpandEntity(it, ents);
 	if (!ent.getContent().isTuple())
 		throw runtime_error("expand entity within tuple must be a tuple");
-	return fillTemplateTuple(params, templateTuple, ent.getContent().getTuple(), index);
+	return fillTemplateBodyTuple(params, ent.getContent().getTuple(), templateTuple, index);
 }
 
-Tuple::size_type Parser::fillTemplateTuple(const TemplateHeadStandard::Parameters& params, Tuple& templateTuple, const Tuple& expandTuple, Tuple::size_type index = 0)
+Dictionary Parser::buildTemplateBodyDictionary(const TemplateHeadStandard::Parameters& params, const Dictionary& baseDictionary)
 {
-	for (const auto& item : expandTuple.getOrderedKeyValues())
+	Dictionary templateDictionary;
+	fillTemplateBodyDictionary(params, baseDictionary, templateDictionary);
+	return templateDictionary;
+}
+
+void Parser::fillTemplateBodyDictionary(const TemplateHeadStandard::Parameters& params, const Dictionary& baseDictionary, Dictionary& filledDictionary)
+{
+	for (const auto& item : baseDictionary)
+	{
+		if (item.second.isTuple())
+			filledDictionary.addSafe(item.first, buildTemplateBodyTuple(params, item.second.getTuple()));
+		else if (item.second.isList())
+			filledDictionary.addSafe(item.first, buildTemplateBodyList(params, item.second.getList()));
+		else
+			throw runtime_error(ERROR_EXPAND_TYPE);
+	}
+}
+
+List Parser::buildTemplateBodyList(const TemplateHeadStandard::Parameters& params, const List& baseList)
+{
+	List templateList;
+	fillTemplateBodyList(params, baseList, templateList);
+	return templateList;
+}
+
+void Parser::fillTemplateBodyList(const TemplateHeadStandard::Parameters& params, const List& baseList, List& filledList)
+{
+	for (const auto& item : baseList)
+	{
+		if (!item.isTuple())
+			throw runtime_error(ERROR_EXPAND_TYPE);
+		filledList.add(buildTemplateBodyTuple(params, item.getTuple()));
+	}
+}
+
+Tuple Parser::buildTemplateBodyTuple(const TemplateHeadStandard::Parameters& params, const Tuple& baseTuple)
+{
+	Tuple templateTuple(params.getSharedKeys());
+	if (fillTemplateBodyTuple(params, baseTuple, templateTuple) < templateTuple.size())
+		checkDefaultValues(templateTuple, params);
+	return templateTuple;
+}
+
+Tuple::size_type Parser::fillTemplateBodyTuple(const TemplateHeadStandard::Parameters& params, const Tuple& baseTuple, Tuple& filledTuple, Tuple::size_type index)
+{
+	for (const auto& item : baseTuple.getOrderedKeyValues())
 	{
 		if (item.first == nullptr)
-			templateTuple.at(index) = checkTemplateContainer(params, params.at(index), *item.second);
+			filledTuple.at(index) = checkTemplateContainer(params, params.at(index), *item.second);
 		else
-			templateTuple.at(*item.first) = checkTemplateContainer(params, params.at(*item.first), *item.second);
+			filledTuple.at(*item.first) = checkTemplateContainer(params, params.at(*item.first), *item.second);
 		++index;
 	}
 	return index;
-}
-
-Webss Parser::fillTemplateBodyStandard(const TemplateHeadStandard::Parameters& params, const Webss& templateItem)
-{
-	switch (templateItem.getType())
-	{
-	case WebssType::DICTIONARY:
-		//...
-	case WebssType::LIST: case WebssType::LIST_TEXT:
-		//...
-	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
-	{
-		//build tuple with the param's template head and the expanded tuple's item
-		Tuple templateTuple(params.getSharedKeys());
-		if (fillTemplateTuple(params, templateTuple, templateItem.getTuple()) < templateTuple.size())
-			checkDefaultValues(templateTuple, params);
-		return templateTuple;
-	}
-	default:
-		throw runtime_error("template head must be implemented");
-	}
 }
 
 Webss Parser::checkTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& param, const Webss& tupleItem)
@@ -396,12 +424,27 @@ Webss Parser::checkTemplateContainer(const TemplateHeadStandard::Parameters& par
 	switch (param.getTypeThead())
 	{
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		throw runtime_error("can't expand for a binary template");
+		throw runtime_error(ERROR_EXPAND_BINARY_TEMPLATE);
 	case WebssType::TEMPLATE_HEAD_SELF:
-		return fillTemplateBodyStandard(params, tupleItem);
+		return buildTemplateBodyStandard(params, tupleItem);
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
-		return fillTemplateBodyStandard(param.getTemplateHeadStandard().getParameters(), tupleItem);
+		return buildTemplateBodyStandard(param.getTemplateHeadStandard().getParameters(), tupleItem);
 	default:
 		return tupleItem;
+	}
+}
+
+Webss Parser::buildTemplateBodyStandard(const TemplateHeadStandard::Parameters& params, const Webss& templateItem)
+{
+	switch (templateItem.getType())
+	{
+	case WebssType::DICTIONARY:
+		return buildTemplateBodyDictionary(params, templateItem.getDictionary());
+	case WebssType::LIST: case WebssType::LIST_TEXT:
+		return buildTemplateBodyList(params, templateItem.getList());
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
+		return buildTemplateBodyTuple(params, templateItem.getTuple());
+	default:
+		throw runtime_error("template head must be implemented");
 	}
 }
