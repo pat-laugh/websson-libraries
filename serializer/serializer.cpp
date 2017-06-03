@@ -194,7 +194,7 @@ private:
 		if (bhead.hasDefaultValue())
 			putCharValue(out, bhead.getDefaultValue(), ConType::TEMPLATE_HEAD);
 		else
-			assert(!bhead.isSelf());
+			assert(!bhead.isTemplateHeadSelf());
 	}
 	void putParamStandard(StringBuilder& out, const string& key, const ParamStandard& param)
 	{

@@ -46,11 +46,12 @@ namespace webss
 			bool isEmpty() const;
 			bool isKeyword() const;
 			bool isBool() const;
-			bool isTemplateHead() const;
+			bool isTemplateHeadBinary() const;
+
 			bool hasEntity() const;
 
 			bool hasDefaultValue() const;
-			bool isSelf() const;
+			bool isTemplateHeadSelf() const;
 
 			Type getType() const;
 			Keyword getKeyword() const;
@@ -141,6 +142,14 @@ namespace webss
 
 		const SizeHead& getSizeHead() const;
 		const SizeList& getSizeList() const;
+
+		//functions for sizeHead
+		bool hasDefaultValue() const;
+		const std::shared_ptr<Webss>& getDefaultPointer() const;
+		bool isTemplateHeadBinary() const;
+		bool isTemplateHeadSelf() const;
+		const TemplateHeadBinary& getTemplateHead() const;
+
 	private:
 		SizeHead sizeHead;
 		SizeList sizeList;

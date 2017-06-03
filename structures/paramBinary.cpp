@@ -63,11 +63,11 @@ SizeHead& SizeHead::operator=(const SizeHead& o)
 bool SizeHead::isEmpty() const { return type == Type::EMPTY || type == Type::EMPTY_ENTITY_NUMBER; }
 bool SizeHead::isKeyword() const { return type == Type::KEYWORD; }
 bool SizeHead::isBool() const { return isKeyword() && keyword == Keyword::BOOL; }
-bool SizeHead::isTemplateHead() const { return type == Type::ENTITY_TEMPLATE_HEAD || type == Type::TEMPLATE_HEAD; }
+bool SizeHead::isTemplateHeadBinary() const { return type == Type::ENTITY_TEMPLATE_HEAD || type == Type::TEMPLATE_HEAD; }
 bool SizeHead::hasEntity() const { return type == Type::ENTITY_TEMPLATE_HEAD || type == Type::ENTITY_NUMBER || type == Type::EMPTY_ENTITY_NUMBER || type == Type::ENTITY_BITS; }
 
 bool SizeHead::hasDefaultValue() const { return defaultValue.get() != nullptr; }
-bool SizeHead::isSelf() const { return type == Type::SELF; }
+bool SizeHead::isTemplateHeadSelf() const { return type == Type::SELF; }
 
 SizeHead::Type SizeHead::getType() const { return type; }
 Keyword SizeHead::getKeyword() const
@@ -96,7 +96,7 @@ const Entity& SizeHead::getEntity() const
 
 const TemplateHeadBinary& SizeHead::getTemplateHead() const
 {
-	assert(isTemplateHead());
+	assert(isTemplateHeadBinary());
 	return type == Type::ENTITY_TEMPLATE_HEAD ? ent.getContent(). template getElement<TemplateHeadBinary>() : *thead;
 }
 
@@ -332,3 +332,8 @@ ParamBinary& ParamBinary::operator=(const ParamBinary& o)
 
 const SizeHead& ParamBinary::getSizeHead() const { return sizeHead; }
 const SizeList& ParamBinary::getSizeList() const { return sizeList; }
+bool ParamBinary::hasDefaultValue() const { return getSizeHead().hasDefaultValue(); }
+const shared_ptr<Webss>& ParamBinary::getDefaultPointer() const { return getSizeHead().getDefaultPointer(); }
+bool ParamBinary::isTemplateHeadBinary() const { return getSizeHead().isTemplateHeadBinary(); }
+bool ParamBinary::isTemplateHeadSelf() const { return getSizeHead().isTemplateHeadSelf(); }
+const TemplateHeadBinary& ParamBinary::getTemplateHead() const { return getSizeHead().getTemplateHead(); }

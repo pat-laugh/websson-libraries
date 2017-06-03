@@ -124,7 +124,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 		},
 		CaseKeyOnly
 		{
-			if (bhead.isSelf())
+			if (bhead.isTemplateHeadSelf())
 				throw runtime_error("binary param declared with self must have a default value");
 			thead.attach(move(key), ParamBinary(move(bhead), move(blist)));
 		});
@@ -219,14 +219,14 @@ Tuple parseBinaryTemplate(BinaryIterator& it, const TemplateHeadBinary::Paramete
 		else if (it.readBit() == CHAR_BINARY_DEFAULT_TRUE)
 			setDefaultValueBinary(tuple[i], params[i]);
 		else
-			tuple[i] = param.getSizeHead().isSelf() ? parseBinaryTemplate(it, params) : parseBinary(it, param);
+			tuple[i] = param.getSizeHead().isTemplateHeadSelf() ? parseBinaryTemplate(it, params) : parseBinary(it, param);
 	}
 	return tuple;
 }
 
 Webss parseBinary(BinaryIterator& it, const ParamBinary& param)
 {
-	if (!param.getSizeHead().isTemplateHead())
+	if (!param.getSizeHead().isTemplateHeadBinary())
 		return parseBinary(it, param, [&]() { return parseBinaryElement(it, param.getSizeHead()); });
 
 	const auto& params = param.getSizeHead().getTemplateHead().getParameters();

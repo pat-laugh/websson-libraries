@@ -73,7 +73,7 @@ void putFuncBodyBinary(StringBuilder& out, const TemplateHeadBinary::Parameters&
 		const auto& binary = params[i++];
 		if (!binary.getSizeHead().hasDefaultValue())
 		{
-			assert(!binary.getSizeHead().isSelf());
+			assert(!binary.getSizeHead().isTemplateHeadSelf());
 			putBinary(out, binary, webss);
 		}
 		else if (webss.getTypeRaw() == WebssType::DEFAULT || webss.getTypeRaw() == WebssType::NONE)
@@ -81,7 +81,7 @@ void putFuncBodyBinary(StringBuilder& out, const TemplateHeadBinary::Parameters&
 		else
 		{
 			out += CHAR_BINARY_DEFAULT_FALSE;
-			if (binary.getSizeHead().isSelf())
+			if (binary.getSizeHead().isTemplateHeadSelf())
 				putFuncBodyBinary(out, params, webss.getTuple());
 			else
 				putBinary(out, binary, webss);
@@ -92,7 +92,7 @@ void putFuncBodyBinary(StringBuilder& out, const TemplateHeadBinary::Parameters&
 void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data)
 {
 	const auto& sizeHead = param.getSizeHead();
-	if (!sizeHead.isTemplateHead())
+	if (!sizeHead.isTemplateHeadBinary())
 		putBinary(out, param, data, [&](const Webss& webss) { putBinaryElement(out, sizeHead, webss); });
 	else
 	{
