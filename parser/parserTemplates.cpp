@@ -109,13 +109,8 @@ public:
 			case Tag::EXPLICIT_NAME:
 			{
 				auto name = parseNameExplicit(it);
-				if (isText)
-					tuple.at(name) = Webss(parseLineString(*this));
-				else
-				{
-					nextTag = getTag(it);
-					tuple.at(name) = parseTemplateContainer(params, params.at(name));
-				}
+				nextTag = getTag(it);
+				tuple.at(name) = isText ? Webss(parseValueOnly()) : parseTemplateContainer(params, params.at(name));
 				break;
 			}
 			case Tag::NAME_START:
