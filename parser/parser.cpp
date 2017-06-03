@@ -49,11 +49,16 @@ void initEnts(EntityManager& ents)
 	addTheadBinaryEntityKeywords(ents, { "S", "String", "string" }, Keyword::STRING);
 }
 
-Parser::Parser() : it(SmartIterator(string(""))) { initEnts(ents); }
-Parser::Parser(SmartIterator&& it) : it(move(it)) { initEnts(ents); }
-Parser::Parser(const istream& in) : it(SmartIterator(in)) { initEnts(ents); }
-Parser::Parser(const stringstream& in) : it(SmartIterator(in)) { initEnts(ents); }
-Parser::Parser(const string& in) : it(SmartIterator(in)) { initEnts(ents); }
+void initAliases(std::map<std::string, std::string>& aliases)
+{
+	aliases.insert({ "alias", "-a" });
+}
+
+Parser::Parser() : it(SmartIterator(string(""))) { initEnts(ents); initAliases(aliases); }
+Parser::Parser(SmartIterator&& it) : it(move(it)) { initEnts(ents); initAliases(aliases); }
+Parser::Parser(const istream& in) : it(SmartIterator(in)) { initEnts(ents); initAliases(aliases); }
+Parser::Parser(const stringstream& in) : it(SmartIterator(in)) { initEnts(ents); initAliases(aliases); }
+Parser::Parser(const string& in) : it(SmartIterator(in)) { initEnts(ents); initAliases(aliases); }
 
 Parser& Parser::setIterator(SmartIterator&& it)
 {
@@ -142,3 +147,7 @@ bool Parser::checkNextElement()
 	}
 	return true;
 }
+
+bool Parser::hasAlias(const std::string& name) { return aliases.find(name) != aliases.end(); }
+const std::string& Parser::getAliasContent(const std::string& name) { return aliases[name]; }
+const std::string& Parser::getAliasContentSafe(const std::string& name) { return aliases.at(name); }

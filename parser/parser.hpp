@@ -46,6 +46,10 @@ namespace webss
 		const EntityManager& getEnts() { return ents; }
 		ConType getCurrentContainer() { return con; }
 
+		bool hasAlias(const std::string& name);
+		const std::string& getAliasContent(const std::string& name);
+		const std::string& getAliasContentSafe(const std::string& name);
+
 		//returns true if container is empty, else false
 		bool containerEmpty();
 
@@ -86,6 +90,7 @@ namespace webss
 	protected:
 		SmartIterator it;
 		EntityManager ents;
+		std::map<std::string, std::string> aliases;
 
 		//returns true if has next element, else false
 		bool checkNextElement();
@@ -105,6 +110,7 @@ namespace webss
 		Enum parseEnum(const std::string& name);
 		void parseOption();
 		void parseOptionVersion();
+		void parseOptionAlias();
 
 		//parserKeyValues.cpp
 		Webss parseValueEqual();

@@ -19,6 +19,7 @@ const char ERROR_INPUT_DICTIONARY[] = "dictionary can only have key-values";
 const char ERROR_INPUT_TUPLE[] = "tuple can only have concrete value-onlys or key-values";
 const char ERROR_INPUT_NAMESPACE[] = "namespace can only have entity definitions";
 const char ERROR_INPUT_DOCUMENT[] = "document can only have concrete value-onlys or key-values";
+const char ERROR_OPTION[] = "expected option";
 
 bool namespaceNameInCurrentScope(const EntityManager& ents, const Namespace& nspace);
 void useNamespace(EntityManager& ents, const Namespace& nspace);
@@ -375,14 +376,45 @@ ImportedDocument Parser::parseImport()
 
 void Parser::parseOption()
 {
-	skipLineJunk(++it);
-	if (it != '-' || !++it)
-		throw runtime_error("expected option version");
-	if (*it == 'v')
-		++it;
-	else if (*it != '-' || !++it || !isNameStart(it) || parseName(it) != "version")
-		throw runtime_error("expected option version");
-	parseOptionVersion();
+	if (!skipLineJunk(++it))
+		throw runtime_error(ERROR_OPTION);
+	if (*it == '-')
+	{
+		if (!++it)
+			throw runtime_error(ERROR_OPTION);
+		else if (*it == 'v')
+		{
+			++it;
+			parseOptionVersion();
+		}
+		else if (*it == 'a')
+		{
+			++it;
+			parseOptionAlias();
+		}
+		else if (*it == '-' && ++it && isNameStart(*it))
+		{
+			auto option = parseName(it);
+			if (option == "version")
+				parseOptionVersion();
+			else if (option == "alias")
+				parseOptionAlias();
+			else
+				throw runtime_error(ERROR_OPTION);
+		}
+		else
+			throw runtime_error(ERROR_OPTION);
+	}
+	else if (isNameStart(*it))
+	{
+		auto name = parseName(it);
+		if (name == "alias")
+			parseOptionAlias();
+		else
+			throw runtime_error(ERROR_OPTION);
+	}
+	else
+		throw runtime_error(ERROR_OPTION);
 }
 
 void Parser::parseOptionVersion()
@@ -393,6 +425,19 @@ void Parser::parseOptionVersion()
 	auto version = parseLineString(*this);
 	if (version != "1.0.0")
 		throw runtime_error("this parser can only parse version 1.0.0");
+}
+
+void Parser::parseOptionAlias()
+{
+	if (it != '.' || !++it || !isNameStart(*it))
+		throw runtime_error("expected alias");
+	auto name = parseName(it);
+	if (hasAlias(name))
+		throw runtime_error("alias already exists");
+	if (it != ':')
+		throw runtime_error("expected line-string");
+	auto content = parseLineString(*this);
+	aliases.insert({ move(name), move(content) });
 }
 
 bool namespaceNameInCurrentScope(const EntityManager& ents, const Namespace& nspace)
