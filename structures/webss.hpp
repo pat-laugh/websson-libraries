@@ -128,7 +128,10 @@ namespace webss
 		Block& getBlockRaw();
 
 		explicit operator bool() const { return getBool(); }
+		explicit operator int() const { return (int)getInt(); }
+		explicit operator long() const { return (long)getInt(); }
 		explicit operator WebssInt() const { return getInt(); }
+		explicit operator float() const { return (float)getDouble(); }
 		explicit operator double() const { return getDouble(); }
 		explicit operator const std::string&() const { return getString(); }
 		explicit operator const Document&() const { return getDocument(); }
