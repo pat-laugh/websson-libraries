@@ -108,6 +108,7 @@ namespace webss
 
 		Namespace parseNamespace(const std::string& name, const Namespace& previousNamespace);
 		Enum parseEnum(const std::string& name);
+		std::string parseOptionLine();
 		void parseOption();
 		void parseOptionVersion();
 		void parseOptionAlias();

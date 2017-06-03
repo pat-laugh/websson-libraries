@@ -374,9 +374,80 @@ ImportedDocument Parser::parseImport()
 	return ImportedDocument(move(importName));
 }
 
+string Parser::parseOptionLine()
+{
+	StringBuilder sb;
+	++it;
+	while (it && it != '\n')
+	{
+		if (*it == '-')
+		{
+			sb += *it;
+			if (!++it)
+				throw runtime_error(ERROR_OPTION);
+			if (isNameStart(*it))
+			{
+				sb += *it;
+				if (!++it)
+					break;
+				if (*it == CHAR_COLON)
+				{
+					++it;
+					sb += CHAR_COLON + parseLineString(*this);
+					break;
+				}
+				while (isNameStart(*it))
+				{
+					sb += *it;
+					if (!++it)
+						break;
+				}
+				if (isNameBody(*it))
+					throw runtime_error(ERROR_OPTION);
+				continue;
+			}
+			if (*it == '-' && ++it && isNameStart(*it))
+			{
+				sb += '-' + parseName(it);
+				if (*it == CHAR_COLON)
+				{
+					++it;
+					sb += CHAR_COLON + parseLineString(*this);
+					break;
+				}
+				if (isNameBody(*it))
+					throw runtime_error(ERROR_OPTION);
+				continue;
+			}
+			throw runtime_error(ERROR_OPTION);
+		}
+		else if (isNameStart(*it))
+		{
+			sb += aliases.at(parseName(it));
+			if (*it == CHAR_COLON)
+			{
+				++it;
+				sb += CHAR_COLON + parseLineString(*this);
+				break;
+			}
+			if (isNameBody(*it))
+				throw runtime_error(ERROR_OPTION);
+		}
+		else
+		{
+			sb += *it;
+			++it;
+		}
+	}
+	return sb;
+}
+
 void Parser::parseOption()
 {
-	if (!skipLineJunk(++it))
+	SmartIterator itOption(parseOptionLine());
+	SmartIterator itSave = move(it);
+	it = move(itOption);
+	if (!skipLineJunk(it))
 		throw runtime_error(ERROR_OPTION);
 	if (*it == '-')
 	{
@@ -405,16 +476,9 @@ void Parser::parseOption()
 		else
 			throw runtime_error(ERROR_OPTION);
 	}
-	else if (isNameStart(*it))
-	{
-		auto name = parseName(it);
-		if (name == "alias")
-			parseOptionAlias();
-		else
-			throw runtime_error(ERROR_OPTION);
-	}
 	else
 		throw runtime_error(ERROR_OPTION);
+	it = move(itSave);
 }
 
 void Parser::parseOptionVersion()
@@ -429,13 +493,14 @@ void Parser::parseOptionVersion()
 
 void Parser::parseOptionAlias()
 {
-	if (it != '.' || !++it || !isNameStart(*it))
+	if (it != ':' || !++it || !isNameStart(*it))
 		throw runtime_error("expected alias");
 	auto name = parseName(it);
 	if (hasAlias(name))
 		throw runtime_error("alias already exists");
 	if (it != ':')
 		throw runtime_error("expected line-string");
+	++it;
 	auto content = parseLineString(*this);
 	aliases.insert({ move(name), move(content) });
 }
