@@ -15,6 +15,7 @@ using namespace webss;
 
 const char ERROR_NO_DEFAULT[] = "no default value, so value must be implemented";
 
+void setDefaultValue(Webss& value, const ParamBinary& defaultValue);
 void setDefaultValue(Webss& value, const ParamStandard& defaultValue);
 
 template <class Parameters>
@@ -26,14 +27,34 @@ Tuple makeDefaultTuple(const Parameters& params)
 	return tuple;
 }
 
+void setDefaultValue(Webss& value, const ParamBinary& defaultValue)
+{
+	if (defaultValue.hasDefaultValue())
+		value = Webss(defaultValue.getDefaultPointer());
+	else if (defaultValue.isTemplateHeadBinary())
+		value = makeDefaultTuple(defaultValue.getTemplateHead().getParameters());
+	else
+		throw runtime_error(ERROR_NO_DEFAULT);
+}
+
 void setDefaultValue(Webss& value, const ParamStandard& defaultValue)
 {
-	if (defaultValue.hasTemplateHead())
-		value = makeDefaultTuple(defaultValue.getTemplateHeadStandard().getParameters());
-	else if (!defaultValue.hasDefaultValue())
-		throw runtime_error(ERROR_NO_DEFAULT);
-	else
+	if (defaultValue.hasDefaultValue())
 		value = Webss(defaultValue.getDefaultPointer());
+	else
+	{
+		switch (defaultValue.getTypeThead())
+		{
+		case WebssType::TEMPLATE_HEAD_BINARY:
+			value = makeDefaultTuple(defaultValue.getTemplateHeadBinary().getParameters());
+			break;
+		case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
+			value = makeDefaultTuple(defaultValue.getTemplateHeadStandard().getParameters());
+			break;
+		default:
+			throw runtime_error(ERROR_NO_DEFAULT);
+		}
+	}
 }
 
 void checkDefaultValues(Tuple& tuple, const TemplateHeadStandard::Parameters& params)

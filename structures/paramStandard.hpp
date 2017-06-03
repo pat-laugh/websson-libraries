@@ -33,12 +33,14 @@ namespace webss
 		ParamStandard& operator=(const ParamStandard& o);
 
 		bool hasDefaultValue() const;
+
+		//returns true if the param has any kind of template head, else false
 		bool hasTemplateHead() const;
 
 		const Webss& getDefaultValue() const;
 		const std::shared_ptr<Webss>& getDefaultPointer() const;
 
-		//returns WebssType::NONE if has no thead
+		//returns binary, self, standard, or text if it has a template head, else WebssType::NONE
 		WebssType getTypeThead() const;
 
 		const TemplateHeadBinary& getTemplateHeadBinary() const;
