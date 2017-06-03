@@ -80,7 +80,7 @@ namespace webss
 		Entity parseConcreteEntity();
 		Entity parseAbstractEntity(const Namespace& currentNamespace);
 
-		ParamDocument parseUsingOne();
+		ParamDocument parseScopedImport();
 		ImportedDocument parseImport();
 
 	protected:

@@ -74,8 +74,8 @@ public:
 			case Type::IMPORT:
 				putImport(out, it->getImport());
 				break;
-			case Type::USING_ONE:
-				putUsingOne(out, it->getEntity(), it->getImport());
+			case Type::SCOPED_IMPORT:
+				putScopedImport(out, it->getEntity(), it->getImport());
 				break;
 			case Type::EXPAND:
 				putExpandDocumentHead(out, it->getNamespace());
@@ -564,7 +564,7 @@ void Serializer::putImport(StringBuilder& out, const ImportedDocument& import)
 		putConcreteValue(out, name, ConType::DOCUMENT);
 }
 
-void Serializer::putUsingOne(StringBuilder& out, const Entity& ent, const ImportedDocument& import)
+void Serializer::putScopedImport(StringBuilder& out, const Entity& ent, const ImportedDocument& import)
 {
 	//TODO
 }

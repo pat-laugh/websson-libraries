@@ -261,14 +261,9 @@ bool Parser::parseDocumentHead(Document& doc, const Namespace& nspace)
 			docHead.push_back(move(import));
 			break;
 		}
-		case Tag::USING_ONE:
-		{
-			auto param = parseUsingOne();
-			const auto& ent = param.getEntity();
-			ents.addLocalSafe(Entity(ent.getName(), ent.getContent()));
-			docHead.push_back(move(param));
+		case Tag::SCOPED_IMPORT:
+			docHead.push_back(parseScopedImport());
 			break;
-		}
 		case Tag::EXPAND:
 		{
 			auto ent = parseExpandEntity(it, ents);
@@ -296,19 +291,66 @@ bool Parser::parseDocumentHead(Document& doc, const Namespace& nspace)
 	return true;
 }
 
-ParamDocument Parser::parseUsingOne()
+vector<string> parseScopedImportNames(SmartIterator& it)
 {
 	vector<string> names;
-	do
+	names.push_back(parseName(it));
+	while (getTag(it) == Tag::SCOPE)
 		names.push_back(parseName(skipJunkToTag(++it, Tag::NAME_START)));
-	while ((nextTag = getTag(it)) == Tag::SCOPE);
-	if (nextTag != Tag::IMPORT)
-		throw runtime_error("expected import for scoped import");
-	auto import = parseImport();
-	const Entity* ent = &ImportManager::getInstance().importDocument(import.getLink()).at(names[0]);
+	return names;
+}
+
+Entity getScopedImportEntity(const unordered_map<string, Entity>& importedDoc, vector<string> names)
+{
+	const Entity* ent = &importedDoc.at(names[0]);
 	for (decltype(names.size()) i = 1; i < names.size(); ++i)
 		ent = &ent->getContent().getNamespace().at(names[i]);
-	return ParamDocument::makeUsingOne(*ent, move(import));
+	return *ent;
+}
+
+ParamDocument Parser::parseScopedImport()
+{
+	nextTag = getTag(++it);
+	if (nextTag == Tag::NAME_START)
+	{
+		auto names = parseScopedImportNames(it);
+
+		if (getTag(it) != Tag::IMPORT)
+			throw runtime_error("expected import for scoped import");
+		auto import = parseImport();
+		const auto& importedDoc = ImportManager::getInstance().importDocument(import.getLink());
+
+		auto ent = getScopedImportEntity(importedDoc, names);
+		ents.addLocalSafe(ent);
+
+		return ParamDocument::makeScopedImport(move(ent), move(import));
+	}
+	else if (nextTag == Tag::START_LIST)
+	{
+		auto namesList = parseContainer<vector<vector<string>>, ConType::LIST>(vector<vector<string>>(), false, [&](vector<vector<string>>& namesList)
+		{
+			if (nextTag != Tag::NAME_START)
+				throw runtime_error(ERROR_UNEXPECTED);
+			namesList.push_back(parseScopedImportNames(it));
+		});
+
+		if (getTag(it) != Tag::IMPORT)
+			throw runtime_error("expected import for scoped import");
+		auto import = parseImport();
+		const auto& importedDoc = ImportManager::getInstance().importDocument(import.getLink());
+
+		vector<Entity> entList;
+		for (const auto& names : namesList)
+		{
+			auto ent = getScopedImportEntity(importedDoc, names);
+			ents.addLocalSafe(ent);
+			entList.push_back(move(ent));
+		}
+
+		return ParamDocument::makeScopedImport(move(entList), move(import));
+	}
+	else
+		throw runtime_error(ERROR_UNEXPECTED);
 }
 
 TemplateHeadStandard makeTheadImport()
