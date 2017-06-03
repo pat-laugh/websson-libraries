@@ -125,7 +125,7 @@ public:
 			case Tag::SEPARATOR: //void
 				break;
 			case Tag::EXPAND:
-				expandTemplateTuple(params, tuple, index);
+				index = expandTemplateTuple(params, tuple, index);
 				return;
 			case Tag::EXPLICIT_NAME:
 			{
@@ -156,7 +156,7 @@ private:
 	{
 		auto ent = parseExpandEntity(it, ents);
 		if (ent.getContent().getType() != WebssType::DICTIONARY)
-			throw runtime_error("expand entity in dictionary must be a dictionary");
+			throw runtime_error("expand entity within dictionary must be a dictionary");
 		for (const auto& item : ent.getContent().getDictionary())
 			dict.addSafe(item.first, item.second);
 	}
@@ -166,26 +166,9 @@ private:
 	{
 		auto ent = parseExpandEntity(it, ents);
 		if (ent.getContent().getType() != WebssType::LIST && ent.getContent().getType() != WebssType::LIST_TEXT)
-			throw runtime_error("expand entity in list must be a list");
+			throw runtime_error("expand entity within list must be a list");
 		for (const auto& item : ent.getContent().getList())
 			list.add(item);
-	}
-
-	void expandTemplateTuple(const TemplateHeadStandard::Parameters& params, Tuple& tuple, Tuple::size_type& index)
-	{
-		auto ent = parseExpandEntity(it, ents);
-		switch (ent.getContent().getType())
-		{
-		case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
-			for (const auto& item : ent.getContent().getTuple())
-			{
-				tuple.at(index) = checkTemplateContainer(params, params.at(index), item);
-				++index;
-			}
-			break;
-		default:
-			throw runtime_error("expand entity in tuple must be a tuple");
-		}
 	}
 
 	void parseTemplateTupleName(const TemplateHeadStandard::Parameters& params, Tuple& tuple, Tuple::size_type& index)
@@ -366,39 +349,59 @@ Tuple Parser::parseTemplateTupleText(const TemplateHeadStandard::Parameters& par
 	return static_cast<ParserTemplates*>(this)->parseTemplateTuple<true>(params);
 }
 
+Tuple::size_type Parser::expandTemplateTuple(const TemplateHeadStandard::Parameters& params, Tuple& templateTuple, Tuple::size_type index)
+{
+	auto ent = parseExpandEntity(it, ents);
+	if (!ent.getContent().isTuple())
+		throw runtime_error("expand entity within tuple must be a tuple");
+	return fillTemplateTuple(params, templateTuple, ent.getContent().getTuple(), index);
+}
 
+Tuple::size_type Parser::fillTemplateTuple(const TemplateHeadStandard::Parameters& params, Tuple& templateTuple, const Tuple& expandTuple, Tuple::size_type index = 0)
+{
+	for (const auto& item : expandTuple.getOrderedKeyValues())
+	{
+		if (item.first == nullptr)
+			templateTuple.at(index) = checkTemplateContainer(params, params.at(index), *item.second);
+		else
+			templateTuple.at(*item.first) = checkTemplateContainer(params, params.at(*item.first), *item.second);
+		++index;
+	}
+	return index;
+}
 
-Webss Parser::checkTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& param, const Webss& value)
+Webss Parser::fillTemplateBodyStandard(const TemplateHeadStandard::Parameters& params, const Webss& templateItem)
+{
+	switch (templateItem.getType())
+	{
+	case WebssType::DICTIONARY:
+		//...
+	case WebssType::LIST: case WebssType::LIST_TEXT:
+		//...
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
+	{
+		//build tuple with the param's template head and the expanded tuple's item
+		Tuple templateTuple(params.getSharedKeys());
+		if (fillTemplateTuple(params, templateTuple, templateItem.getTuple()) < templateTuple.size())
+			checkDefaultValues(templateTuple, params);
+		return templateTuple;
+	}
+	default:
+		throw runtime_error("template head must be implemented");
+	}
+}
+
+Webss Parser::checkTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& param, const Webss& tupleItem)
 {
 	switch (param.getTypeThead())
 	{
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		throw runtime_error("can't expand for a binary template");
 	case WebssType::TEMPLATE_HEAD_SELF:
-		throw runtime_error("can't expand for a self template");
+		return fillTemplateBodyStandard(params, tupleItem);
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
-		switch (value.getType())
-		{
-		case WebssType::DICTIONARY:
-			//...
-		case WebssType::LIST:
-			//...
-		case WebssType::TUPLE:
-		{
-			const auto& params2 = param.getTemplateHeadStandard().getParameters();
-			Tuple tuple(params2.getSharedKeys());
-			Tuple::size_type index = 0;
-			const auto& valueTuple = value.getTuple();
-			if (valueTuple.size() > tuple.size())
-				throw runtime_error("tuple to implement is too big");
-			for (Tuple::size_type i = 0; i < valueTuple.size(); ++i)
-				tuple[index] = checkTemplateContainer(params2, params2[i], valueTuple[i]);
-			return tuple;
-		}
-		default:
-			throw runtime_error("template head must be implemented");
-		}
+		return fillTemplateBodyStandard(param.getTemplateHeadStandard().getParameters(), tupleItem);
 	default:
-		return value;
+		return tupleItem;
 	}
 }

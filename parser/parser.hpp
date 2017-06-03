@@ -128,5 +128,8 @@ namespace webss
 
 		Tuple parseTemplateTupleStandard(const TemplateHeadStandard::Parameters& params);
 		Tuple parseTemplateTupleText(const TemplateHeadStandard::Parameters& params);
+		Tuple::size_type expandTemplateTuple(const TemplateHeadStandard::Parameters& params, Tuple& templateTuple, Tuple::size_type index);
+		Tuple::size_type fillTemplateTuple(const TemplateHeadStandard::Parameters& params, Tuple& templateTuple, const Tuple& expandTuple, Tuple::size_type index);
+		Webss fillTemplateBodyStandard(const TemplateHeadStandard::Parameters& params, const Webss& defaultValue);
 	};
 }
