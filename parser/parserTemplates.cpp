@@ -154,7 +154,7 @@ public:
 	}
 
 private:
-	void expandTemplateDictionary(const TemplateHeadBinary::Parameters& params, Dictionary& dict)
+	void expandTemplateDictionary(const TemplateHeadBinary::Parameters&, Dictionary&)
 	{
 		throw runtime_error(ERROR_EXPAND_BINARY_TEMPLATE);
 	}
@@ -164,7 +164,7 @@ private:
 		fillTemplateBodyDictionary(params, parseExpandDictionary(it, ents), dict);
 	}
 
-	void expandTemplateList(const TemplateHeadBinary::Parameters& params, List& list)
+	void expandTemplateList(const TemplateHeadBinary::Parameters&, List&)
 	{
 		throw runtime_error(ERROR_EXPAND_BINARY_TEMPLATE);
 	}

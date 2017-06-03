@@ -3,22 +3,15 @@
 
 OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers
 LIBRARY = libutils.a
+CPP_FILES = $(wildcard *.cpp)
+OBJ_FILES = $(notdir $(CPP_FILES:.cpp=.o))
 
 all: $(LIBRARY)
 
-$(LIBRARY): conType.o smartIterator.o utils.o utilsWebss.o
+$(LIBRARY): $(OBJ_FILES)
 	ar -rc $(LIBRARY) $^
 
-smartIterator.o: smartIterator.cpp
-	$(CXX) $(OPTIONS) -o $@ -c $<
-
-conType.o: conType.cpp
-	$(CXX) $(OPTIONS) -o $@ -c $<
-
-utils.o: utils.cpp
-	$(CXX) $(OPTIONS) -o $@ -c $<
-
-utilsWebss.o: utilsWebss.cpp
+%.o: %.cpp
 	$(CXX) $(OPTIONS) -o $@ -c $<
 
 clean:

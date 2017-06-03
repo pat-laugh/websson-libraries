@@ -3,16 +3,15 @@
 
 OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers -iquote ..
 LIBRARY = libserializer.a
+CPP_FILES = $(wildcard *.cpp)
+OBJ_FILES = $(notdir $(CPP_FILES:.cpp=.o))
 
 all: $(LIBRARY)
 
-$(LIBRARY): serializer.o serializerBinary.o
+$(LIBRARY): $(OBJ_FILES)
 	ar -rc $(LIBRARY) $^
 
-serializer.o: serializer.cpp
-	$(CXX) $(OPTIONS) -o $@ -c $<
-
-serializerBinary.o: serializerBinary.cpp
+%.o: %.cpp
 	$(CXX) $(OPTIONS) -o $@ -c $<
 
 clean:
