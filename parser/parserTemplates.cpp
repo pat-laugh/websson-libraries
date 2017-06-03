@@ -161,10 +161,7 @@ private:
 
 	void expandTemplateDictionary(const TemplateHeadStandard::Parameters& params, Dictionary& dict)
 	{
-		auto ent = parseExpandEntity(it, ents);
-		if (ent.getContent().getType() != WebssType::DICTIONARY)
-			throw runtime_error("expand entity within dictionary must be a dictionary");
-		fillTemplateBodyDictionary(params, ent.getContent().getDictionary(), dict);
+		fillTemplateBodyDictionary(params, parseExpandDictionary(it, ents), dict);
 	}
 
 	void expandTemplateList(const TemplateHeadBinary::Parameters& params, List& list)
@@ -174,10 +171,7 @@ private:
 
 	void expandTemplateList(const TemplateHeadStandard::Parameters& params, List& list)
 	{
-		auto ent = parseExpandEntity(it, ents);
-		if (ent.getContent().getType() != WebssType::LIST && ent.getContent().getType() != WebssType::LIST_TEXT)
-			throw runtime_error("expand entity within list must be a list");
-		fillTemplateBodyList(params, ent.getContent().getList(), list);
+		fillTemplateBodyList(params, parseExpandList(it, ents), list);
 	}
 
 	void parseTemplateTupleName(const TemplateHeadStandard::Parameters& params, Tuple& tuple, Tuple::size_type& index)
@@ -355,10 +349,7 @@ Tuple Parser::parseTemplateTupleText(const TemplateHeadStandard::Parameters& par
 
 Tuple::size_type Parser::expandTemplateTuple(const TemplateHeadStandard::Parameters& params, Tuple& templateTuple, Tuple::size_type index)
 {
-	auto ent = parseExpandEntity(it, ents);
-	if (!ent.getContent().isTuple())
-		throw runtime_error("expand entity within tuple must be a tuple");
-	return fillTemplateBodyTuple(params, ent.getContent().getTuple(), templateTuple, index);
+	return fillTemplateBodyTuple(params, parseExpandTuple(it, ents), templateTuple, index);
 }
 
 Dictionary Parser::buildTemplateBodyDictionary(const TemplateHeadStandard::Parameters& params, const Dictionary& baseDictionary)

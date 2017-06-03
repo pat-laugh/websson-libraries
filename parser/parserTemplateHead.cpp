@@ -48,20 +48,11 @@ Webss Parser::parseTemplateHead()
 			throw runtime_error(ERROR_UNEXPECTED);
 		return BlockHead(ent);
 	case WebssType::TEMPLATE_HEAD_BINARY:
-	{
-		TemplateHeadBinary theadBinary(ent);
-		return isEnd ? move(theadBinary) : parseTemplateHeadBinary(move(theadBinary));
-	}
+		return isEnd ? TemplateHeadBinary(ent) : parseTemplateHeadBinary(TemplateHeadBinary(ent));
 	case WebssType::TEMPLATE_HEAD_STANDARD:
-	{
-		TemplateHeadStandard thead(ent);
-		return isEnd ? move(thead) : parseTemplateHeadStandard(move(thead));
-	}
+		return isEnd ? TemplateHeadStandard(ent) : parseTemplateHeadStandard(TemplateHeadStandard(ent));
 	case WebssType::TEMPLATE_HEAD_TEXT:
-	{
-		TemplateHeadStandard thead(ent);
-		return isEnd ? Webss(move(thead), true) : Webss(parseTemplateHeadStandard(move(thead)), true);
-	}
+		return isEnd ? Webss(TemplateHeadStandard(ent), true) : Webss(parseTemplateHeadStandard(TemplateHeadStandard(ent)), true);
 	default:
 		throw runtime_error("expand entity in template head must be a template head");
 	}
@@ -108,7 +99,7 @@ TemplateHeadStandard Parser::parseTemplateHeadStandard(TemplateHeadStandard&& th
 		{
 			auto ent = parseExpandEntity(it, ents);
 			if (!ent.getContent().isTemplateHeadStandard())
-				throw runtime_error("can't expand " + ent.getContent().getType().toString() + " within standard template head");
+				throw runtime_error("expand entity within standard template head must be a standard template head");
 			thead.attach(ent);
 		}
 		else
