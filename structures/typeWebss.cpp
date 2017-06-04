@@ -52,6 +52,18 @@ string WebssType::toString() const
 		return "template standard";
 	case WebssType::TEMPLATE_TEXT:
 		return "template text";
+	case WebssType::TEMPLATE_BLOCK_HEAD_BINARY:
+		return "template block head binary";
+	case WebssType::TEMPLATE_BLOCK_HEAD_STANDARD:
+		return "template block head standard";
+	case WebssType::TEMPLATE_BLOCK_HEAD_TEXT:
+		return "template block head text";
+	case WebssType::TEMPLATE_BLOCK_BINARY:
+		return "template block binary";
+	case WebssType::TEMPLATE_BLOCK_STANDARD:
+		return "template block standard";
+	case WebssType::TEMPLATE_BLOCK_TEXT:
+		return "template block text";
 	case WebssType::DOCUMENT:
 		return "document";
 	case WebssType::NAMESPACE:

@@ -54,6 +54,9 @@ namespace webss
 		Webss(TemplateBinary templBinary);
 		Webss(TemplateStandard templStandard);
 		Webss(TemplateStandard templStandard, bool);
+		Webss(TemplateHeadBinary theadBlockBinary, bool, bool);
+		Webss(TemplateHeadStandard theadBlockStandard, bool, bool);
+		Webss(TemplateHeadStandard theadBlockStandard, bool, bool, bool);
 		Webss(BlockHead bhead);
 		Webss(Block block);
 
@@ -167,6 +170,9 @@ namespace webss
 		bool isTemplateHeadText() const;
 		bool isNamespace() const;
 		bool isEnum() const;
+		bool isTemplateBlockHeadBinary() const;
+		bool isTemplateBlockHeadStandard() const;
+		bool isTemplateBlockHeadText() const;
 		bool isBlockHead() const;
 		bool isBlock() const;
 
