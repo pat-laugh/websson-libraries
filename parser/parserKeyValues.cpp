@@ -85,29 +85,17 @@ Parser::OtherValue Parser::parseOtherValueName(string&& name)
 	}
 }
 
-bool isTemplateBodyStart(Tag tag)
-{
-	return tag == Tag::START_TUPLE || tag == Tag::START_LIST || tag == Tag::START_DICTIONARY || tag == Tag::NAME_START;
-}
-
 Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 {
 	const auto& content = ent.getContent();
-	nextTag = getTag(it);
 	switch (content.getType())
 	{
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		if (isTemplateBodyStart(nextTag))
-			return{ Webss(TemplateHeadBinary(ent), parseTemplateBodyBinary(content.getTemplateHeadBinary().getParameters())) };
-		break;
+		return{ Webss(TemplateHeadBinary(ent), parseTemplateBodyBinary(content.getTemplateHeadBinary().getParameters())) };
 	case WebssType::TEMPLATE_HEAD_STANDARD:
-		if (isTemplateBodyStart(nextTag))
-			return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyStandard(content.getTemplateHeadStandard().getParameters())) };
-		break;
+		return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyStandard(content.getTemplateHeadStandard().getParameters())) };
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		if (isTemplateBodyStart(nextTag))
-			return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyText(content.getTemplateHeadStandard().getParameters()), WebssType::TEMPLATE_TEXT) };
-		break;
+		return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyText(content.getTemplateHeadStandard().getParameters()), WebssType::TEMPLATE_TEXT) };
 	case WebssType::TEMPLATE_BLOCK_HEAD_BINARY:
 		return{ Webss(TemplateHeadBinary(ent), parseTemplateBlockBinary(ent.getContent().getTemplateHeadBinary().getParameters()), WebssType::TEMPLATE_BLOCK_BINARY) };
 	case WebssType::TEMPLATE_BLOCK_HEAD_STANDARD:
@@ -115,9 +103,8 @@ Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 	case WebssType::TEMPLATE_BLOCK_HEAD_TEXT:
 		return{ Webss(TemplateHeadStandard(ent), parseTemplateBlockText(ent.getContent().getTemplateHeadStandard().getParameters()), WebssType::TEMPLATE_BLOCK_TEXT) };
 	default:
-		break;
+		return{ ent };
 	}
-	return{ ent };
 }
 
 void Parser::parseOtherValue(function<void(string&& key, Webss&& value)> funcKeyValue, function<void(string&& key)> funcKeyOnly, function<void(Webss&& value)> funcValueOnly, function<void(const Entity& abstractEntity)> funcAbstractEntity)
