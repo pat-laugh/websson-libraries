@@ -72,7 +72,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 			bhead = Bhead(checkBinarySize(parseNumber(*this).getInt()));
 		else if (nextTag == Tag::START_TEMPLATE)
 		{
-			auto headWebss = parseTemplateHead();
+			auto headWebss = parseTemplateHead(true);
 			switch (headWebss.getTypeRaw())
 			{
 			case WebssType::TEMPLATE_HEAD_BINARY:

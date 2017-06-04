@@ -273,8 +273,6 @@ Webss Parser::parseTemplate()
 		auto body = parseTemplateBodyBinary(head.getParameters());
 		return{ move(head), move(body) };
 	}
-	case WebssType::TEMPLATE_HEAD_SELF:
-		throw runtime_error("self in a thead must be within a non-empty thead");
 	case WebssType::TEMPLATE_HEAD_STANDARD:
 	{
 		auto head = move(headWebss.getTemplateHeadStandardRaw());
@@ -287,11 +285,8 @@ Webss Parser::parseTemplate()
 		auto body = parseTemplateBodyText(head.getParameters());
 		return{ move(head), move(body), WebssType::TEMPLATE_TEXT };
 	}
-#ifdef assert
 	default:
-		assert(false);
-		throw domain_error("");
-#endif
+		assert(false); throw domain_error("");
 	}
 }
 

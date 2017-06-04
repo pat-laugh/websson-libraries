@@ -17,7 +17,7 @@ const char ERROR_BINARY_TEMPLATE[] = "all values in a binary template must be bi
 void parseStandardParameterTemplateHead(Parser& parser, TemplateHeadStandard& thead);
 void parseOtherValuesTheadStandardAfterThead(Parser& parser, TemplateHeadStandard& thead);
 
-Webss Parser::parseTemplateHead()
+Webss Parser::parseTemplateHead(bool allowSelf)
 {
 	ContainerSwitcher switcher(*this, ConType::TEMPLATE_HEAD, false);
 	if (containerEmpty())
@@ -31,6 +31,8 @@ Webss Parser::parseTemplateHead()
 	case Tag::START_TUPLE:
 		return parseTemplateHeadBinary();
 	case Tag::SELF:
+		if (!allowSelf)
+			throw runtime_error("self in a thead must be within a non-empty thead");
 		skipJunkToTag(++it, Tag::END_TEMPLATE);
 		++it;
 		return TemplateHeadSelf();
@@ -56,9 +58,9 @@ Webss Parser::parseTemplateHead()
 TemplateHeadStandard Parser::parseTemplateHeadText()
 {
 	auto headWebss = parseTemplateHead();
-	if (headWebss.getTypeRaw() == WebssType::TEMPLATE_HEAD_STANDARD || headWebss.getTypeRaw() == WebssType::TEMPLATE_HEAD_TEXT)
-		return move(headWebss.getTemplateHeadStandardRaw());
-	throw runtime_error("expected standard template head");
+	if (headWebss.getTypeRaw() != WebssType::TEMPLATE_HEAD_STANDARD && headWebss.getTypeRaw() != WebssType::TEMPLATE_HEAD_TEXT)
+		throw runtime_error("expected standard template head");
+	return move(headWebss.getTemplateHeadStandardRaw());
 }
 
 Webss Parser::parseTemplateBlockHead()
@@ -68,8 +70,6 @@ Webss Parser::parseTemplateBlockHead()
 	{
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		return{ TemplateHeadBinary(move(headWebss.getTemplateHeadBinaryRaw())), WebssType::TEMPLATE_BLOCK_HEAD_BINARY };
-	case WebssType::TEMPLATE_HEAD_SELF:
-		throw runtime_error("self in a thead must be within a non-empty thead");
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
 		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), headWebss.getTypeRaw() };
 	default:
@@ -130,7 +130,7 @@ TemplateHeadStandard Parser::parseTemplateHeadStandard(TemplateHeadStandard&& th
 
 void parseStandardParameterTemplateHead(Parser& parser, TemplateHeadStandard& thead)
 {
-	auto headWebss = parser.parseTemplateHead();
+	auto headWebss = parser.parseTemplateHead(true);
 	parseOtherValuesTheadStandardAfterThead(parser, thead);
 	auto& lastParam = thead.back();
 	switch (headWebss.getTypeRaw())

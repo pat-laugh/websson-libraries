@@ -73,7 +73,7 @@ namespace webss
 		void parseExplicitKeyValue(std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly);
 
 		//parserTemplates.cpp
-		Webss parseTemplateHead();
+		Webss parseTemplateHead(bool allowSelf = false);
 
 		//parserBinary.cpp
 		void parseBinaryHead(TemplateHeadBinary& thead);
