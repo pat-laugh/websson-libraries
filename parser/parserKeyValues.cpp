@@ -33,8 +33,8 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 	case Tag::EQUAL: ++it; return Webss(parseValueEqual());
 	case Tag::C_STRING: return Webss(parseCString(*this));
 	case Tag::TEXT_DICTIONARY: return Webss(parseMultilineString(*this));
-	case Tag::TEXT_LIST: return Webss(parseListText(), true);
-	case Tag::TEXT_TUPLE: return Webss(parseTupleText(), true);
+	case Tag::TEXT_LIST: return Webss(parseListText(), WebssType::LIST_TEXT);
+	case Tag::TEXT_TUPLE: return Webss(parseTupleText(), WebssType::TUPLE_TEXT);
 	case Tag::TEXT_TEMPLATE: return Webss(parseTemplateText());
 	case Tag::NAME_START:
 		if (explicitName)
@@ -108,7 +108,7 @@ Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 		break;
 	case WebssType::TEMPLATE_HEAD_TEXT:
 		if (isTemplateBodyStart(nextTag))
-			return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyText(content.getTemplateHeadStandard().getParameters()), true) };
+			return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyText(content.getTemplateHeadStandard().getParameters()), WebssType::TEMPLATE_TEXT) };
 		break;
 	default:
 		break;

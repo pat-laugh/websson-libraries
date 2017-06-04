@@ -44,33 +44,23 @@ namespace webss
 
 		Webss(Document document);
 		Webss(Dictionary dict);
-		Webss(List list);
-		Webss(List list, bool);
-		Webss(Tuple tuple);
-		Webss(Tuple tuple, bool);
-		Webss(TemplateHeadBinary theadBinary);
-		Webss(TemplateHeadStandard theadStandard);
-		Webss(TemplateHeadStandard theadStandard, bool);
+		Webss(List list, WebssType type = WebssType::LIST);
+		Webss(Tuple tuple, WebssType type = WebssType::TUPLE);
+		Webss(TemplateHeadBinary theadBinary, WebssType type = WebssType::TEMPLATE_HEAD_BINARY);
+		Webss(TemplateHeadStandard theadStandard, WebssType type = WebssType::TEMPLATE_HEAD_STANDARD);
 		Webss(TemplateBinary templBinary);
-		Webss(TemplateStandard templStandard);
-		Webss(TemplateStandard templStandard, bool);
-		Webss(TemplateHeadBinary theadBinary, bool, bool);
-		Webss(TemplateHeadStandard theadStandard, bool, bool);
-		Webss(TemplateHeadStandard theadStandard, bool, bool, bool);
+		Webss(TemplateStandard templStandard, WebssType type = WebssType::TEMPLATE_STANDARD);
 		Webss(TemplateBlockBinary templBinary);
-		Webss(TemplateBlockStandard templStandard);
-		Webss(TemplateBlockStandard templStandard, bool);
+		Webss(TemplateBlockStandard templBlockStandard, WebssType type = WebssType::TEMPLATE_BLOCK_STANDARD);
 		Webss(BlockHead bhead);
 		Webss(Block block);
 
 		Webss(TemplateHeadSelf);
 
 		Webss(TemplateHeadBinary&& head, Webss&& body);
-		Webss(TemplateHeadStandard&& head, Webss&& body);
-		Webss(TemplateHeadStandard&& head, Webss&& body, bool);
+		Webss(TemplateHeadStandard&& head, Webss&& body, WebssType type = WebssType::TEMPLATE_STANDARD);
 		Webss(TemplateHeadBinary&& head, Tuple&& body, Webss&& block);
-		Webss(TemplateHeadStandard&& head, Tuple&& body, Webss&& block);
-		Webss(TemplateHeadStandard&& head, Tuple&& body, Webss&& block, bool);
+		Webss(TemplateHeadStandard&& head, Tuple&& body, Webss&& block, WebssType type = WebssType::TEMPLATE_BLOCK_STANDARD);
 
 		const Webss& operator[](int index) const;
 		const Webss& operator[](const std::string& key) const;

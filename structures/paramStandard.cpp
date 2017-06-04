@@ -66,17 +66,11 @@ void ParamStandard::setTemplateHead(TemplateHeadBinary&& o)
 	theadBin = new TemplateHeadBinary(move(o));
 	typeThead = WebssType::TEMPLATE_HEAD_BINARY;
 }
-void ParamStandard::setTemplateHead(TemplateHeadStandard&& o)
+void ParamStandard::setTemplateHead(TemplateHeadStandard&& o, WebssType type)
 {
-	assert(!hasTemplateHead());
+	assert(!hasTemplateHead() && (type == WebssType::TEMPLATE_HEAD_STANDARD || type == WebssType::TEMPLATE_HEAD_TEXT));
 	theadStd = new TemplateHeadStandard(move(o));
-	typeThead = WebssType::TEMPLATE_HEAD_STANDARD;
-}
-void ParamStandard::setTemplateHead(TemplateHeadStandard&& o, bool)
-{
-	assert(!hasTemplateHead());
-	theadStd = new TemplateHeadStandard(move(o));
-	typeThead = WebssType::TEMPLATE_HEAD_TEXT;
+	typeThead = type;
 }
 void ParamStandard::setTemplateHead(TemplateHeadSelf)
 {

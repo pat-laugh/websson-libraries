@@ -29,14 +29,14 @@ Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 	case Tag::START_TEMPLATE:
 		return Entity(move(name), parseTemplateHead());
 	case Tag::TEXT_TEMPLATE:
-		return Entity(move(name), Webss(parseTemplateHeadText(), true));
+		return Entity(move(name), Webss(parseTemplateHeadText(), WebssType::TEMPLATE_HEAD_TEXT));
 	case Tag::EXPLICIT_NAME:
 		switch (getTag(++it))
 		{
 		case Tag::START_TEMPLATE:
 			return Entity(move(name), parseTemplateBlockHead());
 		case Tag::TEXT_TEMPLATE:
-			return Entity(move(name), Webss(parseTemplateBlockHeadText(), true, true, true));
+			return Entity(move(name), Webss(parseTemplateBlockHeadText(), WebssType::TEMPLATE_BLOCK_HEAD_TEXT));
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}

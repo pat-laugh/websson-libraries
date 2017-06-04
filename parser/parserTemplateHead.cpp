@@ -41,7 +41,8 @@ Webss Parser::parseTemplateHead()
 	//the thead is of the same type as the entity being expanded
 	auto ent = parseExpandEntity(it, ents);
 	bool isEnd = !checkNextElement();
-	switch (ent.getContent().getType())
+	auto type = ent.getContent().getType();
+	switch (type)
 	{
 	case WebssType::BLOCK_HEAD:
 		if (!isEnd)
@@ -49,10 +50,8 @@ Webss Parser::parseTemplateHead()
 		return BlockHead(ent);
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		return isEnd ? TemplateHeadBinary(ent) : parseTemplateHeadBinary(TemplateHeadBinary(ent));
-	case WebssType::TEMPLATE_HEAD_STANDARD:
-		return isEnd ? TemplateHeadStandard(ent) : parseTemplateHeadStandard(TemplateHeadStandard(ent));
-	case WebssType::TEMPLATE_HEAD_TEXT:
-		return isEnd ? Webss(TemplateHeadStandard(ent), true) : Webss(parseTemplateHeadStandard(TemplateHeadStandard(ent)), true);
+	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
+		return Webss(isEnd ? TemplateHeadStandard(ent) : parseTemplateHeadStandard(TemplateHeadStandard(ent)), type);
 	default:
 		throw runtime_error("expand entity in template head must be a template head");
 	}
@@ -72,15 +71,15 @@ Webss Parser::parseTemplateBlockHead()
 	switch (headWebss.getTypeRaw())
 	{
 	case WebssType::BLOCK_HEAD:
-		return{ TemplateHeadStandard(), true, true };
+		return{ TemplateHeadStandard(), WebssType::TEMPLATE_BLOCK_HEAD_STANDARD };
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		return{ TemplateHeadBinary(move(headWebss.getTemplateHeadBinaryRaw())), true, true };
+		return{ TemplateHeadBinary(move(headWebss.getTemplateHeadBinaryRaw())), WebssType::TEMPLATE_BLOCK_HEAD_BINARY };
 	case WebssType::TEMPLATE_HEAD_SELF:
 		throw runtime_error("self in a thead must be within a non-empty thead");
 	case WebssType::TEMPLATE_HEAD_STANDARD:
-		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), true, true };
+		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), WebssType::TEMPLATE_BLOCK_HEAD_STANDARD };
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), true, true, true };
+		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), WebssType::TEMPLATE_BLOCK_HEAD_TEXT };
 	default:
 		assert(false); throw domain_error("");
 	}
@@ -118,7 +117,7 @@ TemplateHeadStandard Parser::parseTemplateHeadStandard(TemplateHeadStandard&& th
 		{
 			auto head = parseTemplateHeadText();
 			parseOtherValuesTheadStandardAfterThead(*this, thead);
-			thead.back().setTemplateHead(move(head), true);
+			thead.back().setTemplateHead(move(head), WebssType::TEMPLATE_HEAD_TEXT);
 		}
 		else if (nextTag == Tag::EXPAND)
 		{
@@ -152,11 +151,8 @@ void parseStandardParameterTemplateHead(Parser& parser, TemplateHeadStandard& th
 	case WebssType::TEMPLATE_HEAD_SELF:
 		lastParam.setTemplateHead(TemplateHeadSelf());
 		break;
-	case WebssType::TEMPLATE_HEAD_STANDARD:
-		lastParam.setTemplateHead(move(headWebss.getTemplateHeadStandardRaw()));
-		break;
-	case WebssType::TEMPLATE_HEAD_TEXT:
-		lastParam.setTemplateHead(move(headWebss.getTemplateHeadStandardRaw()), true);
+	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
+		lastParam.setTemplateHead(move(headWebss.getTemplateHeadStandardRaw()), headWebss.getTypeRaw());
 		break;
 	default:
 		assert(false);

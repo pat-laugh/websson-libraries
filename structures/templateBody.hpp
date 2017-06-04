@@ -16,14 +16,10 @@ namespace webss
 	class TemplateBody
 	{
 	public:
-		TemplateBody(Dictionary&& dict);
-		TemplateBody(List&& list);
-		TemplateBody(Tuple&& tuple);
-		TemplateBody(Tuple&& tuple, bool);
-		TemplateBody(const Dictionary& dict);
-		TemplateBody(const List& list);
-		TemplateBody(const Tuple& tuple);
-		TemplateBody(const Tuple& tuple, bool);
+		TemplateBody(Dictionary dict);
+		TemplateBody(List list);
+		TemplateBody(Tuple tuple);
+		TemplateBody(Tuple tuple, WebssType type = WebssType::TUPLE);
 
 		WebssType getType() const;
 

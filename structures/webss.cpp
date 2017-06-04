@@ -61,28 +61,39 @@ Webss::Webss(string s) : type(WebssType::PRIMITIVE_STRING), tString(new string(m
 
 Webss::Webss(Document document) : type(WebssType::DOCUMENT), document(new Document(move(document))) {}
 Webss::Webss(Dictionary dict) : type(WebssType::DICTIONARY), dict(new Dictionary(move(dict))) {}
-Webss::Webss(List list) : type(WebssType::LIST), list(new List(move(list))) {}
-Webss::Webss(List list, bool) : type(WebssType::LIST_TEXT), list(new List(move(list))) {}
-Webss::Webss(Tuple tuple) : type(WebssType::TUPLE), tuple(new Tuple(move(tuple))) {}
-Webss::Webss(Tuple tuple, bool) : type(WebssType::TUPLE_TEXT), tuple(new Tuple(move(tuple))) {}
-Webss::Webss(TemplateHeadBinary theadBinary) : type(WebssType::TEMPLATE_HEAD_BINARY), theadBinary(new TemplateHeadBinary(move(theadBinary))) {}
-Webss::Webss(TemplateHeadStandard theadStandard) : type(WebssType::TEMPLATE_HEAD_STANDARD), theadStandard(new TemplateHeadStandard(move(theadStandard))) {}
-Webss::Webss(TemplateHeadStandard theadStandard, bool) : type(WebssType::TEMPLATE_HEAD_TEXT), theadStandard(new TemplateHeadStandard(move(theadStandard))) {}
 Webss::Webss(TemplateBinary templBinary) : type(WebssType::TEMPLATE_BINARY), templBinary(new TemplateBinary(move(templBinary))) {}
-Webss::Webss(TemplateStandard templStandard) : type(WebssType::TEMPLATE_STANDARD), templStandard(new TemplateStandard(move(templStandard))) {}
-Webss::Webss(TemplateStandard templStandard, bool) : type(WebssType::TEMPLATE_TEXT), templStandard(new TemplateStandard(move(templStandard))) {}
-Webss::Webss(TemplateHeadBinary theadBinary, bool, bool) : type(WebssType::TEMPLATE_BLOCK_HEAD_BINARY), theadBinary(new TemplateHeadBinary(move(theadBinary))) {}
-Webss::Webss(TemplateHeadStandard theadStandard, bool, bool) : type(WebssType::TEMPLATE_BLOCK_HEAD_STANDARD), theadStandard(new TemplateHeadStandard(move(theadStandard))) {}
-Webss::Webss(TemplateHeadStandard theadStandard, bool, bool, bool) : type(WebssType::TEMPLATE_BLOCK_HEAD_TEXT), theadStandard(new TemplateHeadStandard(move(theadStandard))) {}
 Webss::Webss(TemplateBlockBinary templBlockBinary) : type(WebssType::TEMPLATE_BLOCK_BINARY), templBlockBinary(new TemplateBlockBinary(move(templBlockBinary))) {}
-Webss::Webss(TemplateBlockStandard templBlockStandard) : type(WebssType::TEMPLATE_BLOCK_STANDARD), templBlockStandard(new TemplateBlockStandard(move(templBlockStandard))) {}
-Webss::Webss(TemplateBlockStandard templBlockStandard, bool) : type(WebssType::TEMPLATE_BLOCK_TEXT), templBlockStandard(new TemplateBlockStandard(move(templBlockStandard))) {}
 Webss::Webss(BlockHead bhead) : type(WebssType::BLOCK_HEAD), bhead(new BlockHead(move(bhead))) {}
 Webss::Webss(Block block) : type(WebssType::BLOCK), block(new Block(move(block))) {}
 
+Webss::Webss(List list, WebssType type) : type(type), list(new List(move(list)))
+{
+	assert(type == WebssType::LIST || type == WebssType::LIST_TEXT);
+}
+Webss::Webss(Tuple tuple, WebssType type) : type(type), tuple(new Tuple(move(tuple)))
+{
+	assert(type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT);
+}
+Webss::Webss(TemplateHeadBinary theadBinary, WebssType type) : type(type), theadBinary(new TemplateHeadBinary(move(theadBinary)))
+{
+	assert(type == WebssType::TEMPLATE_HEAD_BINARY || type == WebssType::TEMPLATE_BLOCK_HEAD_BINARY);
+}
+Webss::Webss(TemplateHeadStandard theadStandard, WebssType type) : type(type), theadStandard(new TemplateHeadStandard(move(theadStandard)))
+{
+	assert(type == WebssType::TEMPLATE_HEAD_STANDARD || type == WebssType::TEMPLATE_HEAD_TEXT || type == WebssType::TEMPLATE_BLOCK_HEAD_STANDARD || type == WebssType::TEMPLATE_BLOCK_HEAD_TEXT);
+}
+Webss::Webss(TemplateStandard templStandard, WebssType type) : type(type), templStandard(new TemplateStandard(move(templStandard)))
+{
+	assert(type == WebssType::TEMPLATE_STANDARD || type == WebssType::TEMPLATE_TEXT);
+}
+Webss::Webss(TemplateBlockStandard templBlockStandard, WebssType type) : type(type), templBlockStandard(new TemplateBlockStandard(move(templBlockStandard)))
+{
+	assert(type == WebssType::TEMPLATE_BLOCK_STANDARD || type == WebssType::TEMPLATE_BLOCK_TEXT);
+}
+
 Webss::Webss(TemplateHeadSelf) : type(WebssType::TEMPLATE_HEAD_SELF) {}
 
-Webss::Webss(TemplateHeadBinary&& head, Webss&& body)
+Webss::Webss(TemplateHeadBinary&& head, Webss&& body) : type(WebssType::TEMPLATE_BINARY)
 {
 	switch (body.type)
 	{
@@ -92,20 +103,17 @@ Webss::Webss(TemplateHeadBinary&& head, Webss&& body)
 	case WebssType::LIST:
 		templBinary = new TemplateBinary(move(head), move(*body.list));
 		break;
-	case WebssType::TUPLE:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		templBinary = new TemplateBinary(move(head), move(*body.tuple));
 		break;
-	case WebssType::TUPLE_TEXT:
-		templBinary = new TemplateBinary(move(head), move(*body.tuple), true);
-		break;
 	default:
 		assert(false);
 	}
-	type = WebssType::TEMPLATE_BINARY;
 }
 
-Webss::Webss(TemplateHeadStandard&& head, Webss&& body)
+Webss::Webss(TemplateHeadStandard&& head, Webss&& body, WebssType type) : type(type)
 {
+	assert(type == WebssType::TEMPLATE_STANDARD || type == WebssType::TEMPLATE_TEXT);
 	switch (body.type)
 	{
 	case WebssType::DICTIONARY:
@@ -114,56 +122,19 @@ Webss::Webss(TemplateHeadStandard&& head, Webss&& body)
 	case WebssType::LIST:
 		templStandard = new TemplateStandard(move(head), move(*body.list));
 		break;
-	case WebssType::TUPLE:
-		templStandard = new TemplateStandard(move(head), move(*body.tuple));
-		break;
-	case WebssType::TUPLE_TEXT:
-		templStandard = new TemplateStandard(move(head), move(*body.tuple), true);
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
+		templStandard = new TemplateStandard(move(head), move(*body.tuple), body.type);
 		break;
 	default:
 		assert(false);
 	}
-	type = WebssType::TEMPLATE_STANDARD;
 }
 
-Webss::Webss(TemplateHeadStandard&& head, Webss&& body, bool)
-{
-	switch (body.type)
-	{
-	case WebssType::DICTIONARY:
-		templStandard = new TemplateStandard(move(head), move(*body.dict));
-		break;
-	case WebssType::LIST:
-		templStandard = new TemplateStandard(move(head), move(*body.list));
-		break;
-	case WebssType::TUPLE:
-		templStandard = new TemplateStandard(move(head), move(*body.tuple));
-		break;
-	case WebssType::TUPLE_TEXT:
-		templStandard = new TemplateStandard(move(head), move(*body.tuple), true);
-		break;
-	default:
-		assert(false);
-	}
-	type = WebssType::TEMPLATE_TEXT;
-}
+Webss::Webss(TemplateHeadBinary&& head, Tuple&& body, Webss&& block) : type(WebssType::TEMPLATE_BLOCK_BINARY), templBlockBinary(new TemplateBlockBinary(move(head), move(body), move(block))) {}
 
-Webss::Webss(TemplateHeadBinary&& head, Tuple&& body, Webss&& block)
+Webss::Webss(TemplateHeadStandard&& head, Tuple&& body, Webss&& block, WebssType type) : type(type), templBlockStandard(new TemplateBlockStandard(move(head), move(body), move(block)))
 {
-	templBlockBinary = new TemplateBlockBinary(move(head), move(body), move(block));
-	type = WebssType::TEMPLATE_BLOCK_BINARY;
-}
-
-Webss::Webss(TemplateHeadStandard&& head, Tuple&& body, Webss&& block)
-{
-	templBlockStandard = new TemplateBlockStandard(move(head), move(body), move(block));
-	type = WebssType::TEMPLATE_BLOCK_STANDARD;
-}
-
-Webss::Webss(TemplateHeadStandard&& head, Tuple&& body, Webss&& block, bool)
-{
-	templBlockStandard = new TemplateBlockStandard(move(head), move(body), move(block));
-	type = WebssType::TEMPLATE_BLOCK_TEXT;
+	assert(type == WebssType::TEMPLATE_BLOCK_STANDARD || type == WebssType::TEMPLATE_BLOCK_TEXT);
 }
 
 void Webss::destroyUnion()

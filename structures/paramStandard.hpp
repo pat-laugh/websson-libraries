@@ -48,8 +48,7 @@ namespace webss
 
 		void removeTemplateHead();
 		void setTemplateHead(TemplateHeadBinary&& o);
-		void setTemplateHead(TemplateHeadStandard&& o);
-		void setTemplateHead(TemplateHeadStandard&& o, bool);
+		void setTemplateHead(TemplateHeadStandard&& o, WebssType type = WebssType::TEMPLATE_HEAD_STANDARD);
 		void setTemplateHead(TemplateHeadSelf);
 	private:
 		void destroyUnion();

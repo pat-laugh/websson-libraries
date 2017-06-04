@@ -75,12 +75,12 @@ private:
 public:
 	Webss parseTemplateBodyStandard(const ParametersStandard& params)
 	{
-		return parseTemplateBodyStandard(params, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<false>(params)); }, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<true>(params), true); });
+		return parseTemplateBodyStandard(params, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<false>(params)); }, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<true>(params), WebssType::TUPLE_TEXT); });
 	}
 
 	Webss parseTemplateBodyText(const ParametersStandard& params)
 	{
-		return parseTemplateBodyStandard(params, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<true>(params), true); }, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<true>(params), true); });
+		return parseTemplateBodyStandard(params, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<true>(params), WebssType::TUPLE_TEXT); }, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<true>(params), WebssType::TUPLE_TEXT); });
 	}
 
 	Webss parseTemplateBodyStandard(const ParametersStandard& params, function<Webss(const ParametersStandard& params)>&& funcTemplTupleRegular, function<Webss(const ParametersStandard& params)>&& funcTemplTupleText)
@@ -288,7 +288,7 @@ Webss Parser::parseTemplate()
 	{
 		auto head = move(headWebss.getTemplateHeadStandardRaw());
 		auto body = parseTemplateBodyText(head.getParameters());
-		return{ move(head), move(body), true };
+		return{ move(head), move(body), WebssType::TEMPLATE_TEXT };
 	}
 #ifdef assert
 	default:
@@ -302,7 +302,7 @@ Webss Parser::parseTemplateText()
 {
 	auto head = parseTemplateHeadText();
 	auto body = parseTemplateBodyText(head.getParameters());
-	return{ move(head), move(body), true };
+	return{ move(head), move(body), WebssType::TEMPLATE_TEXT };
 }
 
 Webss Parser::parseTemplateBodyBinary(const TemplateHeadBinary::Parameters& params)

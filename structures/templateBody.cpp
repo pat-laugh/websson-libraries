@@ -5,14 +5,13 @@
 using namespace std;
 using namespace webss;
 
-TemplateBody::TemplateBody(Dictionary&& dict) : body(std::move(dict)) {}
-TemplateBody::TemplateBody(List&& list) : body(std::move(list)) {}
-TemplateBody::TemplateBody(Tuple&& tuple) : body(std::move(tuple)) {}
-TemplateBody::TemplateBody(Tuple&& tuple, bool) : body(std::move(tuple), true) {}
-TemplateBody::TemplateBody(const Dictionary& dict) : body(dict) {}
-TemplateBody::TemplateBody(const List& list) : body(list) {}
-TemplateBody::TemplateBody(const Tuple& tuple) : body(tuple) {}
-TemplateBody::TemplateBody(const Tuple& tuple, bool) : body(tuple, true) {}
+TemplateBody::TemplateBody(Dictionary dict) : body(std::move(dict)) {}
+TemplateBody::TemplateBody(List list) : body(std::move(list)) {}
+TemplateBody::TemplateBody(Tuple tuple) : body(std::move(tuple)) {}
+TemplateBody::TemplateBody(Tuple tuple, WebssType type) : body(std::move(tuple), type)
+{
+	assert(type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT);
+}
 
 WebssType TemplateBody::getType() const { return body.getTypeRaw(); }
 
