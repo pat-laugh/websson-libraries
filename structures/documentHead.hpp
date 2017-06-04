@@ -60,7 +60,7 @@ namespace webss
 			Entity ent;
 			std::vector<Entity>* entList;
 		};
-		ImportedDocument* import;
+		ImportedDocument* import = nullptr;
 
 		ParamDocument(Entity ent, Type type);
 		ParamDocument(Entity ent, Type type, ImportedDocument import);
