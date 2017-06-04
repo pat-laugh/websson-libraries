@@ -20,7 +20,7 @@ Entity Parser::parseConcreteEntity()
 Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 {
 	auto name = parseNameExplicit(it);
-	switch (nextTag = getTag(it))
+	switch (getTag(it))
 	{
 	case Tag::START_DICTIONARY:
 		return Entity(name, parseNamespace(name, currentNamespace));

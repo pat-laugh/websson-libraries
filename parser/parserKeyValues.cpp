@@ -14,9 +14,9 @@ using namespace webss;
 
 Webss Parser::parseValueEqual()
 {
-	if ((nextTag = getTag(it)) != Tag::EQUAL)
-		return parseValueOnly();
-	throw runtime_error("expected value-only not starting with an equal sign");
+	if ((nextTag = getTag(it)) == Tag::EQUAL)
+		throw runtime_error("expected value-only not starting with an equal sign");
+	return parseValueOnly();
 }
 
 #define CASE_TAG_KEY_CHAR Tag::START_DICTIONARY: case Tag::START_LIST: case Tag::START_TUPLE: case Tag::START_TEMPLATE: case Tag::LINE_STRING: case Tag::EQUAL: case Tag::C_STRING: case Tag::TEXT_DICTIONARY: case Tag::TEXT_LIST: case Tag::TEXT_TUPLE: case Tag::TEXT_TEMPLATE

@@ -821,38 +821,38 @@ void Serializer::putTemplTextTuple(StringBuilder& out, const TemplateHeadStandar
 	});
 }
 
-Tuple copyBlockTupleWithoutContent(const Tuple& tuple)
+Tuple copyBlockTupleWithoutLast(const Tuple& tuple)
 {
 	Tuple copy;
 	const auto& data = tuple.getData();
-	for (Tuple::size_type i = 0; i < data.size() - 2; ++i) //less one more because content is at the end
+	for (Tuple::size_type i = 0; i < data.size() - 1; ++i) //less one more because content is at the end
 		copy.add(data[i]);
 	return copy;
 }
 
 void Serializer::putTemplBlockBinary(StringBuilder& out, const TemplateBinary& templ, ConType con)
 {
-	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().has("__content"));
+	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().size() == templ.getParameters().size() + 1);
 	putEntityName(out, templ.getEntity());
-	putTemplBinaryTuple(out, templ.getParameters(), copyBlockTupleWithoutContent(templ.getTuple()));
-	putConcreteValue(out, templ.getTuple()["__content"], con);
+	putTemplBinaryTuple(out, templ.getParameters(), copyBlockTupleWithoutLast(templ.getTuple()));
+	putConcreteValue(out, templ.getTuple().back(), con);
 }
 
 void Serializer::putTemplBlockStandard(StringBuilder& out, const TemplateStandard& templ, ConType con)
 {
-	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().has("__content"));
+	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().size() == templ.getParameters().size() + 1);
 	putEntityName(out, templ.getEntity());
 	if (templ.isTupleText())
-		putTemplStandardTupleText(out, templ.getParameters(), copyBlockTupleWithoutContent(templ.getTuple()));
+		putTemplStandardTupleText(out, templ.getParameters(), copyBlockTupleWithoutLast(templ.getTuple()));
 	else
-		putTemplStandardTuple(out, templ.getParameters(), copyBlockTupleWithoutContent(templ.getTuple()));
-	putConcreteValue(out, templ.getTuple()["__content"], con);
+		putTemplStandardTuple(out, templ.getParameters(), copyBlockTupleWithoutLast(templ.getTuple()));
+	putConcreteValue(out, templ.getTuple().back(), con);
 }
 
 void Serializer::putTemplBlockText(StringBuilder& out, const TemplateStandard& templ, ConType con)
 {
-	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().has("__content"));
+	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().size() == templ.getParameters().size() + 1);
 	putEntityName(out, templ.getEntity());
-	putTemplTextTuple(out, templ.getParameters(), copyBlockTupleWithoutContent(templ.getTuple()));
-	putConcreteValue(out, templ.getTuple()["__content"], con);
+	putTemplTextTuple(out, templ.getParameters(), copyBlockTupleWithoutLast(templ.getTuple()));
+	putConcreteValue(out, templ.getTuple().back(), con);
 }

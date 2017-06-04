@@ -25,7 +25,7 @@ int main()
 	do
 #endif
 	{
-		vector<string> filenames { "strings", "expandTuple" };
+		vector<string> filenames { "strings", "expandTuple", "templateBlock" };
 		for (const auto& filename : filenames)
 		{
 			Document data;
