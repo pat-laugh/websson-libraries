@@ -33,8 +33,10 @@ Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 	case Tag::EXPLICIT_NAME:
 		switch (getTag(++it))
 		{
-		case Tag::START_TEMPLATE: case Tag::TEXT_TEMPLATE:
-			//...
+		case Tag::START_TEMPLATE:
+			return Entity(move(name), parseTemplateBlockHead());
+		case Tag::TEXT_TEMPLATE:
+			return Entity(move(name), Webss(parseTemplateBlockHeadText(), true, true, true));
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}

@@ -124,6 +124,9 @@ namespace webss
 		TemplateHeadBinary parseTemplateHeadBinary(TemplateHeadBinary&& thead = TemplateHeadBinary());
 		TemplateHeadStandard parseTemplateHeadText();
 
+		Webss parseTemplateBlockHead();
+		TemplateHeadStandard parseTemplateBlockHeadText();
+
 		Webss parseTemplate();
 		Webss parseTemplateText();
 		Webss parseTemplateBodyBinary(const TemplateHeadBinary::Parameters& params);

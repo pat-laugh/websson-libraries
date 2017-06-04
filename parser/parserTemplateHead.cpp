@@ -66,6 +66,31 @@ TemplateHeadStandard Parser::parseTemplateHeadText()
 	throw runtime_error("expected standard template head");
 }
 
+Webss Parser::parseTemplateBlockHead()
+{
+	auto headWebss = parseTemplateHead();
+	switch (headWebss.getTypeRaw())
+	{
+	case WebssType::BLOCK_HEAD:
+		return{ TemplateHeadStandard(), true, true };
+	case WebssType::TEMPLATE_HEAD_BINARY:
+		return{ TemplateHeadBinary(move(headWebss.getTemplateHeadBinaryRaw())), true, true };
+	case WebssType::TEMPLATE_HEAD_SELF:
+		throw runtime_error("self in a thead must be within a non-empty thead");
+	case WebssType::TEMPLATE_HEAD_STANDARD:
+		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), true, true };
+	case WebssType::TEMPLATE_HEAD_TEXT:
+		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), true, true, true };
+	default:
+		assert(false); throw domain_error("");
+	}
+}
+
+TemplateHeadStandard Parser::parseTemplateBlockHeadText()
+{
+	return parseTemplateHeadText();
+}
+
 TemplateHeadBinary Parser::parseTemplateHeadBinary(TemplateHeadBinary&& thead)
 {
 	do
