@@ -35,10 +35,10 @@ namespace webss
 		using Head = TemplateHead;
 		using Body = TemplateBody;
 	public:
-		This(Head&& head, Tuple&& body) : Head(std::move(head)), Body(std::move(body)) {}
-		This(const Head& head, const Tuple& body) : Head(head), Body(body) {}
-		This(Head&& head, Tuple&& body, bool) : Head(std::move(head)), Body(std::move(body), true) {}
-		This(const Head& head, const Tuple& body, bool) : Head(head), Body(body, true) {}
+		This(Head&& head, Tuple&& body, Webss&& block) : Head(std::move(head)), Body(std::move(body)), block(std::move(block)) {}
+		This(const Head& head, const Tuple& body, Webss&& block) : Head(head), Body(body), block(std::move(block)) {}
+		This(Head&& head, Tuple&& body, Webss&& block, bool) : Head(std::move(head)), Body(std::move(body), true), block(std::move(block)) {}
+		This(const Head& head, const Tuple& body, Webss&& block, bool) : Head(head), Body(body, true), block(std::move(block)) {}
 
 		Webss block;
 	};

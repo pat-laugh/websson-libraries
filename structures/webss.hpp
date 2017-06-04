@@ -54,9 +54,12 @@ namespace webss
 		Webss(TemplateBinary templBinary);
 		Webss(TemplateStandard templStandard);
 		Webss(TemplateStandard templStandard, bool);
-		Webss(TemplateHeadBinary theadBlockBinary, bool, bool);
-		Webss(TemplateHeadStandard theadBlockStandard, bool, bool);
-		Webss(TemplateHeadStandard theadBlockStandard, bool, bool, bool);
+		Webss(TemplateHeadBinary theadBinary, bool, bool);
+		Webss(TemplateHeadStandard theadStandard, bool, bool);
+		Webss(TemplateHeadStandard theadStandard, bool, bool, bool);
+		Webss(TemplateBlockBinary templBinary);
+		Webss(TemplateBlockStandard templStandard);
+		Webss(TemplateBlockStandard templStandard, bool);
 		Webss(BlockHead bhead);
 		Webss(Block block);
 
@@ -65,6 +68,9 @@ namespace webss
 		Webss(TemplateHeadBinary&& head, Webss&& body);
 		Webss(TemplateHeadStandard&& head, Webss&& body);
 		Webss(TemplateHeadStandard&& head, Webss&& body, bool);
+		Webss(TemplateHeadBinary&& head, Tuple&& body, Webss&& block);
+		Webss(TemplateHeadStandard&& head, Tuple&& body, Webss&& block);
+		Webss(TemplateHeadStandard&& head, Tuple&& body, Webss&& block, bool);
 
 		const Webss& operator[](int index) const;
 		const Webss& operator[](const std::string& key) const;
@@ -88,6 +94,8 @@ namespace webss
 		const TemplateStandard& getTemplateStandard() const;
 		const Namespace& getNamespace() const;
 		const Enum& getEnum() const;
+		const TemplateBlockBinary& getTemplateBlockBinary() const;
+		const TemplateBlockStandard& getTemplateBlockStandard() const;
 		const BlockHead& getBlockHead() const;
 		const Block& getBlock() const;
 
@@ -110,6 +118,8 @@ namespace webss
 		const TemplateHeadStandard& getTemplateHeadStandardRaw() const;
 		const TemplateBinary& getTemplateBinaryRaw() const;
 		const TemplateStandard& getTemplateStandardRaw() const;
+		const TemplateBlockBinary& getTemplateBlockBinaryRaw() const;
+		const TemplateBlockStandard& getTemplateBlockStandardRaw() const;
 		const BlockHead& getBlockHeadRaw() const;
 		const Block& getBlockRaw() const;
 
@@ -127,6 +137,8 @@ namespace webss
 		TemplateHeadStandard& getTemplateHeadStandardRaw();
 		TemplateBinary& getTemplateBinaryRaw();
 		TemplateStandard& getTemplateStandardRaw();
+		TemplateBlockBinary& getTemplateBlockBinaryRaw();
+		TemplateBlockStandard& getTemplateBlockStandardRaw();
 		BlockHead& getBlockHeadRaw();
 		Block& getBlockRaw();
 
@@ -145,6 +157,8 @@ namespace webss
 		explicit operator const TemplateHeadStandard&() const { return getTemplateHeadStandard(); }
 		explicit operator const TemplateBinary&() const { return getTemplateBinary(); }
 		explicit operator const TemplateStandard&() const { return getTemplateStandard(); }
+		explicit operator const TemplateBlockBinary&() const { return getTemplateBlockBinary(); }
+		explicit operator const TemplateBlockStandard&() const { return getTemplateBlockStandard(); }
 		explicit operator const Namespace&() const { return getNamespace(); }
 		explicit operator const Enum&() const { return getEnum(); }
 		explicit operator const BlockHead&() const { return getBlockHead(); }
@@ -173,6 +187,9 @@ namespace webss
 		bool isTemplateBlockHeadBinary() const;
 		bool isTemplateBlockHeadStandard() const;
 		bool isTemplateBlockHeadText() const;
+		bool isTemplateBlockBinary() const;
+		bool isTemplateBlockStandard() const;
+		bool isTemplateBlockText() const;
 		bool isBlockHead() const;
 		bool isBlock() const;
 
@@ -195,6 +212,8 @@ namespace webss
 			TemplateHeadStandard* theadStandard;
 			TemplateBinary* templBinary;
 			TemplateStandard* templStandard;
+			TemplateBlockBinary* templBlockBinary;
+			TemplateBlockStandard* templBlockStandard;
 			BlockHead* bhead;
 			Block* block;
 			Namespace nspace;
