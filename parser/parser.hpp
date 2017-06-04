@@ -12,7 +12,6 @@
 #include "structures/document.hpp"
 #include "structures/dictionary.hpp"
 #include "structures/paramStandard.hpp"
-#include "structures/block.hpp"
 #include "structures/template.hpp"
 #include "utils/stringBuilder.hpp"
 #include "utils/constants.hpp"

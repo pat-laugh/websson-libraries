@@ -14,7 +14,6 @@
 #include "structures/document.hpp"
 #include "structures/dictionary.hpp"
 #include "structures/paramStandard.hpp"
-#include "structures/block.hpp"
 #include "structures/template.hpp"
 #include "utils/conType.hpp"
 #include "utils/stringBuilder.hpp"
@@ -87,9 +86,6 @@ namespace webss
 		void putNamespace(StringBuilder& out, const Namespace& nspace);
 
 		void putEnum(StringBuilder& out, const Enum& tEnum);
-
-		void putBlockHead(StringBuilder& out, const BlockHead& blockHead);
-		void putBlock(StringBuilder& out, const Block& block, ConType con);
 
 		void putAbstractEntity(StringBuilder& out, const Entity& ent);
 		void putConcreteEntity(StringBuilder& out, const Entity& ent, ConType con);

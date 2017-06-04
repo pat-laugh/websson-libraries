@@ -96,8 +96,6 @@ Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 	nextTag = getTag(it);
 	switch (content.getType())
 	{
-	case WebssType::BLOCK_HEAD:
-		return{ Block(ent, parseValueOnly()) };
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		if (isTemplateBodyStart(nextTag))
 			return{ Webss(TemplateHeadBinary(ent), parseTemplateBodyBinary(content.getTemplateHeadBinary().getParameters())) };

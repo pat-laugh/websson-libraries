@@ -267,9 +267,6 @@ Webss Parser::parseTemplate()
 	auto headWebss = parseTemplateHead();
 	switch (headWebss.getTypeRaw())
 	{
-	case WebssType::BLOCK_HEAD:
-		nextTag = getTag(it);
-		return Block(move(headWebss.getBlockHeadRaw()), parseValueOnly());
 	case WebssType::TEMPLATE_HEAD_BINARY:
 	{
 		auto head = move(headWebss.getTemplateHeadBinaryRaw());

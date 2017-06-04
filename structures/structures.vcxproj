@@ -128,7 +128,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="base.hpp" />
-    <ClInclude Include="block.hpp" />
     <ClInclude Include="dictionary.hpp" />
     <ClInclude Include="document.hpp" />
     <ClInclude Include="documentHead.hpp" />
@@ -151,7 +150,6 @@
     <ClInclude Include="webss.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="block.cpp" />
     <ClCompile Include="dictionary.cpp" />
     <ClCompile Include="documentHead.cpp" />
     <ClCompile Include="entity.cpp" />

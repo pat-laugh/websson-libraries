@@ -21,7 +21,7 @@ Webss Parser::parseTemplateHead()
 {
 	ContainerSwitcher switcher(*this, ConType::TEMPLATE_HEAD, false);
 	if (containerEmpty())
-		return BlockHead();
+		return TemplateHeadStandard();
 
 	switch (nextTag)
 	{
@@ -44,10 +44,6 @@ Webss Parser::parseTemplateHead()
 	auto type = ent.getContent().getType();
 	switch (type)
 	{
-	case WebssType::BLOCK_HEAD:
-		if (!isEnd)
-			throw runtime_error(ERROR_UNEXPECTED);
-		return BlockHead(ent);
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		return isEnd ? TemplateHeadBinary(ent) : parseTemplateHeadBinary(TemplateHeadBinary(ent));
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
@@ -70,16 +66,12 @@ Webss Parser::parseTemplateBlockHead()
 	auto headWebss = parseTemplateHead();
 	switch (headWebss.getTypeRaw())
 	{
-	case WebssType::BLOCK_HEAD:
-		return{ TemplateHeadStandard(), WebssType::TEMPLATE_BLOCK_HEAD_STANDARD };
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		return{ TemplateHeadBinary(move(headWebss.getTemplateHeadBinaryRaw())), WebssType::TEMPLATE_BLOCK_HEAD_BINARY };
 	case WebssType::TEMPLATE_HEAD_SELF:
 		throw runtime_error("self in a thead must be within a non-empty thead");
-	case WebssType::TEMPLATE_HEAD_STANDARD:
-		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), WebssType::TEMPLATE_BLOCK_HEAD_STANDARD };
-	case WebssType::TEMPLATE_HEAD_TEXT:
-		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), WebssType::TEMPLATE_BLOCK_HEAD_TEXT };
+	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
+		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), headWebss.getTypeRaw() };
 	default:
 		assert(false); throw domain_error("");
 	}
@@ -143,8 +135,6 @@ void parseStandardParameterTemplateHead(Parser& parser, TemplateHeadStandard& th
 	auto& lastParam = thead.back();
 	switch (headWebss.getTypeRaw())
 	{
-	case WebssType::BLOCK_HEAD:
-		break; //do nothing
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		lastParam.setTemplateHead(move(headWebss.getTemplateHeadBinaryRaw()));
 		break;

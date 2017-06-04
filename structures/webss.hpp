@@ -52,8 +52,6 @@ namespace webss
 		Webss(TemplateStandard templStandard, WebssType type = WebssType::TEMPLATE_STANDARD);
 		Webss(TemplateBlockBinary templBinary);
 		Webss(TemplateBlockStandard templBlockStandard, WebssType type = WebssType::TEMPLATE_BLOCK_STANDARD);
-		Webss(BlockHead bhead);
-		Webss(Block block);
 
 		Webss(TemplateHeadSelf);
 
@@ -86,8 +84,6 @@ namespace webss
 		const Enum& getEnum() const;
 		const TemplateBlockBinary& getTemplateBlockBinary() const;
 		const TemplateBlockStandard& getTemplateBlockStandard() const;
-		const BlockHead& getBlockHead() const;
-		const Block& getBlock() const;
 
 		WebssType getTypeRaw() const;
 
@@ -110,8 +106,6 @@ namespace webss
 		const TemplateStandard& getTemplateStandardRaw() const;
 		const TemplateBlockBinary& getTemplateBlockBinaryRaw() const;
 		const TemplateBlockStandard& getTemplateBlockStandardRaw() const;
-		const BlockHead& getBlockHeadRaw() const;
-		const Block& getBlockRaw() const;
 
 		Entity& getEntityRaw();
 		Default& getDefaultRaw();
@@ -129,8 +123,6 @@ namespace webss
 		TemplateStandard& getTemplateStandardRaw();
 		TemplateBlockBinary& getTemplateBlockBinaryRaw();
 		TemplateBlockStandard& getTemplateBlockStandardRaw();
-		BlockHead& getBlockHeadRaw();
-		Block& getBlockRaw();
 
 		explicit operator bool() const { return getBool(); }
 		explicit operator int() const { return (int)getInt(); }
@@ -151,8 +143,6 @@ namespace webss
 		explicit operator const TemplateBlockStandard&() const { return getTemplateBlockStandard(); }
 		explicit operator const Namespace&() const { return getNamespace(); }
 		explicit operator const Enum&() const { return getEnum(); }
-		explicit operator const BlockHead&() const { return getBlockHead(); }
-		explicit operator const Block&() const { return getBlock(); }
 
 		template <class Element>
 		const Element& getElement() const { return static_cast<const Element&>(*this); }
@@ -180,8 +170,6 @@ namespace webss
 		bool isTemplateBlockBinary() const;
 		bool isTemplateBlockStandard() const;
 		bool isTemplateBlockText() const;
-		bool isBlockHead() const;
-		bool isBlock() const;
 
 		bool isAbstract() const;
 		bool isConcrete() const;
@@ -204,8 +192,6 @@ namespace webss
 			TemplateStandard* templStandard;
 			TemplateBlockBinary* templBlockBinary;
 			TemplateBlockStandard* templBlockStandard;
-			BlockHead* bhead;
-			Block* block;
 			Namespace nspace;
 			Enum tEnum;
 			Entity ent;

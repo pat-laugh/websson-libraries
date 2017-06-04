@@ -12,8 +12,6 @@ namespace webss
 	class Tuple;
 	class Entity;
 	class Namespace;
-	class BlockHead;
-	class Block;
 	class TemplateBody;
 	class ParamBinary;
 	class ParamStandard;

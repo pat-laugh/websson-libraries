@@ -70,10 +70,6 @@ string WebssType::toString() const
 		return "namespace";
 	case WebssType::ENUM:
 		return "enum";
-	case WebssType::BLOCK_HEAD:
-		return "block head";
-	case WebssType::BLOCK:
-		return "block";
 	default:
 		return "unknown";
 	}

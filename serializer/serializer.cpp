@@ -343,9 +343,6 @@ void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 	case WebssType::ENUM:
 		putEnum(out, webss.getEnumRaw());
 		break;
-	case WebssType::BLOCK_HEAD:
-		putBlockHead(out, webss.getBlockHeadRaw());
-		break;
 	default:
 		assert(false && "type is not an abstract value");
 	}
@@ -398,9 +395,6 @@ void Serializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConTyp
 	case WebssType::ENTITY:
 		assert(webss.getEntityRaw().getContent().isConcrete());
 		putEntityName(out, webss.getEntityRaw());
-		break;
-	case WebssType::BLOCK:
-		putBlock(out, webss.getBlockRaw(), con);
 		break;
 	default:
 		assert(false && "type is not a concrete value");
@@ -594,14 +588,6 @@ void Serializer::putEnum(StringBuilder& out, const Enum& tEnum)
 	static const auto CON = ConType::LIST;
 	NamespaceIncluder includer(currentNamespaces, tEnum);
 	putSeparatedValues<Enum, CON>(out, tEnum, [&](Enum::const_iterator it) { putEntityName(out, *it); });
-}
-
-void Serializer::putBlockHead(StringBuilder& out, const BlockHead& blockHead)
-{
-	out += OPEN_TEMPLATE;
-	if (blockHead.hasEntity())
-		putEntityName(out, blockHead.getEntity());
-	out += CLOSE_TEMPLATE;
 }
 
 void Serializer::putDictionary(StringBuilder& out, const Dictionary& dict)
@@ -812,19 +798,4 @@ void Serializer::putFuncTextTuple(StringBuilder& out, const TemplateHeadStandard
 			assert(false); throw domain_error("");
 		}
 	});
-}
-
-void Serializer::putBlock(StringBuilder& out, const Block& block, ConType con)
-{
-	if (block.hasEntity())
-	{
-		putEntityName(out, block.getEntity());
-		putCharValue(out, block.getValue(), con);
-	}
-	else
-	{
-		out += OPEN_TEMPLATE;
-		out += CLOSE_TEMPLATE;
-		putConcreteValue(out, block.getValue(), con);
-	}
 }
