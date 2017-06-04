@@ -23,9 +23,6 @@ namespace webss
 	template <class TemplateHead>
 	class BasicTemplate;
 
-	template <class TemplateHead>
-	class BasicTemplateBlock;
-
 	class ParamDocument;
 	using DocumentHead = std::vector<ParamDocument>;
 
@@ -35,7 +32,5 @@ namespace webss
 	using TemplateHeadStandard = BasicTemplateHead<ParamStandard>;
 	using TemplateBinary = BasicTemplate<TemplateHeadBinary>;
 	using TemplateStandard = BasicTemplate<TemplateHeadStandard>;
-	using TemplateBlockBinary = BasicTemplateBlock<TemplateHeadBinary>;
-	using TemplateBlockStandard = BasicTemplateBlock<TemplateHeadStandard>;
 	
 }

@@ -21,18 +21,4 @@ namespace webss
 		This(Head head, Tuple body, WebssType type = WebssType::TUPLE) : Head(std::move(head)), Body(std::move(body), type) {}
 	};
 #undef This
-
-#define This BasicTemplateBlock
-	template <class TemplateHead>
-	class This : public TemplateHead, public TemplateBody
-	{
-	private:
-		using Head = TemplateHead;
-		using Body = TemplateBody;
-	public:
-		This(Head head, Tuple body, Webss block, WebssType type = WebssType::TUPLE) : Head(std::move(head)), Body(std::move(body), type), block(std::move(block)) {}
-
-		Webss block;
-	};
-#undef This
 }

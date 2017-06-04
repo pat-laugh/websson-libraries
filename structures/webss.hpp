@@ -50,15 +50,11 @@ namespace webss
 		Webss(TemplateHeadStandard theadStandard, WebssType type = WebssType::TEMPLATE_HEAD_STANDARD);
 		Webss(TemplateBinary templBinary);
 		Webss(TemplateStandard templStandard, WebssType type = WebssType::TEMPLATE_STANDARD);
-		Webss(TemplateBlockBinary templBinary);
-		Webss(TemplateBlockStandard templBlockStandard, WebssType type = WebssType::TEMPLATE_BLOCK_STANDARD);
 
 		Webss(TemplateHeadSelf);
 
-		Webss(TemplateHeadBinary&& head, Webss&& body);
+		Webss(TemplateHeadBinary&& head, Webss&& body, WebssType type = WebssType::TEMPLATE_BINARY);
 		Webss(TemplateHeadStandard&& head, Webss&& body, WebssType type = WebssType::TEMPLATE_STANDARD);
-		Webss(TemplateHeadBinary&& head, Tuple&& body, Webss&& block);
-		Webss(TemplateHeadStandard&& head, Tuple&& body, Webss&& block, WebssType type = WebssType::TEMPLATE_BLOCK_STANDARD);
 
 		const Webss& operator[](int index) const;
 		const Webss& operator[](const std::string& key) const;
@@ -82,8 +78,6 @@ namespace webss
 		const TemplateStandard& getTemplateStandard() const;
 		const Namespace& getNamespace() const;
 		const Enum& getEnum() const;
-		const TemplateBlockBinary& getTemplateBlockBinary() const;
-		const TemplateBlockStandard& getTemplateBlockStandard() const;
 
 		WebssType getTypeRaw() const;
 
@@ -104,8 +98,6 @@ namespace webss
 		const TemplateHeadStandard& getTemplateHeadStandardRaw() const;
 		const TemplateBinary& getTemplateBinaryRaw() const;
 		const TemplateStandard& getTemplateStandardRaw() const;
-		const TemplateBlockBinary& getTemplateBlockBinaryRaw() const;
-		const TemplateBlockStandard& getTemplateBlockStandardRaw() const;
 
 		Entity& getEntityRaw();
 		Default& getDefaultRaw();
@@ -121,8 +113,6 @@ namespace webss
 		TemplateHeadStandard& getTemplateHeadStandardRaw();
 		TemplateBinary& getTemplateBinaryRaw();
 		TemplateStandard& getTemplateStandardRaw();
-		TemplateBlockBinary& getTemplateBlockBinaryRaw();
-		TemplateBlockStandard& getTemplateBlockStandardRaw();
 
 		explicit operator bool() const { return getBool(); }
 		explicit operator int() const { return (int)getInt(); }
@@ -139,8 +129,6 @@ namespace webss
 		explicit operator const TemplateHeadStandard&() const { return getTemplateHeadStandard(); }
 		explicit operator const TemplateBinary&() const { return getTemplateBinary(); }
 		explicit operator const TemplateStandard&() const { return getTemplateStandard(); }
-		explicit operator const TemplateBlockBinary&() const { return getTemplateBlockBinary(); }
-		explicit operator const TemplateBlockStandard&() const { return getTemplateBlockStandard(); }
 		explicit operator const Namespace&() const { return getNamespace(); }
 		explicit operator const Enum&() const { return getEnum(); }
 
@@ -190,8 +178,6 @@ namespace webss
 			TemplateHeadStandard* theadStandard;
 			TemplateBinary* templBinary;
 			TemplateStandard* templStandard;
-			TemplateBlockBinary* templBlockBinary;
-			TemplateBlockStandard* templBlockStandard;
 			Namespace nspace;
 			Enum tEnum;
 			Entity ent;

@@ -431,3 +431,54 @@ Webss Parser::buildTemplateBodyStandard(const TemplateHeadStandard::Parameters& 
 		throw runtime_error("template head must be implemented");
 	}
 }
+
+Tuple Parser::parseTemplateBlockBinary(const TemplateHeadBinary::Parameters& params)
+{
+	Tuple body;
+	switch (nextTag = getTag(it))
+	{
+	case Tag::START_TUPLE: case Tag::TEXT_TUPLE:
+		body = parseTemplateTupleBinary(params);
+		break;
+	default:
+		body = makeDefaultTuple(params);
+		break;
+	}
+	body.add("__content", parseValueOnly());
+	return body;
+}
+
+Tuple Parser::parseTemplateBlockStandard(const TemplateHeadStandard::Parameters& params)
+{
+	Tuple body;
+	switch (nextTag = getTag(it))
+	{
+	case Tag::START_TUPLE:
+		body = parseTemplateTupleStandard(params);
+		break;
+	case Tag::TEXT_TUPLE:
+		body = parseTemplateTupleText(params);
+		break;
+	default:
+		body = makeDefaultTuple(params);
+		break;
+	}
+	body.add("__content", parseValueOnly());
+	return body;
+}
+
+Tuple Parser::parseTemplateBlockText(const TemplateHeadStandard::Parameters& params)
+{
+	Tuple body;
+	switch (nextTag = getTag(it))
+	{
+	case Tag::START_TUPLE: case Tag::TEXT_TUPLE:
+		body = parseTemplateTupleText(params);
+		break;
+	default:
+		body = makeDefaultTuple(params);
+		break;
+	}
+	body.add("__content", parseValueOnly());
+	return body;
+}
