@@ -81,7 +81,7 @@ public:
 				putExpandDocumentHead(out, it->getNamespace());
 				break;
 			default:
-				assert(false); throw domain_error("");
+				assert(false);
 			}
 		});
 	}
@@ -185,7 +185,7 @@ private:
 				putTheadSelf(out);
 				break;
 			default:
-				assert(false); throw domain_error("");
+				assert(false);
 			}
 			putBinarySizeList(out, param.getSizeList());
 		}
@@ -252,7 +252,7 @@ private:
 			putEntityName(out, blist.getEntity());
 			break;
 		default:
-			assert(false); throw domain_error("");
+			assert(false);
 		}
 	}
 };
@@ -333,6 +333,18 @@ void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 	case WebssType::TEMPLATE_HEAD_TEXT:
 		putTheadText(out, webss.getTemplateHeadStandardRaw());
 		break;
+	case WebssType::TEMPLATE_BLOCK_HEAD_BINARY:
+		out += CHAR_EXPLICIT_NAME;
+		putTheadBinary(out, webss.getTemplateHeadBinaryRaw());
+		break;
+	case WebssType::TEMPLATE_BLOCK_HEAD_STANDARD:
+		out += CHAR_EXPLICIT_NAME;
+		putTheadStandard(out, webss.getTemplateHeadStandardRaw());
+		break;
+	case WebssType::TEMPLATE_BLOCK_HEAD_TEXT:
+		out += CHAR_EXPLICIT_NAME;
+		putTheadText(out, webss.getTemplateHeadStandardRaw());
+		break;
 	case WebssType::ENTITY:
 		assert(webss.getEntityRaw().getContent().isAbstract());
 		putEntityName(out, webss.getEntityRaw());
@@ -391,6 +403,15 @@ void Serializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConTyp
 		break;
 	case WebssType::TEMPLATE_TEXT:
 		putTemplText(out, webss.getTemplateStandardRaw());
+		break;
+	case WebssType::TEMPLATE_BLOCK_BINARY:
+		putTemplBlockBinary(out, webss.getTemplateBinaryRaw(), con);
+		break;
+	case WebssType::TEMPLATE_BLOCK_STANDARD:
+		putTemplBlockStandard(out, webss.getTemplateStandardRaw(), con);
+		break;
+	case WebssType::TEMPLATE_BLOCK_TEXT:
+		putTemplBlockText(out, webss.getTemplateStandardRaw(), con);
 		break;
 	case WebssType::ENTITY:
 		assert(webss.getEntityRaw().getContent().isConcrete());
@@ -666,7 +687,7 @@ void Serializer::putTemplBinary(StringBuilder& out, const TemplateBinary& templ)
 		putTemplBinaryTuple(out, params, templ.getTuple());
 		break;
 	default:
-		assert(false); throw domain_error("");
+		assert(false);
 	}
 }
 
@@ -695,7 +716,7 @@ void Serializer::putTemplStandardBody(StringBuilder& out, const TemplateHeadStan
 		putTemplStandardTupleText(out, params, body.getTupleRaw());
 		break;
 	default:
-		assert(false); throw domain_error("");
+		assert(false);
 	}
 }
 
@@ -718,7 +739,7 @@ void Serializer::putTemplText(StringBuilder& out, const TemplateStandard& templ)
 		putTemplTextTuple(out, params, templ.getTuple());
 		break;
 	default:
-		assert(false); throw domain_error("");
+		assert(false);
 	}
 }
 
@@ -769,7 +790,7 @@ void Serializer::putTemplStandardTupleText(StringBuilder& out, const TemplateHea
 			putLineString(out, it->getStringRaw(), CON);
 			break;
 		default:
-			assert(false); throw domain_error("");
+			assert(false);
 		}
 	});
 #ifdef assert
@@ -795,7 +816,43 @@ void Serializer::putTemplTextTuple(StringBuilder& out, const TemplateHeadStandar
 			putLineString(out, it->getStringRaw(), CON);
 			break;
 		default:
-			assert(false); throw domain_error("");
+			assert(false);
 		}
 	});
+}
+
+Tuple copyBlockTupleWithoutContent(const Tuple& tuple)
+{
+	Tuple copy;
+	const auto& data = tuple.getData();
+	for (Tuple::size_type i = 0; i < data.size() - 2; ++i) //less one more because content is at the end
+		copy.add(data[i]);
+	return copy;
+}
+
+void Serializer::putTemplBlockBinary(StringBuilder& out, const TemplateBinary& templ, ConType con)
+{
+	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().has("__content"));
+	putEntityName(out, templ.getEntity());
+	putTemplBinaryTuple(out, templ.getParameters(), copyBlockTupleWithoutContent(templ.getTuple()));
+	putConcreteValue(out, templ.getTuple()["__content"], con);
+}
+
+void Serializer::putTemplBlockStandard(StringBuilder& out, const TemplateStandard& templ, ConType con)
+{
+	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().has("__content"));
+	putEntityName(out, templ.getEntity());
+	if (templ.isTupleText())
+		putTemplStandardTupleText(out, templ.getParameters(), copyBlockTupleWithoutContent(templ.getTuple()));
+	else
+		putTemplStandardTuple(out, templ.getParameters(), copyBlockTupleWithoutContent(templ.getTuple()));
+	putConcreteValue(out, templ.getTuple()["__content"], con);
+}
+
+void Serializer::putTemplBlockText(StringBuilder& out, const TemplateStandard& templ, ConType con)
+{
+	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().has("__content"));
+	putEntityName(out, templ.getEntity());
+	putTemplTextTuple(out, templ.getParameters(), copyBlockTupleWithoutContent(templ.getTuple()));
+	putConcreteValue(out, templ.getTuple()["__content"], con);
 }
