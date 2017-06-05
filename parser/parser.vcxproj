@@ -143,6 +143,7 @@
     <ClInclude Include="unicode.hpp" />
     <ClInclude Include="utilsNumbers.hpp" />
     <ClInclude Include="utilsSweepers.hpp" />
+    <ClInclude Include="utilsTemplateDefaultValues.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="binaryIterator.cpp" />
@@ -164,6 +165,7 @@
     <ClCompile Include="utilsExpand.cpp" />
     <ClCompile Include="utilsNumbers.cpp" />
     <ClCompile Include="utilsSweepers.cpp" />
+    <ClCompile Include="utilsTemplateDefaultValues.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\structures\structures.vcxproj">

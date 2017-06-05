@@ -57,35 +57,6 @@ void putSeparatedValues(StringBuilder& out, const Container& cont, function<void
 class SerializerTemplate : public Serializer
 {
 public:
-	template <ConType::Enum CON>
-	void putDocumentHead(StringBuilder& out, const DocumentHead& docHead)
-	{
-		putSeparatedValues<DocumentHead, CON>(out, docHead, [&](DocumentHead::const_iterator it)
-		{
-			using Type = decltype(it->getType());
-			switch (it->getType())
-			{
-			case Type::ENTITY_ABSTRACT:
-				putAbstractEntity(out, it->getEntity());
-				break;
-			case Type::ENTITY_CONCRETE:
-				putConcreteEntity(out, it->getEntity(), CON);
-				break;
-			case Type::IMPORT:
-				putImport(out, it->getImport());
-				break;
-			case Type::SCOPED_IMPORT:
-				putScopedImport(out, it->getEntity(), it->getImport());
-				break;
-			case Type::EXPAND:
-				putExpandDocumentHead(out, it->getNamespace());
-				break;
-			default:
-				assert(false);
-			}
-		});
-	}
-
 	void putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
 	{
 		putThead<TemplateHeadBinary, ParamBinary>(out, thead, [&](StringBuilder& out, const string& key, const ParamBinary& param) { putParamBinary(out, key, param); });
@@ -261,7 +232,34 @@ Serializer::Serializer() {}
 
 void Serializer::putDocumentHead(StringBuilder& out, const DocumentHead& docHead)
 {
-	static_cast<SerializerTemplate*>(this)->putDocumentHead<ConType::DOCUMENT>(out, docHead);
+	static const auto CON = ConType::DOCUMENT;
+	putSeparatedValues<DocumentHead, CON>(out, docHead, [&](DocumentHead::const_iterator it)
+	{
+		using Type = decltype(it->getType());
+		switch (it->getType())
+		{
+		case Type::ENTITY_ABSTRACT:
+			putAbstractEntity(out, it->getEntity());
+			break;
+		case Type::ENTITY_CONCRETE:
+			putConcreteEntity(out, it->getEntity(), CON);
+			break;
+		case Type::EXPAND:
+			putExpandDocumentHead(out, it->getNamespace());
+			break;
+		case Type::IMPORT:
+			putImport(out, it->getImport());
+			break;
+		case Type::SCOPED_IMPORT:
+			putScopedImport(out, it->getEntity(), it->getImport());
+			break;
+		case Type::SCOPED_IMPORT_LIST:
+			putScopedImportList(out, it->getEntityList(), it->getImport());
+			break;
+		default:
+			assert(false);
+		}
+	});
 }
 
 void Serializer::putDocument(StringBuilder& out, const Document& doc)
@@ -552,36 +550,57 @@ void Serializer::putCstring(StringBuilder& out, const string& str)
 
 void Serializer::putAbstractEntity(StringBuilder& out, const Entity& ent)
 {
+	out += CHAR_ABSTRACT_ENTITY;
 	const auto& content = ent.getContent();
 	assert(content.isAbstract());
-	out += CHAR_ABSTRACT_ENTITY;
 	putEntityName(out, ent);
 	putAbstractValue(out, content);
 }
 
 void Serializer::putConcreteEntity(StringBuilder& out, const Entity& ent, ConType con)
 {
+	out += CHAR_CONCRETE_ENTITY;
 	const auto& content = ent.getContent();
 	assert(content.isConcrete());
-	out += CHAR_CONCRETE_ENTITY;
 	putEntityName(out, ent);
 	putCharValue(out, content, con);
 }
 
+static TemplateHeadStandard makeTheadImport()
+{
+	TemplateHeadStandard thead;
+	thead.attachEmpty("name");
+	thead.attach("location", ParamStandard("Standard"));
+	thead.attach("version", ParamStandard("1"));
+	return thead;
+}
+
 void Serializer::putImport(StringBuilder& out, const ImportedDocument& import)
 {
-	const auto& name = import.getName();
-	assert(name.isString());
+	static const auto thead = makeTheadImport();
 	out += CHAR_IMPORT;
-	if (name.getTypeRaw() == WebssType::PRIMITIVE_STRING)
-		putCstring(out, name.getStringRaw());
+	const auto& data = import.getData();
+	if (data.isTupleText())
+		putTemplStandardTupleText(out, thead.getParameters(), data.getTuple());
 	else
-		putConcreteValue(out, name, ConType::DOCUMENT);
+		putTemplStandardTuple(out, thead.getParameters(), data.getTuple());
 }
 
 void Serializer::putScopedImport(StringBuilder& out, const Entity& ent, const ImportedDocument& import)
 {
-	//TODO
+	out += CHAR_SCOPED_IMPORT;
+	putEntityName(out, ent);
+	putImport(out, import);
+}
+
+void Serializer::putScopedImportList(StringBuilder& out, const vector<Entity>& entList, const ImportedDocument& import)
+{
+	out += CHAR_SCOPED_IMPORT;
+	putSeparatedValues<vector<Entity>, ConType::LIST>(out, entList, [&](vector<Entity>::const_iterator it)
+	{
+		putEntityName(out, *it);
+	});
+	putImport(out, import);
 }
 
 void Serializer::putExpandDocumentHead(StringBuilder& out, const Namespace& nspace)
@@ -750,6 +769,7 @@ void Serializer::putTemplBinaryTuple(StringBuilder& out, const TemplateHeadBinar
 	ContainerIncluder<ConType::TUPLE> includer(out);
 	putTemplBodyBinary(out, params, tuple);
 }
+
 void Serializer::putTemplStandardTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
@@ -770,6 +790,7 @@ void Serializer::putTemplStandardTuple(StringBuilder& out, const TemplateHeadSta
 		}
 	});
 }
+
 void Serializer::putTemplStandardTupleText(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
@@ -798,6 +819,7 @@ void Serializer::putTemplStandardTupleText(StringBuilder& out, const TemplateHea
 		assert(params[i++].hasDefaultValue());
 #endif
 }
+
 void Serializer::putTemplTextTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;

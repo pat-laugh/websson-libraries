@@ -15,12 +15,12 @@ namespace webss
 	class ImportedDocument
 	{
 	public:
-		ImportedDocument(Webss&& name);
+		ImportedDocument(Webss&& data);
 
-		const Webss& getName() const;
+		const Webss& getData() const;
 		const std::string& getLink() const;
 	private:
-		Webss name;
+		Webss data;
 	};
 	
 	class ParamDocument

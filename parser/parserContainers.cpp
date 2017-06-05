@@ -9,6 +9,7 @@
 #include "parserStrings.hpp"
 #include "patternsContainers.hpp"
 #include "utilsExpand.hpp"
+#include "utilsTemplateDefaultValues.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
 
@@ -354,7 +355,7 @@ ParamDocument Parser::parseScopedImport()
 		throw runtime_error(ERROR_UNEXPECTED);
 }
 
-TemplateHeadStandard makeTheadImport()
+static TemplateHeadStandard makeTheadImport()
 {
 	TemplateHeadStandard thead;
 	thead.attachEmpty("name");
@@ -366,12 +367,45 @@ TemplateHeadStandard makeTheadImport()
 ImportedDocument Parser::parseImport()
 {
 	static const auto thead = makeTheadImport();
-	nextTag = getTag(++it);
-	auto importTuple = parseTemplateTupleText(thead.getParameters());
-	auto importName = importTuple["name"];
-	if (!importName.isString())
-		throw runtime_error("import must reference a string");
-	return ImportedDocument(move(importName));
+	switch (nextTag = getTag(++it))
+	{
+	case Tag::START_TUPLE:
+		return ImportedDocument(parseTemplateTupleStandard(thead.getParameters()));
+	case Tag::TEXT_TUPLE:
+		return ImportedDocument(Webss(parseTemplateTupleText(thead.getParameters()), WebssType::TUPLE_TEXT));
+	case Tag::NAME_START:
+	{
+		Tuple tuple(thead.getParameters().getSharedKeys());
+		tuple[0] = parseName(it);
+		checkDefaultValues(tuple, thead.getParameters());
+		return ImportedDocument(move(tuple));
+	}
+	case Tag::EXPAND:
+	{
+		auto content = parseExpandEntity(it, ents).getContent();
+		if (content.isString())
+		{
+			Tuple tuple(thead.getParameters().getSharedKeys());
+			tuple[0] = content.getString();
+			checkDefaultValues(tuple, thead.getParameters());
+			return ImportedDocument(move(tuple));
+		}
+		else if (content.isTuple())
+		{
+			Tuple tuple;
+			fillTemplateBodyTuple(thead.getParameters(), content.getTuple(), tuple);
+			checkDefaultValues(tuple, thead.getParameters());
+			for (const auto& item : tuple)
+				if (!item.isString())
+					throw runtime_error(ERROR_UNEXPECTED);
+			return ImportedDocument(move(tuple));
+		}
+		else
+			throw runtime_error(ERROR_UNEXPECTED);
+	}
+	default:
+		throw runtime_error(ERROR_UNEXPECTED);
+	}
 }
 
 string Parser::parseOptionLine()

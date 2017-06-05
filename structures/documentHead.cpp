@@ -2,14 +2,23 @@
 //Copyright 2017 Patrick Laughrea
 #include "documentHead.hpp"
 
+#include "tuple.hpp"
+
 using namespace std;
 using namespace webss;
 
-ImportedDocument::ImportedDocument(Webss&& name) : name(move(name)) { assert(this->name.isString() && "import must reference a string"); }
+ImportedDocument::ImportedDocument(Webss&& data) : data(move(data))
+{
+	assert(this->data.isTuple() && "import must reference a tuple");
+	assert(this->data.getTuple().size() == 3);
+#ifdef assert
+	for (const auto& item : this->data.getTuple())
+		assert(item.isString());
+#endif	
+}
 
-const Webss& ImportedDocument::getName() const { return name; }
-const string& ImportedDocument::getLink() const { return name.getString(); }
-
+const Webss& ImportedDocument::getData() const { return data; }
+const string& ImportedDocument::getLink() const { return data.getTuple()[0].getString(); }
 
 ParamDocument::ParamDocument() {}
 ParamDocument::ParamDocument(ImportedDocument import) : type(Type::IMPORT), import(new ImportedDocument(move(import))) {}
@@ -84,6 +93,7 @@ void ParamDocument::copyUnion(ParamDocument&& o)
 
 	type = o.type;
 	import = o.import;
+	o.import = nullptr;
 	o.type = Type::NONE;
 }
 

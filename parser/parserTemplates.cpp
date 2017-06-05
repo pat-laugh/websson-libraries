@@ -8,64 +8,14 @@
 #include "parserStrings.hpp"
 #include "patternsContainers.hpp"
 #include "utilsExpand.hpp"
+#include "utilsTemplateDefaultValues.hpp"
 #include "utils/utilsWebss.hpp"
 
 using namespace std;
 using namespace webss;
 
-const char ERROR_NO_DEFAULT[] = "no default value, so value must be implemented";
 const char ERROR_EXPAND_BINARY_TEMPLATE[] = "can't expand for a binary template";
 const char ERROR_EXPAND_TYPE[] = "expanded item in template body must contain tuple to implement template head";
-
-
-void setDefaultValue(Webss& value, const ParamBinary& defaultValue);
-void setDefaultValue(Webss& value, const ParamStandard& defaultValue);
-
-template <class Parameters>
-Tuple makeDefaultTuple(const Parameters& params)
-{
-	Tuple tuple(params.getSharedKeys());
-	for (Tuple::size_type i = 0; i < params.size(); ++i)
-		setDefaultValue(tuple[i], params[i]);
-	return tuple;
-}
-
-void setDefaultValue(Webss& value, const ParamBinary& defaultValue)
-{
-	if (defaultValue.hasDefaultValue())
-		value = Webss(defaultValue.getDefaultPointer());
-	else if (defaultValue.isTemplateHeadBinary())
-		value = makeDefaultTuple(defaultValue.getTemplateHead().getParameters());
-	else
-		throw runtime_error(ERROR_NO_DEFAULT);
-}
-
-void setDefaultValue(Webss& value, const ParamStandard& defaultValue)
-{
-	if (defaultValue.hasDefaultValue())
-		value = Webss(defaultValue.getDefaultPointer());
-	else
-	{
-		switch (defaultValue.getTypeThead())
-		{
-		case WebssType::TEMPLATE_HEAD_BINARY:
-			value = makeDefaultTuple(defaultValue.getTemplateHeadBinary().getParameters());
-			break;
-		case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
-			value = makeDefaultTuple(defaultValue.getTemplateHeadStandard().getParameters());
-			break;
-		default:
-			throw runtime_error(ERROR_NO_DEFAULT);
-		}
-	}
-}
-
-void checkDefaultValues(Tuple& tuple, const TemplateHeadStandard::Parameters& params)
-{
-	for (Tuple::size_type index = 0; index < tuple.size(); ++index)
-		if (tuple.at(index).getTypeRaw() == WebssType::NONE)
-			setDefaultValue(tuple[index], params[index]);
-}
 
 class ParserTemplates : public Parser
 {
