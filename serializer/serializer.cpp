@@ -239,10 +239,10 @@ void Serializer::putDocumentHead(StringBuilder& out, const DocumentHead& docHead
 		switch (it->getType())
 		{
 		case Type::ENTITY_ABSTRACT:
-			putAbstractEntity(out, it->getEntity());
+			putEntityAbstract(out, it->getEntity());
 			break;
 		case Type::ENTITY_CONCRETE:
-			putConcreteEntity(out, it->getEntity(), CON);
+			putEntityConcrete(out, it->getEntity(), CON);
 			break;
 		case Type::EXPAND:
 			putExpandDocumentHead(out, it->getNamespace());
@@ -322,25 +322,19 @@ void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 {
 	switch (webss.getTypeRaw())
 	{
-	case WebssType::TEMPLATE_HEAD_BINARY:
-		putTheadBinary(out, webss.getTemplateHeadBinaryRaw());
-		break;
-	case WebssType::TEMPLATE_HEAD_STANDARD:
-		putTheadStandard(out, webss.getTemplateHeadStandardRaw());
-		break;
-	case WebssType::TEMPLATE_HEAD_TEXT:
-		putTheadText(out, webss.getTemplateHeadStandardRaw());
-		break;
 	case WebssType::TEMPLATE_BLOCK_HEAD_BINARY:
 		out += CHAR_EXPLICIT_NAME;
+	case WebssType::TEMPLATE_HEAD_BINARY:
 		putTheadBinary(out, webss.getTemplateHeadBinaryRaw());
 		break;
 	case WebssType::TEMPLATE_BLOCK_HEAD_STANDARD:
 		out += CHAR_EXPLICIT_NAME;
+	case WebssType::TEMPLATE_HEAD_STANDARD:
 		putTheadStandard(out, webss.getTemplateHeadStandardRaw());
 		break;
 	case WebssType::TEMPLATE_BLOCK_HEAD_TEXT:
 		out += CHAR_EXPLICIT_NAME;
+	case WebssType::TEMPLATE_HEAD_TEXT:
 		putTheadText(out, webss.getTemplateHeadStandardRaw());
 		break;
 	case WebssType::ENTITY:
@@ -375,8 +369,7 @@ void Serializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConTyp
 		putDouble(out, webss.getDoubleRaw());
 		break;
 	case WebssType::PRIMITIVE_STRING:
-		out += CHAR_COLON;
-		putLineString(out, webss.getStringRaw(), con);
+		putCString(out, webss.getStringRaw());
 		break;
 	case WebssType::DICTIONARY:
 		putDictionary(out, webss.getDictionaryRaw());
@@ -495,10 +488,9 @@ bool isLineEnd(char c, ConType con)
 }
 
 //whether or not the char should always be escaped in a char
-//includes Ascii characers, '\\' and '?'
 bool isMustEscapeChar(char c)
 {
-	return c == '?' || c == '\\' || isControlAscii(c);
+	return c == CHAR_EXPAND || c == CHAR_ESCAPE || isControlAscii(c);
 }
 
 void Serializer::putLineString(StringBuilder& out, const string& str, ConType con)
@@ -519,25 +511,34 @@ void Serializer::putLineString(StringBuilder& out, const string& str, ConType co
 	{
 		if (isMustEscapeChar(*it) || isLineEnd(*it, con))
 			addCharEscape(out, *it);
-		else if (*it == '/') //escape comment
+		else if (*it == ' ')
 		{
-			out += '/';
-			if (++it == str.end())
+			if (it + 1 == str.end())
+			{
+				out += "\\s";
 				return;
-
-			if (*it == '/' || *it == '*' || isMustEscapeChar(*it) || isLineEnd(*it, con))
-				addCharEscape(out, *it);
-			else
+			}
+			else if (*(it + 1) == '/')
+			{
+				it += 2;
+				if (it == str.end())
+				{
+					out += " /";
+					return;
+				}
+				if (*it == '/' || *it == '*' || *it == '~')
+					out += " \\/"; //escape junk operator
+				else
+					out += " /";
 				out += *it;
+			}
 		}
-		else if (*it == ' ' && it + 1 == str.end())
-			out += "\\s";
 		else
 			out += *it;
 	} while (++it != str.end());
 }
 
-void Serializer::putCstring(StringBuilder& out, const string& str)
+void Serializer::putCString(StringBuilder& out, const string& str)
 {
 	out += CHAR_CSTRING;
 	for (auto it = str.begin(); it != str.end(); ++it)
@@ -548,7 +549,7 @@ void Serializer::putCstring(StringBuilder& out, const string& str)
 	out += CHAR_CSTRING;
 }
 
-void Serializer::putAbstractEntity(StringBuilder& out, const Entity& ent)
+void Serializer::putEntityAbstract(StringBuilder& out, const Entity& ent)
 {
 	out += CHAR_ABSTRACT_ENTITY;
 	const auto& content = ent.getContent();
@@ -557,13 +558,20 @@ void Serializer::putAbstractEntity(StringBuilder& out, const Entity& ent)
 	putAbstractValue(out, content);
 }
 
-void Serializer::putConcreteEntity(StringBuilder& out, const Entity& ent, ConType con)
+void Serializer::putEntityConcrete(StringBuilder& out, const Entity& ent, ConType con)
 {
 	out += CHAR_CONCRETE_ENTITY;
 	const auto& content = ent.getContent();
 	assert(content.isConcrete());
 	putEntityName(out, ent);
 	putCharValue(out, content, con);
+}
+
+void Serializer::putExpandDocumentHead(StringBuilder& out, const Namespace& nspace)
+{
+	out += CHAR_EXPAND;
+	putPreviousNamespaceNames(out, nspace);
+	out += nspace.getName();
 }
 
 static TemplateHeadStandard makeTheadImport()
@@ -603,13 +611,6 @@ void Serializer::putScopedImportList(StringBuilder& out, const vector<Entity>& e
 	putImport(out, import);
 }
 
-void Serializer::putExpandDocumentHead(StringBuilder& out, const Namespace& nspace)
-{
-	out += CHAR_EXPAND;
-	putPreviousNamespaceNames(out, nspace);
-	out += nspace.getName();
-}
-
 void Serializer::putNamespace(StringBuilder& out, const Namespace& nspace)
 {
 	static const auto CON = ConType::DICTIONARY;
@@ -617,9 +618,9 @@ void Serializer::putNamespace(StringBuilder& out, const Namespace& nspace)
 	putSeparatedValues<Namespace, CON>(out, nspace, [&](Namespace::const_iterator it)
 	{
 		if (it->getContent().isAbstract())
-			putAbstractEntity(out, *it);
+			putEntityAbstract(out, *it);
 		else
-			putConcreteEntity(out, *it, CON);
+			putEntityConcrete(out, *it, CON);
 	});
 }
 

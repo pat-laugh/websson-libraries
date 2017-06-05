@@ -70,7 +70,7 @@ namespace webss
 		void putInt(StringBuilder& out, WebssInt i);
 		void putDouble(StringBuilder& out, double d);
 		void putLineString(StringBuilder& out, const std::string& str, ConType con);
-		void putCstring(StringBuilder& out, const std::string& str);
+		void putCString(StringBuilder& out, const std::string& str);
 		void putDictionary(StringBuilder& out, const Dictionary& dict);
 		void putList(StringBuilder& out, const List& list);
 		void putListText(StringBuilder& out, const List& list);
@@ -88,8 +88,8 @@ namespace webss
 
 		void putEnum(StringBuilder& out, const Enum& tEnum);
 
-		void putAbstractEntity(StringBuilder& out, const Entity& ent);
-		void putConcreteEntity(StringBuilder& out, const Entity& ent, ConType con);
+		void putEntityAbstract(StringBuilder& out, const Entity& ent);
+		void putEntityConcrete(StringBuilder& out, const Entity& ent, ConType con);
 
 		void putTemplBinary(StringBuilder& out, const TemplateBinary& templ);
 		void putTheadSelf(StringBuilder& out);
