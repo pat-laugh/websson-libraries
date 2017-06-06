@@ -56,6 +56,9 @@ namespace webss
 		Webss(TemplateHeadBinary&& head, Webss&& body, WebssType type = WebssType::TEMPLATE_BINARY);
 		Webss(TemplateHeadStandard&& head, Webss&& body, WebssType type = WebssType::TEMPLATE_STANDARD);
 
+		bool operator==(const Webss& o) const;
+		bool operator!=(const Webss& o) const;
+
 		const Webss& operator[](int index) const;
 		const Webss& operator[](const std::string& key) const;
 		const Webss& at(int index) const;

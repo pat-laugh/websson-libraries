@@ -19,6 +19,7 @@ namespace webss
 		const Webss& getContent() const;
 
 		bool operator==(const Entity& o) const;
+		bool operator!=(const Entity& o) const;
 
 		bool hasNamespace() const;
 		const Namespace& getNamespace() const;

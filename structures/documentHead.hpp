@@ -47,12 +47,16 @@ namespace webss
 		ParamDocument& operator=(ParamDocument&& o);
 		ParamDocument& operator=(const ParamDocument& o);
 
+		bool operator==(const ParamDocument& o) const;
+		bool operator!=(const ParamDocument& o) const;
+
 		Type getType() const;
 		bool hasNamespace() const;
 		const Entity& getEntity() const;
 		const std::vector<Entity>& getEntityList() const;
 		const Namespace& getNamespace() const;
 		const ImportedDocument& getImport() const;
+
 	private:
 		Type type = Type::NONE;
 		union

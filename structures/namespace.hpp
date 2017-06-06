@@ -44,6 +44,7 @@ namespace webss
 		bool has(const std::string& key) const;
 
 		bool operator==(const Namespace& o) const;
+		bool operator!=(const Namespace& o) const;
 
 		Entity& operator[](const std::string& key);
 		const Entity& operator[](const std::string& key) const;

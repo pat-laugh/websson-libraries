@@ -109,7 +109,7 @@ WebssBinarySize SizeHead::size() const
 	case Type::NUMBER: case Type::BITS:
 		return number;
 	default:
-		assert(false);
+		assert(false); throw domain_error("");
 	}
 }
 

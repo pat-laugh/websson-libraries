@@ -58,6 +58,17 @@ namespace webss
 			assert(!empty());
 			return data.back();
 		}
+		T& last() { return data.back(); }
+		const T& last() const { return data.back(); }
+
+		bool operator==(const This& o) const
+		{
+			return (this == &o) || (keys == o.keys && data == o.data);
+		}
+		bool operator!=(const This& o) const
+		{
+			return !(*this == o);
+		}
 
 		T& operator[](size_type index) { return accessIndexUnsafe<Data, T>(data, index); }
 		const T& operator[](size_type index) const { return accessIndexUnsafe<Data, T>(data, index); }

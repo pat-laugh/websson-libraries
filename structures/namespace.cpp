@@ -56,6 +56,7 @@ void Namespace::addSafe(Entity ent)
 bool Namespace::has(const string& key) const { return getKeys().find(key) != getKeys().end(); }
 
 bool Namespace::operator==(const Namespace& o) const { return ptrBody == o.ptrBody; }
+bool Namespace::operator!=(const Namespace& o) const { return !(*this == o); }
 
 Entity& Namespace::operator[](const string& key) { return getData()[accessKeyUnsafe<Keymap, size_type>(getKeys(), key)]; }
 const Entity& Namespace::operator[](const string& key) const { return getData()[accessKeyUnsafe<Keymap, size_type>(getKeys(), key)]; }

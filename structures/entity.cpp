@@ -31,6 +31,7 @@ const Webss& Entity::getContent() const
 }
 
 bool Entity::operator==(const Entity& o) const { return ptr == o.ptr; }
+bool Entity::operator!=(const Entity& o) const { return !(*this == o); }
 
 bool Entity::hasNamespace() const
 {

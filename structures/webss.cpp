@@ -308,6 +308,58 @@ void Webss::copyUnion(const Webss& o)
 	type = o.type;
 }
 
+
+bool Webss::operator==(const Webss& o) const
+{
+	if (this == &o)
+		return true;
+	if (type != o.type)
+		return false;
+	switch (o.type)
+	{
+	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
+		return true;
+	case WebssType::ENTITY:
+		return ent == o.ent;
+	case WebssType::DEFAULT:
+		return tDefault == o.tDefault;
+	case WebssType::PRIMITIVE_BOOL:
+		return tBool == o.tBool;
+	case WebssType::PRIMITIVE_INT:
+		return tInt == o.tInt;
+	case WebssType::PRIMITIVE_DOUBLE:
+		return tDouble == o.tDouble;
+	case WebssType::PRIMITIVE_STRING:
+		return tString == o.tString;
+	case WebssType::DOCUMENT:
+		return document == o.document;
+	case WebssType::DICTIONARY:
+		return dict == o.dict;
+	case WebssType::LIST: case WebssType::LIST_TEXT:
+		return list == o.list;
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
+		return tuple == o.tuple;
+	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_BLOCK_HEAD_BINARY:
+		return theadBinary == o.theadBinary;
+	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_BLOCK_HEAD_STANDARD: case WebssType::TEMPLATE_BLOCK_HEAD_TEXT:
+		return theadStandard == o.theadStandard;
+	case WebssType::TEMPLATE_BINARY: case WebssType::TEMPLATE_BLOCK_BINARY:
+		return templBinary == o.templBinary;
+	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT: case WebssType::TEMPLATE_BLOCK_STANDARD: case WebssType::TEMPLATE_BLOCK_TEXT:
+		return templStandard == o.templStandard;
+	case WebssType::NAMESPACE:
+		return nspace == o.nspace;
+	case WebssType::ENUM:
+		return tEnum == o.tEnum;
+	default:
+		assert(false); throw domain_error("");
+	}
+}
+bool Webss::operator!=(const Webss& o) const
+{
+	return !(*this == o);
+}
+
 const char ERROR_ACCESS[] = "can't access ";
 const char ERROR_ACCESS_INDEX[] = " with an index";
 const char ERROR_ACCESS_KEY[] = " with a key";

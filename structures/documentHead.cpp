@@ -43,6 +43,29 @@ ParamDocument& ParamDocument::operator=(const ParamDocument& o)
 	return *this;
 }
 
+bool ParamDocument::operator==(const ParamDocument& o) const
+{
+	if (this == &o)
+		return true;
+	if (type != o.type || import != o.import)
+		return false;
+	switch (type)
+	{
+	case Type::NONE: case Type::IMPORT:
+		return true;
+	case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::EXPAND: case Type::SCOPED_IMPORT:
+		return ent == o.ent;
+	case Type::SCOPED_IMPORT_LIST:
+		return entList == o.entList;
+	default:
+		assert(false); throw domain_error("");
+	}
+}
+bool ParamDocument::operator!=(const ParamDocument& o) const
+{
+	return !(*this == o);
+}
+
 ParamDocument::Type ParamDocument::getType() const { return type; }
 bool ParamDocument::hasNamespace() const { return type == Type::EXPAND; }
 const Entity& ParamDocument::getEntity() const { assert(type != Type::SCOPED_IMPORT_LIST); return ent; }

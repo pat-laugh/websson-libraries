@@ -17,6 +17,7 @@ void Enum::addSafe(std::string key) { nspace.addSafe(Entity(std::move(key), Webs
 bool Enum::has(const std::string& key) const { return nspace.has(key); }
 
 bool Enum::operator==(const Enum& o) const { return nspace == o.nspace; }
+bool Enum::operator!=(const Enum& o) const { return !(*this == o); }
 
 Entity& Enum::operator[](const std::string& key) { return nspace[key]; }
 const Entity& Enum::operator[](const std::string& key) const { return nspace[key]; }
