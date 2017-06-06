@@ -25,6 +25,9 @@ namespace webss
 
 		bool has(const std::string& key) const;
 
+		bool operator==(const Dictionary& o) const;
+		bool operator!=(const Dictionary& o) const;
+
 		Webss& operator[](const std::string& key);
 		const Webss& operator[](const std::string& key) const;
 		Webss& at(const std::string& key);
@@ -34,6 +37,7 @@ namespace webss
 		iterator end();
 		const_iterator begin() const;
 		const_iterator end() const;
+
 	private:
 		Data data;
 	};

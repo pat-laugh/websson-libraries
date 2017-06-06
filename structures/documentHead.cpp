@@ -17,6 +17,9 @@ ImportedDocument::ImportedDocument(Webss&& data) : data(move(data))
 #endif	
 }
 
+bool ImportedDocument::operator==(const ImportedDocument& o) const { return data == o.data; }
+bool ImportedDocument::operator!=(const ImportedDocument& o) const { return !(*this == o); }
+
 const Webss& ImportedDocument::getData() const { return data; }
 const string& ImportedDocument::getLink() const { return data.getTuple()[0].getString(); }
 

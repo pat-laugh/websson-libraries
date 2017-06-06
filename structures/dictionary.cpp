@@ -15,6 +15,9 @@ void Dictionary::addSafe(std::string key, Webss value) { containerAddSafe(data, 
 
 bool Dictionary::has(const std::string& key) const { return data.find(key) != data.end(); }
 
+bool Dictionary::operator==(const Dictionary& o) const { return data == o.data; }
+bool Dictionary::operator!=(const Dictionary& o) const { return !(*this == o); }
+
 Webss& Dictionary::operator[](const std::string& key) { return accessKeyUnsafe<Data, Webss>(data, key); }
 const Webss& Dictionary::operator[](const std::string& key) const { return accessKeyUnsafe<Data, Webss>(data, key); }
 Webss& Dictionary::at(const std::string& key) { return accessKeySafe<Data, Webss>(data, key); }

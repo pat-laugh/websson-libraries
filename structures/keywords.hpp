@@ -33,6 +33,7 @@ namespace webss
 		Keyword(std::string s);
 
 		std::string toString() const;
+
 	private:
 		const Enum e;
 	};

@@ -21,6 +21,7 @@ namespace webss
 		};
 
 		std::shared_ptr<Webss> defaultValue;
+
 	public:
 		ParamStandard();
 		ParamStandard(Webss&& webss);
@@ -31,6 +32,9 @@ namespace webss
 
 		ParamStandard& operator=(ParamStandard&& o);
 		ParamStandard& operator=(const ParamStandard& o);
+
+		bool operator==(const ParamStandard& o) const;
+		bool operator!=(const ParamStandard& o) const;
 
 		bool hasDefaultValue() const;
 
@@ -50,9 +54,9 @@ namespace webss
 		void setTemplateHead(TemplateHeadBinary&& o);
 		void setTemplateHead(TemplateHeadStandard&& o, WebssType type = WebssType::TEMPLATE_HEAD_STANDARD);
 		void setTemplateHead(TemplateHeadSelf);
+
 	private:
 		void destroyUnion();
-
 		void copyUnion(ParamStandard&& o);
 		void copyUnion(const ParamStandard& o);
 	};

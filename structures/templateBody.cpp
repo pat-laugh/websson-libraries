@@ -25,6 +25,9 @@ bool TemplateBody::isList() const { return body.isList(); }
 bool TemplateBody::isTuple() const { return body.isTuple(); }
 bool TemplateBody::isTupleText() const { return body.isTupleText(); }
 
+bool TemplateBody::operator==(const TemplateBody& o) const { return body == o.body; }
+bool TemplateBody::operator!=(const TemplateBody& o) const { return !(*this == o); }
+
 const Webss& TemplateBody::operator[](int index) const { return body[index]; }
 const Webss& TemplateBody::at(int index) const { return body.at(index); }
 

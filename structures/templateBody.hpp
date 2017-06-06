@@ -33,11 +33,15 @@ namespace webss
 		bool isTuple() const;
 		bool isTupleText() const;
 
+		bool operator==(const TemplateBody& o) const;
+		bool operator!=(const TemplateBody& o) const;
+
 		const Webss& operator[](int index) const;
 		const Webss& at(int index) const;
 
 		const Webss& operator[](const std::string& key) const;
 		const Webss& at(const std::string& key) const;
+
 	private:
 		Webss body;
 	};

@@ -17,6 +17,9 @@ namespace webss
 	public:
 		ImportedDocument(Webss&& data);
 
+		bool operator==(const ImportedDocument& o) const;
+		bool operator!=(const ImportedDocument& o) const;
+
 		const Webss& getData() const;
 		const std::string& getLink() const;
 	private:

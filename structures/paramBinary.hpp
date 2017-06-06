@@ -43,6 +43,9 @@ namespace webss
 			SizeHead& operator=(SizeHead&& o);
 			SizeHead& operator=(const SizeHead& o);
 
+			bool operator==(const SizeHead& o) const;
+			bool operator!=(const SizeHead& o) const;
+
 			bool isEmpty() const;
 			bool isKeyword() const;
 			bool isBool() const;
@@ -65,6 +68,7 @@ namespace webss
 			const TemplateHeadBinary& getTemplateHead() const;
 
 			WebssBinarySize size() const;
+
 		private:
 			Type type = Type::NONE;
 			union
@@ -83,7 +87,6 @@ namespace webss
 			SizeHead(const Entity& entNumber, bool, bool);
 
 			void destroyUnion();
-
 			void copyUnion(SizeHead&& o);
 			void copyUnion(const SizeHead& o);
 		};
@@ -106,6 +109,9 @@ namespace webss
 			SizeList& operator=(SizeList&& o);
 			SizeList& operator=(const SizeList& o);
 
+			bool operator==(const SizeList& o) const;
+			bool operator!=(const SizeList& o) const;
+
 			bool isEmpty() const;
 			bool isOne() const;
 			bool hasEntity() const;
@@ -115,6 +121,7 @@ namespace webss
 			WebssBinarySize size() const;
 
 			const Entity& getEntity() const;
+
 		private:
 			Type type = Type::NONE;
 			union
@@ -124,7 +131,6 @@ namespace webss
 			};
 
 			void destroyUnion();
-
 			void copyUnion(SizeList&& o);
 			void copyUnion(const SizeList& o);
 		};
@@ -139,6 +145,9 @@ namespace webss
 
 		ParamBinary& operator=(ParamBinary&& o);
 		ParamBinary& operator=(const ParamBinary& o);
+
+		bool operator==(const ParamBinary& o) const;
+		bool operator!=(const ParamBinary& o) const;
 
 		const SizeHead& getSizeHead() const;
 		const SizeList& getSizeList() const;

@@ -11,11 +11,15 @@ namespace webss
 	{
 	private:
 		using base = BasicSharedMap<Webss>;
+
 	public:
 		using Data = base::Data;
 		using Keymap = base::Keymap;
 		Tuple();
 		Tuple(const std::shared_ptr<Keymap>& keys);
 		Tuple(const std::shared_ptr<Keymap>& keys, const Data& data);
+
+		bool operator==(const Tuple& o) const { return base::operator==(o); }
+		bool operator!=(const Tuple& o) const { return !(*this == o); }
 	};
 }

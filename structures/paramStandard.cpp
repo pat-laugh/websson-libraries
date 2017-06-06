@@ -28,6 +28,26 @@ ParamStandard& ParamStandard::operator=(const ParamStandard& o)
 	return *this;
 }
 
+bool ParamStandard::operator==(const ParamStandard& o) const
+{
+	if (this == &o)
+		return true;
+	if (typeThead != o.typeThead || defaultValue != o.defaultValue)
+		return false;
+	switch (o.typeThead)
+	{
+	case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
+		return true;
+	case WebssType::TEMPLATE_HEAD_BINARY:
+		return theadBin == o.theadBin;
+	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
+		return theadStd == o.theadStd;
+	default:
+		assert(false); throw domain_error("");
+	}
+}
+bool ParamStandard::operator!=(const ParamStandard& o) const { return !(*this == o); }
+
 bool ParamStandard::hasDefaultValue() const { return defaultValue.get() != nullptr; }
 bool ParamStandard::hasTemplateHead() const { return typeThead != WebssType::NONE; }
 

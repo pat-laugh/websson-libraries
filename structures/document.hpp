@@ -16,14 +16,8 @@ namespace webss
 		DocumentHead& getHead() { return head; }
 		const DocumentHead& getHead() const { return head; }
 		
-		bool operator==(const Document& o) const
-		{
-			return (this == &o) || (keys == o.keys && data == o.data && head == o.head);
-		}
-		bool operator!=(const Document& o) const
-		{
-			return !(*this == o);
-		}
+		bool operator==(const Document& o) const { return (this == &o) || (base::operator==(o) && head == o.head); }
+		bool operator!=(const Document& o) const { return !(*this == o); }
 
 	private:
 		DocumentHead head;

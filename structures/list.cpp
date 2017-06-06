@@ -18,6 +18,9 @@ List::size_type List::size() const { return data.size(); }
 void List::add(Webss&& value) { data.push_back(std::move(value)); }
 void List::add(const Webss& value) { data.push_back(value); }
 
+bool List::operator==(const List& o) const { return data == o.data; }
+bool List::operator!=(const List& o) const { return !(*this == o); }
+
 Webss& List::operator[](size_type index) { return accessIndexUnsafe<Data, Webss>(data, index); }
 const Webss& List::operator[](size_type index) const { return accessIndexUnsafe<Data, Webss>(data, index); }
 Webss& List::at(size_type index) { return accessIndexSafe<Data, Webss>(data, index); }

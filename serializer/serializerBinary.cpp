@@ -185,7 +185,7 @@ void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, co
 			writeBytes(out, 8, reinterpret_cast<char*>(&tDouble));
 			break;
 		default:
-			assert(false); throw domain_error("");
+			assert(false);
 		}
 	}
 	else

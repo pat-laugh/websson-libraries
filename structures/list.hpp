@@ -27,6 +27,9 @@ namespace webss
 		void add(Webss&& value);
 		void add(const Webss& value);
 
+		bool operator==(const List& o) const;
+		bool operator!=(const List& o) const;
+
 		Webss& operator[](size_type index);
 		const Webss& operator[](size_type index) const;
 		Webss& at(size_type index);
@@ -40,6 +43,7 @@ namespace webss
 		reverse_iterator rend();
 		const_reverse_iterator rbegin() const;
 		const_reverse_iterator rend() const;
+
 	private:
 		Data data;
 	};

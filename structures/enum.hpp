@@ -42,6 +42,7 @@ namespace webss
 		iterator end();
 		const_iterator begin() const;
 		const_iterator end() const;
+
 	private:
 		Namespace nspace;
 	};

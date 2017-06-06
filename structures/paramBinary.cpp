@@ -60,6 +60,30 @@ SizeHead& SizeHead::operator=(const SizeHead& o)
 	return *this;
 }
 
+bool SizeHead::operator==(const SizeHead& o) const
+{
+	if (this == &o)
+		return true;
+	if (type != o.type || defaultValue != o.defaultValue)
+		return false;
+	switch (o.type)
+	{
+	case Type::NONE: case Type::EMPTY: case Type::SELF:
+		return true;
+	case Type::KEYWORD:
+		return keyword == o.keyword;
+	case Type::NUMBER: case Type::BITS:
+		return number == o.number;
+	case Type::TEMPLATE_HEAD:
+		return thead == o.thead;
+	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD: case Type::ENTITY_BITS:
+		return ent == o.ent;
+	default:
+		assert(false); throw domain_error("");
+	}
+}
+bool SizeHead::operator!=(const SizeHead& o) const { return !(*this == o); }
+
 bool SizeHead::isEmpty() const { return type == Type::EMPTY || type == Type::EMPTY_ENTITY_NUMBER; }
 bool SizeHead::isKeyword() const { return type == Type::KEYWORD; }
 bool SizeHead::isBool() const { return isKeyword() && keyword == Keyword::BOOL; }
@@ -167,7 +191,7 @@ void SizeHead::copyUnion(SizeHead&& o)
 		o.ent.~Entity();
 		break;
 	default:
-		assert(false); throw domain_error("");
+		assert(false);
 	}
 	type = o.type;
 	o.type = Type::NONE;
@@ -194,7 +218,7 @@ void SizeHead::copyUnion(const SizeHead& o)
 		new (&ent) Entity(o.ent);
 		break;
 	default:
-		assert(false); throw domain_error("");
+		assert(false);
 	}
 	type = o.type;
 
@@ -239,6 +263,26 @@ SizeList& SizeList::operator=(const SizeList& o)
 	return *this;
 }
 
+bool SizeList::operator==(const SizeList& o) const
+{
+	if (this == &o)
+		return true;
+	if (type != o.type)
+		return false;
+	switch (o.type)
+	{
+	case Type::NONE: case Type::EMPTY: case Type::ONE:
+		return true;
+	case Type::NUMBER:
+		return number == o.number;
+	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
+		return ent == o.ent;
+	default:
+		assert(false); throw domain_error("");
+	}
+}
+bool SizeList::operator!=(const SizeList& o) const { return !(*this == o); }
+
 bool SizeList::isEmpty() const { return type == Type::EMPTY || type == Type::EMPTY_ENTITY_NUMBER; }
 bool SizeList::isOne() const { return type == Type::ONE; }
 bool SizeList::hasEntity() const { return type == Type::ENTITY_NUMBER || type == Type::EMPTY_ENTITY_NUMBER; }
@@ -281,7 +325,7 @@ void SizeList::copyUnion(SizeList&& o)
 		o.ent.~Entity();
 		break;
 	default:
-		assert(false); throw domain_error("");
+		assert(false);
 	}
 	type = o.type;
 	o.type = Type::NONE;
@@ -299,7 +343,7 @@ void SizeList::copyUnion(const SizeList& o)
 		new (&ent) Entity(o.ent);
 		break;
 	default:
-		assert(false); throw domain_error("");
+		assert(false);
 	}
 	type = o.type;
 }
@@ -329,6 +373,9 @@ ParamBinary& ParamBinary::operator=(const ParamBinary& o)
 	}
 	return *this;
 }
+
+bool ParamBinary::operator==(const ParamBinary& o) const { return (this == &o) || (sizeHead == o.sizeHead && sizeList == o.sizeList); }
+bool ParamBinary::operator!=(const ParamBinary& o) const { return !(*this == o); }
 
 const SizeHead& ParamBinary::getSizeHead() const { return sizeHead; }
 const SizeList& ParamBinary::getSizeList() const { return sizeList; }
