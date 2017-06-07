@@ -49,7 +49,7 @@ namespace webss
 			if (type != o.type)
 				return false;
 			if (type == Type::PARAMS)
-				return params == o.params;
+				return *params == *o.params;
 			if (type == Type::ENTITY)
 				return ent == o.ent;
 			return true; //Type::NONE
@@ -68,6 +68,8 @@ namespace webss
 			return params->back();
 		}
 		const Param& back() const { return getParameters().back(); }
+		Param& last() { return back(); }
+		const Param& last() const { return back(); }
 
 		const Parameters& getParameters() const
 		{

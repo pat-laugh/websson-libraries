@@ -28,7 +28,7 @@ Webss& Webss::operator=(Webss o)
 }
 
 Webss::Webss(const Entity& ent) : type(WebssType::ENTITY), ent(ent) {}
-Webss::Webss(const Default& tDefault) : type(WebssType::DEFAULT), tDefault(tDefault) {}
+Webss::Webss(const Default& tDefault) : type(WebssType::DEFAULT), tDefault(tDefault) { assert(tDefault != nullptr); }
 Webss::Webss(const Namespace& nspace) : type(WebssType::NAMESPACE), nspace(nspace) {}
 Webss::Webss(const Enum& tEnum) : type(WebssType::ENUM), tEnum(tEnum) {}
 
@@ -322,7 +322,7 @@ bool Webss::operator==(const Webss& o) const
 	case WebssType::ENTITY:
 		return ent == o.ent;
 	case WebssType::DEFAULT:
-		return tDefault == o.tDefault;
+		return *tDefault == *o.tDefault;
 	case WebssType::PRIMITIVE_BOOL:
 		return tBool == o.tBool;
 	case WebssType::PRIMITIVE_INT:
@@ -330,23 +330,23 @@ bool Webss::operator==(const Webss& o) const
 	case WebssType::PRIMITIVE_DOUBLE:
 		return tDouble == o.tDouble;
 	case WebssType::PRIMITIVE_STRING:
-		return tString == o.tString;
+		return *tString == *o.tString;
 	case WebssType::DOCUMENT:
-		return document == o.document;
+		return *document == *o.document;
 	case WebssType::DICTIONARY:
-		return dict == o.dict;
+		return *dict == *o.dict;
 	case WebssType::LIST: case WebssType::LIST_TEXT:
-		return list == o.list;
+		return *list == *o.list;
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
-		return tuple == o.tuple;
+		return *tuple == *o.tuple;
 	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_BLOCK_HEAD_BINARY:
-		return theadBinary == o.theadBinary;
+		return *theadBinary == *o.theadBinary;
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_BLOCK_HEAD_STANDARD: case WebssType::TEMPLATE_BLOCK_HEAD_TEXT:
-		return theadStandard == o.theadStandard;
+		return *theadStandard == *o.theadStandard;
 	case WebssType::TEMPLATE_BINARY: case WebssType::TEMPLATE_BLOCK_BINARY:
-		return templBinary == o.templBinary;
+		return *templBinary == *o.templBinary;
 	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT: case WebssType::TEMPLATE_BLOCK_STANDARD: case WebssType::TEMPLATE_BLOCK_TEXT:
-		return templStandard == o.templStandard;
+		return *templStandard == *o.templStandard;
 	case WebssType::NAMESPACE:
 		return nspace == o.nspace;
 	case WebssType::ENUM:
@@ -355,10 +355,7 @@ bool Webss::operator==(const Webss& o) const
 		assert(false); throw domain_error("");
 	}
 }
-bool Webss::operator!=(const Webss& o) const
-{
-	return !(*this == o);
-}
+bool Webss::operator!=(const Webss& o) const { return !(*this == o); }
 
 const char ERROR_ACCESS[] = "can't access ";
 const char ERROR_ACCESS_INDEX[] = " with an index";

@@ -4,6 +4,8 @@
 
 #include <cassert>
 
+#include "utils.hpp"
+
 using namespace std;
 using namespace webss;
 
@@ -64,7 +66,7 @@ bool SizeHead::operator==(const SizeHead& o) const
 {
 	if (this == &o)
 		return true;
-	if (type != o.type || defaultValue != o.defaultValue)
+	if (type != o.type || !equalPtrs(defaultValue, o.defaultValue))
 		return false;
 	switch (o.type)
 	{
@@ -75,7 +77,7 @@ bool SizeHead::operator==(const SizeHead& o) const
 	case Type::NUMBER: case Type::BITS:
 		return number == o.number;
 	case Type::TEMPLATE_HEAD:
-		return thead == o.thead;
+		return *thead == *o.thead;
 	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD: case Type::ENTITY_BITS:
 		return ent == o.ent;
 	default:

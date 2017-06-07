@@ -4,6 +4,8 @@
 
 #include <cassert>
 
+#include "utils.hpp"
+
 using namespace std;
 using namespace webss;
 
@@ -14,6 +16,9 @@ struct Entity::EntityBody
 	string name;
 	Webss content;
 	shared_ptr<Namespace> nspace;
+
+	bool operator==(const EntityBody& o) const { return (this == &o) || (name == o.name && content == o.content && equalPtrs(nspace, o.nspace)); }
+	bool operator!=(const EntityBody& o) const { return !(*this == o); }
 };
 
 Entity::Entity() {}
@@ -30,7 +35,7 @@ const Webss& Entity::getContent() const
 	return ptr->content;
 }
 
-bool Entity::operator==(const Entity& o) const { return ptr == o.ptr; }
+bool Entity::operator==(const Entity& o) const { return equalPtrs(ptr, o.ptr); }
 bool Entity::operator!=(const Entity& o) const { return !(*this == o); }
 
 bool Entity::hasNamespace() const

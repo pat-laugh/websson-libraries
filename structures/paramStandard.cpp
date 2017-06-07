@@ -2,6 +2,8 @@
 //Copyright 2017 Patrick Laughrea
 #include "paramStandard.hpp"
 
+#include "utils.hpp"
+
 using namespace std;
 using namespace webss;
 
@@ -32,16 +34,16 @@ bool ParamStandard::operator==(const ParamStandard& o) const
 {
 	if (this == &o)
 		return true;
-	if (typeThead != o.typeThead || defaultValue != o.defaultValue)
+	if (typeThead != o.typeThead || !equalPtrs(defaultValue, o.defaultValue))
 		return false;
 	switch (o.typeThead)
 	{
 	case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
 		return true;
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		return theadBin == o.theadBin;
+		return *theadBin == *o.theadBin;
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
-		return theadStd == o.theadStd;
+		return *theadStd == *o.theadStd;
 	default:
 		assert(false); throw domain_error("");
 	}

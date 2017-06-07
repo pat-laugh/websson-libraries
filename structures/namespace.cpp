@@ -16,6 +16,25 @@ struct Namespace::NamespaceBody
 	Data data;
 	Keymap keys;
 	PtrThis ptrThis;
+
+	bool operator==(const NamespaceBody& o) const
+	{
+		if (this == &o)
+			return true;
+
+		//don't check inside ptrThis as it points to itself
+		if (name != o.name || data != o.data || keys != o.keys)
+			return false;
+
+		//in-depth check of nspaces
+		if (nspaces.size() != o.nspaces.size())
+			return false;
+		for (Namespaces::size_type i = 0; i < nspaces.size(); ++i)
+			if (!equalPtrs(nspaces[i], o.nspaces[i]))
+				return false;
+		return true;
+	}
+	bool operator!=(const NamespaceBody& o) const { return !(*this == o); }
 };
 
 Namespace::Namespace(string name) : ptrBody(new NamespaceBody{ move(name) })
@@ -55,7 +74,7 @@ void Namespace::addSafe(Entity ent)
 
 bool Namespace::has(const string& key) const { return getKeys().find(key) != getKeys().end(); }
 
-bool Namespace::operator==(const Namespace& o) const { return ptrBody == o.ptrBody; }
+bool Namespace::operator==(const Namespace& o) const { return equalPtrs(ptrBody, o.ptrBody); }
 bool Namespace::operator!=(const Namespace& o) const { return !(*this == o); }
 
 Entity& Namespace::operator[](const string& key) { return getData()[accessKeyUnsafe<Keymap, size_type>(getKeys(), key)]; }

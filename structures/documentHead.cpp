@@ -3,6 +3,7 @@
 #include "documentHead.hpp"
 
 #include "tuple.hpp"
+#include "utils.hpp"
 
 using namespace std;
 using namespace webss;
@@ -50,7 +51,7 @@ bool ParamDocument::operator==(const ParamDocument& o) const
 {
 	if (this == &o)
 		return true;
-	if (type != o.type || import != o.import)
+	if (type != o.type || !equalPtrs(import, o.import))
 		return false;
 	switch (type)
 	{
@@ -59,7 +60,7 @@ bool ParamDocument::operator==(const ParamDocument& o) const
 	case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::EXPAND: case Type::SCOPED_IMPORT:
 		return ent == o.ent;
 	case Type::SCOPED_IMPORT_LIST:
-		return entList == o.entList;
+		return *entList == *o.entList;
 	default:
 		assert(false); throw domain_error("");
 	}

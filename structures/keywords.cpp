@@ -2,7 +2,6 @@
 //Copyright 2017 Patrick Laughrea
 #include "keywords.hpp"
 
-#include <cassert>
 #include <unordered_map>
 
 using namespace std;

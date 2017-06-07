@@ -62,4 +62,15 @@ namespace webss
 			throw std::runtime_error("key already in container: " + key);
 		cont.insert(std::move(key));
 	}
+
+	template <class T>
+	bool equalPtrs(const T* ptr1, const T* ptr2)
+	{
+		return (ptr1 == nullptr && ptr2 == nullptr) || (ptr1 != nullptr && ptr2 != nullptr && *ptr1 == *ptr2);
+	}
+	template <class T>
+	bool equalPtrs(const T& ptr1, const T& ptr2)
+	{
+		return (ptr1 == nullptr && ptr2 == nullptr) || (ptr1 != nullptr && ptr2 != nullptr && *ptr1 == *ptr2);
+	}
 }
