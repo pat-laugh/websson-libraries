@@ -15,6 +15,7 @@ namespace webss
 		Entity();
 		Entity(std::string name, Webss content);
 
+		bool hasBody() const;
 		const std::string& getName() const;
 		const Webss& getContent() const;
 
@@ -23,7 +24,7 @@ namespace webss
 
 		bool hasNamespace() const;
 		const Namespace& getNamespace() const;
-		void setNamespace(const std::shared_ptr<Namespace>& nspace);
+		void setNamespace(const Namespace& nspace);
 
 	private:
 		struct EntityBody;

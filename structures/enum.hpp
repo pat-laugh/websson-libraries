@@ -10,7 +10,6 @@ namespace webss
 	{
 	public:
 		using size_type = Namespace::size_type;
-		using PtrThis = Namespace::PtrThis;
 		using Namespaces = Namespace::Namespaces;
 		using iterator = Namespace::iterator;
 		using const_iterator = Namespace::const_iterator;
@@ -36,7 +35,6 @@ namespace webss
 
 		const std::string& getName() const;
 		const Namespaces& getNamespaces() const;
-		const PtrThis& getPointer() const;
 
 		iterator begin();
 		iterator end();

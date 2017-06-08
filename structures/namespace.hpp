@@ -17,19 +17,18 @@ namespace webss
 		using Data = std::vector<Entity>;
 		using size_type = Data::size_type;
 		using Keymap = std::unordered_map<std::string, size_type>;
-		using PtrThis = std::shared_ptr<Namespace>;
-		using Namespaces = std::vector<PtrThis>;
+		using Namespaces = std::vector<Namespace>;
 		using iterator = Data::iterator;
 		using const_iterator = Data::const_iterator;
 
 		static const Namespace& getEmptyInstance()
 		{
-			static Namespace nspace;
+			static Namespace nspace("");
 			return nspace;
 		}
 
+		Namespace();
 		Namespace(std::string name);
-
 		Namespace(std::string name, const Namespace& previousNspace);
 
 		bool empty() const;
@@ -51,9 +50,10 @@ namespace webss
 		Entity& at(const std::string& key);
 		const Entity& at(const std::string& key) const;
 
+		bool hasBody() const;
 		const std::string& getName() const;
 		const Namespaces& getNamespaces() const;
-		const PtrThis& getPointer() const;
+		void* getPointerBody() const { return ptrBody.get(); }
 
 		iterator begin();
 		iterator end();
@@ -61,8 +61,6 @@ namespace webss
 		const_iterator end() const;
 
 	private:
-		bool hasBody() const;
-
 		struct NamespaceBody;
 		std::shared_ptr<NamespaceBody> ptrBody;
 
@@ -72,7 +70,5 @@ namespace webss
 		const Data& getData() const;
 		Keymap& getKeys();
 		const Keymap& getKeys() const;
-
-		Namespace();
 	};
 }

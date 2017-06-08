@@ -291,17 +291,23 @@ void Serializer::putPreviousNamespaceNames(StringBuilder& out, const Namespace& 
 		//the current scope, then put all the namespaces that were not in the current scope
 
 		auto i = nspaces.size();
-		while (i > 0 && !namespaceCurrentScope(*nspaces[i - 1]))
+		while (i > 0 && !namespaceCurrentScope(nspaces[i - 1]))
 			--i;
 
 		while (i < nspaces.size())
-			out += nspaces[i++]->getName() + CHAR_SCOPE;
+			out += nspaces[i++].getName() + CHAR_SCOPE;
 	}
 }
 
 bool Serializer::namespaceCurrentScope(const Namespace& nspace)
 {
-	return currentNamespaces.find(nspace.getPointer().get()) != currentNamespaces.end();
+	return currentNamespaces.find(nspace.getPointerBody()) != currentNamespaces.end();
+	return true;
+}
+
+void Serializer::putEntityNameWithoutNamespace(StringBuilder& out, const Entity& ent)
+{
+	out += ent.getName();
 }
 
 void Serializer::putEntityName(StringBuilder& out, const Entity& ent)
@@ -627,8 +633,7 @@ void Serializer::putNamespace(StringBuilder& out, const Namespace& nspace)
 void Serializer::putEnum(StringBuilder& out, const Enum& tEnum)
 {
 	static const auto CON = ConType::LIST;
-	NamespaceIncluder includer(currentNamespaces, tEnum);
-	putSeparatedValues<Enum, CON>(out, tEnum, [&](Enum::const_iterator it) { putEntityName(out, *it); });
+	putSeparatedValues<Enum, CON>(out, tEnum, [&](Enum::const_iterator it) { putEntityNameWithoutNamespace(out, *it); });
 }
 
 void Serializer::putDictionary(StringBuilder& out, const Dictionary& dict)

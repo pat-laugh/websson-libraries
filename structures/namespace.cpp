@@ -15,14 +15,12 @@ struct Namespace::NamespaceBody
 	Namespaces nspaces;
 	Data data;
 	Keymap keys;
-	PtrThis ptrThis;
 
 	bool operator==(const NamespaceBody& o) const
 	{
 		if (this == &o)
 			return true;
 
-		//don't check inside ptrThis as it points to itself
 		if (name != o.name || data != o.data || keys != o.keys)
 			return false;
 
@@ -30,44 +28,32 @@ struct Namespace::NamespaceBody
 		if (nspaces.size() != o.nspaces.size())
 			return false;
 		for (Namespaces::size_type i = 0; i < nspaces.size(); ++i)
-			if (!equalPtrs(nspaces[i], o.nspaces[i]))
+			if (nspaces[i] != o.nspaces[i])
 				return false;
 		return true;
 	}
 	bool operator!=(const NamespaceBody& o) const { return !(*this == o); }
 };
 
-Namespace::Namespace(string name) : ptrBody(new NamespaceBody{ move(name) })
-{
-	ptrBody->ptrThis = PtrThis(new Namespace(*this));
-}
+Namespace::Namespace() {}
+Namespace::Namespace(string name) : ptrBody(new NamespaceBody{ move(name) }) {}
+Namespace::Namespace(string name, const Namespace& previousNspace) : ptrBody(new NamespaceBody{ move(name), previousNspace.getNamespaces() }) {}
 
-Namespace::Namespace(string name, const Namespace& previousNspace) : ptrBody(new NamespaceBody{ move(name), previousNspace.getNamespaces() })
-{
-	ptrBody->ptrThis = PtrThis(new Namespace(*this));
-}
-
-bool Namespace::empty() const
-{
-	return getData().empty();
-}
-Namespace::size_type Namespace::size() const
-{
-	return getData().size();
-}
+bool Namespace::empty() const { return getData().empty(); }
+Namespace::size_type Namespace::size() const { return getData().size(); }
 
 void Namespace::add(string key, Webss value) { add(Entity(move(key), move(value))); }
 void Namespace::addSafe(string key, Webss value) { addSafe(Entity(move(key), move(value))); }
 
 void Namespace::add(Entity ent)
 {
-	ent.setNamespace(getPointer());
+	ent.setNamespace(*this);
 	containerAddUnsafe(getKeys(), string(ent.getName()), size());
 	getData().push_back(move(ent));
 }
 void Namespace::addSafe(Entity ent)
 {
-	ent.setNamespace(getPointer());
+	ent.setNamespace(*this);
 	containerAddSafe(getKeys(), string(ent.getName()), size());
 	getData().push_back(move(ent));
 }
@@ -84,14 +70,13 @@ const Entity& Namespace::at(const string& key) const { return getData()[accessKe
 
 const string& Namespace::getName() const { return getBody().name; }
 const Namespace::Namespaces& Namespace::getNamespaces() const { return getBody().nspaces; }
-const Namespace::PtrThis& Namespace::getPointer() const { return getBody().ptrThis; }
 
 Namespace::iterator Namespace::begin() { return getData().begin(); }
 Namespace::iterator Namespace::end() { return getData().end(); }
 Namespace::const_iterator Namespace::begin() const { return getData().begin(); }
 Namespace::const_iterator Namespace::end() const { return getData().end(); }
 
-bool Namespace::hasBody() const { return ptrBody.get() != nullptr; }
+bool Namespace::hasBody() const { return ptrBody != nullptr; }
 
 Namespace::NamespaceBody& Namespace::getBody() { assert(hasBody()); return *ptrBody; }
 const Namespace::NamespaceBody& Namespace::getBody() const { assert(hasBody()); return *ptrBody; }
@@ -99,5 +84,3 @@ Namespace::Data& Namespace::getData() { return getBody().data; }
 const Namespace::Data& Namespace::getData() const { return getBody().data; }
 Namespace::Keymap& Namespace::getKeys() { return getBody().keys; }
 const Namespace::Keymap& Namespace::getKeys() const { return getBody().keys; }
-
-Namespace::Namespace() : ptrBody(new NamespaceBody{}) {}

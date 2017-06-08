@@ -9,29 +9,31 @@
 using namespace std;
 using namespace webss;
 
-#define hasBody (ptr.get() != nullptr)
-
 struct Entity::EntityBody
 {
 	string name;
 	Webss content;
-	shared_ptr<Namespace> nspace;
+	Namespace nspace;
 
-	bool operator==(const EntityBody& o) const { return (this == &o) || (name == o.name && content == o.content && equalPtrs(nspace, o.nspace)); }
+	bool operator==(const EntityBody& o) const { return (this == &o) || (name == o.name && content == o.content && nspace == o.nspace); }
 	bool operator!=(const EntityBody& o) const { return !(*this == o); }
 };
 
 Entity::Entity() {}
 Entity::Entity(string name, Webss content) : ptr(new EntityBody{ move(name), move(content) }) {}
 
+bool Entity::hasBody() const
+{
+	return ptr != nullptr;
+}
 const string& Entity::getName() const
 {
-	assert(hasBody);
+	assert(hasBody());
 	return ptr->name;
 }
 const Webss& Entity::getContent() const
 {
-	assert(hasBody);
+	assert(hasBody());
 	return ptr->content;
 }
 
@@ -40,16 +42,16 @@ bool Entity::operator!=(const Entity& o) const { return !(*this == o); }
 
 bool Entity::hasNamespace() const
 {
-	assert(hasBody);
-	return ptr->nspace.get() != nullptr;
+	assert(hasBody());
+	return ptr->nspace.hasBody();
 }
 const Namespace& Entity::getNamespace() const
 {
 	assert(hasNamespace());
-	return *ptr->nspace;
+	return ptr->nspace;
 }
-void Entity::setNamespace(const shared_ptr<Namespace>& nspace)
+void Entity::setNamespace(const Namespace& nspace)
 {
-	assert(hasBody && !hasNamespace());
+	assert(hasBody() && !hasNamespace());
 	ptr->nspace = nspace;
 }

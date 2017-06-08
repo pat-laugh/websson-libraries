@@ -57,6 +57,7 @@ namespace webss
 
 		void putPreviousNamespaceNames(StringBuilder& out, const Namespace& nspace);
 		bool namespaceCurrentScope(const Namespace& nspace);
+		void putEntityNameWithoutNamespace(StringBuilder & out, const Entity & ent);
 		void putEntityName(StringBuilder& out, const Entity& ent);
 
 		void putAbstractValue(StringBuilder& out, const Webss& webss);
@@ -125,12 +126,7 @@ namespace webss
 		public:
 			NamespaceIncluder(std::set<void*>& currentNamespaces, const Namespace& nspace) : currentNamespaces(currentNamespaces)
 			{
-				include(nspace.getPointer().get());
-			}
-
-			NamespaceIncluder(std::set<void*>& currentNamespaces, const Enum& tEnum) : currentNamespaces(currentNamespaces)
-			{
-				include(tEnum.getPointer().get());
+				include(nspace.getPointerBody());
 			}
 
 			~NamespaceIncluder()

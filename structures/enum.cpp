@@ -26,7 +26,6 @@ const Entity& Enum::at(const std::string& key) const { return nspace.at(key); }
 
 const std::string& Enum::getName() const { return nspace.getName(); }
 const Enum::Namespaces& Enum::getNamespaces() const { return nspace.getNamespaces(); }
-const Enum::PtrThis& Enum::getPointer() const { return nspace.getPointer(); }
 
 Enum::iterator Enum::begin() { return nspace.begin(); }
 Enum::iterator Enum::end() { return nspace.end(); }
