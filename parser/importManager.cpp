@@ -53,7 +53,7 @@ const unordered_map<string, Entity>& ImportManager::importDocument(const string&
 		lock_guard<mutex> lockParsing(mParsing);
 		parsing.erase(link);
 		unordered_map<string, Entity> ents;
-		for (const auto& ent : parser.getEnts().getLocalEnts())
+		for (const auto& ent : parser.getEnts().getPublicEnts())
 			ents.insert({ ent.getName(), ent });
 		return docs.insert({ link, move(ents) }).first->second;
 	}

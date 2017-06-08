@@ -10,15 +10,15 @@
 using namespace std;
 using namespace webss;
 
-void addGlobalEntities(EntityManager& ents, vector<string> names, Entity ent)
+void addPrivateEntities(EntityManager& ents, vector<string> names, Entity ent)
 {
 	for (const auto& name : names)
-		ents.addGlobalEntity(name, ent);
+		ents.addPrivateEntity(name, ent);
 }
 
 void addEntityKeywords(EntityManager& ents)
 {
-	addGlobalEntities(ents, { "N", "Nil", "None", "Null", "nil", "none", "null", "F", "False", "false", "T", "True", "true" }, Entity("", Webss()));
+	addPrivateEntities(ents, { "N", "Nil", "None", "Null", "nil", "none", "null", "F", "False", "false", "T", "True", "true" }, Entity("", Webss()));
 }
 
 TemplateHeadBinary makeTheadBinaryKeyword(Keyword keyword)
@@ -33,7 +33,7 @@ TemplateHeadBinary makeTheadBinaryKeyword(Keyword keyword)
 void addTheadBinaryEntityKeywords(EntityManager& ents, vector<string> names, Keyword keyword)
 {
 	string entName(names[0]);
-	addGlobalEntities(ents, move(names), Entity(move(entName), makeTheadBinaryKeyword(keyword)));
+	addPrivateEntities(ents, move(names), Entity(move(entName), makeTheadBinaryKeyword(keyword)));
 }
 
 void initEnts(EntityManager& ents)
@@ -68,7 +68,7 @@ Parser& Parser::setIterator(SmartIterator&& it)
 
 Parser& Parser::addEntity(string&& name, Webss&& value)
 {
-	ents.addGlobal(move(name), move(value));
+	ents.addPrivate(move(name), move(value));
 	return *this;
 }
 

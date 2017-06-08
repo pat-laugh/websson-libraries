@@ -10,105 +10,105 @@ const char* ERROR_ENTITY_EXISTS = "entity already exists: ";
 EntityManager::EntityManager() {}
 EntityManager::~EntityManager() { clearAll(); }
 
-vector<Entity> EntityManager::getLocalEnts() const
+vector<Entity> EntityManager::getPublicEnts() const
 {
 	vector<Entity> ents;
-	for (auto sPtr : locals)
-		ents.push_back(globals.find(*sPtr)->second);
+	for (auto sPtr : publics)
+		ents.push_back(privates.find(*sPtr)->second);
 	return ents;
 }
 
 void EntityManager::clearAll()
 {
-	clearLocals();
-	for (auto it = globals.begin(); it != globals.end();)
-		it = globals.erase(it);
+	clearPublics();
+	for (auto it = privates.begin(); it != privates.end();)
+		it = privates.erase(it);
 }
 
-void EntityManager::clearLocals()
+void EntityManager::clearPublics()
 {
-	for (auto it = locals.begin(); it != locals.end();)
-		it = locals.erase(it);
+	for (auto it = publics.begin(); it != publics.end();)
+		it = publics.erase(it);
 }
 
-void EntityManager::addGlobalEntity(string name, Entity ent)
+void EntityManager::addPrivateEntity(string name, Entity ent)
 {
-	globals.insert({ move(name), move(ent) });
+	privates.insert({ move(name), move(ent) });
 }
 
-void EntityManager::addGlobal(string name, Webss content)
+void EntityManager::addPrivate(string name, Webss content)
 {
-	addGlobal(Entity(move(name), move(content)));
+	addPrivate(Entity(move(name), move(content)));
 }
 
-void EntityManager::addGlobalSafe(string name, Webss content)
+void EntityManager::addPrivateSafe(string name, Webss content)
 {
-	addGlobalSafe(Entity(move(name), move(content)));
+	addPrivateSafe(Entity(move(name), move(content)));
 }
 
-void EntityManager::addGlobal(Entity ent)
+void EntityManager::addPrivate(Entity ent)
 {
 	const auto& name = ent.getName();
-	globals.insert({ name, move(ent) });
+	privates.insert({ name, move(ent) });
 }
 
-void EntityManager::addGlobalSafe(Entity ent)
+void EntityManager::addPrivateSafe(Entity ent)
 {
 	if (hasEntity(ent.getName()))
 		throw runtime_error(ERROR_ENTITY_EXISTS + ent.getName());
 
-	addGlobal(move(ent));
+	addPrivate(move(ent));
 }
 
-void EntityManager::addLocal(string name, Webss content)
+void EntityManager::addPublic(string name, Webss content)
 {
-	addLocal(Entity(move(name), move(content)));
+	addPublic(Entity(move(name), move(content)));
 }
 
-void EntityManager::addLocalSafe(string name, Webss content)
+void EntityManager::addPublicSafe(string name, Webss content)
 {
-	addLocalSafe(Entity(move(name), move(content)));
+	addPublicSafe(Entity(move(name), move(content)));
 }
 
-void EntityManager::addLocal(Entity ent)
+void EntityManager::addPublic(Entity ent)
 {
-	locals.insert(const_cast<string*>(&ent.getName()));
-	addGlobal(move(ent));
+	publics.insert(const_cast<string*>(&ent.getName()));
+	addPrivate(move(ent));
 }
 
-void EntityManager::addLocalSafe(Entity ent)
+void EntityManager::addPublicSafe(Entity ent)
 {
 	if (hasEntity(ent.getName()))
 		throw runtime_error(ERROR_ENTITY_EXISTS + ent.getName());
 
-	addLocal(move(ent));
+	addPublic(move(ent));
 }
 
-bool EntityManager::hasEntity(const string& s) const { return globals.find(s) != globals.end(); }
+bool EntityManager::hasEntity(const string& s) const { return privates.find(s) != privates.end(); }
 
-Entity& EntityManager::operator[](const string& name) { return globals.find(name)->second; }
-const Entity& EntityManager::operator[](const string& name) const { return globals.find(name)->second; }
+Entity& EntityManager::operator[](const string& name) { return privates.find(name)->second; }
+const Entity& EntityManager::operator[](const string& name) const { return privates.find(name)->second; }
 
-Entity& EntityManager::at(const string& name) { return globals.at(name); }
-const Entity& EntityManager::at(const string& name) const { return globals.at(name); }
+Entity& EntityManager::at(const string& name) { return privates.at(name); }
+const Entity& EntityManager::at(const string& name) const { return privates.at(name); }
 
-void EntityManager::removeGlobal(const string& name)
+void EntityManager::removePrivate(const string& name)
 {
-	globals.erase(name);
+	privates.erase(name);
 }
 
-void EntityManager::removeLocal(const string& name)
+void EntityManager::removePublic(const string& name)
 {
-	locals.erase(const_cast<string*>(&name));
-	removeGlobal(name);
+	publics.erase(const_cast<string*>(&name));
+	removePrivate(name);
 }
 
-void EntityManager::removeGlobal(const Entity& ent)
+void EntityManager::removePrivate(const Entity& ent)
 {
-	removeGlobal(ent.getName());
+	removePrivate(ent.getName());
 }
 
-void EntityManager::removeLocal(const Entity& ent)
+void EntityManager::removePublic(const Entity& ent)
 {
-	removeLocal(ent.getName());
+	removePublic(ent.getName());
 }

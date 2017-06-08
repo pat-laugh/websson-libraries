@@ -17,30 +17,30 @@ namespace webss
 		template <class T>
 		struct less_ptr { bool operator()(T* t1, T* t2) const { return *t1 < *t2; } };
 
-		std::unordered_map<std::string, Entity> globals;
-		std::set<std::string*, less_ptr<std::string>> locals;
+		std::unordered_map<std::string, Entity> privates;
+		std::set<std::string*, less_ptr<std::string>> publics;
 	public:
 		EntityManager();
 		~EntityManager();
 
-		std::vector<Entity> getLocalEnts() const;
+		std::vector<Entity> getPublicEnts() const;
 
 		void clearAll();
 
-		void clearLocals();
+		void clearPublics();
 
 		//Adds alias to entity; the name may be different than the entity's name
-		void addGlobalEntity(std::string name, Entity ent);
+		void addPrivateEntity(std::string name, Entity ent);
 
-		void addGlobal(std::string name, Webss content);
-		void addGlobalSafe(std::string name, Webss content);
-		void addGlobal(Entity ent);
-		void addGlobalSafe(Entity ent);
+		void addPrivate(std::string name, Webss content);
+		void addPrivateSafe(std::string name, Webss content);
+		void addPrivate(Entity ent);
+		void addPrivateSafe(Entity ent);
 
-		void addLocal(std::string name, Webss content);
-		void addLocalSafe(std::string name, Webss content);
-		void addLocal(Entity ent);
-		void addLocalSafe(Entity ent);
+		void addPublic(std::string name, Webss content);
+		void addPublicSafe(std::string name, Webss content);
+		void addPublic(Entity ent);
+		void addPublicSafe(Entity ent);
 
 		//returns true if s is a entity, else false
 		bool hasEntity(const std::string& s) const;
@@ -51,10 +51,10 @@ namespace webss
 		Entity& at(const std::string& name);
 		const Entity& at(const std::string& name) const;
 
-		void removeGlobal(const std::string& name);
-		void removeLocal(const std::string& name);
+		void removePrivate(const std::string& name);
+		void removePublic(const std::string& name);
 
-		void removeGlobal(const Entity& ent);
-		void removeLocal(const Entity& ent);
+		void removePrivate(const Entity& ent);
+		void removePublic(const Entity& ent);
 	};
 }

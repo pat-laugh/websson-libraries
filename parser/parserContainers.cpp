@@ -240,14 +240,14 @@ bool Parser::parseDocumentHead(Document& doc, const Namespace& nspace)
 		{
 			auto ent = parseAbstractEntity(nspace);
 			docHead.push_back(ParamDocument::makeEntityAbstract(ent));
-			ents.addLocalSafe(move(ent));
+			ents.addPublicSafe(move(ent));
 			break;
 		}
 		case Tag::ENTITY_CONCRETE:
 		{
 			auto ent = parseConcreteEntity();
 			docHead.push_back(ParamDocument::makeEntityConcrete(ent));
-			ents.addLocalSafe(move(ent));
+			ents.addPublicSafe(move(ent));
 			break;
 		}
 		case Tag::IMPORT:
@@ -255,7 +255,7 @@ bool Parser::parseDocumentHead(Document& doc, const Namespace& nspace)
 			auto import = parseImport();
 			const auto& link = import.getLink();
 			for (const auto& entPair : ImportManager::getInstance().importDocument(link))
-				ents.addLocalSafe(entPair.second);
+				ents.addPublicSafe(entPair.second);
 			docHead.push_back(move(import));
 			break;
 		}
@@ -319,7 +319,7 @@ ParamDocument Parser::parseScopedImport()
 		const auto& importedDoc = ImportManager::getInstance().importDocument(import.getLink());
 
 		auto ent = getScopedImportEntity(importedDoc, names);
-		ents.addLocalSafe(ent);
+		ents.addPublicSafe(ent);
 
 		return ParamDocument::makeScopedImport(move(ent), move(import));
 	}
@@ -341,7 +341,7 @@ ParamDocument Parser::parseScopedImport()
 		for (const auto& names : namesList)
 		{
 			auto ent = getScopedImportEntity(importedDoc, names);
-			ents.addLocalSafe(ent);
+			ents.addPublicSafe(ent);
 			entList.push_back(move(ent));
 		}
 
@@ -551,8 +551,8 @@ void useNamespace(EntityManager& ents, const Namespace& nspace)
 	//if namespace entity is accessible, it has to be removed since
 	//it'll no longer be necessary and an entity with the same name could be inside
 	if (namespaceNameInCurrentScope(ents, nspace))
-		ents.removeLocal(ents[nspace.getName()]);
+		ents.removePublic(ents[nspace.getName()]);
 
 	for (const auto& ent : nspace)
-		ents.addLocalSafe(ent);
+		ents.addPublicSafe(ent);
 }
