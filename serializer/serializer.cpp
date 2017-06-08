@@ -112,10 +112,10 @@ private:
 	void putThead(StringBuilder& out, const TemplateHead& thead, function<void(StringBuilder& out, const string& key, const Param& param)>&& putParam)
 	{
 		static const auto CON = ConType::TEMPLATE_HEAD;
-		assert(!thead.empty() && "template head can't be empty");
 		if (thead.hasEntity())
 		{
 			ContainerIncluder<CON> includer(out);
+			out += CHAR_EXPAND;
 			putEntityName(out, thead.getEntity());
 		}
 		else
@@ -440,6 +440,12 @@ void Serializer::putKeyValue(StringBuilder& out, const string& key, const Webss&
 	putCharValue(out, value, con);
 }
 
+void Serializer::putExplicitKeyValue(StringBuilder& out, const string& key, const Webss& value, ConType con)
+{
+	out += CHAR_EXPLICIT_NAME;
+	putKeyValue(out, key, value, con);
+}
+
 void Serializer::putInt(StringBuilder& out, WebssInt i)
 {
 	assert(i != numeric_limits<WebssInt>::min());
@@ -664,15 +670,22 @@ void Serializer::putTuple(StringBuilder& out, const Tuple& tuple)
 		if (it->first == nullptr)
 			putConcreteValue(out, *it->second, CON);
 		else
-			putKeyValue(out, *it->first, *it->second, CON);
+			putExplicitKeyValue(out, *it->first, *it->second, CON);
 	});
 }
 
 void Serializer::putTupleText(StringBuilder& out, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
+	using Type = decltype(tuple.getOrderedKeyValues());
 	out += ASSIGN_CONTAINER_STRING;
-	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it) { putLineString(out, it->getString(), CON); });
+	putSeparatedValues<Type, CON>(out, tuple.getOrderedKeyValues(), [&](Type::const_iterator it)
+	{
+		if (it->first == nullptr)
+			putLineString(out, it->second->getString(), CON);
+		else
+			putExplicitKeyValue(out, *it->first, *it->second, CON);
+	});
 }
 
 void Serializer::putTheadSelf(StringBuilder& out)

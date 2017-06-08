@@ -67,6 +67,7 @@ namespace webss
 		void putCharValue(StringBuilder& out, const Webss& value, ConType con);
 
 		void putKeyValue(StringBuilder& out, const std::string& key, const Webss& value, ConType con);
+		void putExplicitKeyValue(StringBuilder& out, const std::string& key, const Webss& value, ConType con);
 
 		void putInt(StringBuilder& out, WebssInt i);
 		void putDouble(StringBuilder& out, double d);
@@ -93,7 +94,6 @@ namespace webss
 		void putEntityConcrete(StringBuilder& out, const Entity& ent, ConType con);
 
 		void putTemplBinary(StringBuilder& out, const TemplateBinary& templ);
-		void putTheadSelf(StringBuilder& out);
 		void putTemplStandard(StringBuilder& out, const TemplateStandard& templ);
 		void putTemplStandardBody(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Webss& body);
 
@@ -108,6 +108,7 @@ namespace webss
 		void putTemplBlockStandard(StringBuilder& out, const TemplateStandard& templ, ConType con);
 		void putTemplBlockText(StringBuilder& out, const TemplateStandard& templ, ConType con);
 
+		void putTheadSelf(StringBuilder& out);
 		void putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead);
 		void putTheadStandard(StringBuilder& out, const TemplateHeadStandard& thead);
 		void putTheadText(StringBuilder& out, const TemplateHeadStandard& thead);
