@@ -22,8 +22,11 @@ const char ERROR_INPUT_NAMESPACE[] = "namespace can only have entity definitions
 const char ERROR_INPUT_DOCUMENT[] = "document can only have concrete value-onlys or key-values";
 const char ERROR_OPTION[] = "expected option";
 
-bool namespaceNameInCurrentScope(const EntityManager& ents, const Namespace& nspace);
-void useNamespace(EntityManager& ents, const Namespace& nspace);
+void useNamespace(EntityManager& ents, const Namespace& nspace)
+{
+	for (const auto& ent : nspace)
+		ents.addPublicSafe(ent);
+}
 
 string getItPosition(SmartIterator& it)
 {
@@ -533,26 +536,4 @@ void Parser::parseOptionAlias()
 	++it;
 	auto content = parseLineString(*this);
 	aliases.insert({ move(name), move(content) });
-}
-
-bool namespaceNameInCurrentScope(const EntityManager& ents, const Namespace& nspace)
-{
-	const auto& name = nspace.getName();
-	if (!ents.hasEntity(name))
-		return false;
-
-	//make sure they're the exact same entity, not just two different entities with the same name
-	const auto& content = ents[name].getContent();
-	return content.isNamespace() && content.getNamespace() == nspace;
-}
-
-void useNamespace(EntityManager& ents, const Namespace& nspace)
-{
-	//if namespace entity is accessible, it has to be removed since
-	//it'll no longer be necessary and an entity with the same name could be inside
-	if (namespaceNameInCurrentScope(ents, nspace))
-		ents.removePublic(ents[nspace.getName()]);
-
-	for (const auto& ent : nspace)
-		ents.addPublicSafe(ent);
 }
