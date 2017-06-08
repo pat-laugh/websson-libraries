@@ -28,10 +28,11 @@ int main()
 	do
 #endif
 	{
-		vector<string> filenames { "strings", "expandTuple", "templateBlock" };
+		vector<string> filenames { "strings", "expandTuple", "templateBlock", "namespace", "enum" };
 		for (const auto& filename : filenames)
 		{
 			test(filename, [](const Document& doc) {});
+			cout << endl;
 		}
 #ifdef TEST_PERFORMANCE
 	}
@@ -66,7 +67,7 @@ ErrorType tryParse(string filenameIn, Document& doc)
 	ifstream fileIn(filenameIn, ios::binary);
 	if (fileIn.fail())
 	{
-		cerr << "Error: failed to open file \"" << filenameIn << "\"" << endl;
+		cout << "Error: failed to open file \"" << filenameIn << "\"" << endl;
 		return ErrorType::FATAL;
 	}
 
@@ -76,7 +77,7 @@ ErrorType tryParse(string filenameIn, Document& doc)
 	}
 	catch (const exception& e)
 	{
-		cerr << "Parse failed: " << e.what() << endl;
+		cout << "Parse failed: " << e.what() << endl;
 		return ErrorType::PARSE;
 	}
 
@@ -88,7 +89,7 @@ ErrorType trySerialize(string filenameOut, string& output, const Document& doc)
 	ofstream fileOut(filenameOut, ios::binary);
 	if (fileOut.fail())
 	{
-		cerr << "Error: failed to open file \"" << filenameOut << "\"" << endl;
+		cout << "Error: failed to open file \"" << filenameOut << "\"" << endl;
 		return ErrorType::FATAL;
 	}
 

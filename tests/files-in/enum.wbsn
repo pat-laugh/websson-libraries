@@ -1,0 +1,5 @@
+!Color [ Red, Green Blue ]
+
+red = Color.Red
+green = Color.Green
+blue = Color.Blue

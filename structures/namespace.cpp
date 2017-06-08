@@ -21,8 +21,15 @@ struct Namespace::NamespaceBody
 		if (this == &o)
 			return true;
 
-		if (name != o.name || data != o.data || keys != o.keys)
+		if (name != o.name || keys != o.keys)
 			return false;
+
+		//check data; only the content of entities must be checked
+		//since they have a circular dependency with the namespace
+		//the size of data and name of entites is checked in keys equality
+		for (Data::size_type i = 0; i < data.size(); ++i)
+			if (data[i].getContent() != o.data[i].getContent())
+				return false;
 
 		//in-depth check of nspaces
 		if (nspaces.size() != o.nspaces.size())

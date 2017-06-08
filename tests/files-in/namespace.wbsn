@@ -1,0 +1,5 @@
+!nspace { ?ent1 = 1, !nspace2 { ?ent2:text } }
+^nspace
+
+theEnt1 = ent1
+theEnt2 = nspace2.ent2
