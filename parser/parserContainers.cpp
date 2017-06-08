@@ -165,10 +165,6 @@ Namespace Parser::parseNamespace(const string& name, const Namespace& previousNa
 		case Tag::ENTITY_CONCRETE:
 			nspace.addSafe(parseConcreteEntity());
 			break;
-		case Tag::SELF:
-			skipJunkToTag(++it, Tag::START_TEMPLATE);
-			nspace.addSafe(Entity(string(name), parseTemplateHead()));
-			break;
 		default:
 			throw runtime_error(ERROR_INPUT_NAMESPACE);
 		}
