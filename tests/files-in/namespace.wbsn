@@ -1,5 +1,9 @@
 !nspace { ?ent1 = 1, !nspace2 { ?ent2:text } }
+!newNspace { ^nspace, ?moreEnt = true }
 ^nspace
 
 theEnt1 = ent1
 theEnt2 = nspace2.ent2
+stillEnt1 = nspace.ent1
+newEnt1 = newNspace.ent1
+moreEnt = newNspace.moreEnt

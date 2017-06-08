@@ -24,8 +24,11 @@ const char ERROR_OPTION[] = "expected option";
 
 void useNamespace(EntityManager& ents, const Namespace& nspace)
 {
-	for (const auto& ent : nspace)
+	for (auto ent : nspace)
+	{
+		ent.removeNamespace();
 		ents.addPublicSafe(ent);
+	}
 }
 
 string getItPosition(SmartIterator& it)

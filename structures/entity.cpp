@@ -13,9 +13,8 @@ struct Entity::EntityBody
 {
 	string name;
 	Webss content;
-	Namespace nspace;
 
-	bool operator==(const EntityBody& o) const { return (this == &o) || (name == o.name && content == o.content && nspace == o.nspace); }
+	bool operator==(const EntityBody& o) const { return (this == &o) || (name == o.name && content == o.content); }
 	bool operator!=(const EntityBody& o) const { return !(*this == o); }
 };
 
@@ -37,21 +36,23 @@ const Webss& Entity::getContent() const
 	return ptr->content;
 }
 
-bool Entity::operator==(const Entity& o) const { return equalPtrs(ptr, o.ptr); }
+bool Entity::operator==(const Entity& o) const { return (this == &o) || (equalPtrs(ptr, o.ptr) && nspace == o.nspace); }
 bool Entity::operator!=(const Entity& o) const { return !(*this == o); }
 
 bool Entity::hasNamespace() const
 {
-	assert(hasBody());
-	return ptr->nspace.hasBody();
+	return nspace.hasBody();
 }
 const Namespace& Entity::getNamespace() const
 {
 	assert(hasNamespace());
-	return ptr->nspace;
+	return nspace;
 }
 void Entity::setNamespace(const Namespace& nspace)
 {
-	assert(hasBody() && !hasNamespace());
-	ptr->nspace = nspace;
+	this->nspace = nspace;
+}
+void Entity::removeNamespace()
+{
+	nspace = Namespace();
 }
