@@ -1,3 +1,20 @@
-line-string:some text
+?name: First Last
+!Nspace { ?name: John, !MoreNspace { ?name: Doe } }
+
+escaped-chars:\a\b\f\n\r\t\v\x00\u1234\U43210987\e\s\0
+line-string:   some text   with spaces   //and a comment
 c-string="some text"
-multiline-string::{some text}
+multiline-string::
+{
+	My name is ^name!
+	
+	I know ^Nspace.name.
+	I also know who ^Nspace.MoreNspace.name is.
+	
+	Escape ^ without ent is valid.
+}
+
+junk-operators: /*
+	*/    should output  "should output" /~
+	2 times ... /~
+		junk//operator/*must be preceded*/ by a space //confusing line-string

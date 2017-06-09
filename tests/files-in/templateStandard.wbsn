@@ -1,0 +1,15 @@
+!Template<firstName, lastName, age>
+?tuple1(:First, :Last, 38), ?tuple2 = (:Second, :Third, 47)
+
+//template1 == template2
+
+template1<firstName, lastName, age>
+[
+	(:First, :Last, 38)
+	(:Second, :Third, 47)
+]
+
+template2<^Template>
+[
+	(^tuple1)(^tuple2)
+]

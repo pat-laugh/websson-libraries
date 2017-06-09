@@ -1,0 +1,4 @@
+?entTuple(2, key1:text, a_list[true])
+
+(^entTuple, other-tuple(key1 = 2, key2:text))
+^entTuple //expand tuple within document

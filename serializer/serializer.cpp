@@ -94,7 +94,7 @@ public:
 	template <class Parameters>
 	void putTemplateList(StringBuilder& out, const Parameters& params, const List& list, function<void(StringBuilder& out, const Parameters& params, const Tuple& tuple)>&& putTupleRegular, function<void(StringBuilder& out, const Parameters& params, const Tuple& tuple)>&& putTupleText)
 	{
-		static const auto CON = ConType::DICTIONARY;
+		static const auto CON = ConType::LIST;
 		putSeparatedValues<List, CON>(out, list, [&](typename List::const_iterator it)
 		{
 			const auto type = it->getTypeRaw();
@@ -278,7 +278,7 @@ void Serializer::putDocument(StringBuilder& out, const Document& doc)
 		if (it->first == nullptr)
 			putConcreteValue(out, *it->second, CON);
 		else
-			putKeyValue(out, *it->first, *it->second, CON);
+			putExplicitKeyValue(out, *it->first, *it->second, CON);
 	});
 }
 

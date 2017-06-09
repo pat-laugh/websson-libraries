@@ -1,0 +1,3 @@
+?entList[2, :text, /*other-list*/[true]]
+
+[^entList, /*a_dict*/{key1 = 2, key2:text}]
