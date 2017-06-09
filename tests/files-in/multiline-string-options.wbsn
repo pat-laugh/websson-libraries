@@ -1,5 +1,6 @@
 ?name: First Last
 !Nspace { ?name: John, !MoreNspace { ?name: Doe } }
+#alias.code:-cilr
 
 no-options ::
 {
@@ -79,7 +80,6 @@ no-options-raw :: -r
 	Escape ^ without ent is valid.
 }
 
-
 allow-only-entities :: -c -i -l -r //all but entity
 {
 	\a\b\f\n\r\t\v\x00\u1234\U43210987\e\s\0 //escaped-chars
@@ -91,4 +91,14 @@ allow-only-entities :: -c -i -l -r //all but entity
 	I also know who ^Nspace.MoreNspace.name is.
 	
 	Escape ^ without ent is valid.
+}
+
+allow-only-entities2 :: -cilr //short version
+{
+	text
+}
+
+allow-only-entities3 :: code //alias for -cilr
+{
+	text
 }
