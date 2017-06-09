@@ -375,10 +375,10 @@ ImportedDocument Parser::parseImport()
 		return ImportedDocument(parseTemplateTupleStandard(thead.getParameters()));
 	case Tag::TEXT_TUPLE:
 		return ImportedDocument(Webss(parseTemplateTupleText(thead.getParameters()), WebssType::TUPLE_TEXT));
-	case Tag::NAME_START:
+	case Tag::NAME_START: case Tag::SCOPE: case Tag::SLASH:
 	{
 		Tuple tuple(thead.getParameters().getSharedKeys());
-		tuple[0] = parseName(it);
+		tuple[0] = parseStickyLineString(*this);
 		checkDefaultValues(tuple, thead.getParameters());
 		return ImportedDocument(move(tuple));
 	}
