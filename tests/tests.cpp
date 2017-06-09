@@ -29,7 +29,8 @@ int main()
 #endif
 	{
 		vector<string> filenames { "strings", "expandTuple", "templateBlock", "namespace", "enum",
-			"list", "tuple", "templateStandard", "names-keywords", "multiline-string-options" };
+			"list", "tuple", "templateStandard", "names-keywords", "multiline-string-options",
+			"option" };
 		for (const auto& filename : filenames)
 		{
 			test(filename, [](const Document&) {});

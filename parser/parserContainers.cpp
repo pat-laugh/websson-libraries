@@ -415,61 +415,54 @@ ImportedDocument Parser::parseImport()
 void Parser::parseOption()
 {
 	++it;
-	SmartIterator itOption(parseOptionLine(*this, [](char c) { return c == '\n'; }));
-	IteratorSwitcher(it, move(itOption));
-	if (!skipLineJunk(it))
-		throw runtime_error(ERROR_OPTION);
-	if (*it == '-')
+	IteratorSwitcher itSwitcher(it, SmartIterator(parseOptionLine(*this, [](char c) { return c == '\n'; })));
+	while (skipLineJunk(it))
 	{
-		if (!++it)
-			throw runtime_error(ERROR_OPTION);
-		else if (*it == 'v')
+		if (*it == '-')
 		{
-			++it;
-			parseOptionVersion();
-		}
-		else if (*it == 'a')
-		{
-			++it;
-			parseOptionAlias();
-		}
-		else if (*it == '-' && ++it && isNameStart(*it))
-		{
-			auto option = parseName(it);
-			if (option == "version")
+			if (!++it)
+				throw runtime_error(ERROR_OPTION);
+			else if (*it == 'v')
+			{
+				++it;
 				parseOptionVersion();
-			else if (option == "alias")
+			}
+			else if (*it == 'a')
+			{
+				++it;
 				parseOptionAlias();
+			}
+			else if (*it == '-' && ++it && isNameStart(*it))
+			{
+				auto option = parseName(it);
+				if (option == "version")
+					parseOptionVersion();
+				else if (option == "alias")
+					parseOptionAlias();
+				else
+					throw runtime_error(ERROR_OPTION);
+			}
 			else
 				throw runtime_error(ERROR_OPTION);
 		}
 		else
 			throw runtime_error(ERROR_OPTION);
 	}
-	else
-		throw runtime_error(ERROR_OPTION);
 }
 
 void Parser::parseOptionVersion()
 {
-	if (it != ':')
-		throw runtime_error("expected line-string");
-	++it;
-	auto version = parseLineString(*this);
-	if (version != "1.0.0")
+	if (parseOptionStringValue(*this) != "1.0.0")
 		throw runtime_error("this parser can only parse version 1.0.0");
 }
 
 void Parser::parseOptionAlias()
 {
-	if (it != ':' || !++it || !isNameStart(*it))
+	if (it != CHAR_SCOPE || !++it || !isNameStart(*it))
 		throw runtime_error("expected alias");
 	auto name = parseName(it);
 	if (hasAlias(name))
 		throw runtime_error("alias already exists");
-	if (it != ':')
-		throw runtime_error("expected line-string");
-	++it;
-	auto content = parseLineString(*this);
+	auto content = parseOptionStringValue(*this);
 	aliases.insert({ move(name), move(content) });
 }

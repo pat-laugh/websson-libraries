@@ -444,7 +444,7 @@ string webss::parseMultilineString(Parser& parser)
 		}
 	}
 
-	IteratorSwitcher(it, SmartIterator(move(content)));
+	IteratorSwitcher itSwitcher(it, SmartIterator(move(content)));
 	StringBuilder sb;
 	if (options.line)
 	{
