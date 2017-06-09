@@ -99,22 +99,42 @@ MultilineStringOptions checkMultilineStringOptions(SmartIterator& it)
 			throw runtime_error(ERROR_MULTILINE_STRING);
 	} while (*it != OPEN_DICTIONARY);
 	auto optionString = sb.str();
-	options.entity = optionString.find("-e");
-	options.indent = optionString.find("-i");
-	options.junk = optionString.find("-j");
-	options.newline = optionString.find("-n");
-	options.raw = optionString.find("-r");
+	options.entity = optionString.find("-e") != -1;
+	options.indent = optionString.find("-i") != -1;
+	options.junk = optionString.find("-j") != -1;
+	options.newline = optionString.find("-n") != -1;
+	options.raw = optionString.find("-r") != -1;
 	return options;
+}
+
+int countIndent(SmartIterator& it)
+{
+	int numIndent = 0;
+	while (it && isLineJunk(*it))
+		++numIndent;
+	return numIndent;
 }
 
 string webss::parseMultilineString(Parser& parser)
 {
 	auto& it = parser.getIt();
 	auto options = checkMultilineStringOptions(it);
+	bool indentSet;
+	int numIndent;
 
 	Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, true);
 	StringBuilder sb;
-	if (*skipJunkToValid(it) == CLOSE_DICTIONARY)
+	if (options.indent)
+	{
+		if (*it == '\n')
+		{
+			indentSet = true;
+			numIndent = countIndent(++it);
+			if (!it)
+				throw runtime_error(ERROR_MULTILINE_STRING);
+		}
+	}
+	else if (parser.containerEmpty())
 		return "";
 
 	int countStartEnd = 1;
