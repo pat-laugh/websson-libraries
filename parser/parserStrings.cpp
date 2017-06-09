@@ -99,7 +99,7 @@ MultilineStringOptions checkMultilineStringOptions(SmartIterator& it)
 			throw runtime_error(ERROR_MULTILINE_STRING);
 	} while (*it != OPEN_DICTIONARY && *it != '~');
 	auto optionString = sb.str();
-	options.junkOperator = optionString.find("-j") != -1;
+	options.junkOperator = optionString.find("-c") != -1;
 	options.entity = optionString.find("-e") != -1;
 	options.indent = optionString.find("-i") != -1;
 	options.line = optionString.find("-l") != -1;
@@ -107,7 +107,7 @@ MultilineStringOptions checkMultilineStringOptions(SmartIterator& it)
 	return options;
 }
 
-bool checkCRNL(SmartIterator it)
+bool checkCRNL(SmartIterator& it)
 {
 	if (*it == '\r' && it.peekGood() && it.peek() == '\n')
 	{
@@ -128,9 +128,9 @@ int countIndent(SmartIterator& it)
 //returns true if all junk skipped properly, else false
 bool skipIndent(SmartIterator& it, int num)
 {
-	while (num-- >= 0)
+	while (num-- > 0)
 	{
-		if (!it || !isLineJunk(it) || checkCRNL(it))
+		if (!it || !isLineJunk(*it) || checkCRNL(it))
 			return false;
 		++it;
 	}
@@ -332,8 +332,11 @@ string parseMultilineStringRegular(Parser& parser)
 	auto& it = parser.getIt();
 	Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, true);
 	StringBuilder sb;
-	if (parser.containerEmpty())
+	if (skipJunk(it) == CLOSE_DICTIONARY)
+	{
+		++it;
 		return "";
+	}
 
 	int countStartEnd = 1;
 	bool addSpace = false;
@@ -443,11 +446,12 @@ string webss::parseMultilineString(Parser& parser)
 		}
 	}
 
-	SmartIterator itCont(move(content));
+	SmartIterator itTemp = move(it);
+	it = SmartIterator(move(content));
 	StringBuilder sb;
 	if (options.line)
 	{
-		while (itCont)
+		while (it)
 		{
 			if (*it == CHAR_ESCAPE && !options.raw)
 			{
@@ -456,14 +460,23 @@ string webss::parseMultilineString(Parser& parser)
 			}
 			else if (*it == CHAR_EXPAND && !options.entity && checkStringExpand(parser, sb))
 				continue;
-			putChar(itCont, sb);
+			checkCRNL(it);
+			putChar(it, sb);
 		}
+		it = move(itTemp);
 		return sb;
 	}
 
 	bool addSpace = false;
 loopStart:
-	while (hasNextCharSpecial(itCont, sb))
+	while (it && isJunk(*it))
+		++it;
+	if (!it)
+	{
+		it = move(itTemp);
+		return sb;
+	}
+	while (hasNextCharSpecial(it, sb))
 	{
 		if (*it == CHAR_ESCAPE && !options.raw)
 		{
@@ -479,8 +492,11 @@ loopStart:
 		addSpace = true;
 		putChar(it, sb);
 	}
-	if (!itCont)
+	if (!it)
+	{
+		it = move(itTemp);
 		return sb;
+	}
 	if (addSpace)
 		sb += ' ';
 	goto loopStart;

@@ -1,0 +1,94 @@
+?name: First Last
+!Nspace { ?name: John, !MoreNspace { ?name: Doe } }
+
+no-options ::
+{
+	\a\b\f\n\r\t\v\x00\u1234\U43210987\e\s\0 //escaped-chars
+	   some text   with spaces   //and a comment
+	   
+	My name is ^name!
+	
+	I know ^Nspace.name.
+	I also know who ^Nspace.MoreNspace.name is.
+	
+	Escape ^ without ent is valid.
+}
+
+no-options-entity :: -e
+{
+	\a\b\f\n\r\t\v\x00\u1234\U43210987\e\s\0 //escaped-chars
+	   some text   with spaces   //and a comment
+	   
+	My name is ^name!
+	
+	I know ^Nspace.name.
+	I also know who ^Nspace.MoreNspace.name is.
+	
+	Escape ^ without ent is valid.
+}
+
+no-options-comment :: -c
+{
+	\a\b\f\n\r\t\v\x00\u1234\U43210987\e\s\0 //escaped-chars
+	   some text   with spaces   //and a comment
+	   
+	My name is ^name!
+	
+	I know ^Nspace.name.
+	I also know who ^Nspace.MoreNspace.name is.
+	
+	Escape ^ without ent is valid.
+}
+
+no-options-indent :: -i
+{
+	\a\b\f\n\r\t\v\x00\u1234\U43210987\e\s\0 //escaped-chars
+	   some text   with spaces   //and a comment
+	   
+	My name is ^name!
+	
+	I know ^Nspace.name.
+	I also know who ^Nspace.MoreNspace.name is.
+	
+	Escape ^ without ent is valid.
+}
+
+no-options-line :: -l
+{
+	\a\b\f\n\r\t\v\x00\u1234\U43210987\e\s\0 //escaped-chars
+	   some text   with spaces   //and a comment
+	   
+	My name is ^name!
+	
+	I know ^Nspace.name.
+	I also know who ^Nspace.MoreNspace.name is.
+	
+	Escape ^ without ent is valid.
+}
+
+no-options-raw :: -r
+{
+	\a\b\f\n\r\t\v\x00\u1234\U43210987\e\s\0 //escaped-chars
+	   some text   with spaces   //and a comment
+	   
+	My name is ^name!
+	
+	I know ^Nspace.name.
+	I also know who ^Nspace.MoreNspace.name is.
+	
+	Escape ^ without ent is valid.
+}
+
+
+allow-only-entities :: -c -i -l -r //all but entity
+{
+	\a\b\f\n\r\t\v\x00\u1234\U43210987\e\s\0 //escaped-chars
+	   some text   with spaces   //and a comment
+	   
+	My name is ^name!
+	
+	I know ^Nspace.name.
+	I also know who ^Nspace.MoreNspace.name is.
+	
+	Escape ^ without ent is valid.
+}
