@@ -82,7 +82,7 @@ string webss::parseLineString(Parser& parser)
 
 struct MultilineStringOptions
 {
-	bool comment, entity, indent, line, raw;
+	bool junkOperator, entity, indent, line, raw;
 };
 
 MultilineStringOptions checkMultilineStringOptions(SmartIterator& it)
@@ -99,7 +99,7 @@ MultilineStringOptions checkMultilineStringOptions(SmartIterator& it)
 			throw runtime_error(ERROR_MULTILINE_STRING);
 	} while (*it != OPEN_DICTIONARY && *it != '~');
 	auto optionString = sb.str();
-	options.comment = optionString.find("-c") != -1;
+	options.junkOperator = optionString.find("-j") != -1;
 	options.entity = optionString.find("-e") != -1;
 	options.indent = optionString.find("-i") != -1;
 	options.line = optionString.find("-l") != -1;
@@ -137,9 +137,11 @@ bool skipIndent(SmartIterator& it, int num)
 	return true;
 }
 
-string parseMultilineStringIndent(SmartIterator& it)
+string parseMultilineStringIndent(SmartIterator& it, bool opJunkOperators)
 {
 	StringBuilder sb;
+	if (!it)
+		return sb;
 
 	//read past line the container start was on since indentation is not fetched from there
 	if (*it != '\n')
@@ -174,9 +176,155 @@ string parseMultilineStringIndent(SmartIterator& it)
 			else if (!it)
 				return sb;
 		}
-		sb += *it;
-	} while (++it);
+		if (isLineJunk(*it) && !opJunkOperators)
+		{
+			do
+			{
+				sb += *it;
+				if (!++it)
+					return sb;
+			} while (isLineJunk(*it));
+			checkJunkOperators(it);
+			continue;
+		}
+		putChar(it, sb);
+	} while (it);
 	return sb;
+}
+
+
+string parseMultilineStringLineIndent(SmartIterator& it, bool opJunkOperators)
+{
+	StringBuilder sb;
+	if (!it)
+		throw runtime_error(ERROR_MULTILINE_STRING);
+
+	//read past line the container start was on since indentation is not fetched from there
+	if (*it != '\n')
+		do
+		{
+			sb += *it;
+			if (!++it)
+				throw runtime_error(ERROR_MULTILINE_STRING);
+		} while (*it != '\n');
+	sb += '\n';
+	++it;
+
+	//ignore blank lines to get the indentation
+	int numIndent;
+	do
+	{
+		numIndent = countIndent(it);
+		if (!it)
+			throw runtime_error(ERROR_MULTILINE_STRING);
+	} while (*it == '\n');
+
+	int countStartEnd = 1;
+	do
+	{
+		while (*it == '\n')
+		{
+			sb += *it;
+			if (!skipIndent(++it, numIndent))
+			{
+				if (!it || *it != '\n')
+					throw runtime_error(ERROR_MULTILINE_STRING);
+			}
+			else if (!it)
+				throw runtime_error(ERROR_MULTILINE_STRING);
+		}
+		if (isLineJunk(*it) && !opJunkOperators)
+		{
+			do
+			{
+				sb += *it;
+				if (!++it)
+					throw runtime_error(ERROR_MULTILINE_STRING);
+			} while (isLineJunk(*it));
+			checkJunkOperators(it);
+			continue;
+		}
+		else if (*it == OPEN_DICTIONARY)
+			++countStartEnd;
+		else if (*it == CLOSE_DICTIONARY && --countStartEnd == 0)
+		{
+			++it;
+			return sb;
+		}
+		putChar(it, sb);
+	} while (it);
+	throw runtime_error(ERROR_MULTILINE_STRING);
+}
+
+string parseMultilineStringNoIndent(SmartIterator& it, bool opJunkOperators)
+{
+	StringBuilder sb;
+	while (true)
+	{
+		if (!it)
+			throw runtime_error(ERROR_MULTILINE_STRING);
+		while (*it == '\n')
+		{
+			sb += *it;
+			while (++it && isLineJunk(*it))
+				sb += *it;
+			if (!it)
+				throw runtime_error(ERROR_MULTILINE_STRING);
+			if (!opJunkOperators)
+			{
+				checkJunkOperators(it);
+				if (!it)
+					throw runtime_error(ERROR_MULTILINE_STRING);
+			}
+			if (*it == CLOSE_DICTIONARY)
+			{
+				++it;
+				return sb;
+			}
+		}
+		if (isLineJunk(*it) && !opJunkOperators)
+		{
+			do
+			{
+				sb += *it;
+				if (!++it)
+					throw runtime_error(ERROR_MULTILINE_STRING);
+			} while (isLineJunk(*it));
+			checkJunkOperators(it);
+			continue;
+		}
+		putChar(it, sb);
+	}
+}
+
+string parseMultilineStringLineNoIndent(SmartIterator& it, bool opJunkOperators)
+{
+	int countStartEnd = 1;
+	StringBuilder sb;
+	while (true)
+	{
+		if (!it)
+			throw runtime_error(ERROR_MULTILINE_STRING);
+		if (isLineJunk(*it) && !opJunkOperators)
+		{
+			do
+			{
+				sb += *it;
+				if (!++it)
+					throw runtime_error(ERROR_MULTILINE_STRING);
+			} while (isLineJunk(*it));
+			checkJunkOperators(it);
+			continue;
+		}
+		else if (*it == OPEN_DICTIONARY)
+			++countStartEnd;
+		else if (*it == CLOSE_DICTIONARY && --countStartEnd == 0)
+		{
+			++it;
+			return sb;
+		}
+		putChar(it, sb);
+	}
 }
 
 string parseMultilineStringRegular(Parser& parser)
@@ -232,40 +380,90 @@ loopStart:
 	goto loopStart;
 }
 
+bool isEndSpecial(SmartIterator& it)
+{
+	return !it || *it == '\n';
+}
+
+bool hasNextCharSpecial(SmartIterator& it, StringBuilder& sb)
+{
+	if (isEndSpecial(it))
+		return false;
+
+	if (isLineJunk(*it))
+	{
+		int spaces = 0;
+		do
+		{
+			if (*it == ' ')
+				++spaces;
+			if (isEndSpecial(++it))
+				return false;
+		} while (isLineJunk(*it));
+		if (isEndSpecial(it))
+			return false;
+		while (spaces-- > 0)
+			sb += ' ';
+	}
+
+	return true;
+}
+
 string webss::parseMultilineString(Parser& parser)
 {
 	auto& it = parser.getIt();
 	if (*it == OPEN_DICTIONARY)
 		return parseMultilineStringRegular(parser);
 	auto options = checkMultilineStringOptions(it);
-	bool tabContainer = *it == '~';
-	bool indentSet;
-	int numIndent;
 
-	Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, true);
-	StringBuilder sb;
-	if (options.indent)
+	string content;
+	if (*it == '~') //tab container automatically has the equivalent of multiline and indent
+		content = parseMultilineStringIndent(++it, options.junkOperator);
+	else
 	{
-		if (*it == '\n')
+		Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, true);
+		if (parser.multilineContainer)
 		{
-			indentSet = true;
-			numIndent = countIndent(++it);
-			if (!it)
-				throw runtime_error(ERROR_MULTILINE_STRING);
+			if (options.indent)
+			{
+				content = parseMultilineStringIndent(it, options.junkOperator);
+				if (it != CLOSE_DICTIONARY)
+					throw runtime_error(ERROR_MULTILINE_STRING);
+				++it;
+			}
+			else
+				content = parseMultilineStringNoIndent(it, options.junkOperator);
+		}
+		else
+		{
+			if (options.indent)
+				content = parseMultilineStringLineIndent(it, options.junkOperator);
+			else
+				content = parseMultilineStringLineNoIndent(it, options.junkOperator);
 		}
 	}
-	else if (parser.containerEmpty())
-		return "";
 
-	int countStartEnd = 1;
+	SmartIterator itCont(move(content));
+	StringBuilder sb;
+	if (options.line)
+	{
+		while (itCont)
+		{
+			if (*it == CHAR_ESCAPE && !options.raw)
+			{
+				checkEscapedChar(it, sb);
+				continue;
+			}
+			else if (*it == CHAR_EXPAND && !options.entity && checkStringExpand(parser, sb))
+				continue;
+			putChar(itCont, sb);
+		}
+		return sb;
+	}
+
 	bool addSpace = false;
-	function<bool()> endCondition;
-	if (parser.multilineContainer)
-		endCondition = []() { return false; };
-	else
-		endCondition = [&]() { return *it == CLOSE_DICTIONARY && --countStartEnd == 0; };
 loopStart:
-	while (hasNextChar(it, sb, endCondition))
+	while (hasNextCharSpecial(itCont, sb))
 	{
 		if (*it == CHAR_ESCAPE && !options.raw)
 		{
@@ -278,28 +476,12 @@ loopStart:
 			addSpace = true;
 			continue;
 		}
-		else if (*it == OPEN_DICTIONARY && !parser.multilineContainer)
-			++countStartEnd;
 		addSpace = true;
 		putChar(it, sb);
 	}
-	if (!it)
-		throw runtime_error(ERROR_MULTILINE_STRING);
-	switch (countStartEnd)
-	{
-	default:
-		skipJunkToValid(++it);
-		break;
-	case 1:
-		if (*skipJunkToValid(++it) != CLOSE_DICTIONARY)
-			break;
-	case 0:
-		++it;
+	if (!itCont)
 		return sb;
-	}
-	if (options.line)
-		sb += '\n';
-	else if (addSpace)
+	if (addSpace)
 		sb += ' ';
 	goto loopStart;
 }
