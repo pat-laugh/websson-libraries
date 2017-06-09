@@ -19,8 +19,6 @@ Webss Parser::parseValueEqual()
 	return parseValueOnly();
 }
 
-#define CASE_TAG_KEY_CHAR Tag::START_DICTIONARY: case Tag::START_LIST: case Tag::START_TUPLE: case Tag::START_TEMPLATE: case Tag::LINE_STRING: case Tag::EQUAL: case Tag::C_STRING: case Tag::TEXT_DICTIONARY: case Tag::TEXT_LIST: case Tag::TEXT_TUPLE: case Tag::TEXT_TEMPLATE
-
 Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 {
 	switch (nextTag)
@@ -73,6 +71,10 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 		throw runtime_error(nextTag == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
 	}
 }
+
+#define CASE_TAG_KEY_CHAR Tag::START_DICTIONARY: case Tag::START_LIST: case Tag::START_TUPLE: \
+	case Tag::START_TEMPLATE: case Tag::LINE_STRING: case Tag::EQUAL: case Tag::C_STRING: \
+	case Tag::TEXT_DICTIONARY: case Tag::TEXT_LIST: case Tag::TEXT_TUPLE: case Tag::TEXT_TEMPLATE
 
 Parser::OtherValue Parser::parseOtherValueName(string&& name)
 {

@@ -12,6 +12,8 @@
 using namespace std;
 using namespace webss;
 
+const char ERROR_MULTILINE_STRING[] = "multiline-string is not closed";
+
 void checkEscapedChar(SmartIterator& it, StringBuilder& sb);
 inline void putChar(SmartIterator& it, StringBuilder& sb);
 bool isEnd(SmartIterator& it, function<bool()> endCondition);
@@ -78,9 +80,38 @@ string webss::parseLineString(Parser& parser)
 	return sb;
 }
 
+struct MultilineStringOptions
+{
+	bool entity, indent, junk, newline, raw;
+};
+
+MultilineStringOptions checkMultilineStringOptions(SmartIterator& it)
+{
+	if (*it == OPEN_DICTIONARY)
+		return MultilineStringOptions{ false, false, false, false, false };
+
+	MultilineStringOptions options;
+	StringBuilder sb;
+	do
+	{
+		sb += *it;
+		if (!++it)
+			throw runtime_error(ERROR_MULTILINE_STRING);
+	} while (*it != OPEN_DICTIONARY);
+	auto optionString = sb.str();
+	options.entity = optionString.find("-e");
+	options.indent = optionString.find("-i");
+	options.junk = optionString.find("-j");
+	options.newline = optionString.find("-n");
+	options.raw = optionString.find("-r");
+	return options;
+}
+
 string webss::parseMultilineString(Parser& parser)
 {
 	auto& it = parser.getIt();
+	auto options = checkMultilineStringOptions(it);
+
 	Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, true);
 	StringBuilder sb;
 	if (*skipJunkToValid(it) == CLOSE_DICTIONARY)
@@ -88,49 +119,32 @@ string webss::parseMultilineString(Parser& parser)
 
 	int countStartEnd = 1;
 	bool addSpace = false;
-loopStart:
+	function<bool()> endCondition;
 	if (parser.multilineContainer)
-	{
-		while (hasNextChar(it, sb))
-		{
-			if (*it == CHAR_ESCAPE)
-			{
-				checkEscapedChar(it, sb);
-				addSpace = false;
-				continue;
-			}
-			else if (*it == CHAR_EXPAND && checkStringExpand(parser, sb))
-			{
-				addSpace = true;
-				continue;
-			}
-			addSpace = true;
-			putChar(it, sb);
-		}
-	}
+		endCondition = []() { return false; };
 	else
+		endCondition = [&]() { return *it == CLOSE_DICTIONARY && --countStartEnd == 0; };
+loopStart:
+	while (hasNextChar(it, sb, endCondition))
 	{
-		while (hasNextChar(it, sb, [&]() { return *it == CLOSE_DICTIONARY && --countStartEnd == 0; }))
+		if (*it == CHAR_ESCAPE && !options.raw)
 		{
-			if (*it == CHAR_ESCAPE)
-			{
-				checkEscapedChar(it, sb);
-				addSpace = false;
-				continue;
-			}
-			else if (*it == OPEN_DICTIONARY)
-				++countStartEnd;
-			else if (*it == CHAR_EXPAND && checkStringExpand(parser, sb))
-			{
-				addSpace = true;
-				continue;
-			}
-			addSpace = true;
-			putChar(it, sb);
+			checkEscapedChar(it, sb);
+			addSpace = false;
+			continue;
 		}
+		else if (*it == CHAR_EXPAND && !options.entity && checkStringExpand(parser, sb))
+		{
+			addSpace = true;
+			continue;
+		}
+		else if (*it == OPEN_DICTIONARY && !parser.multilineContainer)
+			++countStartEnd;
+		addSpace = true;
+		putChar(it, sb);
 	}
 	if (!it)
-		throw runtime_error("multiline-string is not closed");
+		throw runtime_error(ERROR_MULTILINE_STRING);
 	switch (countStartEnd)
 	{
 	default:
@@ -143,7 +157,9 @@ loopStart:
 		++it;
 		return sb;
 	}
-	if (addSpace)
+	if (options.newline)
+		sb += '\n';
+	else if (addSpace)
 		sb += ' ';
 	goto loopStart;
 }

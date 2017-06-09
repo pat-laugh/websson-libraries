@@ -21,8 +21,6 @@ Tag getTagColon(SmartIterator& it)
 		return Tag::LINE_STRING;
 	switch (*skipJunkToValid(it.incTwo()))
 	{
-	case OPEN_DICTIONARY:
-		return Tag::TEXT_DICTIONARY;
 	case OPEN_LIST:
 		return Tag::TEXT_LIST;
 	case OPEN_TUPLE:
@@ -30,7 +28,7 @@ Tag getTagColon(SmartIterator& it)
 	case OPEN_TEMPLATE:
 		return Tag::TEXT_TEMPLATE;
 	default:
-		throw runtime_error(ERROR_UNEXPECTED);
+		return Tag::TEXT_DICTIONARY;
 	}
 }
 
@@ -209,10 +207,7 @@ bool checkEndOfLine(SmartIterator& it)
 {
 	if (!it)
 		return true;
-	if (*it != '\n')
-		return false;
-	++it;
-	return true;
+	return *it == '\n';
 }
 
 bool webss::checkLineEmpty(SmartIterator& it)
