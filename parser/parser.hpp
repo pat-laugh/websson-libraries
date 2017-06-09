@@ -35,6 +35,7 @@ namespace webss
 		ConType con = ConType::DOCUMENT;
 		bool multilineContainer = true;
 		bool allowVoid = false;
+		std::map<std::string, std::string> aliases;
 
 		class ContainerSwitcher;
 
@@ -89,7 +90,6 @@ namespace webss
 	protected:
 		SmartIterator it;
 		EntityManager ents;
-		std::map<std::string, std::string> aliases;
 
 		//returns true if has next element, else false
 		bool checkNextElement();
@@ -107,7 +107,6 @@ namespace webss
 
 		Namespace parseNamespace(const std::string& name, const Namespace& previousNamespace);
 		Enum parseEnum(const std::string& name);
-		std::string parseOptionLine();
 		void parseOption();
 		void parseOptionVersion();
 		void parseOptionAlias();

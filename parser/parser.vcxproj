@@ -142,6 +142,7 @@
     <ClInclude Include="patternsContainers.hpp" />
     <ClInclude Include="unicode.hpp" />
     <ClInclude Include="utilsNumbers.hpp" />
+    <ClInclude Include="utilsOptions.hpp" />
     <ClInclude Include="utilsSweepers.hpp" />
     <ClInclude Include="utilsTemplateDefaultValues.hpp" />
   </ItemGroup>
@@ -164,6 +165,7 @@
     <ClCompile Include="unicode.cpp" />
     <ClCompile Include="utilsExpand.cpp" />
     <ClCompile Include="utilsNumbers.cpp" />
+    <ClCompile Include="utilsOptions.cpp" />
     <ClCompile Include="utilsSweepers.cpp" />
     <ClCompile Include="utilsTemplateDefaultValues.cpp" />
   </ItemGroup>

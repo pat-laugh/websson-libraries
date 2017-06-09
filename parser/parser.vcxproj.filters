@@ -63,6 +63,9 @@
     <ClInclude Include="utilsTemplateDefaultValues.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="utilsOptions.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="parser.cpp">
@@ -123,6 +126,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utilsTemplateDefaultValues.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utilsOptions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

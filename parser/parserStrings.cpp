@@ -3,11 +3,12 @@
 #include "parserStrings.hpp"
 
 #include "containerSwitcher.hpp"
+#include "errors.hpp"
 #include "unicode.hpp"
+#include "utilsOptions.hpp"
 #include "utils/constants.hpp"
 #include "utils/utils.hpp"
 #include "utils/utilsWebss.hpp"
-#include "errors.hpp"
 
 using namespace std;
 using namespace webss;
@@ -85,20 +86,16 @@ struct MultilineStringOptions
 	bool junkOperator, entity, indent, line, raw;
 };
 
-MultilineStringOptions checkMultilineStringOptions(SmartIterator& it)
+MultilineStringOptions checkMultilineStringOptions(Parser& parser)
 {
+	auto& it = parser.getIt();
 	if (*it == OPEN_DICTIONARY)
 		return MultilineStringOptions{ false, false, false, false, false };
 
 	MultilineStringOptions options;
-	StringBuilder sb;
-	do
-	{
-		sb += *it;
-		if (!++it)
-			throw runtime_error(ERROR_MULTILINE_STRING);
-	} while (*it != OPEN_DICTIONARY && *it != '~');
-	auto optionString = sb.str();
+	auto optionString = parseOptionLine(parser, [](char c) { return c == OPEN_DICTIONARY || c == '~'; });
+	if (!it)
+		throw runtime_error(ERROR_MULTILINE_STRING);
 	options.junkOperator = optionString.find("-c") != -1;
 	options.entity = optionString.find("-e") != -1;
 	options.indent = optionString.find("-i") != -1;
@@ -417,7 +414,7 @@ string webss::parseMultilineString(Parser& parser)
 	auto& it = parser.getIt();
 	if (*it == OPEN_DICTIONARY)
 		return parseMultilineStringRegular(parser);
-	auto options = checkMultilineStringOptions(it);
+	auto options = checkMultilineStringOptions(parser);
 
 	string content;
 	if (*it == '~') //tab container automatically has the equivalent of multiline and indent

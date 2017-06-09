@@ -9,6 +9,7 @@
 #include "parserStrings.hpp"
 #include "patternsContainers.hpp"
 #include "utilsExpand.hpp"
+#include "utilsOptions.hpp"
 #include "utilsTemplateDefaultValues.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
@@ -410,77 +411,10 @@ ImportedDocument Parser::parseImport()
 	}
 }
 
-string Parser::parseOptionLine()
-{
-	StringBuilder sb;
-	++it;
-	while (it && it != '\n')
-	{
-		if (*it == '-')
-		{
-			sb += *it;
-			if (!++it)
-				throw runtime_error(ERROR_OPTION);
-			if (isNameStart(*it))
-			{
-				sb += *it;
-				if (!++it)
-					break;
-				if (*it == CHAR_COLON)
-				{
-					++it;
-					sb += CHAR_COLON + parseLineString(*this);
-					break;
-				}
-				while (isNameStart(*it))
-				{
-					sb += *it;
-					if (!++it)
-						break;
-				}
-				if (isNameBody(*it))
-					throw runtime_error(ERROR_OPTION);
-				continue;
-			}
-			if (*it == '-' && ++it && isNameStart(*it))
-			{
-				sb += '-' + parseName(it);
-				if (*it == CHAR_COLON)
-				{
-					++it;
-					sb += CHAR_COLON + parseLineString(*this);
-					break;
-				}
-				if (isNameBody(*it))
-					throw runtime_error(ERROR_OPTION);
-				continue;
-			}
-			throw runtime_error(ERROR_OPTION);
-		}
-		else if (isNameStart(*it))
-		{
-			sb += aliases.at(parseName(it));
-			if (*it == CHAR_COLON)
-			{
-				++it;
-				sb += CHAR_COLON + parseLineString(*this);
-				break;
-			}
-			if (isNameBody(*it))
-				throw runtime_error(ERROR_OPTION);
-		}
-		else
-		{
-			sb += *it;
-			++it;
-		}
-	}
-	return sb;
-}
-
 void Parser::parseOption()
 {
-	SmartIterator itOption(parseOptionLine());
+	++it;
+	SmartIterator itOption(parseOptionLine(*this, [](char c) { return c == '\n'; }));
 	SmartIterator itSave = move(it);
 	it = move(itOption);
 	if (!skipLineJunk(it))
