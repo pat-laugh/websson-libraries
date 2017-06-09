@@ -20,7 +20,7 @@ namespace webss
 		This(Data&& data) : base(std::move(data)) {}
 		This(const std::shared_ptr<Keymap>& keys) : base(keys) {}
 
-		bool operator==(const This& o) const { return typename base::operator==(o); }
+		bool operator==(const This& o) const { return base::operator==(o); }
 		bool operator!=(const This& o) const { return !(*this == o); }
 
 		//instead of the keys being shared, this creates an indepedent copy of the keys and the data

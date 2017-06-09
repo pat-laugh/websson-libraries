@@ -4,6 +4,7 @@
 
 #include "structures/webss.hpp"
 #include "structures/templateHead.hpp"
+#include "structures/tuple.hpp"
 
 namespace webss
 {

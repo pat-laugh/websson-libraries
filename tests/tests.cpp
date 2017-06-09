@@ -31,7 +31,7 @@ int main()
 		vector<string> filenames { "strings", "expandTuple", "templateBlock", "namespace", "enum" };
 		for (const auto& filename : filenames)
 		{
-			test(filename, [](const Document& doc) {});
+			test(filename, [](const Document&) {});
 			cout << endl;
 		}
 #ifdef TEST_PERFORMANCE
@@ -59,7 +59,7 @@ void sofert(bool condition, string errorMsg = "")
 {
 	if (condition)
 		return;
-	throw exception(errorMsg == "" ? "assert failed" : errorMsg.c_str());
+	throw logic_error(errorMsg == "" ? "assert failed" : errorMsg.c_str());
 }
 
 ErrorType tryParse(string filenameIn, Document& doc)
