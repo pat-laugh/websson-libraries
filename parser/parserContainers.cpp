@@ -5,6 +5,7 @@
 #include "containerSwitcher.hpp"
 #include "errors.hpp"
 #include "importManager.hpp"
+#include "iteratorSwitcher.hpp"
 #include "nameType.hpp"
 #include "parserStrings.hpp"
 #include "patternsContainers.hpp"
@@ -415,8 +416,7 @@ void Parser::parseOption()
 {
 	++it;
 	SmartIterator itOption(parseOptionLine(*this, [](char c) { return c == '\n'; }));
-	SmartIterator itSave = move(it);
-	it = move(itOption);
+	IteratorSwitcher(it, move(itOption));
 	if (!skipLineJunk(it))
 		throw runtime_error(ERROR_OPTION);
 	if (*it == '-')
@@ -448,7 +448,6 @@ void Parser::parseOption()
 	}
 	else
 		throw runtime_error(ERROR_OPTION);
-	it = move(itSave);
 }
 
 void Parser::parseOptionVersion()

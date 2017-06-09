@@ -4,6 +4,7 @@
 
 #include "containerSwitcher.hpp"
 #include "errors.hpp"
+#include "iteratorSwitcher.hpp"
 #include "unicode.hpp"
 #include "utilsOptions.hpp"
 #include "utils/constants.hpp"
@@ -443,8 +444,7 @@ string webss::parseMultilineString(Parser& parser)
 		}
 	}
 
-	SmartIterator itTemp = move(it);
-	it = SmartIterator(move(content));
+	IteratorSwitcher(it, SmartIterator(move(content)));
 	StringBuilder sb;
 	if (options.line)
 	{
@@ -460,7 +460,6 @@ string webss::parseMultilineString(Parser& parser)
 			checkCRNL(it);
 			putChar(it, sb);
 		}
-		it = move(itTemp);
 		return sb;
 	}
 
@@ -469,10 +468,7 @@ loopStart:
 	while (it && isJunk(*it))
 		++it;
 	if (!it)
-	{
-		it = move(itTemp);
 		return sb;
-	}
 	while (hasNextCharSpecial(it, sb))
 	{
 		if (*it == CHAR_ESCAPE && !options.raw)
@@ -490,10 +486,7 @@ loopStart:
 		putChar(it, sb);
 	}
 	if (!it)
-	{
-		it = move(itTemp);
 		return sb;
-	}
 	if (addSpace)
 		sb += ' ';
 	goto loopStart;
