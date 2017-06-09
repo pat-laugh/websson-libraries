@@ -19,6 +19,26 @@ bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondi
 bool checkStringExpand(Parser& parser, StringBuilder& sb);
 const string& expandString(Parser& parser);
 
+string webss::parseStickyLineString(Parser& parser)
+{
+	auto& it = parser.getIt();
+	StringBuilder sb;
+	while (it && *it != ' ' && *it != '\n')
+	{
+		if (*it == CHAR_ESCAPE)
+		{
+			checkEscapedChar(it, sb);
+			continue;
+		}
+		else if (*it == CHAR_EXPAND && checkStringExpand(parser, sb))
+			continue;
+		if (!isLineJunk(*it)) //ignore line-junk
+			putChar(it, sb);
+	}
+	return sb;
+
+}
+
 string webss::parseLineString(Parser& parser)
 {
 	auto& it = parser.getIt();
