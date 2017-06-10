@@ -172,6 +172,12 @@ string parseMultilineStringIndent(SmartIterator& it, bool opJunkOperators)
 		if (!it)
 			return sb;
 	} while (*it == '\n');
+	if (!opJunkOperators)
+	{
+		checkJunkOperators(it);
+		if (!it)
+			return sb;
+	}
 
 	do
 	{
@@ -185,6 +191,12 @@ string parseMultilineStringIndent(SmartIterator& it, bool opJunkOperators)
 			}
 			else if (!it)
 				return sb;
+			if (!opJunkOperators)
+			{
+				checkJunkOperators(it);
+				if (!it)
+					return sb;
+			}
 		}
 		if (isLineJunk(*it) && !opJunkOperators)
 		{
@@ -237,6 +249,12 @@ string parseMultilineStringLineIndent(SmartIterator& it, bool opJunkOperators)
 		if (!it)
 			throw runtime_error(ERROR_MULTILINE_STRING);
 	} while (*it == '\n');
+	if (!opJunkOperators)
+	{
+		checkJunkOperators(it);
+		if (!it)
+			throw runtime_error(ERROR_MULTILINE_STRING);
+	}
 
 	do
 	{
@@ -250,6 +268,12 @@ string parseMultilineStringLineIndent(SmartIterator& it, bool opJunkOperators)
 			}
 			else if (!it)
 				throw runtime_error(ERROR_MULTILINE_STRING);
+			if (!opJunkOperators)
+			{
+				checkJunkOperators(it);
+				if (!it)
+					throw runtime_error(ERROR_MULTILINE_STRING);
+			}
 		}
 		if (isLineJunk(*it) && !opJunkOperators)
 		{
