@@ -1,0 +1,17 @@
+!p$<>, !table$<>, !tr$<>, !th$<>, !td$<>
+
+p:This is some text.
+
+table
+[
+	tr
+	[
+		th: One
+		th: Two
+	]
+	tr
+	[
+		td: some
+		td: text!
+	]
+]

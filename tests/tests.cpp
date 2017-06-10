@@ -6,6 +6,7 @@
 
 #include "parser/parser.hpp"
 #include "serializer/serializer.hpp"
+#include "serializerHtml/serializerHtml.hpp"
 
 using namespace std;
 using namespace webss;
@@ -16,6 +17,7 @@ string makeCompleteFilenameIn(string filename);
 string makeCompleteFilenameOut(string filename);
 ErrorType test(string filename, function<void(const Document& doc)> checkResult);
 void testDictionary();
+ErrorType testSerializerHtml();
 
 char inChar;
 
@@ -40,6 +42,8 @@ int main()
 	}
 #else
 		testDictionary();
+		cout << endl;
+		testSerializerHtml();
 		cin >> inChar;
 	} while (inChar != 'q');
 #endif
@@ -86,6 +90,7 @@ ErrorType tryParse(string filenameIn, Document& doc)
 	return ErrorType::NONE;
 }
 
+template <class Serializer>
 ErrorType trySerialize(string filenameOut, string& output, const Document& doc)
 {
 	ofstream fileOut(filenameOut, ios::binary);
@@ -127,7 +132,7 @@ ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 	cout << "No errors while parsing" << endl;
 
 	string output;
-	ErrorType errorSerialize = trySerialize(makeCompleteFilenameOut(filename), output, doc);
+	ErrorType errorSerialize = trySerialize<Serializer>(makeCompleteFilenameOut(filename), output, doc);
 	if (errorSerialize != ErrorType::NONE)
 		return errorSerialize;
 
@@ -183,4 +188,29 @@ void testDictionary()
 		sofert(dict["key2"].isString() && dict["key2"].getString() == "text");
 		sofert(dict["other-dict"].isDictionary() && dict["other-dict"].getDictionary().has("key") && dict["other-dict"]["key"].isBool() && dict["other-dict"]["key"].getBool() == true);
 	});
+}
+
+ErrorType testSerializerHtml()
+{
+	string filename("test-serializer-html");
+	string filenameIn("files-serializer-html/" + filename + ".wbsn");
+	string filenameOut(filename + ".wbsnout"); //not html as not yet in .gitignore
+
+	cout << "Input: " << filename << endl;
+
+	Document doc;
+	ErrorType errorParse = tryParse(filenameIn, doc);
+	if (errorParse != ErrorType::NONE)
+		return errorParse;
+
+	cout << "No errors while parsing" << endl;
+
+	string output;
+	ErrorType errorSerialize = trySerialize<SerializerHtml>(filenameOut, output, doc);
+	if (errorSerialize != ErrorType::NONE)
+		return errorSerialize;
+
+	cout << "No errors while serializing" << endl;
+
+	return ErrorType::NONE;
 }

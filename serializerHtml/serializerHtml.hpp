@@ -25,7 +25,7 @@ namespace webss
 			return out;
 		}
 
-	protected:
+	private:
 		SerializerHtml();
 
 		void putDocument(StringBuilder& out, const Document& doc);

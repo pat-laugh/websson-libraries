@@ -63,10 +63,10 @@ void SerializerHtml::putConcreteValue(StringBuilder& out, const Webss& value)
 		assert(value.getEntityRaw().getContent().isConcrete());
 		putConcreteValue(out, value.getEntityRaw().getContent());
 		break;
-	case WebssType::TEMPLATE_STANDARD:
+	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT: case WebssType::TEMPLATE_BLOCK_STANDARD: case WebssType::TEMPLATE_BLOCK_TEXT:
 		putTemplStandard(out, value.getTemplateStandardRaw());
 		break;
-	case WebssType::LIST:
+	case WebssType::LIST: case WebssType::LIST_TEXT:
 		putList(out, value.getListRaw());
 		break;
 	default:
@@ -89,12 +89,12 @@ void SerializerHtml::putDouble(StringBuilder& out, double d)
 	out += buffer;
 }
 
-bool isMustEscapeChar(char c)
+static bool isMustEscapeChar(char c)
 {
 	return c == '&' || c == '<' || c == '>' || c == '"' || c == '\'' || isControlAscii(c);
 }
 
-void addCharEscape(StringBuilder& out, char c)
+static void addCharEscape(StringBuilder& out, char c)
 {
 	out += '&';
 	switch (c)
