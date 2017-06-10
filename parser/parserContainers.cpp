@@ -415,54 +415,38 @@ ImportedDocument Parser::parseImport()
 void Parser::parseOption()
 {
 	++it;
-	IteratorSwitcher itSwitcher(it, SmartIterator(parseOptionLine(*this, [](char c) { return c == '\n'; })));
-	while (skipLineJunk(it))
+	auto items = parseOptionLine(*this, [](char c) { return c == '\n'; });
+
+	for (decltype(items.size()) i = 0; i < items.size(); ++i)
 	{
-		if (*it == '-')
-		{
-			if (!++it)
-				throw runtime_error(ERROR_OPTION);
-			else if (*it == 'v')
-			{
-				++it;
-				parseOptionVersion();
-			}
-			else if (*it == 'a')
-			{
-				++it;
-				parseOptionAlias();
-			}
-			else if (*it == '-' && ++it && isNameStart(*it))
-			{
-				auto option = parseName(it);
-				if (option == "version")
-					parseOptionVersion();
-				else if (option == "alias")
-					parseOptionAlias();
-				else
-					throw runtime_error(ERROR_OPTION);
-			}
-			else
-				throw runtime_error(ERROR_OPTION);
-		}
+		if (items[i] != OPTION_NAME)
+			throw runtime_error(ERROR_OPTION);
+		const auto& op = items[++i];
+		if (op == "a" || op == "alias")
+			parseOptionAlias(items, i);
+		else if (op == "v" || op == "version")
+			parseOptionVersion(items, i);
 		else
 			throw runtime_error(ERROR_OPTION);
 	}
 }
 
-void Parser::parseOptionVersion()
+void Parser::parseOptionVersion(const std::vector<std::string>& items, std::vector<std::string>::size_type& index)
 {
-	if (parseOptionStringValue(*this) != "1.0.0")
+	if (++index >= items.size() || items[index] != OPTION_VALUE)
+		throw runtime_error("expected version");
+	if (items[++index] != "1.0.0")
 		throw runtime_error("this parser can only parse version 1.0.0");
 }
 
-void Parser::parseOptionAlias()
+void Parser::parseOptionAlias(const std::vector<std::string>& items, std::vector<std::string>::size_type& index)
 {
-	if (it != CHAR_SCOPE || !++it || !isNameStart(*it))
+	if (++index >= items.size() || items[index] != OPTION_SCOPE)
 		throw runtime_error("expected alias");
-	auto name = parseName(it);
+	auto name = items[++index];
 	if (hasAlias(name))
 		throw runtime_error("alias already exists");
-	auto content = parseOptionStringValue(*this);
-	aliases.insert({ move(name), move(content) });
+	if (++index >= items.size() || items[index] != OPTION_VALUE)
+		throw runtime_error("expected alias value");
+	aliases.insert({ move(name), expandOptionString(*this, items[++index]) });
 }

@@ -2,6 +2,7 @@
 //Copyright 2017 Patrick Laughrea
 #include "utilsOptions.hpp"
 
+#include "errors.hpp"
 #include "iteratorSwitcher.hpp"
 #include "parserStrings.hpp"
 #include "utilsSweepers.hpp"
@@ -14,86 +15,53 @@ using namespace webss;
 
 const char ERROR_OPTION[] = "expected option";
 
-string expandOptionString(Parser& parser, string s);
-
-string parseColon(Parser& parser, bool expand)
-{
-	++parser.getIt();
-	auto content = parseLineString(parser);
-	return CHAR_COLON + (expand ? expandOptionString(parser, move(content)) : content);
-}
-string parseEqual(Parser& parser, bool expand)
-{
-	++parser.getIt();
-	auto content = parseStickyLineString(parser);
-	return CHAR_EQUAL + (expand ? expandOptionString(parser, move(content)) : content);
-}
-
-string webss::parseOptionStringValue(Parser& parser)
+string parseOptionString(Parser& parser)
 {
 	auto& it = parser.getIt();
 	if (!it)
 		throw runtime_error("expected value");
-	if (*it == CHAR_COLON)
-	{
-		++it;
+	char c = *it;
+	++it;
+	if (c == CHAR_COLON)
 		return parseLineString(parser);
-	}
-	else if (*it == CHAR_EQUAL)
-	{
-		++it;
+	else if (c == CHAR_EQUAL)
 		return parseStickyLineString(parser);
-	}
 	else
 		throw runtime_error("expected value");
 }
 
-string parseOptionString(Parser& parser, bool expand)
+void parseOptionScope(Parser& parser, vector<string>& output)
 {
 	auto& it = parser.getIt();
-	if (!it)
-		throw runtime_error("expected value");
-	if (*it == CHAR_COLON)
-		return parseColon(parser, expand);
-	else if (*it == CHAR_EQUAL)
-		return parseEqual(parser, expand);
-	else
-		throw runtime_error("expected value");
-}
-
-void parseOptionScope(Parser& parser, StringBuilder& sb, bool expand)
-{
-	auto& it = parser.getIt();
-	sb += CHAR_SCOPE;
+	output.push_back(OPTION_SCOPE);
 	if (!++it || !isNameStart(*it))
 		throw runtime_error("expected name");
-	sb += parseName(it);
-	sb += parseOptionString(parser, expand);
+	output.push_back(parseName(it));
+	output.push_back(OPTION_VALUE);
+	output.push_back(parseOptionString(parser));
 }
 
 //returns true if the end of it is reached, else false
-bool parseOptionValue(Parser& parser, StringBuilder& sb, bool expand)
+bool parseOptionValue(Parser& parser, vector<string>& output)
 {
 	auto& it = parser.getIt();
 	if (!it)
 		return true;
-	switch (*it)
+	if (*it == CHAR_COLON || *it == CHAR_EQUAL)
 	{
-	case CHAR_COLON:
-		sb += parseColon(parser, expand);
+		output.push_back(OPTION_VALUE);
+		output.push_back(parseOptionString(parser));
 		return false;
-	case CHAR_EQUAL:
-		sb += parseEqual(parser, expand);
+	}
+	else if (*it == CHAR_SCOPE)
+	{
+		parseOptionScope(parser, output);
 		return false;
-	case CHAR_SCOPE:
-		parseOptionScope(parser, sb, expand);
-		return false;
-	default:
-		break;
 	}
 	while (isNameStart(*it))
 	{
-		sb += " -" + *it;
+		output.push_back(OPTION_NAME);
+		output.push_back(string() + *it);
 		if (!++it)
 			return true;
 	}
@@ -102,97 +70,74 @@ bool parseOptionValue(Parser& parser, StringBuilder& sb, bool expand)
 	return false;
 }
 
-string webss::parseOptionLine(Parser& parser, std::function<bool(char c)> endCondition)
+vector<string> webss::parseOptionLine(Parser& parser, std::function<bool(char c)> endCondition)
 {
 	auto& it = parser.getIt();
-	const auto& aliases = parser.aliases;
 	StringBuilder sb;
 	while (it && !endCondition(*it))
 	{
-		if (*it == '-')
+		if (isLineJunk(*it))
 		{
 			sb += *it;
 			if (!++it)
-				throw runtime_error(ERROR_OPTION);
-			else if (isNameStart(*it))
-			{
-				sb += *it;
-				++it;
-				if (parseOptionValue(parser, sb, true))
-					return sb;
-				continue;
-			}
-			else if (*it == '-' && ++it && isNameStart(*it))
-			{
-				sb += '-' + parseName(it);
-				if (parseOptionValue(parser, sb, true))
-					return sb;
-				continue;
-			}
-			throw runtime_error(ERROR_OPTION);
-		}
-		else if (isNameStart(*it))
-		{
-			sb += aliases.at(parseName(it));
-			if (parseOptionValue(parser, sb, true))
-				return sb;
-			continue;
-		}
-		else if (isLineJunk(*it))
-		{
-			sb += *it;
-			if (!++it)
-				return sb;
+				break;
 			checkJunkOperators(it);
 			continue;
 		}
-
 		sb += *it;
 		++it;
 	}
-	return sb;
+	return expandOptionString(parser, sb);
 }
 
-string expandOptionString(Parser& parser, string s)
+vector<string> webss::expandOptionString(Parser& parser, string s)
 {
 	auto& it = parser.getIt();
 	IteratorSwitcher itSwitcher(it, SmartIterator(move(s)));
 	const auto& aliases = parser.aliases;
-	StringBuilder sb;
+	vector<string> output;
 	while (it)
 	{
 		if (*it == '-')
 		{
-			sb += *it;
 			if (!++it)
 				throw runtime_error(ERROR_OPTION);
 			else if (isNameStart(*it))
 			{
-				sb += *it;
+				output.push_back(OPTION_NAME);
+				output.push_back(string() + *it);
 				++it;
-				if (parseOptionValue(parser, sb, false))
-					return sb;
+				if (parseOptionValue(parser, output))
+					break;
 				continue;
 			}
 			else if (*it == '-' && ++it && isNameStart(*it))
 			{
-				sb += '-' + parseName(it);
-				if (parseOptionValue(parser, sb, false))
-					return sb;
+				output.push_back(OPTION_NAME);
+				output.push_back(parseName(it));
+				if (parseOptionValue(parser, output))
+					break;
 				continue;
 			}
 			throw runtime_error(ERROR_OPTION);
 		}
 		else if (isNameStart(*it))
 		{
-			sb += aliases.at(parseName(it));
-			if (parseOptionValue(parser, sb, false))
-				return sb;
+			for (const auto& item : aliases.at(parseName(it)))
+				output.push_back(item);
+			if (parseOptionValue(parser, output))
+				break;
 			continue;
 		}
-
-		sb += *it;
-		++it;
+		else if (isJunk(*it))
+		{
+			if (!++it)
+				break;
+			checkJunkOperators(it);
+			continue;
+		}
+		else
+			throw runtime_error(ERROR_UNEXPECTED);
 	}
-	return sb;
+	return output;
 }

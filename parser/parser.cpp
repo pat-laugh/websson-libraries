@@ -49,9 +49,9 @@ void initEnts(EntityManager& ents)
 	addTheadBinaryEntityKeywords(ents, { "S", "String", "string" }, Keyword::STRING);
 }
 
-void initAliases(std::map<std::string, std::string>& aliases)
+void initAliases(map<string, vector<string>>& aliases)
 {
-	aliases.insert({ "alias", "-a" });
+	aliases.insert({ "alias", { "-", "a" } });
 }
 
 Parser::Parser() : it(SmartIterator(string(""))) { initEnts(ents); initAliases(aliases); }
@@ -149,5 +149,3 @@ bool Parser::checkNextElement()
 }
 
 bool Parser::hasAlias(const std::string& name) { return aliases.find(name) != aliases.end(); }
-const std::string& Parser::getAliasContent(const std::string& name) { return aliases[name]; }
-const std::string& Parser::getAliasContentSafe(const std::string& name) { return aliases.at(name); }

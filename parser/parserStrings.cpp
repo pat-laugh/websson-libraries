@@ -37,7 +37,8 @@ string webss::parseStickyLineString(Parser& parser)
 		else if (*it == CHAR_EXPAND && checkStringExpand(parser, sb))
 			continue;
 		if (!isLineJunk(*it)) //ignore line-junk
-			putChar(it, sb);
+			sb += *it;
+		++it;
 	}
 	return sb;
 
@@ -90,18 +91,31 @@ struct MultilineStringOptions
 MultilineStringOptions checkMultilineStringOptions(Parser& parser)
 {
 	auto& it = parser.getIt();
+	MultilineStringOptions options{ false, false, false, false, false };
 	if (*it == OPEN_DICTIONARY)
-		return MultilineStringOptions{ false, false, false, false, false };
+		return options;
 
-	MultilineStringOptions options;
-	auto optionString = parseOptionLine(parser, [](char c) { return c == OPEN_DICTIONARY || c == '~'; });
+	auto items = parseOptionLine(parser, [](char c) { return c == OPEN_DICTIONARY || c == '~'; });
 	if (!it)
 		throw runtime_error(ERROR_MULTILINE_STRING);
-	options.junkOperator = optionString.find("-c") != -1;
-	options.entity = optionString.find("-e") != -1;
-	options.indent = optionString.find("-i") != -1;
-	options.line = optionString.find("-l") != -1;
-	options.raw = optionString.find("-r") != -1;
+	for (decltype(items.size()) i = 0; i < items.size(); ++i)
+	{
+		if (items[i] != OPTION_NAME)
+			throw runtime_error(ERROR_UNEXPECTED);
+		const auto& op = items[++i];
+		if (op == "c" || op == "comment")
+			options.junkOperator = true;
+		else if (op == "e" || op == "entity")
+			options.entity = true;
+		else if (op == "i" || op == "indent")
+			options.indent = true;
+		else if (op == "l" || op == "line")
+			options.line = true;
+		else if (op == "r" || op == "raw")
+			options.raw = true;
+		else
+			throw runtime_error("unknown option");
+	}
 	return options;
 }
 
@@ -193,16 +207,25 @@ string parseMultilineStringIndent(SmartIterator& it, bool opJunkOperators)
 
 string parseMultilineStringLineIndent(SmartIterator& it, bool opJunkOperators)
 {
-	StringBuilder sb;
 	if (!it)
 		throw runtime_error(ERROR_MULTILINE_STRING);
+
+	StringBuilder sb;
+	int countStartEnd = 1;
 
 	//read past line the container start was on since indentation is not fetched from there
 	if (*it != '\n')
 		do
 		{
-			sb += *it;
-			if (!++it)
+			if (*it == OPEN_DICTIONARY)
+				++countStartEnd;
+			else if (*it == CLOSE_DICTIONARY && --countStartEnd == 0)
+			{
+				++it;
+				return sb;
+			}
+			putChar(it, sb);
+			if (!it)
 				throw runtime_error(ERROR_MULTILINE_STRING);
 		} while (*it != '\n');
 	sb += '\n';
@@ -217,7 +240,6 @@ string parseMultilineStringLineIndent(SmartIterator& it, bool opJunkOperators)
 			throw runtime_error(ERROR_MULTILINE_STRING);
 	} while (*it == '\n');
 
-	int countStartEnd = 1;
 	do
 	{
 		while (*it == '\n')
