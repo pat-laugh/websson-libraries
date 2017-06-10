@@ -26,6 +26,12 @@
       <Project>{3b517f6e-ccde-45cd-aca0-abe05330f677}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="serializerHtml.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="serializerHtml.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9423DAEA-59D7-427E-968B-77923743D9AA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -85,6 +91,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

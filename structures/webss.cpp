@@ -466,9 +466,27 @@ const Webss& Webss::getWebssLast() const
 	}
 }
 
+const Webss& Webss::getWebssUpToTemplate() const
+{
+	switch (type)
+	{
+	case WebssType::ENTITY:
+		return ent.getContent().getWebssUpToTemplate();
+	case WebssType::DEFAULT:
+		return tDefault->getWebssUpToTemplate();
+	default:
+		return *this;
+	}
+}
+
 WebssType Webss::getType() const
 {
 	return getWebssLast().getTypeRaw();
+}
+
+WebssType Webss::getTypeUpToTemplate() const
+{
+	return getWebssUpToTemplate().getTypeRaw();
 }
 
 string errorMessageGet(WebssType expected, WebssType actual)
@@ -590,6 +608,24 @@ bool Webss::isTemplateBlockStandard() const
 {
 	const auto type = getType();
 	return type == WebssType::TEMPLATE_BLOCK_STANDARD || type == WebssType::TEMPLATE_BLOCK_TEXT;
+}
+
+bool Webss::isTemplateBinary() const
+{
+	const auto type = getTypeUpToTemplate();
+	return type == WebssType::TEMPLATE_BINARY || type == WebssType::TEMPLATE_BLOCK_BINARY;
+}
+
+bool Webss::isTemplateStandard() const
+{
+	const auto type = getTypeUpToTemplate();
+	return type == WebssType::TEMPLATE_STANDARD || type == WebssType::TEMPLATE_TEXT || type == WebssType::TEMPLATE_BLOCK_STANDARD || type == WebssType::TEMPLATE_BLOCK_TEXT;
+}
+
+bool Webss::isTemplateText() const
+{
+	const auto type = getTypeUpToTemplate();
+	return type == WebssType::TEMPLATE_TEXT || type == WebssType::TEMPLATE_BLOCK_TEXT;
 }
 
 bool Webss::isAbstract() const

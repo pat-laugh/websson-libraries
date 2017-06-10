@@ -65,8 +65,10 @@ namespace webss
 		const Webss& at(const std::string& key) const;
 
 		const Webss& getWebssLast() const;
+		const Webss& getWebssUpToTemplate() const;
 
 		WebssType getType() const;
+		WebssType getTypeUpToTemplate() const;
 		bool getBool() const;
 		WebssInt getInt() const;
 		double getDouble() const;
@@ -153,6 +155,9 @@ namespace webss
 		bool isTemplateHeadBinary() const;
 		bool isTemplateHeadStandard() const;
 		bool isTemplateHeadText() const;
+		bool isTemplateBinary() const;
+		bool isTemplateStandard() const;
+		bool isTemplateText() const;
 		bool isNamespace() const;
 		bool isEnum() const;
 		bool isTemplateBlockHeadBinary() const;
