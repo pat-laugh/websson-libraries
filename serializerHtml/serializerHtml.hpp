@@ -30,7 +30,9 @@ namespace webss
 
 		void putDocument(StringBuilder& out, const Document& doc);
 
-		void putConcreteValue(StringBuilder& out, const Webss& webss);
+		void putQuotableValue(StringBuilder& out, const Webss& value);
+		void putKeyValue(StringBuilder& out, const std::string& key, const Webss& value);
+		void putConcreteValue(StringBuilder& out, const Webss& value);
 
 		void putInt(StringBuilder& out, WebssInt i);
 		void putDouble(StringBuilder& out, double d);

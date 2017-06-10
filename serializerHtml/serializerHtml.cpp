@@ -16,65 +16,58 @@ void SerializerHtml::putDocument(StringBuilder& out, const Document& doc)
 	out += "<!DOCTYPE html>";
 	out += "<html>";
 	for (const auto& item : doc.getData())
-	{
-		assert(item.isTemplateStandard());
-		putTemplStandard(out, item.getTemplateStandard());
-	}
+		putConcreteValue(out, item);
 	out += "</html>";
 }
 
-void SerializerHtml::putTemplStandard(StringBuilder& out, const TemplateStandard& templ)
+void SerializerHtml::putQuotableValue(StringBuilder& out, const Webss& value)
 {
-	assert(templ.hasEntity() && templ.isTuple());
-	const auto& name = templ.getEntity().getName();
-	const auto& tuple = templ.getTuple();
-	const auto& params = templ.getParameters();
-	assert(tuple.size() == params.size() || tuple.size() == params.size() + 1);
-	bool isBlock = tuple.size() > params.size();
-	auto keyValues = tuple.getOrderedKeyValues();
-	out += "<" + name;
-	for (Tuple::size_type i = 0; i < tuple.size() - (isBlock ? 1 : 0); ++i)
+	switch (value.getTypeRaw())
 	{
-		assert(keyValues[i].first != nullptr);
-		const auto& key = *keyValues[i].first;
-		const auto& value = *keyValues[i].second;
-		out += ' ' + key + "=\"";
-		if (value.getTypeRaw() == WebssType::NONE || value.getTypeRaw() == WebssType::DEFAULT)
-			putConcreteValue(out, params[i].getDefaultValue());
-		else
-			putConcreteValue(out, value);
-		out += '"';
-	}
-
-	if (!isBlock)
-		out += " />";
-	else
-	{
-		out += '>';
-		putConcreteValue(out, tuple.back());
-		out += "</" + name + '>';
+	case WebssType::PRIMITIVE_BOOL:
+		out += value.getBoolRaw() ? "true" : "false";
+		break;
+	case WebssType::PRIMITIVE_INT:
+		putInt(out, value.getIntRaw());
+		break;
+	case WebssType::PRIMITIVE_DOUBLE:
+		putDouble(out, value.getDoubleRaw());
+		break;
+	case WebssType::PRIMITIVE_STRING:
+		putString(out, value.getStringRaw());
+		break;
+	case WebssType::ENTITY:
+		assert(value.getEntityRaw().getContent().isConcrete());
+		putQuotableValue(out, value.getEntityRaw().getContent());
+		break;
+	default:
+		assert(false && "type is not a quotable value");
 	}
 }
 
-void SerializerHtml::putConcreteValue(StringBuilder& out, const Webss& webss)
+void SerializerHtml::putKeyValue(StringBuilder& out, const string& key, const Webss& value)
 {
-	switch (webss.getTypeRaw())
+	out += key + "=\"";
+	putQuotableValue(out, value);
+	out += '"';
+}
+
+void SerializerHtml::putConcreteValue(StringBuilder& out, const Webss& value)
+{
+	switch (value.getTypeRaw())
 	{
-	case WebssType::PRIMITIVE_BOOL:
-		out += webss.getBoolRaw() ? "true" : "false";
-		break;
-	case WebssType::PRIMITIVE_INT:
-		putInt(out, webss.getIntRaw());
-		break;
-	case WebssType::PRIMITIVE_DOUBLE:
-		putDouble(out, webss.getDoubleRaw());
-		break;
-	case WebssType::PRIMITIVE_STRING:
-		putString(out, webss.getStringRaw());
+	case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE: case WebssType::PRIMITIVE_STRING:
+		putQuotableValue(out, value);
 		break;
 	case WebssType::ENTITY:
-		assert(webss.getEntityRaw().getContent().isConcrete());
-		putConcreteValue(out, webss.getEntityRaw().getContent());
+		assert(value.getEntityRaw().getContent().isConcrete());
+		putConcreteValue(out, value.getEntityRaw().getContent());
+		break;
+	case WebssType::TEMPLATE_STANDARD:
+		putTemplStandard(out, value.getTemplateStandardRaw());
+		break;
+	case WebssType::LIST:
+		putList(out, value.getListRaw());
 		break;
 	default:
 		assert(false && "type is not a concrete value");
@@ -137,4 +130,42 @@ void SerializerHtml::putString(StringBuilder& out, const string& str)
 		}
 		else
 			out += *it;
+}
+
+void SerializerHtml::putTemplStandard(StringBuilder& out, const TemplateStandard& templ)
+{
+	assert(templ.hasEntity() && templ.isTuple());
+	const auto& name = templ.getEntity().getName();
+	const auto& tuple = templ.getTuple();
+	const auto& params = templ.getParameters();
+	assert(tuple.size() == params.size() || tuple.size() == params.size() + 1);
+	bool isBlock = tuple.size() > params.size();
+	auto keyValues = tuple.getOrderedKeyValues();
+	out += "<" + name;
+	for (Tuple::size_type i = 0; i < tuple.size() - (isBlock ? 1 : 0); ++i)
+	{
+		assert(keyValues[i].first != nullptr);
+		const auto& key = *keyValues[i].first;
+		const auto& value = *keyValues[i].second;
+		out += ' ';
+		if (value.getTypeRaw() == WebssType::NONE || value.getTypeRaw() == WebssType::DEFAULT)
+			putKeyValue(out, key, params[i].getDefaultValue());
+		else
+			putKeyValue(out, key, value);
+	}
+
+	if (!isBlock)
+		out += " />";
+	else
+	{
+		out += '>';
+		putConcreteValue(out, tuple.back());
+		out += "</" + name + '>';
+	}
+}
+
+void SerializerHtml::putList(StringBuilder& out, const List& list)
+{
+	for (const auto& item : list)
+		putConcreteValue(out, item);
 }
