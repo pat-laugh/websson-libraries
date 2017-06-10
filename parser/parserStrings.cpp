@@ -27,7 +27,7 @@ string webss::parseStickyLineString(Parser& parser)
 {
 	auto& it = parser.getIt();
 	StringBuilder sb;
-	while (it && *it != ' ' && *it != '\n')
+	while (it && !isJunk(*it))
 	{
 		if (*it == CHAR_ESCAPE)
 		{
@@ -36,9 +36,7 @@ string webss::parseStickyLineString(Parser& parser)
 		}
 		else if (*it == CHAR_EXPAND && checkStringExpand(parser, sb))
 			continue;
-		if (!isLineJunk(*it)) //ignore line-junk
-			sb += *it;
-		++it;
+		putChar(it, sb);
 	}
 	return sb;
 

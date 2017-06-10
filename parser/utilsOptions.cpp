@@ -15,19 +15,20 @@ using namespace webss;
 
 const char ERROR_OPTION[] = "expected option";
 
+bool isOptionStringChar(char c)
+{
+	return c == CHAR_COLON || c == CHAR_EQUAL || c == CHAR_CSTRING;
+}
+
 string parseOptionString(Parser& parser)
 {
 	auto& it = parser.getIt();
-	if (!it)
-		throw runtime_error("expected value");
+	assert(it && isOptionStringChar(*it));
+	if (*it == CHAR_CSTRING)
+		return parseCString(parser);
 	char c = *it;
 	++it;
-	if (c == CHAR_COLON)
-		return parseLineString(parser);
-	else if (c == CHAR_EQUAL)
-		return parseStickyLineString(parser);
-	else
-		throw runtime_error("expected value");
+	return c == CHAR_COLON ? parseLineString(parser) : parseStickyLineString(parser);
 }
 
 void parseOptionScope(Parser& parser, vector<string>& output)
@@ -37,6 +38,8 @@ void parseOptionScope(Parser& parser, vector<string>& output)
 	if (!++it || !isNameStart(*it))
 		throw runtime_error("expected name");
 	output.push_back(parseName(it));
+	if (!it || !isOptionStringChar(*it))
+		throw runtime_error("expected value");
 	output.push_back(OPTION_VALUE);
 	output.push_back(parseOptionString(parser));
 }
@@ -47,7 +50,7 @@ bool parseOptionValue(Parser& parser, vector<string>& output)
 	auto& it = parser.getIt();
 	if (!it)
 		return true;
-	if (*it == CHAR_COLON || *it == CHAR_EQUAL)
+	if (isOptionStringChar(*it))
 	{
 		output.push_back(OPTION_VALUE);
 		output.push_back(parseOptionString(parser));
@@ -76,7 +79,7 @@ vector<string> webss::parseOptionLine(Parser& parser, std::function<bool(char c)
 	StringBuilder sb;
 	while (it && !endCondition(*it))
 	{
-		if (isLineJunk(*it))
+		if (isJunk(*it))
 		{
 			sb += *it;
 			if (!++it)

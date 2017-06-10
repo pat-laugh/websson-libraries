@@ -1,2 +1,15 @@
-#alias.test:-v:1.0.0
-#test
+#-v"1.0.0" -v=1.0.0 -v:1.0.0 //comment
+#--version"1.0.0" --version=1.0.0 --version:1.0.0
+#-a.a1"-v\"1.0.0\"" -a.a2=-v=1.0.0 -a.a3:-v:1.0.0
+#--alias.a4"-a.a4-1\"--version\\\"1.0.0\\\"\"" /~ //line-escape
+ --alias.a5=-a.a5-1=--version=1.0.0 /* multiline-
+comment */ alias.a6:--alias.a6-1:--version:1.0.0
+#alias.a7:alias.a8:alias.a9:--version:1.0.0
+#a1 a2 a3 a4 a5 a6 a7
+#a4-1 a5-1 a6-1 a8
+#a9
+
+#alias.code:-cilr
+?entText:some text
+?mls1::code{^entText}
+?mls2::code -e{^entText}
