@@ -2,12 +2,19 @@
 //Copyright 2017 Patrick Laughrea
 #include "serializerHtml.hpp"
 
+#include <set>
+
 #include "structures/paramStandard.hpp"
 #include "structures/tuple.hpp"
 #include "utils/utils.hpp"
 
 using namespace std;
 using namespace webss;
+
+bool equalAny(const string& name, set<string> names)
+{
+	return names.find(name) != names.end();
+}
 
 SerializerHtml::SerializerHtml() {}
 
@@ -47,6 +54,31 @@ void SerializerHtml::putQuotableValue(StringBuilder& out, const Webss& value)
 
 void SerializerHtml::putKeyValue(StringBuilder& out, const string& key, const Webss& value)
 {
+	if (value.isBool())
+	{
+		if (equalAny(key, { "async", "autofocus", "autoplay", "checked", "controls",
+				"default", "defer", "disabled", "download", "hidden", "ismap", "loop",
+				"multiple", "muted", "novalidate", "open", "readonly", "required",
+				"reversed", "sandbox", "scoped", "selected" }))
+		{
+			if (value.getBool())
+				out += key;
+			return;
+		}
+		else if (key == "autocomplete")
+		{
+			out += key + "=\"" + (value.getBool() ? "on" : "off") + '"';
+			return;
+		}
+		else if (key == "translate")
+		{
+			out += key + "=\"" + (value.getBool() ? "yes" : "no") + '"';
+			return;
+		}
+		else if (equalAny(key, { "contenteditable", "draggable", "spellcheck" }))
+			; //is a key-value with false and true
+	}
+
 	out += key + "=\"";
 	putQuotableValue(out, value);
 	out += '"';
