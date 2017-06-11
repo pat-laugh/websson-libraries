@@ -142,11 +142,9 @@ void SerializerHtml::putTemplStandard(StringBuilder& out, const TemplateStandard
 			putKeyValue(out, key, value);
 	}
 
-	if (!isBlock)
-		out += " />";
-	else
+	out += '>';
+	if (isBlock)
 	{
-		out += '>';
 		putConcreteValue(out, tuple.back());
 		out += "</" + name + '>';
 	}
