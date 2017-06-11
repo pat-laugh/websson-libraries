@@ -1,8 +1,8 @@
 # MIT License
 # Copyright 2017 Patrick Laughrea
 
-OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers
-LIBRARY = libstructures.a
+OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers -iquote ..
+LIBRARY = libserializerHtml.a
 CPP_FILES = $(wildcard *.cpp)
 OBJ_FILES = $(notdir $(CPP_FILES:.cpp=.o))
 

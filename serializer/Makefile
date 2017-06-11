@@ -1,5 +1,5 @@
 # MIT License
-# Copyright(c) 2017 Patrick Laughrea
+# Copyright 2017 Patrick Laughrea
 
 OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers -iquote ..
 LIBRARY = libserializer.a
