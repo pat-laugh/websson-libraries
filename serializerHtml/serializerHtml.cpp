@@ -34,7 +34,7 @@ void SerializerHtml::putQuotableValue(StringBuilder& out, const Webss& value)
 		putDouble(out, value.getDoubleRaw());
 		break;
 	case WebssType::PRIMITIVE_STRING:
-		putString(out, value.getStringRaw());
+		putQuotableString(out, value.getStringRaw());
 		break;
 	case WebssType::ENTITY:
 		assert(value.getEntityRaw().getContent().isConcrete());
@@ -56,8 +56,11 @@ void SerializerHtml::putConcreteValue(StringBuilder& out, const Webss& value)
 {
 	switch (value.getTypeRaw())
 	{
-	case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE: case WebssType::PRIMITIVE_STRING:
+	case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
 		putQuotableValue(out, value);
+		break;
+	case WebssType::PRIMITIVE_STRING:
+		putDocumentString(out, value.getStringRaw());
 		break;
 	case WebssType::ENTITY:
 		assert(value.getEntityRaw().getContent().isConcrete());
@@ -91,45 +94,30 @@ void SerializerHtml::putDouble(StringBuilder& out, double d)
 
 static bool isMustEscapeChar(char c)
 {
-	return c == '&' || c == '<' || c == '>' || c == '"' || c == '\'' || isControlAscii(c);
+	return c == '"' || c == '\'' || isControlAscii(c);
 }
 
 static void addCharEscape(StringBuilder& out, char c)
 {
 	out += '&';
-	switch (c)
-	{
-	case '&': out += "amp"; break;
-	case '<': out += "lt"; break;
-	case '>': out += "gt"; break;
-	case '"': out += "quot"; break;
-	case '\'': out += "apos"; break;
-	default:
-		assert(isControlAscii(c));
-		out += 'x';
-		out += hexToChar(c >> 4);
-		out += hexToChar(c & 0x0F);
-	}
+	out += 'x';
+	out += hexToChar(c >> 4);
+	out += hexToChar(c & 0x0f);
 	out += ';';
 }
 
-void SerializerHtml::putString(StringBuilder& out, const string& str)
+void SerializerHtml::putQuotableString(StringBuilder& out, const string& str)
 {
 	for (auto it = str.begin(); it != str.end(); ++it)
 		if (isMustEscapeChar(*it))
 			addCharEscape(out, *it);
-		else if (*it == ' ')
-		{
-			out += ' ';
-			if (++it == str.end())
-				break;
-			if (*it == ' ')
-				out += "&nbsp;";
-			else
-				out += *it;
-		}
 		else
 			out += *it;
+}
+
+void SerializerHtml::putDocumentString(StringBuilder& out, const string& str)
+{
+	out += str;
 }
 
 void SerializerHtml::putTemplStandard(StringBuilder& out, const TemplateStandard& templ)

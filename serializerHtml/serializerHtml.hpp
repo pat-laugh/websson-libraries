@@ -36,7 +36,8 @@ namespace webss
 
 		void putInt(StringBuilder& out, WebssInt i);
 		void putDouble(StringBuilder& out, double d);
-		void putString(StringBuilder& out, const std::string& str);
+		void putQuotableString(StringBuilder& out, const std::string& str);
+		void putDocumentString(StringBuilder& out, const std::string& str);
 		void putList(StringBuilder& out, const List& list);
 		void putTemplStandard(StringBuilder& out, const TemplateStandard& templ);
 	};
