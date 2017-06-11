@@ -57,7 +57,7 @@ void SerializerHtml::putKeyValue(StringBuilder& out, const string& key, const We
 	if (value.isBool())
 	{
 		if (equalAny(key, { "async", "autofocus", "autoplay", "checked", "controls",
-				"default", "defer", "disabled", "download", "hidden", "ismap", "loop",
+				"default", "defer", "disabled", "download", "formnovalidate", "hidden", "ismap", "loop",
 				"multiple", "muted", "novalidate", "open", "readonly", "required",
 				"reversed", "sandbox", "scoped", "selected" }))
 		{

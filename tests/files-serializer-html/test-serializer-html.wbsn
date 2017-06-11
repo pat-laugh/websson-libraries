@@ -1,5 +1,11 @@
 !p$<>, !table$<>, !tr$<>, !th$<>, !td$<>
 !a$<download=false, href:\e, hreflang=null, media=null, rel=null, target=null, type=null>
+!input<accept=N, alt=N, autocomplete=F, autofocus=F, checked=F, dirname=N,
+	disabled=F, form=N, formaction=N, formenctype=N, formmethod=N,
+	formnovalidate=F, formtarget=N, height=N, list=N, max=N, maxlength=N,
+	min=N, multiple=F, name=N, pattern=N, placeholder=N, readonly=F,
+	required=F, size=N, src=N, step=N, type=N, value=N, width=N>
+!br<>
 
 p:This is some text.
 
@@ -18,3 +24,6 @@ table
 ]
 
 a(href:test.html):This is a link
+
+input(type:text, name:theName, required=true)br()
+input(type:button, value:Submit)
