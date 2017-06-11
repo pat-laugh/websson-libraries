@@ -152,6 +152,11 @@ void SerializerHtml::putDocumentString(StringBuilder& out, const string& str)
 	out += str;
 }
 
+bool isDefaultValue(const Webss& value)
+{
+	return value.getTypeRaw() == WebssType::NONE || value.getTypeRaw() == WebssType::DEFAULT;
+}
+
 void SerializerHtml::putTemplStandard(StringBuilder& out, const TemplateStandard& templ)
 {
 	assert(templ.hasEntity() && templ.isTuple());
@@ -167,11 +172,19 @@ void SerializerHtml::putTemplStandard(StringBuilder& out, const TemplateStandard
 		assert(keyValues[i].first != nullptr);
 		const auto& key = *keyValues[i].first;
 		const auto& value = *keyValues[i].second;
-		out += ' ';
-		if (value.getTypeRaw() == WebssType::NONE || value.getTypeRaw() == WebssType::DEFAULT)
-			putKeyValue(out, key, params[i].getDefaultValue());
-		else
+		const auto& param = params[i];
+		if (!param.hasDefaultValue())
+		{
+			assert(!isDefaultValue(value));
+			out += ' ';
 			putKeyValue(out, key, value);
+			
+		}
+		else if (!isDefaultValue(value))
+		{
+			out += ' ';
+			putKeyValue(out, key, value);
+		}
 	}
 
 	out += '>';
