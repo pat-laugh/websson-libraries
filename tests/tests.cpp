@@ -63,13 +63,15 @@ string makeCompleteFilenameOut(string filename)
 	return filename + ".wbsnout";
 }
 
-//"SOFt assERT
-void sofert(bool condition, string errorMsg = "")
+void softAssert(bool condition, unsigned int line)
 {
 	if (condition)
 		return;
-	throw logic_error(errorMsg == "" ? "assert failed" : errorMsg.c_str());
+	throw logic_error(string("[ln ") + to_string(line) + "] assert failed");
 }
+
+//SOFt assERT
+#define sofert(condition) { softAssert(condition, __LINE__); }
 
 ErrorType tryParse(string filenameIn, Document& doc)
 {
