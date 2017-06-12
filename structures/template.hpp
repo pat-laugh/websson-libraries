@@ -17,7 +17,6 @@ namespace webss
 		using Body = TemplateBody;
 
 	public:
-		This(Head head, Dictionary body) : Head(std::move(head)), Body(std::move(body)) {}
 		This(Head head, List body) : Head(std::move(head)), Body(std::move(body)) {}
 		This(Head head, Tuple body, WebssType type = WebssType::TUPLE) : Head(std::move(head)), Body(std::move(body), type) {}
 

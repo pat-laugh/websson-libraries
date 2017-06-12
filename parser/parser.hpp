@@ -137,8 +137,6 @@ namespace webss
 		Tuple parseTemplateTupleStandard(const TemplateHeadStandard::Parameters& params);
 		Tuple parseTemplateTupleText(const TemplateHeadStandard::Parameters& params);
 		Tuple::size_type expandTemplateTuple(const TemplateHeadStandard::Parameters& params, Tuple& templateTuple, Tuple::size_type index);
-		Dictionary buildTemplateBodyDictionary(const TemplateHeadStandard::Parameters& params, const Dictionary& baseDictionary);
-		void fillTemplateBodyDictionary(const TemplateHeadStandard::Parameters& params, const Dictionary& baseDictionary, Dictionary& filledDictionary);
 		List buildTemplateBodyList(const TemplateHeadStandard::Parameters& params, const List& baseList);
 		void fillTemplateBodyList(const TemplateHeadStandard::Parameters& params, const List& baseList, List& filledList);
 		Tuple buildTemplateBodyTuple(const TemplateHeadStandard::Parameters& params, const Tuple& baseTuple);

@@ -93,10 +93,6 @@ Webss::Webss(TemplateHeadBinary&& head, Webss&& body, WebssType type) : type(typ
 	assert(type == WebssType::TEMPLATE_BINARY || type == WebssType::TEMPLATE_BLOCK_BINARY);
 	switch (body.type)
 	{
-	case WebssType::DICTIONARY:
-		assert(type == WebssType::TEMPLATE_BINARY);
-		templBinary = new TemplateBinary(move(head), move(*body.dict));
-		break;
 	case WebssType::LIST:
 		assert(type == WebssType::TEMPLATE_BINARY);
 		templBinary = new TemplateBinary(move(head), move(*body.list));
@@ -114,10 +110,6 @@ Webss::Webss(TemplateHeadStandard&& head, Webss&& body, WebssType type) : type(t
 	assert(type == WebssType::TEMPLATE_STANDARD || type == WebssType::TEMPLATE_TEXT || type == WebssType::TEMPLATE_BLOCK_STANDARD || type == WebssType::TEMPLATE_BLOCK_TEXT);
 	switch (body.type)
 	{
-	case WebssType::DICTIONARY:
-		assert(type == WebssType::TEMPLATE_STANDARD || type == WebssType::TEMPLATE_TEXT);
-		templStandard = new TemplateStandard(move(head), move(*body.dict));
-		break;
 	case WebssType::LIST:
 		assert(type == WebssType::TEMPLATE_STANDARD || type == WebssType::TEMPLATE_TEXT);
 		templStandard = new TemplateStandard(move(head), move(*body.list));

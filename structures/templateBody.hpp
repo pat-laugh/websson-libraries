@@ -16,7 +16,6 @@ namespace webss
 	class TemplateBody
 	{
 	public:
-		TemplateBody(Dictionary dict);
 		TemplateBody(List list);
 		TemplateBody(Tuple tuple);
 		TemplateBody(Tuple tuple, WebssType type = WebssType::TUPLE);
@@ -24,11 +23,9 @@ namespace webss
 		WebssType getType() const;
 
 		const Webss& getWebss() const;
-		const Dictionary& getDictionary() const;
 		const List& getList() const;
 		const Tuple& getTuple() const;
 
-		bool isDictionary() const;
 		bool isList() const;
 		bool isTuple() const;
 		bool isTupleText() const;

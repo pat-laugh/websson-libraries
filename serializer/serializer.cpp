@@ -72,26 +72,6 @@ public:
 	}
 
 	template <class Parameters>
-	void putTemplateDictionary(StringBuilder& out, const Parameters& params, const Dictionary& dict, function<void(StringBuilder& out, const Parameters& params, const Tuple& tuple)>&& putTupleRegular, function<void(StringBuilder& out, const Parameters& params, const Tuple& tuple)>&& putTupleText)
-	{
-		static const auto CON = ConType::DICTIONARY;
-		putSeparatedValues<Dictionary, CON>(out, dict, [&](typename Dictionary::const_iterator it)
-		{
-			out += it->first;
-			const auto type = it->second.getTypeRaw();
-			if (type == WebssType::LIST)
-				putTemplateList<Parameters>(out, params, it->second.getListRaw(), move(putTupleRegular), move(putTupleText));
-			else if (type == WebssType::TUPLE)
-				putTupleRegular(out, params, it->second.getTupleRaw());
-			else
-			{
-				assert(type == WebssType::TUPLE_TEXT);
-				putTupleText(out, params, it->second.getTupleRaw());
-			}
-		});
-	}
-
-	template <class Parameters>
 	void putTemplateList(StringBuilder& out, const Parameters& params, const List& list, function<void(StringBuilder& out, const Parameters& params, const Tuple& tuple)>&& putTupleRegular, function<void(StringBuilder& out, const Parameters& params, const Tuple& tuple)>&& putTupleText)
 	{
 		static const auto CON = ConType::LIST;
@@ -715,9 +695,6 @@ void Serializer::putTemplBinary(StringBuilder& out, const TemplateBinary& templ)
 	const auto& params = templ.getParameters();
 	switch (templ.getType())
 	{
-	case WebssType::DICTIONARY:
-		static_cast<SerializerTemplate*>(this)->putTemplateDictionary<TemplateHeadBinary::Parameters>(out, params, templ.getDictionary(), move(putTupleRegular), move(putTupleText));
-		break;
 	case WebssType::LIST:
 		static_cast<SerializerTemplate*>(this)->putTemplateList<TemplateHeadBinary::Parameters>(out, params, templ.getList(), move(putTupleRegular), move(putTupleText));
 		break;
@@ -741,9 +718,6 @@ void Serializer::putTemplStandardBody(StringBuilder& out, const TemplateHeadStan
 	auto putTupleText = [&](StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple) { putTemplStandardTupleText(out, params, tuple); };
 	switch (body.getTypeRaw())
 	{
-	case WebssType::DICTIONARY:
-		static_cast<SerializerTemplate*>(this)->putTemplateDictionary<TemplateHeadStandard::Parameters>(out, params, body.getDictionaryRaw(), move(putTupleRegular), move(putTupleText));
-		break;
 	case WebssType::LIST:
 		static_cast<SerializerTemplate*>(this)->putTemplateList<TemplateHeadStandard::Parameters>(out, params, body.getListRaw(), move(putTupleRegular), move(putTupleText));
 		break;
@@ -767,9 +741,6 @@ void Serializer::putTemplText(StringBuilder& out, const TemplateStandard& templ)
 	const auto& params = templ.getParameters();
 	switch (templ.getType())
 	{
-	case WebssType::DICTIONARY:
-		static_cast<SerializerTemplate*>(this)->putTemplateDictionary<TemplateHeadStandard::Parameters>(out, params, templ.getDictionary(), move(putTupleRegular), move(putTupleText));
-		break;
 	case WebssType::LIST:
 		static_cast<SerializerTemplate*>(this)->putTemplateList<TemplateHeadStandard::Parameters>(out, params, templ.getList(), move(putTupleRegular), move(putTupleText));
 		break;

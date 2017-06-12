@@ -37,8 +37,6 @@ public:
 	{
 		switch (getTag(it))
 		{
-		case Tag::START_DICTIONARY:
-			return parseTemplateDictionary<ParametersStandard>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
 		case Tag::START_LIST:
 			return parseTemplateList<ParametersStandard>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
 		case Tag::START_TUPLE:
@@ -54,8 +52,6 @@ public:
 	{
 		switch (getTag(it))
 		{
-		case Tag::START_DICTIONARY:
-			return parseTemplateDictionary<ParametersBinary>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
 		case Tag::START_LIST:
 			return parseTemplateList<ParametersBinary>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
 		case Tag::START_TUPLE:
@@ -104,16 +100,6 @@ public:
 	}
 
 private:
-	void expandTemplateDictionary(const TemplateHeadBinary::Parameters&, Dictionary&)
-	{
-		throw runtime_error(ERROR_EXPAND_BINARY_TEMPLATE);
-	}
-
-	void expandTemplateDictionary(const TemplateHeadStandard::Parameters& params, Dictionary& dict)
-	{
-		fillTemplateBodyDictionary(params, parseExpandDictionary(it, ents), dict);
-	}
-
 	void expandTemplateList(const TemplateHeadBinary::Parameters&, List&)
 	{
 		throw runtime_error(ERROR_EXPAND_BINARY_TEMPLATE);
@@ -149,43 +135,6 @@ private:
 			tuple.at(index) = move(nameType.entity);
 			break;
 		}
-	}
-
-	string parseNameTemplateDictionary()
-	{
-		if (nextTag == Tag::NAME_START)
-			return parseName(it);
-		else if (nextTag == Tag::EXPLICIT_NAME)
-			return parseNameExplicit(it);
-		throw runtime_error("dictionary can only have key-values");
-	}
-
-	template <class Parameters>
-	Dictionary parseTemplateDictionary(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
-	{
-		return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), false, [&](Dictionary& dict)
-		{
-			if (nextTag == Tag::EXPAND)
-				expandTemplateDictionary(params, dict);
-			else
-			{
-				string name = parseNameTemplateDictionary();
-				switch (getTag(it))
-				{
-				case Tag::START_LIST:
-					dict.addSafe(move(name), parseTemplateList<Parameters>(params, move(funcTemplTupleRegular), move(funcTemplTupleText)));
-					break;
-				case Tag::START_TUPLE:
-					dict.addSafe(move(name), funcTemplTupleRegular(params));
-					break;
-				case Tag::TEXT_TUPLE:
-					dict.addSafe(move(name), funcTemplTupleText(params));
-					break;
-				default:
-					throw runtime_error(ERROR_UNEXPECTED);
-				}
-			}
-		});
 	}
 
 	template <class Parameters>
@@ -297,26 +246,6 @@ Tuple::size_type Parser::expandTemplateTuple(const TemplateHeadStandard::Paramet
 	return fillTemplateBodyTuple(params, parseExpandTuple(it, ents), templateTuple, index);
 }
 
-Dictionary Parser::buildTemplateBodyDictionary(const TemplateHeadStandard::Parameters& params, const Dictionary& baseDictionary)
-{
-	Dictionary templateDictionary;
-	fillTemplateBodyDictionary(params, baseDictionary, templateDictionary);
-	return templateDictionary;
-}
-
-void Parser::fillTemplateBodyDictionary(const TemplateHeadStandard::Parameters& params, const Dictionary& baseDictionary, Dictionary& filledDictionary)
-{
-	for (const auto& item : baseDictionary)
-	{
-		if (item.second.isTuple())
-			filledDictionary.addSafe(item.first, buildTemplateBodyTuple(params, item.second.getTuple()));
-		else if (item.second.isList())
-			filledDictionary.addSafe(item.first, buildTemplateBodyList(params, item.second.getList()));
-		else
-			throw runtime_error(ERROR_EXPAND_TYPE);
-	}
-}
-
 List Parser::buildTemplateBodyList(const TemplateHeadStandard::Parameters& params, const List& baseList)
 {
 	List templateList;
@@ -374,8 +303,6 @@ Webss Parser::buildTemplateBodyStandard(const TemplateHeadStandard::Parameters& 
 {
 	switch (templateItem.getType())
 	{
-	case WebssType::DICTIONARY:
-		return buildTemplateBodyDictionary(params, templateItem.getDictionary());
 	case WebssType::LIST: case WebssType::LIST_TEXT:
 		return buildTemplateBodyList(params, templateItem.getList());
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
