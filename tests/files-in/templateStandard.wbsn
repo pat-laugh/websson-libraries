@@ -1,7 +1,8 @@
 !Template<firstName, lastName, age>
+!Default<val1:default1, val2:default2>
 ?tuple1(:First, :Last, 38), ?tuple2 = (:Second, :Third, 47)
 
-//template1 == template2
+//template1 will be equal to template2
 
 template1<firstName, lastName, age>
 [
@@ -13,3 +14,7 @@ template2<^Template>
 [
 	(^tuple1)(^tuple2)
 ]
+
+Default(,,) //two void values
+Default[] //creates empty list
+Default[,] //one void value

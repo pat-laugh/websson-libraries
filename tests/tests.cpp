@@ -17,6 +17,7 @@ string makeCompleteFilenameIn(string filename);
 string makeCompleteFilenameOut(string filename);
 ErrorType test(string filename, function<void(const Document& doc)> checkResult);
 void testDictionary();
+void testTemplateStandard();
 ErrorType testSerializerHtml();
 
 char inChar;
@@ -31,7 +32,7 @@ int main()
 #endif
 	{
 		vector<string> filenames { "strings", "expandTuple", "templateBlock", "namespace", "enum",
-			"list", "tuple", "templateStandard", "names-keywords", "multiline-string-options",
+			"list", "tuple", "names-keywords", "multiline-string-options",
 			"option" };
 		for (const auto& filename : filenames)
 		{
@@ -42,6 +43,8 @@ int main()
 	}
 #else
 		testDictionary();
+		cout << endl;
+		testTemplateStandard();
 		cout << endl;
 		testSerializerHtml();
 		cin >> inChar;
@@ -187,6 +190,74 @@ void testDictionary()
 		sofert(dict["key1"].isInt() && dict["key1"].getInt() == 2);
 		sofert(dict["key2"].isString() && dict["key2"].getString() == "text");
 		sofert(dict["other-dict"].isDictionary() && dict["other-dict"].getDictionary().has("key") && dict["other-dict"]["key"].isBool() && dict["other-dict"]["key"].getBool() == true);
+	});
+}
+
+void testTemplateStandard()
+{
+	test("templateStandard", [](const Document& doc)
+	{
+		sofert(doc.size() == 5);
+		sofert(doc.has("template1") && doc.has("template2"));
+		const auto& templ1 = doc["template1"];
+		const auto& templ2 = doc["template2"];
+		sofert(templ1 == doc[0] && templ2 == doc[1]);
+		sofert(templ1 == templ2);
+		{
+			sofert(templ1.isList());
+			const auto& list = templ1.getList();
+			sofert(list.size() == 2);
+			sofert(list[0].isTuple());
+			sofert(list[1].isTuple());
+			{
+				const auto& tuple = list[0].getTuple();
+				sofert(tuple.size() == 3);
+				sofert(tuple[0].isString() && tuple[0].getString() == "First");
+				sofert(tuple[1].isString() && tuple[1].getString() == "Last");
+				sofert(tuple[2].isInt() && tuple[2].getInt() == 38);
+				sofert(tuple.has("firstName") && tuple.has("lastName") && tuple.has("age"));
+				sofert(tuple["firstName"].isString() && tuple["firstName"].getString() == "First");
+				sofert(tuple["lastName"].isString() && tuple["lastName"].getString() == "Last");
+				sofert(tuple["age"].isInt() && tuple["age"].getInt() == 38);
+			}
+			{
+				const auto& tuple = list[1].getTuple();
+				sofert(tuple.size() == 3);
+				sofert(tuple[0].isString() && tuple[0].getString() == "Second");
+				sofert(tuple[1].isString() && tuple[1].getString() == "Third");
+				sofert(tuple[2].isInt() && tuple[2].getInt() == 47);
+				sofert(tuple.has("firstName") && tuple.has("lastName") && tuple.has("age"));
+				sofert(tuple["firstName"].isString() && tuple["firstName"].getString() == "Second");
+				sofert(tuple["lastName"].isString() && tuple["lastName"].getString() == "Third");
+				sofert(tuple["age"].isInt() && tuple["age"].getInt() == 47);
+			}
+		}
+		
+		Tuple tupleTempl3;
+		const auto& templ3 = doc[2];
+		{
+			sofert(templ3.isTuple());
+			const auto& tuple = templ3.getTuple();
+			sofert(tuple.size() == 2);
+			sofert(tuple[0].isString() && tuple[0].getString() == "default1");
+			sofert(tuple[1].isString() && tuple[1].getString() == "default2");
+			sofert(tuple.has("val1") && tuple.has("val2"));
+			sofert(tuple["val1"].isString() && tuple["val1"].getString() == "default1");
+			sofert(tuple["val2"].isString() && tuple["val2"].getString() == "default2");
+			tupleTempl3 = tuple;
+		}
+		
+		const auto& templ4 = doc[3];
+		sofert(templ4.isList() && templ4.getList().empty());
+		
+		const auto& templ5 = doc[4];
+		{
+			sofert(templ5.isList());
+			const auto& list = templ5.getList();
+			sofert(list.size() == 1);
+			sofert(list[0].isTuple());
+			sofert(tupleTempl3 == list[0].getTuple());
+		}
 	});
 }
 
