@@ -191,10 +191,13 @@ private:
 	template <class Parameters>
 	List parseTemplateList(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
 	{
-		return parseContainer<List, ConType::LIST>(List(), false, [&](List& list)
+		return parseContainer<List, ConType::LIST>(List(), true, [&](List& list)
 		{
 			switch (nextTag)
 			{
+			case Tag::SEPARATOR: //void
+				list.add(makeDefaultTuple(params));
+				break;
 			case Tag::EXPAND:
 				expandTemplateList(params, list);
 				break;
