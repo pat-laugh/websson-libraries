@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <set>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -19,6 +20,8 @@ ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 void testDictionary();
 void testTemplateStandard();
 ErrorType testSerializerHtml();
+template <class Element>
+bool hasKeys(const Element& elem, set<string> keys);
 
 char inChar;
 
@@ -70,8 +73,32 @@ void softAssert(bool condition, unsigned int line)
 	throw logic_error(string("[ln ") + to_string(line) + "] assert failed");
 }
 
+void softAssertBool(const Webss& value, bool b, unsigned int line)
+{
+	softAssert(value.isBool() && value.getBool() == b, line);
+}
+
+void softAssertInt(const Webss& value, WebssInt i, unsigned int line)
+{
+	softAssert(value.isInt() && value.getInt() == i, line);
+}
+
+void softAssertDouble(const Webss& value, double d, unsigned int line)
+{
+	softAssert(value.isDouble() && value.getDouble() == d, line);
+}
+
+void softAssertString(const Webss& value, string s, unsigned int line)
+{
+	softAssert(value.isString() && value.getString() == s, line);
+}
+
 //SOFt assERT
 #define sofert(condition) { softAssert(condition, __LINE__); }
+#define sofertBool(value, b) { softAssertBool(value, b, __LINE__); }
+#define sofertInt(value, i) { softAssertInt(value, i, __LINE__); }
+#define sofertDouble(value, d) { softAssertDouble(value, d, __LINE__); }
+#define sofertString(value, s) { softAssertString(value, s, __LINE__); }
 
 ErrorType tryParse(string filenameIn, Document& doc)
 {
@@ -183,14 +210,11 @@ void testDictionary()
 		sofert(webssDict.isDictionary());
 		const auto& dict = webssDict.getDictionary();
 		sofert(dict.size() == 4);
-		sofert(dict.has("a_list"));
-		sofert(dict.has("key1"));
-		sofert(dict.has("key2"));
-		sofert(dict.has("other-dict"));
+		sofert(hasKeys(dict, { "a_list", "key1", "key2", "other-dict" }));
 		sofert(dict["a_list"].isList() && dict["a_list"].getList().size() == 4);
 		sofert((int)dict["a_list"][0] == 0 && (int)dict["a_list"][1] == 1 && (int)dict["a_list"][2] == 2 && (int)dict["a_list"][3] == 3);
-		sofert(dict["key1"].isInt() && dict["key1"].getInt() == 2);
-		sofert(dict["key2"].isString() && dict["key2"].getString() == "text");
+		sofertInt(dict["key1"], 2);
+		sofertString(dict["key2"], "text");
 		sofert(dict["other-dict"].isDictionary() && dict["other-dict"].getDictionary().has("key") && dict["other-dict"]["key"].isBool() && dict["other-dict"]["key"].getBool() == true);
 	});
 }
@@ -200,7 +224,7 @@ void testTemplateStandard()
 	test("templateStandard", [](const Document& doc)
 	{
 		sofert(doc.size() == 5);
-		sofert(doc.has("template1") && doc.has("template2"));
+		sofert(hasKeys(doc, { "template1", "template2" }));
 		const auto& templ1 = doc["template1"];
 		const auto& templ2 = doc["template2"];
 		sofert(templ1 == doc[0] && templ2 == doc[1]);
@@ -214,24 +238,24 @@ void testTemplateStandard()
 			{
 				const auto& tuple = list[0].getTuple();
 				sofert(tuple.size() == 3);
-				sofert(tuple[0].isString() && tuple[0].getString() == "First");
-				sofert(tuple[1].isString() && tuple[1].getString() == "Last");
-				sofert(tuple[2].isInt() && tuple[2].getInt() == 38);
-				sofert(tuple.has("firstName") && tuple.has("lastName") && tuple.has("age"));
-				sofert(tuple["firstName"].isString() && tuple["firstName"].getString() == "First");
-				sofert(tuple["lastName"].isString() && tuple["lastName"].getString() == "Last");
-				sofert(tuple["age"].isInt() && tuple["age"].getInt() == 38);
+				sofertString(tuple[0], "First");
+				sofertString(tuple[1], "Last");
+				sofertInt(tuple[2], 38);
+				sofert(hasKeys(tuple, { "firstName", "lastName", "age" }));
+				sofertString(tuple["firstName"], "First");
+				sofertString(tuple["lastName"], "Last");
+				sofertInt(tuple["age"], 38);
 			}
 			{
 				const auto& tuple = list[1].getTuple();
 				sofert(tuple.size() == 3);
-				sofert(tuple[0].isString() && tuple[0].getString() == "Second");
-				sofert(tuple[1].isString() && tuple[1].getString() == "Third");
-				sofert(tuple[2].isInt() && tuple[2].getInt() == 47);
-				sofert(tuple.has("firstName") && tuple.has("lastName") && tuple.has("age"));
-				sofert(tuple["firstName"].isString() && tuple["firstName"].getString() == "Second");
-				sofert(tuple["lastName"].isString() && tuple["lastName"].getString() == "Third");
-				sofert(tuple["age"].isInt() && tuple["age"].getInt() == 47);
+				sofertString(tuple[0], "Second");
+				sofertString(tuple[1], "Third");
+				sofertInt(tuple[2], 47);
+				sofert(hasKeys(tuple, { "firstName", "lastName", "age" }));
+				sofertString(tuple["firstName"], "Second");
+				sofertString(tuple["lastName"], "Third");
+				sofertInt(tuple["age"], 47);
 			}
 		}
 		
@@ -241,11 +265,11 @@ void testTemplateStandard()
 			sofert(templ3.isTuple());
 			const auto& tuple = templ3.getTuple();
 			sofert(tuple.size() == 2);
-			sofert(tuple[0].isString() && tuple[0].getString() == "default1");
-			sofert(tuple[1].isString() && tuple[1].getString() == "default2");
-			sofert(tuple.has("val1") && tuple.has("val2"));
-			sofert(tuple["val1"].isString() && tuple["val1"].getString() == "default1");
-			sofert(tuple["val2"].isString() && tuple["val2"].getString() == "default2");
+			sofertString(tuple[0], "default1");
+			sofertString(tuple[1], "default2");
+			sofert(hasKeys(tuple, { "val1", "val2" }));
+			sofertString(tuple["val1"], "default1");
+			sofertString(tuple["val2"], "default2");
 			tupleTempl3 = tuple;
 		}
 		
@@ -286,4 +310,13 @@ ErrorType testSerializerHtml()
 	cout << "No errors while serializing" << endl;
 
 	return ErrorType::NONE;
+}
+
+template <class Element>
+bool hasKeys(const Element& elem, set<string> keys)
+{
+	for (const auto& key : keys)
+		if (!elem.has(key))
+			return false;
+	return true;
 }
