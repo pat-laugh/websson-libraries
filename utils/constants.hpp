@@ -17,9 +17,10 @@ namespace webss
 	const char CHAR_IMPORT = '@';
 	const char CHAR_OPTION = '#';
 	const char CHAR_SCOPE = '.';
+	const char CHAR_SCOPED_IMPORT = '~';
 	const char CHAR_SELF = '&';
 	const char CHAR_SEPARATOR = ',';
-	const char CHAR_SCOPED_IMPORT = '~';
+	const char CHAR_THEAD_BLOCK = '+';
 
 	const char CHAR_BINARY_DEFAULT_FALSE = 0;
 	const char CHAR_BINARY_DEFAULT_TRUE = 1;

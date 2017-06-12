@@ -30,7 +30,8 @@ Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 		return Entity(move(name), parseTemplateHead());
 	case Tag::TEXT_TEMPLATE:
 		return Entity(move(name), Webss(parseTemplateHeadText(), WebssType::TEMPLATE_HEAD_TEXT));
-	case Tag::EXPLICIT_NAME:
+	case Tag::PLUS:
+		assert(*it == CHAR_THEAD_BLOCK);
 		switch (getTag(++it))
 		{
 		case Tag::START_TEMPLATE:
