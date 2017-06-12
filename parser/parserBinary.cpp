@@ -68,7 +68,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 				throw runtime_error("undefined entity: " + nameType.name);
 			}
 		}
-		else if (nextTag == Tag::NUMBER_START)
+		else if (nextTag == Tag::DIGIT || nextTag == Tag::PLUS || nextTag == Tag::MINUS)
 			bhead = Bhead(checkBinarySize(parseNumber(*this).getInt()));
 		else if (nextTag == Tag::START_TEMPLATE)
 		{
@@ -102,7 +102,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 					throw runtime_error("undefined entity: " + nameType.name);
 				}
 			}
-			else if (nextTag == Tag::NUMBER_START)
+			else if (nextTag == Tag::DIGIT || nextTag == Tag::PLUS || nextTag == Tag::MINUS)
 				bhead = Bhead::makeSizeBits(checkBinarySizeBits(parseNumber(*this).getInt()));
 			else
 				throw runtime_error(ERROR_UNEXPECTED);
@@ -147,7 +147,7 @@ ParamBinary::SizeList parseBinarySizeList(Parser& parser)
 				throw;
 			blist = Blist(checkEntTypeBinarySize(nameType.entity));
 		}
-		else if (parser.nextTag == Tag::NUMBER_START)
+		else if (parser.nextTag == Tag::DIGIT || parser.nextTag == Tag::PLUS || parser.nextTag == Tag::MINUS)
 			blist = Blist(checkBinarySize(parseNumber(parser).getInt()));
 		else
 			throw;

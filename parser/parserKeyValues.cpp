@@ -69,7 +69,7 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 				assert(false);
 			}
 		}
-	case Tag::NUMBER_START:
+	case Tag::DIGIT: case Tag::MINUS: case Tag::PLUS:
 		return Webss(parseNumber(*this));
 	case Tag::EXPLICIT_NAME:
 		return parseOtherValueName(parseNameExplicit(it));
