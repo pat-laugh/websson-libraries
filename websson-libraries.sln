@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "serializerXml", "serializer
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "serializerJson", "serializerJson\serializerJson.vcxproj", "{2733887C-2DEC-4D11-81B5-9D36D37EFE7B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "parserWebssHtml", "parserWebssHtml\parserWebssHtml.vcxproj", "{CA1B9250-70B6-47AA-89F4-4A2A175BC25E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -91,6 +93,14 @@ Global
 		{2733887C-2DEC-4D11-81B5-9D36D37EFE7B}.Release|x64.Build.0 = Release|x64
 		{2733887C-2DEC-4D11-81B5-9D36D37EFE7B}.Release|x86.ActiveCfg = Release|Win32
 		{2733887C-2DEC-4D11-81B5-9D36D37EFE7B}.Release|x86.Build.0 = Release|Win32
+		{CA1B9250-70B6-47AA-89F4-4A2A175BC25E}.Debug|x64.ActiveCfg = Debug|x64
+		{CA1B9250-70B6-47AA-89F4-4A2A175BC25E}.Debug|x64.Build.0 = Debug|x64
+		{CA1B9250-70B6-47AA-89F4-4A2A175BC25E}.Debug|x86.ActiveCfg = Debug|Win32
+		{CA1B9250-70B6-47AA-89F4-4A2A175BC25E}.Debug|x86.Build.0 = Debug|Win32
+		{CA1B9250-70B6-47AA-89F4-4A2A175BC25E}.Release|x64.ActiveCfg = Release|x64
+		{CA1B9250-70B6-47AA-89F4-4A2A175BC25E}.Release|x64.Build.0 = Release|x64
+		{CA1B9250-70B6-47AA-89F4-4A2A175BC25E}.Release|x86.ActiveCfg = Release|Win32
+		{CA1B9250-70B6-47AA-89F4-4A2A175BC25E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
