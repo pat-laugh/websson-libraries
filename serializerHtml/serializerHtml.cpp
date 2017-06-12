@@ -98,7 +98,7 @@ void SerializerHtml::putConcreteValue(StringBuilder& out, const Webss& value)
 		assert(value.getEntityRaw().getContent().isConcrete());
 		putConcreteValue(out, value.getEntityRaw().getContent());
 		break;
-	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT: case WebssType::TEMPLATE_BLOCK_STANDARD: case WebssType::TEMPLATE_BLOCK_TEXT:
+	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT: case WebssType::TEMPLATE_VALUE_STANDARD: case WebssType::TEMPLATE_VALUE_TEXT:
 		putTemplStandard(out, value.getTemplateStandardRaw());
 		break;
 	case WebssType::LIST: case WebssType::LIST_TEXT:
@@ -164,10 +164,10 @@ void SerializerHtml::putTemplStandard(StringBuilder& out, const TemplateStandard
 	const auto& tuple = templ.getTuple();
 	const auto& params = templ.getParameters();
 	assert(tuple.size() == params.size() || tuple.size() == params.size() + 1);
-	bool isBlock = tuple.size() > params.size();
+	bool isTemplValue = tuple.size() > params.size();
 	auto keyValues = tuple.getOrderedKeyValues();
 	out += "<" + name;
-	for (Tuple::size_type i = 0; i < tuple.size() - (isBlock ? 1 : 0); ++i)
+	for (Tuple::size_type i = 0; i < tuple.size() - (isTemplValue ? 1 : 0); ++i)
 	{
 		assert(keyValues[i].first != nullptr);
 		const auto& key = *keyValues[i].first;
@@ -188,7 +188,7 @@ void SerializerHtml::putTemplStandard(StringBuilder& out, const TemplateStandard
 	}
 
 	out += '>';
-	if (isBlock)
+	if (isTemplValue)
 	{
 		putConcreteValue(out, tuple.back());
 		out += "</" + name + '>';

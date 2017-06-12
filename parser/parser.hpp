@@ -121,8 +121,8 @@ namespace webss
 		TemplateHeadBinary parseTemplateHeadBinary(TemplateHeadBinary&& thead = TemplateHeadBinary());
 		TemplateHeadStandard parseTemplateHeadText();
 
-		Webss parseTemplateBlockHead();
-		TemplateHeadStandard parseTemplateBlockHeadText();
+		Webss parseTemplateValueHead();
+		TemplateHeadStandard parseTemplateValueHeadText();
 
 		Webss parseTemplate();
 		Webss parseTemplateText();
@@ -142,8 +142,8 @@ namespace webss
 		Tuple buildTemplateBodyTuple(const TemplateHeadStandard::Parameters& params, const Tuple& baseTuple);
 		Tuple::size_type fillTemplateBodyTuple(const TemplateHeadStandard::Parameters& params, const Tuple& baseTuple, Tuple& filledTuple, Tuple::size_type index = 0);
 
-		Tuple parseTemplateBlockBinary(const TemplateHeadBinary::Parameters& params);
-		Tuple parseTemplateBlockStandard(const TemplateHeadStandard::Parameters& params);
-		Tuple parseTemplateBlockText(const TemplateHeadStandard::Parameters& params);
+		Tuple parseTemplateValueBinary(const TemplateHeadBinary::Parameters& params);
+		Tuple parseTemplateValueStandard(const TemplateHeadStandard::Parameters& params);
+		Tuple parseTemplateValueText(const TemplateHeadStandard::Parameters& params);
 	};
 }

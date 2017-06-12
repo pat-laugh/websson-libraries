@@ -312,7 +312,7 @@ Webss Parser::buildTemplateBodyStandard(const TemplateHeadStandard::Parameters& 
 	}
 }
 
-Tuple Parser::parseTemplateBlockBinary(const TemplateHeadBinary::Parameters& params)
+Tuple Parser::parseTemplateValueBinary(const TemplateHeadBinary::Parameters& params)
 {
 	Tuple body;
 	switch (getTag(it))
@@ -329,7 +329,7 @@ Tuple Parser::parseTemplateBlockBinary(const TemplateHeadBinary::Parameters& par
 	return body;
 }
 
-Tuple Parser::parseTemplateBlockStandard(const TemplateHeadStandard::Parameters& params)
+Tuple Parser::parseTemplateValueStandard(const TemplateHeadStandard::Parameters& params)
 {
 	Tuple body;
 	switch (getTag(it))
@@ -349,7 +349,7 @@ Tuple Parser::parseTemplateBlockStandard(const TemplateHeadStandard::Parameters&
 	return body;
 }
 
-Tuple Parser::parseTemplateBlockText(const TemplateHeadStandard::Parameters& params)
+Tuple Parser::parseTemplateValueText(const TemplateHeadStandard::Parameters& params)
 {
 	Tuple body;
 	switch (getTag(it))

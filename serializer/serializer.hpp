@@ -104,9 +104,9 @@ namespace webss
 		void putTemplStandardTupleText(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
 		void putTemplTextTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
 
-		void putTemplBlockBinary(StringBuilder& out, const TemplateBinary& templ, ConType con);
-		void putTemplBlockStandard(StringBuilder& out, const TemplateStandard& templ, ConType con);
-		void putTemplBlockText(StringBuilder& out, const TemplateStandard& templ, ConType con);
+		void putTemplValueBinary(StringBuilder& out, const TemplateBinary& templ, ConType con);
+		void putTemplValueStandard(StringBuilder& out, const TemplateStandard& templ, ConType con);
+		void putTemplValueText(StringBuilder& out, const TemplateStandard& templ, ConType con);
 
 		void putTheadSelf(StringBuilder& out);
 		void putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead);

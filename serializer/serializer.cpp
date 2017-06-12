@@ -308,18 +308,18 @@ void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 {
 	switch (webss.getTypeRaw())
 	{
-	case WebssType::TEMPLATE_BLOCK_HEAD_BINARY:
-		out += CHAR_THEAD_BLOCK;
+	case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
+		out += CHAR_THEAD_VALUE;
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		putTheadBinary(out, webss.getTemplateHeadBinaryRaw());
 		break;
-	case WebssType::TEMPLATE_BLOCK_HEAD_STANDARD:
-		out += CHAR_THEAD_BLOCK;
+	case WebssType::TEMPLATE_VALUE_HEAD_STANDARD:
+		out += CHAR_THEAD_VALUE;
 	case WebssType::TEMPLATE_HEAD_STANDARD:
 		putTheadStandard(out, webss.getTemplateHeadStandardRaw());
 		break;
-	case WebssType::TEMPLATE_BLOCK_HEAD_TEXT:
-		out += CHAR_THEAD_BLOCK;
+	case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
+		out += CHAR_THEAD_VALUE;
 	case WebssType::TEMPLATE_HEAD_TEXT:
 		putTheadText(out, webss.getTemplateHeadStandardRaw());
 		break;
@@ -381,14 +381,14 @@ void Serializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConTyp
 	case WebssType::TEMPLATE_TEXT:
 		putTemplText(out, webss.getTemplateStandardRaw());
 		break;
-	case WebssType::TEMPLATE_BLOCK_BINARY:
-		putTemplBlockBinary(out, webss.getTemplateBinaryRaw(), con);
+	case WebssType::TEMPLATE_VALUE_BINARY:
+		putTemplValueBinary(out, webss.getTemplateBinaryRaw(), con);
 		break;
-	case WebssType::TEMPLATE_BLOCK_STANDARD:
-		putTemplBlockStandard(out, webss.getTemplateStandardRaw(), con);
+	case WebssType::TEMPLATE_VALUE_STANDARD:
+		putTemplValueStandard(out, webss.getTemplateStandardRaw(), con);
 		break;
-	case WebssType::TEMPLATE_BLOCK_TEXT:
-		putTemplBlockText(out, webss.getTemplateStandardRaw(), con);
+	case WebssType::TEMPLATE_VALUE_TEXT:
+		putTemplValueText(out, webss.getTemplateStandardRaw(), con);
 		break;
 	case WebssType::ENTITY:
 		assert(webss.getEntityRaw().getContent().isConcrete());
@@ -833,7 +833,7 @@ void Serializer::putTemplTextTuple(StringBuilder& out, const TemplateHeadStandar
 	});
 }
 
-Tuple copyBlockTupleWithoutLast(const Tuple& tuple)
+Tuple copyTemplateValueTupleWithoutLast(const Tuple& tuple)
 {
 	Tuple copy;
 	const auto& data = tuple.getData();
@@ -842,29 +842,29 @@ Tuple copyBlockTupleWithoutLast(const Tuple& tuple)
 	return copy;
 }
 
-void Serializer::putTemplBlockBinary(StringBuilder& out, const TemplateBinary& templ, ConType con)
+void Serializer::putTemplValueBinary(StringBuilder& out, const TemplateBinary& templ, ConType con)
 {
 	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().size() == templ.getParameters().size() + 1);
 	putEntityName(out, templ.getEntity());
-	putTemplBinaryTuple(out, templ.getParameters(), copyBlockTupleWithoutLast(templ.getTuple()));
+	putTemplBinaryTuple(out, templ.getParameters(), copyTemplateValueTupleWithoutLast(templ.getTuple()));
 	putConcreteValue(out, templ.getTuple().back(), con);
 }
 
-void Serializer::putTemplBlockStandard(StringBuilder& out, const TemplateStandard& templ, ConType con)
+void Serializer::putTemplValueStandard(StringBuilder& out, const TemplateStandard& templ, ConType con)
 {
 	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().size() == templ.getParameters().size() + 1);
 	putEntityName(out, templ.getEntity());
 	if (templ.isTupleText())
-		putTemplStandardTupleText(out, templ.getParameters(), copyBlockTupleWithoutLast(templ.getTuple()));
+		putTemplStandardTupleText(out, templ.getParameters(), copyTemplateValueTupleWithoutLast(templ.getTuple()));
 	else
-		putTemplStandardTuple(out, templ.getParameters(), copyBlockTupleWithoutLast(templ.getTuple()));
+		putTemplStandardTuple(out, templ.getParameters(), copyTemplateValueTupleWithoutLast(templ.getTuple()));
 	putConcreteValue(out, templ.getTuple().back(), con);
 }
 
-void Serializer::putTemplBlockText(StringBuilder& out, const TemplateStandard& templ, ConType con)
+void Serializer::putTemplValueText(StringBuilder& out, const TemplateStandard& templ, ConType con)
 {
 	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().size() == templ.getParameters().size() + 1);
 	putEntityName(out, templ.getEntity());
-	putTemplTextTuple(out, templ.getParameters(), copyBlockTupleWithoutLast(templ.getTuple()));
+	putTemplTextTuple(out, templ.getParameters(), copyTemplateValueTupleWithoutLast(templ.getTuple()));
 	putConcreteValue(out, templ.getTuple().back(), con);
 }

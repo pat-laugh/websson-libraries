@@ -109,12 +109,12 @@ Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 		return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyStandard(content.getTemplateHeadStandard().getParameters())) };
 	case WebssType::TEMPLATE_HEAD_TEXT:
 		return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyText(content.getTemplateHeadStandard().getParameters()), WebssType::TEMPLATE_TEXT) };
-	case WebssType::TEMPLATE_BLOCK_HEAD_BINARY:
-		return{ Webss(TemplateHeadBinary(ent), parseTemplateBlockBinary(ent.getContent().getTemplateHeadBinary().getParameters()), WebssType::TEMPLATE_BLOCK_BINARY) };
-	case WebssType::TEMPLATE_BLOCK_HEAD_STANDARD:
-		return{ Webss(TemplateHeadStandard(ent), parseTemplateBlockStandard(ent.getContent().getTemplateHeadStandard().getParameters()), WebssType::TEMPLATE_BLOCK_STANDARD) };
-	case WebssType::TEMPLATE_BLOCK_HEAD_TEXT:
-		return{ Webss(TemplateHeadStandard(ent), parseTemplateBlockText(ent.getContent().getTemplateHeadStandard().getParameters()), WebssType::TEMPLATE_BLOCK_TEXT) };
+	case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
+		return{ Webss(TemplateHeadBinary(ent), parseTemplateValueBinary(ent.getContent().getTemplateHeadBinary().getParameters()), WebssType::TEMPLATE_VALUE_BINARY) };
+	case WebssType::TEMPLATE_VALUE_HEAD_STANDARD:
+		return{ Webss(TemplateHeadStandard(ent), parseTemplateValueStandard(ent.getContent().getTemplateHeadStandard().getParameters()), WebssType::TEMPLATE_VALUE_STANDARD) };
+	case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
+		return{ Webss(TemplateHeadStandard(ent), parseTemplateValueText(ent.getContent().getTemplateHeadStandard().getParameters()), WebssType::TEMPLATE_VALUE_TEXT) };
 	default:
 		return{ ent };
 	}

@@ -31,13 +31,13 @@ Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 	case Tag::TEXT_TEMPLATE:
 		return Entity(move(name), Webss(parseTemplateHeadText(), WebssType::TEMPLATE_HEAD_TEXT));
 	case Tag::PLUS:
-		assert(*it == CHAR_THEAD_BLOCK);
+		assert(*it == CHAR_THEAD_VALUE);
 		switch (getTag(++it))
 		{
 		case Tag::START_TEMPLATE:
-			return Entity(move(name), parseTemplateBlockHead());
+			return Entity(move(name), parseTemplateValueHead());
 		case Tag::TEXT_TEMPLATE:
-			return Entity(move(name), Webss(parseTemplateBlockHeadText(), WebssType::TEMPLATE_BLOCK_HEAD_TEXT));
+			return Entity(move(name), Webss(parseTemplateValueHeadText(), WebssType::TEMPLATE_VALUE_HEAD_TEXT));
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}

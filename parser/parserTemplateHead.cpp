@@ -63,23 +63,23 @@ TemplateHeadStandard Parser::parseTemplateHeadText()
 	return move(headWebss.getTemplateHeadStandardRaw());
 }
 
-Webss Parser::parseTemplateBlockHead()
+Webss Parser::parseTemplateValueHead()
 {
 	auto headWebss = parseTemplateHead();
 	switch (headWebss.getTypeRaw())
 	{
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		return{ TemplateHeadBinary(move(headWebss.getTemplateHeadBinaryRaw())), WebssType::TEMPLATE_BLOCK_HEAD_BINARY };
+		return{ TemplateHeadBinary(move(headWebss.getTemplateHeadBinaryRaw())), WebssType::TEMPLATE_VALUE_HEAD_BINARY };
 	case WebssType::TEMPLATE_HEAD_STANDARD: 
-		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), WebssType::TEMPLATE_BLOCK_HEAD_STANDARD };
+		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), WebssType::TEMPLATE_VALUE_HEAD_STANDARD };
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), WebssType::TEMPLATE_BLOCK_HEAD_TEXT };
+		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), WebssType::TEMPLATE_VALUE_HEAD_TEXT };
 	default:
 		assert(false); throw domain_error("");
 	}
 }
 
-TemplateHeadStandard Parser::parseTemplateBlockHeadText()
+TemplateHeadStandard Parser::parseTemplateValueHeadText()
 {
 	return parseTemplateHeadText();
 }
