@@ -19,21 +19,36 @@ Webss Parser::parseValueEqual()
 	return parseValueOnly();
 }
 
+#define CASE_TAG_KEY_CHAR Tag::START_DICTIONARY: case Tag::START_LIST: case Tag::START_TUPLE: \
+	case Tag::START_TEMPLATE: case Tag::LINE_STRING: case Tag::EQUAL: case Tag::C_STRING: \
+	case Tag::TEXT_DICTIONARY: case Tag::TEXT_LIST: case Tag::TEXT_TUPLE: case Tag::TEXT_TEMPLATE
+
+Webss Parser::parseCharValue()
+{
+	switch (nextTag)
+	{
+	case Tag::START_DICTIONARY: return parseDictionary();
+	case Tag::START_LIST: return parseList();
+	case Tag::START_TUPLE: return parseTuple();
+	case Tag::START_TEMPLATE: return parseTemplate();
+	case Tag::LINE_STRING: ++it; return parseLineString(*this);
+	case Tag::EQUAL: ++it; return parseValueEqual();
+	case Tag::C_STRING: return parseCString(*this);
+	case Tag::TEXT_DICTIONARY: return parseMultilineString(*this);
+	case Tag::TEXT_LIST: return{ parseListText(), WebssType::LIST_TEXT };
+	case Tag::TEXT_TUPLE: return{ parseTupleText(), WebssType::TUPLE_TEXT };
+	case Tag::TEXT_TEMPLATE: return parseTemplateText();
+	default:
+		throw runtime_error(nextTag == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
+	}
+}
+
 Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 {
 	switch (nextTag)
 	{
-	case Tag::START_DICTIONARY: return Webss(parseDictionary());
-	case Tag::START_LIST: return Webss(parseList());
-	case Tag::START_TUPLE: return Webss(parseTuple());
-	case Tag::START_TEMPLATE: return Webss(parseTemplate());
-	case Tag::LINE_STRING: ++it; return Webss(parseLineString(*this));
-	case Tag::EQUAL: ++it; return Webss(parseValueEqual());
-	case Tag::C_STRING: return Webss(parseCString(*this));
-	case Tag::TEXT_DICTIONARY: return Webss(parseMultilineString(*this));
-	case Tag::TEXT_LIST: return Webss(parseListText(), WebssType::LIST_TEXT);
-	case Tag::TEXT_TUPLE: return Webss(parseTupleText(), WebssType::TUPLE_TEXT);
-	case Tag::TEXT_TEMPLATE: return Webss(parseTemplateText());
+	case CASE_TAG_KEY_CHAR:
+		return parseCharValue();
 	case Tag::NAME_START:
 		if (explicitName)
 			return parseOtherValueName(parseName(it));
@@ -71,10 +86,6 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 		throw runtime_error(nextTag == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
 	}
 }
-
-#define CASE_TAG_KEY_CHAR Tag::START_DICTIONARY: case Tag::START_LIST: case Tag::START_TUPLE: \
-	case Tag::START_TEMPLATE: case Tag::LINE_STRING: case Tag::EQUAL: case Tag::C_STRING: \
-	case Tag::TEXT_DICTIONARY: case Tag::TEXT_LIST: case Tag::TEXT_TUPLE: case Tag::TEXT_TEMPLATE
 
 Parser::OtherValue Parser::parseOtherValueName(string&& name)
 {

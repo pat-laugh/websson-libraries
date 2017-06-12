@@ -14,7 +14,7 @@ Entity Parser::parseConcreteEntity()
 {
 	auto name = parseNameExplicit(it);
 	nextTag = getTag(it);
-	return Entity(move(name), parseValueOnly());
+	return Entity(move(name), parseCharValue());
 }
 
 Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)

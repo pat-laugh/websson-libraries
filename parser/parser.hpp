@@ -111,6 +111,7 @@ namespace webss
 
 		//parserKeyValues.cpp
 		Webss parseValueEqual();
+		Webss parseCharValue();
 		OtherValue parseOtherValueName(std::string&& name);
 		OtherValue checkAbstractEntity(const Entity& ent);
 		Webss parseValueOnly();
