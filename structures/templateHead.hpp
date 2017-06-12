@@ -46,13 +46,9 @@ namespace webss
 		{
 			if (this == &o)
 				return true;
-			if (type != o.type)
-				return false;
-			if (type == Type::PARAMS)
-				return *params == *o.params;
-			if (type == Type::ENTITY)
-				return ent == o.ent;
-			return true; //Type::NONE
+			if (type == Type::NONE || o.type == Type::NONE)
+				return type == Type::NONE && o.type == Type::NONE;
+			return getParameters() == o.getParameters();
 		}
 		bool operator!=(const This& o) const { return !(*this == o); }
 

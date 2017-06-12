@@ -14,7 +14,7 @@ struct Entity::EntityBody
 	string name;
 	Webss content;
 
-	bool operator==(const EntityBody& o) const { return (this == &o) || (name == o.name && content == o.content); }
+	bool operator==(const EntityBody& o) const { return content == o.content; }
 	bool operator!=(const EntityBody& o) const { return !(*this == o); }
 };
 
@@ -36,7 +36,7 @@ const Webss& Entity::getContent() const
 	return ptr->content;
 }
 
-bool Entity::operator==(const Entity& o) const { return (this == &o) || (equalPtrs(ptr, o.ptr) && nspace == o.nspace); }
+bool Entity::operator==(const Entity& o) const { return (this == &o) || equalPtrs(ptr, o.ptr); }
 bool Entity::operator!=(const Entity& o) const { return !(*this == o); }
 
 bool Entity::hasNamespace() const
