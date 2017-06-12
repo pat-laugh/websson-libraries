@@ -303,7 +303,7 @@ Webss Parser::buildTemplateBodyStandard(const TemplateHeadStandard::Parameters& 
 {
 	switch (templateItem.getType())
 	{
-	case WebssType::LIST: case WebssType::LIST_TEXT:
+	case WebssType::LIST:
 		return buildTemplateBodyList(params, templateItem.getList());
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return buildTemplateBodyTuple(params, templateItem.getTuple());
