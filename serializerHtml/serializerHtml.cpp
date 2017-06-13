@@ -62,24 +62,24 @@ void SerializerHtml::putKeyValue(StringBuilder& out, const string& key, const We
 				"reversed", "sandbox", "scoped", "selected" }))
 		{
 			if (value.getBool())
-				out += key;
+				out += ' ' + key;
 			return;
 		}
 		else if (key == "autocomplete")
 		{
-			out += key + "=\"" + (value.getBool() ? "on" : "off") + '"';
+			out += ' ' + key + "=\"" + (value.getBool() ? "on" : "off") + '"';
 			return;
 		}
 		else if (key == "translate")
 		{
-			out += key + "=\"" + (value.getBool() ? "yes" : "no") + '"';
+			out += ' ' + key + "=\"" + (value.getBool() ? "yes" : "no") + '"';
 			return;
 		}
 		else if (equalAny(key, { "contenteditable", "draggable", "spellcheck" }))
 			; //is a key-value with false and true
 	}
 
-	out += key + "=\"";
+	out += ' ' + key + "=\"";
 	putQuotableValue(out, value);
 	out += '"';
 }
@@ -176,10 +176,7 @@ void SerializerHtml::putTemplStandard(StringBuilder& out, const TemplateStandard
 		if (value.isNull())
 			assert(isDefaultValue(value));
 		else
-		{
-			out += ' ';
 			putKeyValue(out, key, isDefaultValue(value) ? param.getDefaultValue() : value);
-		}
 	}
 
 	out += '>';

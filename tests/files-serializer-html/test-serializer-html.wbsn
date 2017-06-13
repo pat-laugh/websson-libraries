@@ -1,10 +1,10 @@
 !p+<>, !table+<>, !tr+<>, !th+<>, !td+<>
-!a+<download=false, href:\e, hreflang=null, media=null, rel=null, target=null, type=null>
-!input<accept=N, alt=N, autocomplete=F, autofocus=F, checked=F, dirname=N,
-	disabled=F, form=N, formaction=N, formenctype=N, formmethod=N,
-	formnovalidate=F, formtarget=N, height=N, list=N, max=N, maxlength=N,
-	min=N, multiple=F, name=N, pattern=N, placeholder=N, readonly=F,
-	required=F, size=N, src=N, step=N, type=N, value=N, width=N>
+!a+<download=N, href=N, hreflang=N, media=N, rel=N, target=N, type=N>
+!input<accept=N, alt=N, autocomplete=N, autofocus=N, checked=N, dirname=N,
+	disabled=N, form=N, formaction=N, formenctype=N, formmethod=N,
+	formnovalidate=N, formtarget=N, height=N, list=N, max=N, maxlength=N,
+	min=N, multiple=N, name=N, pattern=N, placeholder=N, readonly=N,
+	required=N, size=N, src=N, step=N, type=N, value=N, width=N>
 !br<>
 
 p:This is some text.
