@@ -9,7 +9,7 @@ OBJ_FILES = $(notdir $(CPP_FILES:.cpp=.o))
 all: $(LIBRARY)
 
 $(LIBRARY): $(OBJ_FILES)
-	ar -rc $(LIBRARY) $^
+	ar -rc $@ $^
 
 %.o: %.cpp
 	$(CXX) $(OPTIONS) -o $@ -c $<
