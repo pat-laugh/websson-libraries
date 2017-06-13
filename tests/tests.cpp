@@ -105,7 +105,7 @@ ErrorType tryParse(string filenameIn, Document& doc)
 	ifstream fileIn(filenameIn, ios::binary);
 	if (fileIn.fail())
 	{
-		cout << endl << "Error: failed to open file \"" << filenameIn << "\"" << endl;
+		cout << endl << "\x1b[31;1mError\x1b[0m: failed to open file \"" << filenameIn << "\"" << endl;
 		return ErrorType::FATAL;
 	}
 
@@ -115,7 +115,7 @@ ErrorType tryParse(string filenameIn, Document& doc)
 	}
 	catch (const exception& e)
 	{
-		cout << endl << "Parse failed: " << e.what() << endl;
+		cout << endl << "\x1b[31;1mParse failed\x1b[0m: " << e.what() << endl;
 		return ErrorType::PARSE;
 	}
 
@@ -128,7 +128,7 @@ ErrorType trySerialize(string filenameOut, string& output, const Document& doc)
 	ofstream fileOut(filenameOut, ios::binary);
 	if (fileOut.fail())
 	{
-		cout << endl << "Error: failed to open file \"" << filenameOut << "\"" << endl;
+		cout << endl << "\x1b[31;1mError\x1b[0m: failed to open file \"" << filenameOut << "\"" << endl;
 		return ErrorType::FATAL;
 	}
 
@@ -140,7 +140,7 @@ ErrorType trySerialize(string filenameOut, string& output, const Document& doc)
 	}
 	catch (const exception& e)
 	{
-		cout << endl << "Serialization failed: " << e.what() << endl;
+		cout << endl << "\x1b[31;1mSerialization failed\x1b[0m: " << e.what() << endl;
 		return ErrorType::SERIALIZE;
 	}
 
@@ -161,14 +161,14 @@ ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 	if (errorParse != ErrorType::NONE)
 		return errorParse;
 
-	cout << endl << "No errors while parsing";
+	cout << endl << "No errors while \x1b[32;1mparsing\x1b[0m";
 
 	string output;
 	ErrorType errorSerialize = trySerialize<Serializer>(makeCompleteFilenameOut(filename), output, doc);
 	if (errorSerialize != ErrorType::NONE)
 		return errorSerialize;
 
-	cout << ", serializing";
+	cout << ", \x1b[32;1mserializing\x1b[0m";
 
 	Document newDoc;
 	try
@@ -177,13 +177,13 @@ ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 	}
 	catch (const exception& e)
 	{
-		cout << endl << "Parse after serialization failed: " << e.what() << endl;
+		cout << endl << "\x1b[31;1mParse after serialization failed\x1b[0m: " << e.what() << endl;
 		return ErrorType::PARSE_AFTER_SERIALIZATION;
 	}
 
 	if (newDoc != doc)
 	{
-		cout << endl << "Equality failed: serialized document not equal to parsed doc" << endl;
+		cout << endl << "\x1b[31;1mEquality failed\x1b[0m: serialized document not equal to parsed doc" << endl;
 		return ErrorType::EQUALITY;
 	}
 
@@ -193,11 +193,11 @@ ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 	}
 	catch (const exception& e)
 	{
-		cout << endl << "Test failed: " << e.what() << endl;
+		cout << endl << "\x1b[31;1mTest failed\x1b[0m: " << e.what() << endl;
 		return ErrorType::TEST;
 	}
 
-	cout << ", and testing" << endl;
+	cout << ", and \x1b[32;1mtesting\x1b[0m" << endl;
 
 	return ErrorType::NONE;
 }
@@ -293,21 +293,21 @@ ErrorType testSerializerHtml()
 	string filenameIn("files-serializer-html/" + filename + ".wbsn");
 	string filenameOut(filename + ".wbsnout"); //not html as not yet in .gitignore
 
-	cout << "Input: " << filename << endl;
+	cout << "Input: " << filename;
 
 	Document doc;
 	ErrorType errorParse = tryParse(filenameIn, doc);
 	if (errorParse != ErrorType::NONE)
 		return errorParse;
 
-	cout << "No errors while parsing";
+	cout << endl << "No errors while \x1b[32;1mparsing\x1b[0m";
 
 	string output;
 	ErrorType errorSerialize = trySerialize<SerializerHtml>(filenameOut, output, doc);
 	if (errorSerialize != ErrorType::NONE)
 		return errorSerialize;
 
-	cout << " and serializing" << endl;
+	cout << " and \x1b[32;1mserializing\x1b[0m" << endl;
 
 	return ErrorType::NONE;
 }
