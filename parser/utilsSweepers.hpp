@@ -8,6 +8,10 @@
 #include "utils/conType.hpp"
 #include "utils/smartIterator.hpp"
 
+#ifdef VOID //in Windows
+#undef VOID
+#endif
+
 namespace webss
 {
 	enum class Tag {

@@ -4,6 +4,11 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#ifdef _WIN32
+#include <windows.h>
+HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+#endif
+
 
 #include "parser/parser.hpp"
 #include "serializer/serializer.hpp"
@@ -100,12 +105,65 @@ void softAssertString(const Webss& value, string s, unsigned int line)
 #define sofertDouble(value, d) { softAssertDouble(value, d, __LINE__); }
 #define sofertString(value, s) { softAssertString(value, s, __LINE__); }
 
+#ifdef _WIN32
+int getConsoleColor() {
+	CONSOLE_SCREEN_BUFFER_INFO info;
+	if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info))
+		return 7; //gray
+	return info.wAttributes;
+}
+const auto DEFAULT_CONSOLE_COLOR = getConsoleColor();
+#endif
+
+void cStop()
+{
+#ifndef _WIN32
+	cout << "\x1b[0m";
+#else
+	SetConsoleTextAttribute(hConsole, DEFAULT_CONSOLE_COLOR);
+#endif
+}
+
+void cRed()
+{
+#ifndef _WIN32
+	cout << "\x1b[31;1m";
+#else
+	SetConsoleTextAttribute(hConsole, 12);  //4: dark red, 12: red
+#endif
+}
+
+void cGreen()
+{
+#ifndef _WIN32
+	cout << "\x1b[32;1m";
+#else
+	SetConsoleTextAttribute(hConsole, 2); //2: green, 10: light green
+#endif
+}
+
+void putRed(string content)
+{
+	cRed();
+	cout << content;
+	cStop();
+}
+
+void putGreen(string content)
+{
+	cGreen();
+	cout << content;
+	cStop();
+}
+
 ErrorType tryParse(string filenameIn, Document& doc)
 {
 	ifstream fileIn(filenameIn, ios::binary);
 	if (fileIn.fail())
 	{
-		cout << endl << "\x1b[31;1mError\x1b[0m: failed to open file \"" << filenameIn << "\"" << endl;
+		cout << endl;
+		putRed("Error");
+		cout << ": failed to open file \"" << filenameIn << "\"" << endl;
 		return ErrorType::FATAL;
 	}
 
@@ -115,7 +173,9 @@ ErrorType tryParse(string filenameIn, Document& doc)
 	}
 	catch (const exception& e)
 	{
-		cout << endl << "\x1b[31;1mParse failed\x1b[0m: " << e.what() << endl;
+		cout << endl;
+		putRed("Parse failed");
+		cout << ": " << e.what() << endl;
 		return ErrorType::PARSE;
 	}
 
@@ -128,7 +188,9 @@ ErrorType trySerialize(string filenameOut, string& output, const Document& doc)
 	ofstream fileOut(filenameOut, ios::binary);
 	if (fileOut.fail())
 	{
-		cout << endl << "\x1b[31;1mError\x1b[0m: failed to open file \"" << filenameOut << "\"" << endl;
+		cout << endl;
+		putRed("Error");
+		cout << ": failed to open file \"" << filenameOut << "\"" << endl;
 		return ErrorType::FATAL;
 	}
 
@@ -140,7 +202,9 @@ ErrorType trySerialize(string filenameOut, string& output, const Document& doc)
 	}
 	catch (const exception& e)
 	{
-		cout << endl << "\x1b[31;1mSerialization failed\x1b[0m: " << e.what() << endl;
+		cout << endl;
+		putRed("Serialization failed");
+		cout << ": " << e.what() << endl;
 		return ErrorType::SERIALIZE;
 	}
 
@@ -161,14 +225,16 @@ ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 	if (errorParse != ErrorType::NONE)
 		return errorParse;
 
-	cout << endl << "No errors while \x1b[32;1mparsing\x1b[0m";
+	cout << endl << "No errors while ";
+	putGreen("parsing");
 
 	string output;
 	ErrorType errorSerialize = trySerialize<Serializer>(makeCompleteFilenameOut(filename), output, doc);
 	if (errorSerialize != ErrorType::NONE)
 		return errorSerialize;
 
-	cout << ", \x1b[32;1mserializing\x1b[0m";
+	cout << ", ";
+	putGreen("serializing");
 
 	Document newDoc;
 	try
@@ -177,13 +243,17 @@ ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 	}
 	catch (const exception& e)
 	{
-		cout << endl << "\x1b[31;1mParse after serialization failed\x1b[0m: " << e.what() << endl;
+		cout << endl;
+		putRed("Parse after serialization failed");
+		cout << ": " << e.what() << endl;
 		return ErrorType::PARSE_AFTER_SERIALIZATION;
 	}
 
 	if (newDoc != doc)
 	{
-		cout << endl << "\x1b[31;1mEquality failed\x1b[0m: serialized document not equal to parsed doc" << endl;
+		cout << endl;
+		putRed("Equality failed");
+		cout << ": serialized document not equal to parsed doc" << endl;
 		return ErrorType::EQUALITY;
 	}
 
@@ -193,11 +263,15 @@ ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 	}
 	catch (const exception& e)
 	{
-		cout << endl << "\x1b[31;1mTest failed\x1b[0m: " << e.what() << endl;
+		cout << endl; 
+		putRed("Test failed");
+		cout << ": " << e.what() << endl;
 		return ErrorType::TEST;
 	}
 
-	cout << ", and \x1b[32;1mtesting\x1b[0m" << endl;
+	cout << ", and ";
+	putGreen("testing");
+	cout << endl;
 
 	return ErrorType::NONE;
 }
@@ -300,14 +374,17 @@ ErrorType testSerializerHtml()
 	if (errorParse != ErrorType::NONE)
 		return errorParse;
 
-	cout << endl << "No errors while \x1b[32;1mparsing\x1b[0m";
+	cout << endl << "No errors while ";
+	putGreen("parsing");
 
 	string output;
 	ErrorType errorSerialize = trySerialize<SerializerHtml>(filenameOut, output, doc);
 	if (errorSerialize != ErrorType::NONE)
 		return errorSerialize;
 
-	cout << " and \x1b[32;1mserializing\x1b[0m" << endl;
+	cout << " and ";
+	putGreen("serializing");
+	cout << endl;
 
 	return ErrorType::NONE;
 }
