@@ -173,17 +173,12 @@ void SerializerHtml::putTemplStandard(StringBuilder& out, const TemplateStandard
 		const auto& key = *keyValues[i].first;
 		const auto& value = *keyValues[i].second;
 		const auto& param = params[i];
-		if (!param.hasDefaultValue())
-		{
-			assert(!isDefaultValue(value));
-			out += ' ';
-			putKeyValue(out, key, value);
-			
-		}
-		else if (!isDefaultValue(value))
+		if (value.isNull())
+			assert(isDefaultValue(value));
+		else
 		{
 			out += ' ';
-			putKeyValue(out, key, value);
+			putKeyValue(out, key, isDefaultValue(value) ? param.getDefaultValue() : value);
 		}
 	}
 
