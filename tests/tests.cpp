@@ -105,7 +105,7 @@ ErrorType tryParse(string filenameIn, Document& doc)
 	ifstream fileIn(filenameIn, ios::binary);
 	if (fileIn.fail())
 	{
-		cout << "Error: failed to open file \"" << filenameIn << "\"" << endl;
+		cout << endl << "Error: failed to open file \"" << filenameIn << "\"" << endl;
 		return ErrorType::FATAL;
 	}
 
@@ -115,7 +115,7 @@ ErrorType tryParse(string filenameIn, Document& doc)
 	}
 	catch (const exception& e)
 	{
-		cout << "Parse failed: " << e.what() << endl;
+		cout << endl << "Parse failed: " << e.what() << endl;
 		return ErrorType::PARSE;
 	}
 
@@ -128,7 +128,7 @@ ErrorType trySerialize(string filenameOut, string& output, const Document& doc)
 	ofstream fileOut(filenameOut, ios::binary);
 	if (fileOut.fail())
 	{
-		cout << "Error: failed to open file \"" << filenameOut << "\"" << endl;
+		cout << endl << "Error: failed to open file \"" << filenameOut << "\"" << endl;
 		return ErrorType::FATAL;
 	}
 
@@ -140,7 +140,7 @@ ErrorType trySerialize(string filenameOut, string& output, const Document& doc)
 	}
 	catch (const exception& e)
 	{
-		cout << "Serialization failed: " << e.what() << endl;
+		cout << endl << "Serialization failed: " << e.what() << endl;
 		return ErrorType::SERIALIZE;
 	}
 
@@ -154,21 +154,21 @@ ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 {
 	string filenameOut(makeCompleteFilenameOut(filename));
 
-	cout << "Input: " << filename << endl;
+	cout << "Input: " << filename;
 
 	Document doc;
 	ErrorType errorParse = tryParse(makeCompleteFilenameIn(filename), doc);
 	if (errorParse != ErrorType::NONE)
 		return errorParse;
 
-	cout << "No errors while parsing" << endl;
+	cout << endl << "No errors while parsing";
 
 	string output;
 	ErrorType errorSerialize = trySerialize<Serializer>(makeCompleteFilenameOut(filename), output, doc);
 	if (errorSerialize != ErrorType::NONE)
 		return errorSerialize;
 
-	cout << "No errors while serializing" << endl;
+	cout << ", serializing";
 
 	Document newDoc;
 	try
@@ -177,13 +177,13 @@ ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 	}
 	catch (const exception& e)
 	{
-		cout << "Parse after serialization failed: " << e.what() << endl;
+		cout << endl << "Parse after serialization failed: " << e.what() << endl;
 		return ErrorType::PARSE_AFTER_SERIALIZATION;
 	}
 
 	if (newDoc != doc)
 	{
-		cout << "Equality failed: serialized document not equal to parsed doc" << endl;
+		cout << endl << "Equality failed: serialized document not equal to parsed doc" << endl;
 		return ErrorType::EQUALITY;
 	}
 
@@ -193,11 +193,11 @@ ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 	}
 	catch (const exception& e)
 	{
-		cout << "Test failed: " << e.what() << endl;
+		cout << endl << "Test failed: " << e.what() << endl;
 		return ErrorType::TEST;
 	}
 
-	cout << "No errors while testing" << endl;
+	cout << ", and testing" << endl;
 
 	return ErrorType::NONE;
 }
@@ -300,14 +300,14 @@ ErrorType testSerializerHtml()
 	if (errorParse != ErrorType::NONE)
 		return errorParse;
 
-	cout << "No errors while parsing" << endl;
+	cout << "No errors while parsing";
 
 	string output;
 	ErrorType errorSerialize = trySerialize<SerializerHtml>(filenameOut, output, doc);
 	if (errorSerialize != ErrorType::NONE)
 		return errorSerialize;
 
-	cout << "No errors while serializing" << endl;
+	cout << " and serializing" << endl;
 
 	return ErrorType::NONE;
 }
