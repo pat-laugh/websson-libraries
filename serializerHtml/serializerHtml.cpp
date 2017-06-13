@@ -2,6 +2,7 @@
 //Copyright 2017 Patrick Laughrea
 #include "serializerHtml.hpp"
 
+#include <cmath>
 #include <set>
 
 #include "structures/paramStandard.hpp"
@@ -76,7 +77,7 @@ void SerializerHtml::putKeyValue(StringBuilder& out, const string& key, const We
 			return;
 		}
 		else if (equalAny(key, { "contenteditable", "draggable", "spellcheck" }))
-			; //is a key-value with false and true
+			{ /* skip to print key-value with false and true */ }
 	}
 
 	out += ' ' + key + "=\"";
