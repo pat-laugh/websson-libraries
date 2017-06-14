@@ -22,9 +22,9 @@ COMPILE_LIBS:
 	cd $(DIR_SERIALIZER_HTML); make -s
 
 $(EXEC): $(OBJ_FILES)
-	$(CXX) -o $@ -L$(DIR_UTILS) -lutils -L$(DIR_STRUCTURES) -lstructures \
-	-L$(DIR_PARSER) -lparser -L$(DIR_SERIALIZER) -lserializer \
-	-L$(DIR_SERIALIZER_HTML) -lserializerHtml $^ -lcurl
+	$(CXX) -o $@ $^ -L$(DIR_PARSER) -lparser -lcurl \
+	-L$(DIR_SERIALIZER) -lserializer -L$(DIR_SERIALIZER_HTML) -lserializerHtml \
+	-L$(DIR_STRUCTURES) -lstructures -L$(DIR_UTILS) -lutils
 
 %.o: %.cpp
 	$(CXX) $(OPTIONS) -o $@ -c $<
