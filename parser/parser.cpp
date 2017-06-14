@@ -54,15 +54,16 @@ void initAliases(map<string, vector<string>>& aliases)
 	aliases.insert({ "alias", { "-", "a" } });
 }
 
-Parser::Parser() : it(SmartIterator(string(""))) { initEnts(ents); initAliases(aliases); }
-Parser::Parser(SmartIterator&& it) : it(move(it)) { initEnts(ents); initAliases(aliases); }
-Parser::Parser(const istream& in) : it(SmartIterator(in)) { initEnts(ents); initAliases(aliases); }
-Parser::Parser(const stringstream& in) : it(SmartIterator(in)) { initEnts(ents); initAliases(aliases); }
-Parser::Parser(const string& in) : it(SmartIterator(in)) { initEnts(ents); initAliases(aliases); }
+Parser::Parser(SmartIterator&& it) : it(move(it)), tagit(it) { initEnts(ents); initAliases(aliases); }
+Parser::Parser(const istream& in) : it(SmartIterator(in)), tagit(it) { initEnts(ents); initAliases(aliases); }
+Parser::Parser(const stringstream& in) : it(SmartIterator(in)), tagit(it) { initEnts(ents); initAliases(aliases); }
+Parser::Parser(const string& in) : it(SmartIterator(in)), tagit(it) { initEnts(ents); initAliases(aliases); }
 
 Parser& Parser::setIterator(SmartIterator&& it)
 {
 	this->it = move(it);
+	tagit.setIterator(it);
+	tagit.getTag();
 	return *this;
 }
 
@@ -76,7 +77,7 @@ const char* ERROR_VOID = "can't have void element";
 
 bool Parser::containerEmpty()
 {
-	switch (nextTag = getTag(it))
+	switch (tagit.getTag())
 	{
 	case Tag::NONE:
 		if (con.hasEndChar())
@@ -91,7 +92,7 @@ bool Parser::containerEmpty()
 	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
 		if (con.isEnd(*it))
 		{
-			++it;
+			++tagit.getItSafe();
 			return true;
 		}
 		break;
@@ -103,7 +104,7 @@ bool Parser::containerEmpty()
 
 bool Parser::checkNextElement()
 {
-	switch (nextTag = getTag(it))
+	switch (tagit.getTag())
 	{
 	case Tag::NONE:
 		if (con.hasEndChar())
@@ -112,7 +113,7 @@ bool Parser::checkNextElement()
 	case Tag::UNKNOWN:
 		throw runtime_error(ERROR_UNEXPECTED);
 	case Tag::SEPARATOR:
-		switch (nextTag = getTag(++it))
+		switch (++tagit)
 		{
 		case Tag::NONE:
 			if (con.hasEndChar())
@@ -127,7 +128,7 @@ bool Parser::checkNextElement()
 		case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
 			if (con.isEnd(*it))
 			{
-				++it;
+				++tagit.getItSafe();
 				return false;
 			}
 			break;
@@ -138,7 +139,7 @@ bool Parser::checkNextElement()
 	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
 		if (con.isEnd(*it))
 		{
-			++it;
+			++tagit.getItSafe();
 			return false;
 		}
 		break;

@@ -31,27 +31,27 @@ ParamBinary::SizeList parseBinarySizeList(Parser& parser);
 
 void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 {
-	nextTag = getTag(++it);
+	++tagit;
 	using Bhead = ParamBinary::SizeHead;
 	using Blist = ParamBinary::SizeList;
 
 	Bhead bhead;
 	Blist blist;
-	if (nextTag == Tag::END_TUPLE)
+	if (*tagit == Tag::END_TUPLE)
 	{
 		bhead = Bhead(Bhead::Type::EMPTY);
 		blist = Blist(Blist::Type::ONE);
 	}
-	else if (nextTag == Tag::START_LIST)
+	else if (*tagit == Tag::START_LIST)
 	{
 		bhead = Bhead(Bhead::Type::EMPTY);
 		blist = Blist(parseBinarySizeList(*this));
 	}
 	else
 	{
-		if (nextTag == Tag::NAME_START)
+		if (*tagit == Tag::NAME_START)
 		{
-			auto nameType = parseNameType(it, ents);
+			auto nameType = parseNameType(tagit, ents);
 			switch (nameType.type)
 			{
 			case NameType::KEYWORD:
@@ -68,9 +68,9 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 				throw runtime_error("undefined entity: " + nameType.name);
 			}
 		}
-		else if (nextTag == Tag::DIGIT || nextTag == Tag::PLUS || nextTag == Tag::MINUS)
+		else if (*tagit == Tag::DIGIT || *tagit == Tag::PLUS || *tagit == Tag::MINUS)
 			bhead = Bhead(checkBinarySize(parseNumber(*this).getInt()));
-		else if (nextTag == Tag::START_TEMPLATE)
+		else if (*tagit == Tag::START_TEMPLATE)
 		{
 			auto headWebss = parseTemplateHead(true);
 			switch (headWebss.getTypeRaw())
@@ -85,12 +85,12 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 				throw runtime_error(ERROR_BINARY_SIZE_HEAD);
 			}
 		}
-		else if (nextTag == Tag::EXPLICIT_NAME)
+		else if (*tagit == Tag::EXPLICIT_NAME)
 		{
-			nextTag = getTag(++it);
-			if (nextTag == Tag::NAME_START)
+			++tagit;
+			if (*tagit == Tag::NAME_START)
 			{
-				auto nameType = parseNameType(it, ents);
+				auto nameType = parseNameType(tagit, ents);
 				switch (nameType.type)
 				{
 				case NameType::KEYWORD: case NameType::ENTITY_ABSTRACT:
@@ -102,20 +102,20 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 					throw runtime_error("undefined entity: " + nameType.name);
 				}
 			}
-			else if (nextTag == Tag::DIGIT || nextTag == Tag::PLUS || nextTag == Tag::MINUS)
+			else if (*tagit == Tag::DIGIT || *tagit == Tag::PLUS || *tagit == Tag::MINUS)
 				bhead = Bhead::makeSizeBits(checkBinarySizeBits(parseNumber(*this).getInt()));
 			else
 				throw runtime_error(ERROR_UNEXPECTED);
 		}
 
-		if (getTag(it) == Tag::START_LIST)
+		if (tagit.getTag() == Tag::START_LIST)
 			blist = Blist(parseBinarySizeList(*this));
 		else
 			blist = Blist(Blist::Type::ONE);
 	}
 
-	skipJunkToTag(it, Tag::END_TUPLE);
-	nextTag = getTag(++it);
+	tagit.getToTag(Tag::END_TUPLE);
+	++tagit;
 	parseExplicitKeyValue(
 		CaseKeyValue
 		{
@@ -140,20 +140,20 @@ ParamBinary::SizeList parseBinarySizeList(Parser& parser)
 	Blist blist;
 	try
 	{
-		if (parser.nextTag == Tag::NAME_START)
+		if (*parser.tagit == Tag::NAME_START)
 		{
-			auto nameType = parseNameType(parser.getIt(), parser.getEnts());
+			auto nameType = parseNameType(parser.tagit, parser.getEnts());
 			if (nameType.type != NameType::ENTITY_CONCRETE)
 				throw;
 			blist = Blist(checkEntTypeBinarySize(nameType.entity));
 		}
-		else if (parser.nextTag == Tag::DIGIT || parser.nextTag == Tag::PLUS || parser.nextTag == Tag::MINUS)
+		else if (*parser.tagit == Tag::DIGIT || *parser.tagit == Tag::PLUS || *parser.tagit == Tag::MINUS)
 			blist = Blist(checkBinarySize(parseNumber(parser).getInt()));
 		else
 			throw;
-		
-		skipJunkToTag(parser.getIt(), Tag::END_LIST);
-		++parser.getIt();
+
+		parser.tagit.getToTag(Tag::END_LIST);
+		++parser.tagit.getItSafe();
 	}
 	catch (const exception&)
 	{
@@ -195,7 +195,7 @@ WebssBinarySize checkBinarySizeBits(WebssInt sizeInt)
 //entry point from parserTemplates
 Tuple Parser::parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params)
 {
-	BinaryIterator itBin(it);
+	BinaryIterator itBin(tagit.getItSafe());
 	auto tuple = parseBinaryTemplate(itBin, params);
 	if (++it != CLOSE_TUPLE)
 		throw runtime_error("binary tuple is not closed");

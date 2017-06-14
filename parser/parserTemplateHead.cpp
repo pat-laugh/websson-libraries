@@ -23,7 +23,7 @@ Webss Parser::parseTemplateHead(bool allowSelf)
 	if (containerEmpty())
 		return TemplateHeadStandard();
 
-	switch (nextTag)
+	switch (*tagit)
 	{
 	case Tag::START_TEMPLATE: case Tag::TEXT_TEMPLATE:
 	default:
@@ -33,15 +33,16 @@ Webss Parser::parseTemplateHead(bool allowSelf)
 	case Tag::SELF:
 		if (!allowSelf)
 			throw runtime_error("self in a thead must be within a non-empty thead");
-		skipJunkToTag(++it, Tag::END_TEMPLATE);
-		++it;
+		if (++tagit != Tag::END_TEMPLATE)
+			throw runtime_error("expected end of container");
+		++tagit.getItSafe();
 		return TemplateHeadSelf();
 	case Tag::EXPAND:
 		break;
 	}
 
 	//the thead is of the same type as the entity being expanded
-	auto ent = parseExpandEntity(it, ents);
+	auto ent = parseExpandEntity(tagit, ents);
 	bool isEnd = !checkNextElement();
 	auto type = ent.getContent().getType();
 	switch (type)
@@ -86,12 +87,13 @@ TemplateHeadStandard Parser::parseTemplateValueHeadText()
 
 TemplateHeadBinary Parser::parseTemplateHeadBinary(TemplateHeadBinary&& thead)
 {
+	assert(tagit.isSafe());
 	do
-		if (nextTag == Tag::START_TUPLE)
+		if (*tagit == Tag::START_TUPLE)
 			parseBinaryHead(thead);
-		else if (nextTag == Tag::EXPAND)
+		else if (*tagit == Tag::EXPAND)
 		{
-			auto ent = parseExpandEntity(it, ents);
+			auto ent = parseExpandEntity(tagit, ents);
 			if (!ent.getContent().isTemplateHeadBinary())
 				throw runtime_error(ERROR_BINARY_TEMPLATE);
 			thead.attach(ent);
@@ -104,18 +106,19 @@ TemplateHeadBinary Parser::parseTemplateHeadBinary(TemplateHeadBinary&& thead)
 
 TemplateHeadStandard Parser::parseTemplateHeadStandard(TemplateHeadStandard&& thead)
 {
+	assert(tagit.isSafe());
 	do
-		if (nextTag == Tag::START_TEMPLATE)
+		if (*tagit == Tag::START_TEMPLATE)
 			parseStandardParameterTemplateHead(*this, thead);
-		else if (nextTag == Tag::TEXT_TEMPLATE)
+		else if (*tagit == Tag::TEXT_TEMPLATE)
 		{
 			auto head = parseTemplateHeadText();
 			parseOtherValuesTheadStandardAfterThead(*this, thead);
 			thead.back().setTemplateHead(move(head), WebssType::TEMPLATE_HEAD_TEXT);
 		}
-		else if (nextTag == Tag::EXPAND)
+		else if (*tagit == Tag::EXPAND)
 		{
-			auto ent = parseExpandEntity(it, ents);
+			auto ent = parseExpandEntity(tagit, ents);
 			if (!ent.getContent().isTemplateHeadStandard())
 				throw runtime_error("expand entity within standard template head must be a standard template head");
 			thead.attach(ent);
@@ -153,7 +156,7 @@ void parseStandardParameterTemplateHead(Parser& parser, TemplateHeadStandard& th
 
 void parseOtherValuesTheadStandardAfterThead(Parser& parser, TemplateHeadStandard& thead)
 {
-	parser.nextTag = getTag(++parser.getIt());
+	parser.tagit.getTag();
 	parser.parseExplicitKeyValue(
 		CaseKeyValue{ thead.attach(move(key), move(value)); },
 		CaseKeyOnly{ thead.attachEmpty(move(key)); });

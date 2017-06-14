@@ -13,15 +13,13 @@ using namespace webss;
 
 Entity Parser::parseConcreteEntity()
 {
-	auto name = parseNameExplicit(it);
-	nextTag = getTag(it);
+	auto name = parseNameExplicit(tagit);
 	return Entity(move(name), parseCharValue());
 }
 
 Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 {
-	auto name = parseNameExplicit(it);
-	nextTag = getTag(it);
+	auto name = parseNameExplicit(tagit);
 	return Entity(name, parseAbstractCharValue(name, currentNamespace));
 }
 
@@ -30,7 +28,7 @@ Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 
 Webss Parser::parseAbstractCharValue(const string& name, const Namespace& currentNamespace)
 {
-	switch (nextTag)
+	switch (tagit.getSafe())
 	{
 	case Tag::START_DICTIONARY:
 		return parseNamespace(name, currentNamespace);
@@ -45,37 +43,37 @@ Webss Parser::parseAbstractCharValue(const string& name, const Namespace& curren
 		return parseAbstractValueEqual(name, currentNamespace);
 	case Tag::PLUS:
 		assert(*it == CHAR_THEAD_VALUE);
-		nextTag = getTag(++it);
-		if (nextTag == Tag::START_TEMPLATE)
+		++tagit;
+		if (*tagit == Tag::START_TEMPLATE)
 			return parseTemplateValueHead();
-		else if (nextTag == Tag::TEXT_TEMPLATE)
+		else if (*tagit == Tag::TEXT_TEMPLATE)
 			return Webss(parseTemplateValueHeadText(), WebssType::TEMPLATE_VALUE_HEAD_TEXT);
 	default:
-		throw runtime_error(nextTag == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
+		throw runtime_error(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
 	}
 }
 
 Webss Parser::parseAbstractValueEqual(const string& name, const Namespace& currentNamespace)
 {
-	if ((nextTag = getTag(it)) == Tag::EQUAL)
+	if (tagit.getTag() == Tag::EQUAL)
 		throw runtime_error("expected abstract value-only not starting with an equal sign");
 	return parseAbstractValueOnly(name, currentNamespace);
 }
 
 Webss Parser::parseAbstractValueOnly(const string& name, const Namespace& currentNamespace)
 {
-	switch (nextTag)
+	switch (tagit.getSafe())
 	{
 	case CASE_TAG_ABSTRACT_CHAR_VALUE:
 		return parseAbstractCharValue(name, currentNamespace);
 	case Tag::NAME_START:
 	{
-		auto nameType = parseNameType(it, ents);
+		auto nameType = parseNameType(tagit, ents);
 		if (nameType.type != NameType::ENTITY_ABSTRACT)
 			throw runtime_error("expected abstract entity");
 		return nameType.entity;
 	}
 	default:
-		throw runtime_error(nextTag == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
+		throw runtime_error(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
 	}	
 }

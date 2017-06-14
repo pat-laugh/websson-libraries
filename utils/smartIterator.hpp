@@ -41,8 +41,8 @@ namespace webss
 		bool peekGood();
 		bool peekEnd();
 
-		int getLine();
-		int getCharCount();
+		int getLine() const;
+		int getCharCount() const;
 	private:
 		std::stringstream in;
 		char c1, c2;

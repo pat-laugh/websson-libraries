@@ -11,9 +11,9 @@ NameType::NameType(string&& name) : type(Type::NAME), name(std::move(name)) {}
 NameType::NameType(Keyword keyword) : type(Type::KEYWORD), keyword(keyword) {}
 NameType::NameType(const Entity& entity) : type(entity.getContent().isAbstract() ? Type::ENTITY_ABSTRACT : Type::ENTITY_CONCRETE), entity(entity) {}
 
-NameType webss::parseNameType(SmartIterator& it, const EntityManager& ents)
+NameType webss::parseNameType(TagIterator& tagit, const EntityManager& ents)
 {
-	string name = parseName(it);
+	string name = parseName(tagit.getItSafe());
 	if (isKeyword(name))
 		return{ Keyword(name) };
 	else if (!ents.hasEntity(name))
@@ -21,15 +21,16 @@ NameType webss::parseNameType(SmartIterator& it, const EntityManager& ents)
 
 	const Entity* ent = &ents[name];
 scopeLoop:
-	if (getTag(it) != Tag::SCOPE)
+	if (tagit.getTag() != Tag::SCOPE)
 		return{ *ent };
 	try
 	{
-		skipJunkToTag(++it, Tag::NAME_START);
+		if (++tagit != Tag::NAME_START)
+			throw runtime_error("expected name-start");
 		const auto& content = ent->getContent();
 		if (content.isEnum())
-			return content.getEnum().at(parseName(it));
-		ent = &content.getNamespace().at(parseName(it));
+			return content.getEnum().at(parseName(tagit.getItSafe()));
+		ent = &content.getNamespace().at(parseName(tagit.getIt()));
 		goto scopeLoop;
 	}
 	catch (const exception&) { throw runtime_error("could not get scoped value"); }

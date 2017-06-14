@@ -11,7 +11,7 @@ using namespace webss;
 
 Webss webss::parseNumber(Parser& parser)
 {
-	auto& it = parser.getIt();
+	auto& it = parser.tagit.getItSafe();
 	bool negative = checkNumberNegative(it);
 	auto base = checkNumberBase(it);
 	auto num = parseInt(it, base);

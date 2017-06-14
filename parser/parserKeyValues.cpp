@@ -14,7 +14,7 @@ using namespace webss;
 
 Webss Parser::parseValueEqual()
 {
-	if ((nextTag = getTag(it)) == Tag::EQUAL)
+	if (tagit.getTag() == Tag::EQUAL)
 		throw runtime_error("expected value-only not starting with an equal sign");
 	return parseValueOnly();
 }
@@ -25,7 +25,7 @@ Webss Parser::parseValueEqual()
 
 Webss Parser::parseCharValue()
 {
-	switch (nextTag)
+	switch (tagit.getSafe())
 	{
 	case Tag::START_DICTIONARY: return parseDictionary();
 	case Tag::START_LIST: return parseList();
@@ -39,22 +39,22 @@ Webss Parser::parseCharValue()
 	case Tag::TEXT_TUPLE: return{ parseTupleText(), WebssType::TUPLE_TEXT };
 	case Tag::TEXT_TEMPLATE: return parseTemplateText();
 	default:
-		throw runtime_error(nextTag == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
+		throw runtime_error(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
 	}
 }
 
 Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 {
-	switch (nextTag)
+	switch (tagit.getSafe())
 	{
 	case CASE_TAG_KEY_CHAR:
 		return parseCharValue();
 	case Tag::NAME_START:
 		if (explicitName)
-			return parseOtherValueName(parseName(it));
+			return parseOtherValueName(parseName(tagit.getItSafe()));
 		else
 		{
-			auto nameType = parseNameType(it, ents);
+			auto nameType = parseNameType(tagit, ents);
 			switch (nameType.type)
 			{
 			case NameType::NAME:
@@ -72,7 +72,7 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 	case Tag::DIGIT: case Tag::MINUS: case Tag::PLUS:
 		return Webss(parseNumber(*this));
 	case Tag::EXPLICIT_NAME:
-		return parseOtherValueName(parseNameExplicit(it));
+		return parseOtherValueName(parseNameExplicit(tagit));
 	case Tag::SEPARATOR:
 		if (!allowVoid)
 			throw runtime_error("cannot have void element");
@@ -83,13 +83,13 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 		if (con.isEnd(*it))
 			return Webss();
 	default:
-		throw runtime_error(nextTag == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
+		throw runtime_error(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
 	}
 }
 
 Parser::OtherValue Parser::parseOtherValueName(string&& name)
 {
-	switch (nextTag = getTag(it))
+	switch (tagit.getTag())
 	{
 	case CASE_TAG_KEY_CHAR:
 		return{ move(name), parseOtherValue().value };

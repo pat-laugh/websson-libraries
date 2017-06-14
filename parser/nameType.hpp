@@ -4,8 +4,9 @@
 
 #include <string>
 
-#include "structures/entity.hpp"
 #include "entityManager.hpp"
+#include "tagIterator.hpp"
+#include "structures/entity.hpp"
 #include "structures/keywords.hpp"
 #include "utils/smartIterator.hpp"
 
@@ -26,5 +27,5 @@ namespace webss
 		Entity entity;
 	};
 
-	NameType parseNameType(SmartIterator& it, const EntityManager& ents);
+	NameType parseNameType(TagIterator& tagit, const EntityManager& ents);
 }

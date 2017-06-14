@@ -3,6 +3,7 @@
 #pragma once
 
 #include "entityManager.hpp"
+#include "tagIterator.hpp"
 #include "utilsSweepers.hpp"
 #include "structures/webss.hpp"
 #include "structures/documentHead.hpp"
@@ -21,7 +22,6 @@ namespace webss
 	class Parser
 	{
 	public:
-		Parser();
 		Parser(SmartIterator&& it);
 		Parser(const std::istream& in);
 		Parser(const std::stringstream& in);
@@ -31,7 +31,7 @@ namespace webss
 
 		Document parseDocument();
 
-		Tag nextTag;
+		TagIterator tagit;
 		ConType con = ConType::DOCUMENT;
 		bool multilineContainer = true;
 		bool allowVoid = false;

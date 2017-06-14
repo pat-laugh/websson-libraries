@@ -33,12 +33,12 @@ void useNamespace(EntityManager& ents, const Namespace& nspace)
 	}
 }
 
-string getItPosition(SmartIterator& it)
+string getItPosition(const SmartIterator& it)
 {
 	return "[ln " + to_string(it.getLine()) + ", ch " + to_string(it.getCharCount()) + "]";
 }
 
-string getItCurrentChar(SmartIterator& it)
+string getItCurrentChar(const SmartIterator& it)
 {
 	if (!it)
 		return string("");
@@ -74,8 +74,8 @@ Dictionary Parser::parseDictionary()
 {
 	return parseContainer<Dictionary, ConType::DICTIONARY>(Dictionary(), false, [&](Dictionary& dict)
 	{
-		if (nextTag == Tag::EXPAND)
-			expandDictionary(dict, it, ents);
+		if (*tagit == Tag::EXPAND)
+			expandDictionary(dict, tagit, ents);
 		else
 			parseExplicitKeyValue(
 				CaseKeyValue{ dict.addSafe(move(key), move(value)); },
@@ -87,10 +87,10 @@ List Parser::parseListCommon(function<void(List&)> defaultFunc)
 {
 	return parseContainer<List, ConType::LIST>(List(), false, [&](List& list)
 	{
-		switch (nextTag)
+		switch (*tagit)
 		{
 		case Tag::EXPAND:
-			expandList(list, it, ents);
+			expandList(list, tagit, ents);
 			break;
 		case Tag::EXPLICIT_NAME:
 			throw runtime_error("list can only contain values");
@@ -121,10 +121,10 @@ Tuple Parser::parseTupleCommon(function<void(Tuple&)> defaultFunc)
 {
 	return parseContainer<Tuple, ConType::TUPLE>(Tuple(), false, [&](Tuple& tuple)
 	{
-		switch (nextTag)
+		switch (*tagit)
 		{
 		case Tag::EXPAND:
-			expandTuple(tuple, it, ents);
+			expandTuple(tuple, tagit, ents);
 			break;
 		case Tag::EXPLICIT_NAME:
 			parseExplicitKeyValue(
@@ -162,10 +162,10 @@ Namespace Parser::parseNamespace(const string& name, const Namespace& previousNa
 {
 	return parseContainer<Namespace, ConType::DICTIONARY>(Namespace(name, previousNamespace), false, [&](Namespace& nspace)
 	{
-		switch (nextTag)
+		switch (*tagit)
 		{
 		case Tag::EXPAND:
-			expandNamespace(nspace, it, ents);
+			expandNamespace(nspace, tagit, ents);
 			break;
 		case Tag::ENTITY_ABSTRACT:
 			nspace.addSafe(parseAbstractEntity(nspace));
@@ -183,16 +183,16 @@ Enum Parser::parseEnum(const string& name)
 {
 	return parseContainer<Enum, ConType::LIST>(Enum(name), false, [&](Enum& tEnum)
 	{
-		switch (nextTag)
+		switch (*tagit)
 		{
 		case Tag::EXPAND:
-			expandEnum(tEnum, it, ents);
+			expandEnum(tEnum, tagit, ents);
 			break;
 		case Tag::NAME_START:
 			tEnum.addSafe(parseName(it));
 			break;
 		case Tag::EXPLICIT_NAME:
-			tEnum.addSafe(parseNameExplicit(it));
+			tEnum.addSafe(parseNameExplicit(tagit));
 			break;
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
@@ -207,12 +207,13 @@ Document Parser::parseDocument()
 		Document doc;
 		if (!containerEmpty() && !parseDocumentHead(doc, Namespace::getEmptyInstance()))
 		{
+			assert(tagit.isSafe());
 			do
 			{
-				switch (nextTag)
+				switch (*tagit)
 				{
 				case Tag::EXPAND:
-					expandDocumentBody(doc, it, ents);
+					expandDocumentBody(doc, tagit, ents);
 					break;
 				case Tag::EXPLICIT_NAME:
 					parseExplicitKeyValue(
@@ -239,10 +240,11 @@ Document Parser::parseDocument()
 
 bool Parser::parseDocumentHead(Document& doc, const Namespace& nspace)
 {
+	assert(tagit.isSafe());
 	auto& docHead = doc.getHead();
 	do
 	{
-		switch (nextTag)
+		switch (*tagit)
 		{
 		case Tag::ENTITY_ABSTRACT:
 		{
@@ -272,13 +274,14 @@ bool Parser::parseDocumentHead(Document& doc, const Namespace& nspace)
 			break;
 		case Tag::EXPAND:
 		{
-			auto ent = parseExpandEntity(it, ents);
+			auto ent = parseExpandEntity(tagit, ents);
 			if (ent.getContent().getType() != WebssType::NAMESPACE)
 			{
 				if (ent.getContent().getType() != WebssType::TUPLE && ent.getContent().getType() != WebssType::TUPLE_TEXT)
 					throw runtime_error("expand entity in document body must be a tuple");
 				for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
 					item.first == nullptr ? doc.add(*item.second) : doc.addSafe(*item.first, *item.second);
+				tagit.getTag();
 				return false;
 			}
 			auto param = ParamDocument::makeExpand(ent);
@@ -297,12 +300,17 @@ bool Parser::parseDocumentHead(Document& doc, const Namespace& nspace)
 	return true;
 }
 
-vector<string> parseScopedImportNames(SmartIterator& it)
+vector<string> parseScopedImportNames(TagIterator& tagit)
 {
+	assert(tagit.isSafe() && *tagit == Tag::NAME_START);
 	vector<string> names;
-	names.push_back(parseName(it));
-	while (getTag(it) == Tag::SCOPE)
-		names.push_back(parseName(skipJunkToTag(++it, Tag::NAME_START)));
+	names.push_back(parseName(tagit.getIt()));
+	while (tagit.getTag() == Tag::SCOPE)
+	{
+		if (++tagit != Tag::NAME_START)
+			throw runtime_error("expected name-start");
+		names.push_back(parseName(tagit.getIt()));
+	}
 	return names;
 }
 
@@ -316,12 +324,13 @@ Entity getScopedImportEntity(const unordered_map<string, Entity>& importedDoc, v
 
 ParamDocument Parser::parseScopedImport()
 {
-	nextTag = getTag(++it);
-	if (nextTag == Tag::NAME_START)
+	++tagit;
+	if (*tagit == Tag::NAME_START)
 	{
-		auto names = parseScopedImportNames(it);
+		auto names = parseScopedImportNames(tagit);
+		assert(tagit.isSafe());
 
-		if (getTag(it) != Tag::IMPORT)
+		if (*tagit != Tag::IMPORT)
 			throw runtime_error("expected import for scoped import");
 		auto import = parseImport();
 		const auto& importedDoc = ImportManager::getInstance().importDocument(import.getLink());
@@ -331,16 +340,16 @@ ParamDocument Parser::parseScopedImport()
 
 		return ParamDocument::makeScopedImport(move(ent), move(import));
 	}
-	else if (nextTag == Tag::START_LIST)
+	else if (*tagit == Tag::START_LIST)
 	{
 		auto namesList = parseContainer<vector<vector<string>>, ConType::LIST>(vector<vector<string>>(), false, [&](vector<vector<string>>& namesList)
 		{
-			if (nextTag != Tag::NAME_START)
+			if (*tagit != Tag::NAME_START)
 				throw runtime_error(ERROR_UNEXPECTED);
-			namesList.push_back(parseScopedImportNames(it));
+			namesList.push_back(parseScopedImportNames(tagit));
 		});
 
-		if (getTag(it) != Tag::IMPORT)
+		if (tagit.getTag() != Tag::IMPORT)
 			throw runtime_error("expected import for scoped import");
 		auto import = parseImport();
 		const auto& importedDoc = ImportManager::getInstance().importDocument(import.getLink());
@@ -371,7 +380,7 @@ static TemplateHeadStandard makeTheadImport()
 ImportedDocument Parser::parseImport()
 {
 	static const auto thead = makeTheadImport();
-	switch (nextTag = getTag(++it))
+	switch (++tagit)
 	{
 	case Tag::START_TUPLE:
 		return ImportedDocument(parseTemplateTupleStandard(thead.getParameters()));
@@ -386,7 +395,7 @@ ImportedDocument Parser::parseImport()
 	}
 	case Tag::EXPAND:
 	{
-		auto content = parseExpandEntity(it, ents).getContent();
+		auto content = parseExpandEntity(tagit, ents).getContent();
 		if (content.isString())
 		{
 			Tuple tuple(thead.getParameters().getSharedKeys());
@@ -414,7 +423,7 @@ ImportedDocument Parser::parseImport()
 
 void Parser::parseOption()
 {
-	++it;
+	++tagit.getItSafe();
 	auto items = parseOptionLine(*this, [](char c) { return c == '\n'; });
 
 	for (decltype(items.size()) i = 0; i < items.size(); ++i)

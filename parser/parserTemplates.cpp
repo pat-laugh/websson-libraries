@@ -35,7 +35,7 @@ public:
 
 	Webss parseTemplateBodyStandard(const ParametersStandard& params, function<Webss(const ParametersStandard& params)>&& funcTemplTupleRegular, function<Webss(const ParametersStandard& params)>&& funcTemplTupleText)
 	{
-		switch (getTag(it))
+		switch (tagit.getSafe())
 		{
 		case Tag::START_LIST:
 			return parseTemplateList<ParametersStandard>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
@@ -50,7 +50,7 @@ public:
 
 	Webss parseTemplateBodyBinary(const ParametersBinary& params, function<Webss(const ParametersBinary& params)>&& funcTemplTupleRegular, function<Webss(const ParametersBinary& params)>&& funcTemplTupleText)
 	{
-		switch (getTag(it))
+		switch (tagit.getSafe())
 		{
 		case Tag::START_LIST:
 			return parseTemplateList<ParametersBinary>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
@@ -69,7 +69,7 @@ public:
 		Tuple::size_type index = 0;
 		Tuple tuple = parseContainer<Tuple, ConType::TUPLE>(Tuple(params.getSharedKeys()), true, [&](Tuple& tuple)
 		{
-			switch (nextTag)
+			switch (*tagit)
 			{
 			case Tag::SEPARATOR: //void
 				break;
@@ -78,8 +78,7 @@ public:
 				return;
 			case Tag::EXPLICIT_NAME:
 			{
-				auto name = parseNameExplicit(it);
-				nextTag = getTag(it);
+				auto name = parseNameExplicit(tagit);
 				tuple.at(name) = isText ? Webss(parseValueOnly()) : parseTemplateContainer(params, params.at(name));
 				break;
 			}
@@ -107,12 +106,12 @@ private:
 
 	void expandTemplateList(const TemplateHeadStandard::Parameters& params, List& list)
 	{
-		fillTemplateBodyList(params, parseExpandList(it, ents), list);
+		fillTemplateBodyList(params, parseExpandList(tagit, ents), list);
 	}
 
 	void parseTemplateTupleName(const TemplateHeadStandard::Parameters& params, Tuple& tuple, Tuple::size_type& index)
 	{
-		auto nameType = parseNameType(it, ents);
+		auto nameType = parseNameType(tagit, ents);
 		if (nameType.type != NameType::NAME && params.at(index).hasTemplateHead())
 			throw runtime_error(ERROR_UNEXPECTED);
 		switch (nameType.type)
@@ -142,7 +141,7 @@ private:
 	{
 		return parseContainer<List, ConType::LIST>(List(), true, [&](List& list)
 		{
-			switch (nextTag)
+			switch (*tagit)
 			{
 			case Tag::SEPARATOR: //void
 				list.add(makeDefaultTuple(params));
@@ -226,7 +225,6 @@ Webss Parser::parseTemplateContainer(const TemplateHeadStandard::Parameters& par
 	case WebssType::TEMPLATE_HEAD_TEXT:
 		return parseTemplateBodyText(defaultValue.getTemplateHeadStandard().getParameters());
 	default:
-		nextTag = getTag(it);
 		return parseValueOnly();
 	}
 }
@@ -243,7 +241,7 @@ Tuple Parser::parseTemplateTupleText(const TemplateHeadStandard::Parameters& par
 
 Tuple::size_type Parser::expandTemplateTuple(const TemplateHeadStandard::Parameters& params, Tuple& templateTuple, Tuple::size_type index)
 {
-	return fillTemplateBodyTuple(params, parseExpandTuple(it, ents), templateTuple, index);
+	return fillTemplateBodyTuple(params, parseExpandTuple(tagit, ents), templateTuple, index);
 }
 
 List Parser::buildTemplateBodyList(const TemplateHeadStandard::Parameters& params, const List& baseList)
@@ -315,7 +313,7 @@ Webss Parser::buildTemplateBodyStandard(const TemplateHeadStandard::Parameters& 
 Tuple Parser::parseTemplateValueBinary(const TemplateHeadBinary::Parameters& params)
 {
 	Tuple body;
-	switch (getTag(it))
+	switch (tagit.getSafe())
 	{
 	case Tag::START_TUPLE: case Tag::TEXT_TUPLE:
 		body = parseTemplateTupleBinary(params);
@@ -324,7 +322,6 @@ Tuple Parser::parseTemplateValueBinary(const TemplateHeadBinary::Parameters& par
 		body = makeDefaultTuple(params);
 		break;
 	}
-	nextTag = getTag(it);
 	body.add(parseValueOnly());
 	return body;
 }
@@ -332,7 +329,7 @@ Tuple Parser::parseTemplateValueBinary(const TemplateHeadBinary::Parameters& par
 Tuple Parser::parseTemplateValueStandard(const TemplateHeadStandard::Parameters& params)
 {
 	Tuple body;
-	switch (getTag(it))
+	switch (tagit.getSafe())
 	{
 	case Tag::START_TUPLE:
 		body = parseTemplateTupleStandard(params);
@@ -344,7 +341,6 @@ Tuple Parser::parseTemplateValueStandard(const TemplateHeadStandard::Parameters&
 		body = makeDefaultTuple(params);
 		break;
 	}
-	nextTag = getTag(it);
 	body.add(parseValueOnly());
 	return body;
 }
@@ -352,7 +348,7 @@ Tuple Parser::parseTemplateValueStandard(const TemplateHeadStandard::Parameters&
 Tuple Parser::parseTemplateValueText(const TemplateHeadStandard::Parameters& params)
 {
 	Tuple body;
-	switch (getTag(it))
+	switch (tagit.getSafe())
 	{
 	case Tag::START_TUPLE: case Tag::TEXT_TUPLE:
 		body = parseTemplateTupleText(params);
@@ -361,7 +357,6 @@ Tuple Parser::parseTemplateValueText(const TemplateHeadStandard::Parameters& par
 		body = makeDefaultTuple(params);
 		break;
 	}
-	nextTag = getTag(it);
 	body.add(parseValueOnly());
 	return body;
 }

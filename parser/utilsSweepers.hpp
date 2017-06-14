@@ -7,29 +7,10 @@
 
 #include "utils/conType.hpp"
 #include "utils/smartIterator.hpp"
-
-#ifdef VOID //in Windows
-#undef VOID
-#endif
+#include "tagIterator.hpp"
 
 namespace webss
 {
-	enum class Tag {
-		NONE, UNKNOWN,
-		NAME_START, DIGIT, MINUS, PLUS, C_STRING, LINE_STRING, EQUAL,
-		START_DICTIONARY, START_LIST, START_TUPLE, START_TEMPLATE,
-		END_DICTIONARY, END_LIST, END_TUPLE, END_TEMPLATE,
-		TEXT_DICTIONARY, TEXT_LIST, TEXT_TUPLE, TEXT_TEMPLATE,
-		ENTITY_ABSTRACT, ENTITY_CONCRETE, EXPLICIT_NAME, EXPAND,
-		SCOPED_IMPORT, IMPORT, OPTION, SELF, VOID, SEPARATOR, SCOPE, SLASH
-	};
-
-	//skips junk until it finds a Tag
-	Tag getTag(SmartIterator& it);
-
-	//skips junk until tag is found; if not, throws error
-	SmartIterator& skipJunkToTag(SmartIterator& it, Tag tag);
-
 	//skips junk and valid junk operators (line escape and comments)
 	SmartIterator& skipJunk(SmartIterator& it);
 
@@ -54,5 +35,5 @@ namespace webss
 	std::string parseName(SmartIterator& it);
 
 	//skips the char currently pointed by it, skips junk, then parses a name
-	std::string parseNameExplicit(SmartIterator& it);
+	std::string parseNameExplicit(TagIterator& tagit);
 }

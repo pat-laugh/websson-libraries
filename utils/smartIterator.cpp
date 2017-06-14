@@ -95,8 +95,8 @@ char SmartIterator::peek() { return c2; }
 bool SmartIterator::peekGood() { return hasPeek; }
 bool SmartIterator::peekEnd() { return !peekGood(); }
 
-int SmartIterator::getLine() { return line; }
-int SmartIterator::getCharCount() { return charCount; }
+int SmartIterator::getLine() const { return line; }
+int SmartIterator::getCharCount() const { return charCount; }
 
 void SmartIterator::addLine()
 {
