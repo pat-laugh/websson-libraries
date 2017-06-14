@@ -141,6 +141,6 @@ SmartIterator& TagIterator::getItSafe()
 
 void TagIterator::setIterator(SmartIterator it)
 {
-	it = move(it);
+	this->it = move(it);
 	getTag();
 }
