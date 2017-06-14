@@ -325,6 +325,7 @@ void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 		break;
 	case WebssType::ENTITY:
 		assert(webss.getEntityRaw().getContent().isAbstract());
+		out += CHAR_EQUAL;
 		putEntityName(out, webss.getEntityRaw());
 		break;
 	case WebssType::NAMESPACE:

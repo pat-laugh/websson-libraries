@@ -3,6 +3,7 @@
 #include "parser.hpp"
 
 #include "errors.hpp"
+#include "nameType.hpp"
 #include "patternsContainers.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
@@ -20,28 +21,61 @@ Entity Parser::parseConcreteEntity()
 Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 {
 	auto name = parseNameExplicit(it);
-	switch (getTag(it))
+	nextTag = getTag(it);
+	return Entity(name, parseAbstractCharValue(name, currentNamespace));
+}
+
+#define CASE_TAG_ABSTRACT_CHAR_VALUE Tag::START_DICTIONARY: case Tag::START_LIST: \
+	case Tag::START_TEMPLATE: case Tag::TEXT_TEMPLATE: case Tag::EQUAL: case Tag::PLUS
+
+Webss Parser::parseAbstractCharValue(const string& name, const Namespace& currentNamespace)
+{
+	switch (nextTag)
 	{
 	case Tag::START_DICTIONARY:
-		return Entity(name, parseNamespace(name, currentNamespace));
+		return parseNamespace(name, currentNamespace);
 	case Tag::START_LIST:
-		return Entity(name, parseEnum(name));
+		return parseEnum(name);
 	case Tag::START_TEMPLATE:
-		return Entity(move(name), parseTemplateHead());
+		return parseTemplateHead();
 	case Tag::TEXT_TEMPLATE:
-		return Entity(move(name), Webss(parseTemplateHeadText(), WebssType::TEMPLATE_HEAD_TEXT));
+		return Webss(parseTemplateHeadText(), WebssType::TEMPLATE_HEAD_TEXT);
+	case Tag::EQUAL:
+		++it;
+		return parseAbstractValueEqual(name, currentNamespace);
 	case Tag::PLUS:
 		assert(*it == CHAR_THEAD_VALUE);
-		switch (getTag(++it))
-		{
-		case Tag::START_TEMPLATE:
-			return Entity(move(name), parseTemplateValueHead());
-		case Tag::TEXT_TEMPLATE:
-			return Entity(move(name), Webss(parseTemplateValueHeadText(), WebssType::TEMPLATE_VALUE_HEAD_TEXT));
-		default:
-			throw runtime_error(ERROR_UNEXPECTED);
-		}
+		nextTag = getTag(++it);
+		if (nextTag == Tag::START_TEMPLATE)
+			return parseTemplateValueHead();
+		else if (nextTag == Tag::TEXT_TEMPLATE)
+			return Webss(parseTemplateValueHeadText(), WebssType::TEMPLATE_VALUE_HEAD_TEXT);
 	default:
-		throw runtime_error(ERROR_UNEXPECTED);
+		throw runtime_error(nextTag == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
 	}
+}
+
+Webss Parser::parseAbstractValueEqual(const string& name, const Namespace& currentNamespace)
+{
+	if ((nextTag = getTag(it)) == Tag::EQUAL)
+		throw runtime_error("expected abstract value-only not starting with an equal sign");
+	return parseAbstractValueOnly(name, currentNamespace);
+}
+
+Webss Parser::parseAbstractValueOnly(const string& name, const Namespace& currentNamespace)
+{
+	switch (nextTag)
+	{
+	case CASE_TAG_ABSTRACT_CHAR_VALUE:
+		return parseAbstractCharValue(name, currentNamespace);
+	case Tag::NAME_START:
+	{
+		auto nameType = parseNameType(it, ents);
+		if (nameType.type != NameType::ENTITY_ABSTRACT)
+			throw runtime_error("expected abstract entity");
+		return nameType.entity;
+	}
+	default:
+		throw runtime_error(nextTag == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
+	}	
 }

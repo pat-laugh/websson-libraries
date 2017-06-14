@@ -1,0 +1,14 @@
+!Nspace = { ?Name1=N }
+!Enum = [ Elem1, Elem2 ]
+!Thead = <val1, val2>
+!TheadValue = +<^Thead>
+!Nspace2 = Nspace
+!Enum2 = Enum
+!Thead2 = Thead
+!TheadValue2 = TheadValue
+
+name1 = Nspace2.Name1
+elem1 = Enum2.Elem1
+elem2 = Enum2.Elem2
+Thead2::(val1, val2)
+TheaValue2::(val1, val2):more stuff

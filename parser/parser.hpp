@@ -109,6 +109,11 @@ namespace webss
 		void parseOptionVersion(const std::vector<std::string>& items, std::vector<std::string>::size_type& index);
 		void parseOptionAlias(const std::vector<std::string>& items, std::vector<std::string>::size_type& index);
 
+		//parserEntities.cpp
+		Webss parseAbstractCharValue(const std::string& name, const Namespace& currentNamespace);
+		Webss parseAbstractValueEqual(const std::string& name, const Namespace& currentNamespace);
+		Webss parseAbstractValueOnly(const std::string& name, const Namespace& currentNamespace);
+
 		//parserKeyValues.cpp
 		Webss parseValueEqual();
 		Webss parseCharValue();
