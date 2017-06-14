@@ -25,7 +25,7 @@ const string& expandString(Parser& parser);
 
 string webss::parseStickyLineString(Parser& parser)
 {
-	auto& it = parser.tagit.getItSafe();
+	auto& it = parser.getItSafe();
 	StringBuilder sb;
 	while (it && !isJunk(*it))
 	{
@@ -44,7 +44,7 @@ string webss::parseStickyLineString(Parser& parser)
 
 string webss::parseLineString(Parser& parser)
 {
-	auto& it = parser.tagit.getItSafe();
+	auto& it = parser.getItSafe();
 	skipLineJunk(it);
 	StringBuilder sb;
 	if (parser.multilineContainer)
@@ -88,7 +88,7 @@ struct MultilineStringOptions
 
 MultilineStringOptions checkMultilineStringOptions(Parser& parser)
 {
-	auto& it = parser.tagit.getItSafe();
+	auto& it = parser.getIt();
 	MultilineStringOptions options{ false, false, false, false, false };
 	if (*it == OPEN_DICTIONARY)
 		return options;
@@ -371,7 +371,7 @@ string parseMultilineStringLineNoIndent(SmartIterator& it, bool opJunkOperators)
 
 string parseMultilineStringRegular(Parser& parser)
 {
-	auto& it = parser.tagit.getItSafe();
+	auto& it = parser.getIt();
 	Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, true);
 	StringBuilder sb;
 	if (skipJunk(it) == CLOSE_DICTIONARY)
@@ -456,7 +456,7 @@ bool hasNextCharSpecial(SmartIterator& it, StringBuilder& sb)
 
 string webss::parseMultilineString(Parser& parser)
 {
-	auto& it = parser.tagit.getItSafe();
+	auto& it = parser.getItSafe();
 	if (*it == OPEN_DICTIONARY)
 		return parseMultilineStringRegular(parser);
 	auto options = checkMultilineStringOptions(parser);
@@ -538,7 +538,7 @@ loopStart:
 
 string webss::parseCString(Parser& parser)
 {
-	auto& it = parser.tagit.getItSafe();
+	auto& it = parser.getItSafe();
 	++it;
 	StringBuilder sb;
 	while (it)
@@ -635,7 +635,7 @@ bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondi
 
 bool checkStringExpand(Parser& parser, StringBuilder& sb)
 {
-	auto& it = parser.tagit.getItSafe();
+	auto& it = parser.getIt();
 	if (it.peekEnd() || !isNameStart(it.peek()))
 		return false;
 
@@ -646,7 +646,7 @@ bool checkStringExpand(Parser& parser, StringBuilder& sb)
 
 const string& expandString(Parser& parser)
 {
-	auto& it = parser.tagit.getItSafe();
+	auto& it = parser.getIt();
 	try
 	{
 		const Webss* value = &parser.getEnts().at(parseName(it)).getContent();

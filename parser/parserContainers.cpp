@@ -189,7 +189,7 @@ Enum Parser::parseEnum(const string& name)
 			expandEnum(tEnum, tagit, ents);
 			break;
 		case Tag::NAME_START:
-			tEnum.addSafe(parseName(it));
+			tEnum.addSafe(parseName(getIt()));
 			break;
 		case Tag::EXPLICIT_NAME:
 			tEnum.addSafe(parseNameExplicit(tagit));
@@ -234,7 +234,7 @@ Document Parser::parseDocument()
 	}
 	catch (const exception& e)
 	{
-		throw runtime_error(string(getItPosition(it) + ' ' + e.what() + getItCurrentChar(it)).c_str());
+		throw runtime_error(string(getItPosition(getIt()) + ' ' + e.what() + getItCurrentChar(getIt())).c_str());
 	}
 }
 
@@ -423,7 +423,7 @@ ImportedDocument Parser::parseImport()
 
 void Parser::parseOption()
 {
-	++tagit.getItSafe();
+	++getItSafe();
 	auto items = parseOptionLine(*this, [](char c) { return c == '\n'; });
 
 	for (decltype(items.size()) i = 0; i < items.size(); ++i)

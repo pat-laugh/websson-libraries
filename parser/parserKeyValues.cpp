@@ -31,8 +31,8 @@ Webss Parser::parseCharValue()
 	case Tag::START_LIST: return parseList();
 	case Tag::START_TUPLE: return parseTuple();
 	case Tag::START_TEMPLATE: return parseTemplate();
-	case Tag::LINE_STRING: ++it; return parseLineString(*this);
-	case Tag::EQUAL: ++it; return parseValueEqual();
+	case Tag::LINE_STRING: ++getIt(); return parseLineString(*this);
+	case Tag::EQUAL: ++getIt(); return parseValueEqual();
 	case Tag::C_STRING: return parseCString(*this);
 	case Tag::TEXT_DICTIONARY: return parseMultilineString(*this);
 	case Tag::TEXT_LIST: return{ parseListText(), WebssType::LIST_TEXT };
@@ -51,7 +51,7 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 		return parseCharValue();
 	case Tag::NAME_START:
 		if (explicitName)
-			return parseOtherValueName(parseName(tagit.getItSafe()));
+			return parseOtherValueName(parseName(getItSafe()));
 		else
 		{
 			auto nameType = parseNameType(tagit, ents);
@@ -80,7 +80,7 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
 		if (!allowVoid)
 			throw runtime_error("cannot have void element");
-		if (con.isEnd(*it))
+		if (con.isEnd(*getIt()))
 			return Webss();
 	default:
 		throw runtime_error(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);

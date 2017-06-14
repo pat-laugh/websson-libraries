@@ -10,13 +10,11 @@
 using namespace std;
 using namespace webss;
 
-#define getItPtr() (*itPtr)
-
-TagIterator::TagIterator(SmartIterator& it) : itPtr(&it) { getTag(); }
+TagIterator::TagIterator(SmartIterator it) : it(move(it)) { getTag(); }
 
 TagIterator& TagIterator::operator=(TagIterator&& o)
 {
-	itPtr = o.itPtr;
+	it = move(o.it);
 	tag = o.tag;
 	valid = o.valid;
 	return *this;
@@ -24,7 +22,7 @@ TagIterator& TagIterator::operator=(TagIterator&& o)
 
 Tag TagIterator::operator++()
 {
-	++getItPtr();
+	++it;
 	return getTag();
 }
 
@@ -36,13 +34,13 @@ Tag TagIterator::operator*()
 Tag TagIterator::incSafe()
 {
 	if (valid)
-		++getItPtr();
+		++it;
 	return getTag();
 }
 
 Tag TagIterator::getSafe()
 {
-	if (!valid || !getItPtr() || isJunk(*getItPtr()) || checkJunkOperators(getItPtr()))
+	if (!valid || !it || isJunk(*it) || checkJunkOperators(it))
 		return getTag();
 	return tag;
 }
@@ -67,12 +65,12 @@ Tag getTagColon(SmartIterator& it)
 Tag TagIterator::getTag()
 {
 	valid = true;
-	if (!getItPtr())
+	if (!it)
 		return (tag = Tag::NONE);
-	switch (*getItPtr())
+	switch (*it)
 	{
 	case CHAR_CSTRING: return (tag = Tag::C_STRING);
-	case CHAR_COLON: return (tag = getTagColon(getItPtr()));
+	case CHAR_COLON: return (tag = getTagColon(it));
 	case CHAR_EQUAL: return (tag = Tag::EQUAL);
 	case OPEN_DICTIONARY: return (tag = Tag::START_DICTIONARY);
 	case OPEN_LIST: return (tag = Tag::START_LIST);
@@ -97,12 +95,12 @@ Tag TagIterator::getTag()
 	case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x06: case 0x07: case 0x08: case 0x09: case 0x0a: case 0x0b: case 0x0c: case 0x0d: case 0x0e: case 0x0f:
 	case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x16: case 0x17: case 0x18: case 0x19: case 0x1a: case 0x1b: case 0x1c: case 0x1d: case 0x1e: case 0x1f:
 	case 0x20: case 0x7f:
-		skipJunk(++getItPtr());
+		skipJunk(++it);
 		return getTag();
 
 		//junk operators
 	case '/':
-		return checkJunkOperators(getItPtr()) ? getTag() : (tag = Tag::SLASH);
+		return checkJunkOperators(it) ? getTag() : (tag = Tag::SLASH);
 
 		//name start
 	case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 'I': case 'J': case 'K': case 'L': case 'M':
@@ -111,7 +109,7 @@ Tag TagIterator::getTag()
 	case 'n': case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u': case 'v': case 'w': case 'x': case 'y': case 'z':
 		return (tag = Tag::NAME_START);
 	default:
-		return (tag = (unsigned char)*getItPtr() > 127 ? Tag::NAME_START : Tag::UNKNOWN);
+		return (tag = (unsigned char)*it > 127 ? Tag::NAME_START : Tag::UNKNOWN);
 
 		//number start
 	case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
@@ -127,22 +125,22 @@ TagIterator& TagIterator::getToTag(Tag tag)
 {
 	if (getSafe() == tag)
 		return *this;
-	throw runtime_error(getItPtr() ? ERROR_UNEXPECTED : ERROR_EXPECTED);
+	throw runtime_error(it ? ERROR_UNEXPECTED : ERROR_EXPECTED);
 }
 
 SmartIterator& TagIterator::getIt()
 {
-	return getItPtr();
+	return it;
 }
 
 SmartIterator& TagIterator::getItSafe()
 {
 	valid = false;
-	return getItPtr();
+	return it;
 }
 
-void TagIterator::setIterator(SmartIterator& it)
+void TagIterator::setIterator(SmartIterator it)
 {
-	itPtr = &it;
-	valid = false;
+	it = move(it);
+	getTag();
 }

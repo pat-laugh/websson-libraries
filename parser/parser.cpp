@@ -54,16 +54,14 @@ void initAliases(map<string, vector<string>>& aliases)
 	aliases.insert({ "alias", { "-", "a" } });
 }
 
-Parser::Parser(SmartIterator&& it) : it(move(it)), tagit(it) { initEnts(ents); initAliases(aliases); }
-Parser::Parser(const istream& in) : it(SmartIterator(in)), tagit(it) { initEnts(ents); initAliases(aliases); }
-Parser::Parser(const stringstream& in) : it(SmartIterator(in)), tagit(it) { initEnts(ents); initAliases(aliases); }
-Parser::Parser(const string& in) : it(SmartIterator(in)), tagit(it) { initEnts(ents); initAliases(aliases); }
+Parser::Parser(SmartIterator&& it) : tagit(move(it)) { initEnts(ents); initAliases(aliases); }
+Parser::Parser(const istream& in) : tagit(SmartIterator(in)) { initEnts(ents); initAliases(aliases); }
+Parser::Parser(const stringstream& in) : tagit(SmartIterator(in)) { initEnts(ents); initAliases(aliases); }
+Parser::Parser(const string& in) : tagit(SmartIterator(in)) { initEnts(ents); initAliases(aliases); }
 
 Parser& Parser::setIterator(SmartIterator&& it)
 {
-	this->it = move(it);
-	tagit.setIterator(it);
-	tagit.getTag();
+	tagit.setIterator(move(it));
 	return *this;
 }
 
@@ -90,9 +88,9 @@ bool Parser::containerEmpty()
 			throw runtime_error(ERROR_VOID);
 		break;
 	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
-		if (con.isEnd(*it))
+		if (con.isEnd(*getIt()))
 		{
-			++tagit.getItSafe();
+			++getItSafe();
 			return true;
 		}
 		break;
@@ -126,9 +124,9 @@ bool Parser::checkNextElement()
 				throw runtime_error(ERROR_VOID);
 			break;
 		case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
-			if (con.isEnd(*it))
+			if (con.isEnd(*getIt()))
 			{
-				++tagit.getItSafe();
+				++getItSafe();
 				return false;
 			}
 			break;
@@ -137,9 +135,9 @@ bool Parser::checkNextElement()
 		}
 		break;
 	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
-		if (con.isEnd(*it))
+		if (con.isEnd(*getIt()))
 		{
-			++tagit.getItSafe();
+			++getItSafe();
 			return false;
 		}
 		break;

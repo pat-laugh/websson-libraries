@@ -39,10 +39,10 @@ Webss Parser::parseAbstractCharValue(const string& name, const Namespace& curren
 	case Tag::TEXT_TEMPLATE:
 		return Webss(parseTemplateHeadText(), WebssType::TEMPLATE_HEAD_TEXT);
 	case Tag::EQUAL:
-		++it;
+		++getIt();
 		return parseAbstractValueEqual(name, currentNamespace);
 	case Tag::PLUS:
-		assert(*it == CHAR_THEAD_VALUE);
+		assert(*getIt() == CHAR_THEAD_VALUE);
 		++tagit;
 		if (*tagit == Tag::START_TEMPLATE)
 			return parseTemplateValueHead();

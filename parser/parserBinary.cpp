@@ -153,7 +153,7 @@ ParamBinary::SizeList parseBinarySizeList(Parser& parser)
 			throw;
 
 		parser.tagit.getToTag(Tag::END_LIST);
-		++parser.tagit.getItSafe();
+		++parser.getItSafe();
 	}
 	catch (const exception&)
 	{
@@ -195,11 +195,11 @@ WebssBinarySize checkBinarySizeBits(WebssInt sizeInt)
 //entry point from parserTemplates
 Tuple Parser::parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params)
 {
-	BinaryIterator itBin(tagit.getItSafe());
+	BinaryIterator itBin(getIt());
 	auto tuple = parseBinaryTemplate(itBin, params);
-	if (++it != CLOSE_TUPLE)
+	if (++getIt() != CLOSE_TUPLE)
 		throw runtime_error("binary tuple is not closed");
-	++it;
+	++getItSafe();
 	return tuple;
 }
 

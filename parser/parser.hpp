@@ -42,7 +42,8 @@ namespace webss
 		template <class Container, ConType::Enum CON>
 		Container parseContainer(Container&& cont, bool allowVoid, std::function<void(Container& cont)> func);
 
-		SmartIterator& getIt() { return it; }
+		SmartIterator& getIt() { return tagit.getIt(); }
+		SmartIterator& getItSafe() { return tagit.getItSafe(); }
 		const EntityManager& getEnts() { return ents; }
 		ConType getCurrentContainer() { return con; }
 
@@ -86,7 +87,6 @@ namespace webss
 		ImportedDocument parseImport();
 
 	protected:
-		SmartIterator it;
 		EntityManager ents;
 
 		//returns true if has next element, else false

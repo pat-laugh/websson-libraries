@@ -23,7 +23,7 @@ namespace webss
 	class TagIterator
 	{
 	public:
-		TagIterator(SmartIterator& it);
+		TagIterator(SmartIterator it);
 
 		TagIterator& operator=(TagIterator&& o);
 		TagIterator& operator=(const TagIterator& o) = delete;
@@ -47,12 +47,12 @@ namespace webss
 		//invalidates the tag iterator
 		SmartIterator& getItSafe();
 
-		void setIterator(SmartIterator& it);
+		void setIterator(SmartIterator it);
 
 		bool isSafe() { return valid; }
 
 	private:
-		SmartIterator* itPtr;
+		SmartIterator it;
 		Tag tag;
 		bool valid;
 	};
