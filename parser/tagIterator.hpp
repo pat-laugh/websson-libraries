@@ -29,16 +29,13 @@ namespace webss
 		TagIterator& operator=(const TagIterator& o) = delete;
 
 		//advances the iterator by one then sets a tag
-		Tag operator++(); //prefix
+		TagIterator& operator++(); //prefix
+		TagIterator& incSafe();
 
-		Tag operator*();
-
-		Tag incSafe();
+		Tag operator*() const;
 		Tag getSafe();
 
-		//only advances the iterator if it points to junk,
-		//then sets tag currently pointed to
-		Tag getTag();
+		operator Tag() const;
 
 		TagIterator& getToTag(Tag tag);
 
@@ -51,9 +48,16 @@ namespace webss
 
 		bool isSafe() { return valid; }
 
+		//sets tag to what the iterator currently points to
+		Tag update();
+
 	private:
 		SmartIterator it;
 		Tag tag;
 		bool valid;
+
+		//only advances the iterator if it points to junk,
+		//then sets tag currently pointed to
+		Tag getTag();
 	};
 }

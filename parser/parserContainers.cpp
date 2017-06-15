@@ -189,7 +189,7 @@ Enum Parser::parseEnum(const string& name)
 			expandEnum(tEnum, tagit, ents);
 			break;
 		case Tag::NAME_START:
-			tEnum.addSafe(parseName(getIt()));
+			tEnum.addSafe(parseName(getItSafe()));
 			break;
 		case Tag::EXPLICIT_NAME:
 			tEnum.addSafe(parseNameExplicit(tagit));
@@ -207,7 +207,6 @@ Document Parser::parseDocument()
 		Document doc;
 		if (!containerEmpty() && !parseDocumentHead(doc, Namespace::getEmptyInstance()))
 		{
-			assert(tagit.isSafe());
 			do
 			{
 				switch (*tagit)
@@ -240,7 +239,6 @@ Document Parser::parseDocument()
 
 bool Parser::parseDocumentHead(Document& doc, const Namespace& nspace)
 {
-	assert(tagit.isSafe());
 	auto& docHead = doc.getHead();
 	do
 	{
@@ -281,7 +279,7 @@ bool Parser::parseDocumentHead(Document& doc, const Namespace& nspace)
 					throw runtime_error("expand entity in document body must be a tuple");
 				for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
 					item.first == nullptr ? doc.add(*item.second) : doc.addSafe(*item.first, *item.second);
-				tagit.getTag();
+				tagit.getSafe();
 				return false;
 			}
 			auto param = ParamDocument::makeExpand(ent);
@@ -302,10 +300,10 @@ bool Parser::parseDocumentHead(Document& doc, const Namespace& nspace)
 
 vector<string> parseScopedImportNames(TagIterator& tagit)
 {
-	assert(tagit.isSafe() && *tagit == Tag::NAME_START);
+	assert(*tagit == Tag::NAME_START);
 	vector<string> names;
 	names.push_back(parseName(tagit.getIt()));
-	while (tagit.getTag() == Tag::SCOPE)
+	while (tagit.update() == Tag::SCOPE)
 	{
 		if (++tagit != Tag::NAME_START)
 			throw runtime_error("expected name-start");
@@ -324,11 +322,9 @@ Entity getScopedImportEntity(const unordered_map<string, Entity>& importedDoc, v
 
 ParamDocument Parser::parseScopedImport()
 {
-	++tagit;
-	if (*tagit == Tag::NAME_START)
+	if (++tagit == Tag::NAME_START)
 	{
 		auto names = parseScopedImportNames(tagit);
-		assert(tagit.isSafe());
 
 		if (*tagit != Tag::IMPORT)
 			throw runtime_error("expected import for scoped import");
@@ -349,7 +345,7 @@ ParamDocument Parser::parseScopedImport()
 			namesList.push_back(parseScopedImportNames(tagit));
 		});
 
-		if (tagit.getTag() != Tag::IMPORT)
+		if (*tagit != Tag::IMPORT)
 			throw runtime_error("expected import for scoped import");
 		auto import = parseImport();
 		const auto& importedDoc = ImportManager::getInstance().importDocument(import.getLink());

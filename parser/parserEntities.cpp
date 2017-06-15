@@ -39,12 +39,11 @@ Webss Parser::parseAbstractCharValue(const string& name, const Namespace& curren
 	case Tag::TEXT_TEMPLATE:
 		return Webss(parseTemplateHeadText(), WebssType::TEMPLATE_HEAD_TEXT);
 	case Tag::EQUAL:
-		++getIt();
+		++tagit;
 		return parseAbstractValueEqual(name, currentNamespace);
 	case Tag::PLUS:
 		assert(*getIt() == CHAR_THEAD_VALUE);
-		++tagit;
-		if (*tagit == Tag::START_TEMPLATE)
+		if (++tagit == Tag::START_TEMPLATE)
 			return parseTemplateValueHead();
 		else if (*tagit == Tag::TEXT_TEMPLATE)
 			return Webss(parseTemplateValueHeadText(), WebssType::TEMPLATE_VALUE_HEAD_TEXT);
@@ -55,7 +54,7 @@ Webss Parser::parseAbstractCharValue(const string& name, const Namespace& curren
 
 Webss Parser::parseAbstractValueEqual(const string& name, const Namespace& currentNamespace)
 {
-	if (tagit.getTag() == Tag::EQUAL)
+	if (tagit.getSafe() == Tag::EQUAL)
 		throw runtime_error("expected abstract value-only not starting with an equal sign");
 	return parseAbstractValueOnly(name, currentNamespace);
 }

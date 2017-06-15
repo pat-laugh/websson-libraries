@@ -14,7 +14,7 @@ using namespace webss;
 
 Webss Parser::parseValueEqual()
 {
-	if (tagit.getTag() == Tag::EQUAL)
+	if (tagit.getSafe() == Tag::EQUAL)
 		throw runtime_error("expected value-only not starting with an equal sign");
 	return parseValueOnly();
 }
@@ -32,7 +32,7 @@ Webss Parser::parseCharValue()
 	case Tag::START_TUPLE: return parseTuple();
 	case Tag::START_TEMPLATE: return parseTemplate();
 	case Tag::LINE_STRING: ++getIt(); return parseLineString(*this);
-	case Tag::EQUAL: ++getIt(); return parseValueEqual();
+	case Tag::EQUAL: ++tagit; return parseValueEqual();
 	case Tag::C_STRING: return parseCString(*this);
 	case Tag::TEXT_DICTIONARY: return parseMultilineString(*this);
 	case Tag::TEXT_LIST: return{ parseListText(), WebssType::LIST_TEXT };
@@ -89,7 +89,7 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 
 Parser::OtherValue Parser::parseOtherValueName(string&& name)
 {
-	switch (tagit.getTag())
+	switch (tagit.getSafe())
 	{
 	case CASE_TAG_KEY_CHAR:
 		return{ move(name), parseOtherValue().value };

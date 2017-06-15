@@ -31,13 +31,12 @@ ParamBinary::SizeList parseBinarySizeList(Parser& parser);
 
 void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 {
-	++tagit;
 	using Bhead = ParamBinary::SizeHead;
 	using Blist = ParamBinary::SizeList;
 
 	Bhead bhead;
 	Blist blist;
-	if (*tagit == Tag::END_TUPLE)
+	if (++tagit == Tag::END_TUPLE)
 	{
 		bhead = Bhead(Bhead::Type::EMPTY);
 		blist = Blist(Blist::Type::ONE);
@@ -49,7 +48,9 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 	}
 	else
 	{
-		if (*tagit == Tag::NAME_START)
+		switch (*tagit)
+		{
+		case Tag::NAME_START:
 		{
 			auto nameType = parseNameType(tagit, ents);
 			switch (nameType.type)
@@ -67,10 +68,12 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 			default:
 				throw runtime_error("undefined entity: " + nameType.name);
 			}
+			break;
 		}
-		else if (*tagit == Tag::DIGIT || *tagit == Tag::PLUS || *tagit == Tag::MINUS)
+		case Tag::DIGIT: case Tag::PLUS: case Tag::MINUS:
 			bhead = Bhead(checkBinarySize(parseNumber(*this).getInt()));
-		else if (*tagit == Tag::START_TEMPLATE)
+			break;
+		case Tag::START_TEMPLATE:
 		{
 			auto headWebss = parseTemplateHead(true);
 			switch (headWebss.getTypeRaw())
@@ -84,11 +87,10 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 			default:
 				throw runtime_error(ERROR_BINARY_SIZE_HEAD);
 			}
+			break;
 		}
-		else if (*tagit == Tag::EXPLICIT_NAME)
-		{
-			++tagit;
-			if (*tagit == Tag::NAME_START)
+		case Tag::EXPLICIT_NAME:
+			if (++tagit == Tag::NAME_START)
 			{
 				auto nameType = parseNameType(tagit, ents);
 				switch (nameType.type)
@@ -106,9 +108,11 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 				bhead = Bhead::makeSizeBits(checkBinarySizeBits(parseNumber(*this).getInt()));
 			else
 				throw runtime_error(ERROR_UNEXPECTED);
+		default:
+			break;
 		}
 
-		if (tagit.getTag() == Tag::START_LIST)
+		if (tagit.getSafe() == Tag::START_LIST)
 			blist = Blist(parseBinarySizeList(*this));
 		else
 			blist = Blist(Blist::Type::ONE);
@@ -153,7 +157,7 @@ ParamBinary::SizeList parseBinarySizeList(Parser& parser)
 			throw;
 
 		parser.tagit.getToTag(Tag::END_LIST);
-		++parser.getItSafe();
+		++parser.tagit;
 	}
 	catch (const exception&)
 	{
@@ -195,11 +199,11 @@ WebssBinarySize checkBinarySizeBits(WebssInt sizeInt)
 //entry point from parserTemplates
 Tuple Parser::parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params)
 {
-	BinaryIterator itBin(getIt());
+	BinaryIterator itBin(getItSafe());
 	auto tuple = parseBinaryTemplate(itBin, params);
 	if (++getIt() != CLOSE_TUPLE)
 		throw runtime_error("binary tuple is not closed");
-	++getItSafe();
+	tagit.incSafe();
 	return tuple;
 }
 

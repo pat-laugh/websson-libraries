@@ -15,7 +15,6 @@ using namespace webss;
 const char ERROR_BINARY_TEMPLATE[] = "all values in a binary template must be binary";
 
 void parseStandardParameterTemplateHead(Parser& parser, TemplateHeadStandard& thead);
-void parseOtherValuesTheadStandardAfterThead(Parser& parser, TemplateHeadStandard& thead);
 
 Webss Parser::parseTemplateHead(bool allowSelf)
 {
@@ -35,7 +34,7 @@ Webss Parser::parseTemplateHead(bool allowSelf)
 			throw runtime_error("self in a thead must be within a non-empty thead");
 		if (++tagit != Tag::END_TEMPLATE)
 			throw runtime_error("expected end of container");
-		++getItSafe();
+		++tagit;
 		return TemplateHeadSelf();
 	case Tag::EXPAND:
 		break;
@@ -87,7 +86,6 @@ TemplateHeadStandard Parser::parseTemplateValueHeadText()
 
 TemplateHeadBinary Parser::parseTemplateHeadBinary(TemplateHeadBinary&& thead)
 {
-	assert(tagit.isSafe());
 	do
 		if (*tagit == Tag::START_TUPLE)
 			parseBinaryHead(thead);
@@ -104,9 +102,15 @@ TemplateHeadBinary Parser::parseTemplateHeadBinary(TemplateHeadBinary&& thead)
 	return move(thead);
 }
 
+void parseOtherValuesTheadStandardAfterThead(Parser& parser, TemplateHeadStandard& thead)
+{
+	parser.parseExplicitKeyValue(
+		CaseKeyValue{ thead.attach(move(key), move(value)); },
+		CaseKeyOnly{ thead.attachEmpty(move(key)); });
+}
+
 TemplateHeadStandard Parser::parseTemplateHeadStandard(TemplateHeadStandard&& thead)
 {
-	assert(tagit.isSafe());
 	do
 		if (*tagit == Tag::START_TEMPLATE)
 			parseStandardParameterTemplateHead(*this, thead);
@@ -152,12 +156,4 @@ void parseStandardParameterTemplateHead(Parser& parser, TemplateHeadStandard& th
 	default:
 		assert(false);
 	}
-}
-
-void parseOtherValuesTheadStandardAfterThead(Parser& parser, TemplateHeadStandard& thead)
-{
-	parser.tagit.getTag();
-	parser.parseExplicitKeyValue(
-		CaseKeyValue{ thead.attach(move(key), move(value)); },
-		CaseKeyOnly{ thead.attachEmpty(move(key)); });
 }

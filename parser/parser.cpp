@@ -75,7 +75,7 @@ const char* ERROR_VOID = "can't have void element";
 
 bool Parser::containerEmpty()
 {
-	switch (tagit.getTag())
+	switch (tagit.getSafe())
 	{
 	case Tag::NONE:
 		if (con.hasEndChar())
@@ -90,7 +90,7 @@ bool Parser::containerEmpty()
 	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
 		if (con.isEnd(*getIt()))
 		{
-			++getItSafe();
+			++tagit;
 			return true;
 		}
 		break;
@@ -102,7 +102,7 @@ bool Parser::containerEmpty()
 
 bool Parser::checkNextElement()
 {
-	switch (tagit.getTag())
+	switch (tagit.getSafe())
 	{
 	case Tag::NONE:
 		if (con.hasEndChar())
@@ -126,7 +126,7 @@ bool Parser::checkNextElement()
 		case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
 			if (con.isEnd(*getIt()))
 			{
-				++getItSafe();
+				++tagit;
 				return false;
 			}
 			break;
@@ -137,7 +137,7 @@ bool Parser::checkNextElement()
 	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
 		if (con.isEnd(*getIt()))
 		{
-			++getItSafe();
+			++tagit;
 			return false;
 		}
 		break;

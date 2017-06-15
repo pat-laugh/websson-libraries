@@ -21,7 +21,7 @@ NameType webss::parseNameType(TagIterator& tagit, const EntityManager& ents)
 
 	const Entity* ent = &ents[name];
 scopeLoop:
-	if (tagit.getTag() != Tag::SCOPE)
+	if (tagit.update() != Tag::SCOPE)
 		return{ *ent };
 	try
 	{

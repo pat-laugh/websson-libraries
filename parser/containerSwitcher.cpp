@@ -10,7 +10,7 @@ Parser::ContainerSwitcher::ContainerSwitcher(Parser& parser, ConType newCon, boo
 {
 	parser.con = newCon;
 	parser.allowVoid = newAllowVoid;
-	parser.multilineContainer = checkLineEmpty(++parser.tagit.getItSafe());
+	parser.multilineContainer = checkLineEmpty(++parser.getItSafe());
 }
 
 Parser::ContainerSwitcher::~ContainerSwitcher()
