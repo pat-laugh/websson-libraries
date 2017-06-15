@@ -216,14 +216,20 @@ Webss Parser::parseTemplateContainer(const TemplateHeadStandard::Parameters& par
 {
 	switch (defaultValue.getTypeThead())
 	{
-	case WebssType::TEMPLATE_HEAD_BINARY:
-		return parseTemplateBodyBinary(defaultValue.getTemplateHeadBinary().getParameters());
 	case WebssType::TEMPLATE_HEAD_SELF:
 		return parseTemplateBodyStandard(params);
+	case WebssType::TEMPLATE_HEAD_BINARY:
+		return parseTemplateBodyBinary(defaultValue.getTemplateHeadBinary().getParameters());
 	case WebssType::TEMPLATE_HEAD_STANDARD:
 		return parseTemplateBodyStandard(defaultValue.getTemplateHeadStandard().getParameters());
 	case WebssType::TEMPLATE_HEAD_TEXT:
 		return parseTemplateBodyText(defaultValue.getTemplateHeadStandard().getParameters());
+	case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
+		return parseTemplateValueBinary(defaultValue.getTemplateHeadBinary().getParameters());
+	case WebssType::TEMPLATE_VALUE_HEAD_STANDARD:
+		return parseTemplateValueStandard(defaultValue.getTemplateHeadStandard().getParameters());
+	case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
+		return parseTemplateValueText(defaultValue.getTemplateHeadStandard().getParameters());
 	default:
 		return parseValueOnly();
 	}
@@ -286,12 +292,14 @@ Webss Parser::checkTemplateContainer(const TemplateHeadStandard::Parameters& par
 {
 	switch (param.getTypeThead())
 	{
-	case WebssType::TEMPLATE_HEAD_BINARY:
-		throw runtime_error(ERROR_EXPAND_BINARY_TEMPLATE);
 	case WebssType::TEMPLATE_HEAD_SELF:
 		return buildTemplateBodyStandard(params, tupleItem);
+	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
+		throw runtime_error(ERROR_EXPAND_BINARY_TEMPLATE);
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
 		return buildTemplateBodyStandard(param.getTemplateHeadStandard().getParameters(), tupleItem);
+	case WebssType::TEMPLATE_VALUE_HEAD_STANDARD: case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
+		//...
 	default:
 		return tupleItem;
 	}

@@ -51,7 +51,7 @@ namespace webss
 		const TemplateHeadStandard& getTemplateHeadStandard() const;
 
 		void removeTemplateHead();
-		void setTemplateHead(TemplateHeadBinary&& o);
+		void setTemplateHead(TemplateHeadBinary&& o, WebssType type = WebssType::TEMPLATE_HEAD_BINARY);
 		void setTemplateHead(TemplateHeadStandard&& o, WebssType type = WebssType::TEMPLATE_HEAD_STANDARD);
 		void setTemplateHead(TemplateHeadSelf);
 

@@ -127,6 +127,7 @@ void Webss::destroyUnion()
 	switch (type)
 	{
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
+	case WebssType::TEMPLATE_HEAD_SELF:
 		break;
 	case WebssType::ENTITY:
 		ent.~Entity();
@@ -178,6 +179,7 @@ void Webss::copyUnion(Webss&& o)
 	switch (o.type)
 	{
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
+	case WebssType::TEMPLATE_HEAD_SELF:
 		break;
 	case WebssType::ENTITY:
 		new (&ent) Entity(move(o.ent));
@@ -244,6 +246,7 @@ void Webss::copyUnion(const Webss& o)
 	switch (o.type)
 	{
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
+	case WebssType::TEMPLATE_HEAD_SELF:
 		break;
 	case WebssType::ENTITY:
 		new (&ent) Entity(o.ent);

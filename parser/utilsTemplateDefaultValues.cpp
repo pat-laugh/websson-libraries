@@ -29,10 +29,10 @@ void webss::setDefaultValue(Webss& value, const ParamStandard& defaultValue)
 	{
 		switch (defaultValue.getTypeThead())
 		{
-		case WebssType::TEMPLATE_HEAD_BINARY:
+		case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
 			value = makeDefaultTuple(defaultValue.getTemplateHeadBinary().getParameters());
 			break;
-		case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
+		case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_VALUE_HEAD_STANDARD: case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
 			value = makeDefaultTuple(defaultValue.getTemplateHeadStandard().getParameters());
 			break;
 		default:

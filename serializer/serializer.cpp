@@ -152,20 +152,20 @@ private:
 		if (param.hasTemplateHead())
 			switch (param.getTypeThead())
 			{
-			case WebssType::TEMPLATE_HEAD_BINARY:
-				putTheadBinary(out, param.getTemplateHeadBinary());
-				break;
 			case WebssType::TEMPLATE_HEAD_SELF:
 				putTheadSelf(out);
 				break;
-			case WebssType::TEMPLATE_HEAD_STANDARD:
+			case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
+				putTheadBinary(out, param.getTemplateHeadBinary());
+				break;
+			case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_VALUE_HEAD_STANDARD:
 				putTheadStandard(out, param.getTemplateHeadStandard());
 				break;
-			case WebssType::TEMPLATE_HEAD_TEXT:
+			case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
 				putTheadText(out, param.getTemplateHeadStandard());
 				break;
 			default:
-				break;
+				assert(false); break;
 			}
 
 		out += key;

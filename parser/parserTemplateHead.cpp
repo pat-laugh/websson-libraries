@@ -45,10 +45,10 @@ Webss Parser::parseTemplateHead(bool allowSelf)
 	auto type = ent.getContent().getType();
 	switch (type)
 	{
-	case WebssType::TEMPLATE_HEAD_BINARY:
-		return isEnd ? TemplateHeadBinary(ent) : parseTemplateHeadBinary(TemplateHeadBinary(ent));
-	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
-		return Webss(isEnd ? TemplateHeadStandard(ent) : parseTemplateHeadStandard(TemplateHeadStandard(ent)), type);
+	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
+		return{ isEnd ? TemplateHeadBinary(ent) : parseTemplateHeadBinary(TemplateHeadBinary(ent)), type };
+	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_VALUE_HEAD_STANDARD: case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
+		return{ isEnd ? TemplateHeadStandard(ent) : parseTemplateHeadStandard(TemplateHeadStandard(ent)), type };
 	default:
 		throw runtime_error("expand entity in template head must be a template head");
 	}
@@ -56,23 +56,25 @@ Webss Parser::parseTemplateHead(bool allowSelf)
 
 TemplateHeadStandard Parser::parseTemplateHeadText()
 {
-	auto headWebss = parseTemplateHead();
-	if (headWebss.getTypeRaw() != WebssType::TEMPLATE_HEAD_STANDARD && headWebss.getTypeRaw() != WebssType::TEMPLATE_HEAD_TEXT)
+	auto webssThead = parseTemplateHead();
+	if (!webssThead.isTemplateHeadStandard())
 		throw runtime_error("expected standard template head");
-	return move(headWebss.getTemplateHeadStandardRaw());
+	return move(webssThead.getTemplateHeadStandardRaw());
 }
 
 Webss Parser::parseTemplateValueHead()
 {
-	auto headWebss = parseTemplateHead();
-	switch (headWebss.getTypeRaw())
+	auto webssThead = parseTemplateHead();
+	switch (webssThead.getTypeRaw())
 	{
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		return{ TemplateHeadBinary(move(headWebss.getTemplateHeadBinaryRaw())), WebssType::TEMPLATE_VALUE_HEAD_BINARY };
+		return{ TemplateHeadBinary(move(webssThead.getTemplateHeadBinaryRaw())), WebssType::TEMPLATE_VALUE_HEAD_BINARY };
 	case WebssType::TEMPLATE_HEAD_STANDARD: 
-		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), WebssType::TEMPLATE_VALUE_HEAD_STANDARD };
+		return{ TemplateHeadStandard(move(webssThead.getTemplateHeadStandardRaw())), WebssType::TEMPLATE_VALUE_HEAD_STANDARD };
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		return{ TemplateHeadStandard(move(headWebss.getTemplateHeadStandardRaw())), WebssType::TEMPLATE_VALUE_HEAD_TEXT };
+		return{ TemplateHeadStandard(move(webssThead.getTemplateHeadStandardRaw())), WebssType::TEMPLATE_VALUE_HEAD_TEXT };
+	case WebssType::TEMPLATE_VALUE_HEAD_BINARY: case WebssType::TEMPLATE_VALUE_HEAD_STANDARD: case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
+		return webssThead;
 	default:
 		assert(false); throw domain_error("");
 	}
@@ -138,19 +140,20 @@ TemplateHeadStandard Parser::parseTemplateHeadStandard(TemplateHeadStandard&& th
 
 void parseStandardParameterTemplateHead(Parser& parser, TemplateHeadStandard& thead)
 {
-	auto headWebss = parser.parseTemplateHead(true);
+	auto webssThead = parser.parseTemplateHead(true);
 	parseOtherValuesTheadStandardAfterThead(parser, thead);
 	auto& lastParam = thead.back();
-	switch (headWebss.getTypeRaw())
+	auto type = webssThead.getTypeRaw();
+	switch (webssThead.getTypeRaw())
 	{
-	case WebssType::TEMPLATE_HEAD_BINARY:
-		lastParam.setTemplateHead(move(headWebss.getTemplateHeadBinaryRaw()));
+	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
+		lastParam.setTemplateHead(move(webssThead.getTemplateHeadBinaryRaw()), type);
 		break;
 	case WebssType::TEMPLATE_HEAD_SELF:
 		lastParam.setTemplateHead(TemplateHeadSelf());
 		break;
-	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
-		lastParam.setTemplateHead(move(headWebss.getTemplateHeadStandardRaw()), headWebss.getTypeRaw());
+	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_VALUE_HEAD_STANDARD: case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
+		lastParam.setTemplateHead(move(webssThead.getTemplateHeadStandardRaw()), type);
 		break;
 	default:
 		assert(false);
