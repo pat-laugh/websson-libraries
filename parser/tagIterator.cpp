@@ -130,11 +130,10 @@ Tag TagIterator::getTag()
 	}
 }
 
-TagIterator& TagIterator::getToTag(Tag tag)
+void TagIterator::sofertTag(Tag tag)
 {
-	if (getSafe() == tag)
-		return *this;
-	throw runtime_error(it ? ERROR_UNEXPECTED : ERROR_EXPECTED);
+	if (getSafe() != tag)
+		throw runtime_error(it ? ERROR_UNEXPECTED : ERROR_EXPECTED);
 }
 
 SmartIterator& TagIterator::getIt()

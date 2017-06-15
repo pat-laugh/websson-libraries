@@ -14,7 +14,7 @@ using namespace webss;
 
 Entity webss::parseExpandEntity(TagIterator& tagit, const EntityManager& ents)
 {
-	if (++tagit != Tag::NAME_START)
+	if (!++tagit.getIt() || !isNameStart(*tagit.getIt()))
 		throw runtime_error("expected entity");
 	auto nameType = parseNameType(tagit, ents);
 	if (nameType.type != NameType::Type::ENTITY_CONCRETE && nameType.type != NameType::Type::ENTITY_ABSTRACT)

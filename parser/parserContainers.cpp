@@ -305,8 +305,7 @@ vector<string> parseScopedImportNames(TagIterator& tagit)
 	names.push_back(parseName(tagit.getIt()));
 	while (tagit.update() == Tag::SCOPE)
 	{
-		if (++tagit != Tag::NAME_START)
-			throw runtime_error("expected name-start");
+		(++tagit).sofertTag(Tag::NAME_START);
 		names.push_back(parseName(tagit.getIt()));
 	}
 	return names;
@@ -326,8 +325,7 @@ ParamDocument Parser::parseScopedImport()
 	{
 		auto names = parseScopedImportNames(tagit);
 
-		if (*tagit != Tag::IMPORT)
-			throw runtime_error("expected import for scoped import");
+		tagit.sofertTag(Tag::IMPORT);
 		auto import = parseImport();
 		const auto& importedDoc = ImportManager::getInstance().importDocument(import.getLink());
 
@@ -340,13 +338,11 @@ ParamDocument Parser::parseScopedImport()
 	{
 		auto namesList = parseContainer<vector<vector<string>>, ConType::LIST>(vector<vector<string>>(), false, [&](vector<vector<string>>& namesList)
 		{
-			if (*tagit != Tag::NAME_START)
-				throw runtime_error(ERROR_UNEXPECTED);
+			tagit.sofertTag(Tag::NAME_START);
 			namesList.push_back(parseScopedImportNames(tagit));
 		});
 
-		if (*tagit != Tag::IMPORT)
-			throw runtime_error("expected import for scoped import");
+		tagit.sofertTag(Tag::IMPORT);
 		auto import = parseImport();
 		const auto& importedDoc = ImportManager::getInstance().importDocument(import.getLink());
 

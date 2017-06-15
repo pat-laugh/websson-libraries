@@ -32,8 +32,7 @@ Webss Parser::parseTemplateHead(bool allowSelf)
 	case Tag::SELF:
 		if (!allowSelf)
 			throw runtime_error("self in a thead must be within a non-empty thead");
-		if (++tagit != Tag::END_TEMPLATE)
-			throw runtime_error("expected end of container");
+		(++tagit).sofertTag(Tag::END_TEMPLATE);
 		++tagit;
 		return TemplateHeadSelf();
 	case Tag::EXPAND:

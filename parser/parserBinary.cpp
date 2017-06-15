@@ -118,7 +118,7 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 			blist = Blist(Blist::Type::ONE);
 	}
 
-	tagit.getToTag(Tag::END_TUPLE);
+	tagit.sofertTag(Tag::END_TUPLE);
 	++tagit;
 	parseExplicitKeyValue(
 		CaseKeyValue
@@ -156,7 +156,7 @@ ParamBinary::SizeList parseBinarySizeList(Parser& parser)
 		else
 			throw;
 
-		parser.tagit.getToTag(Tag::END_LIST);
+		parser.tagit.sofertTag(Tag::END_LIST);
 		++parser.tagit;
 	}
 	catch (const exception&)

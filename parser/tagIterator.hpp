@@ -37,7 +37,7 @@ namespace webss
 
 		operator Tag() const;
 
-		TagIterator& getToTag(Tag tag);
+		void sofertTag(Tag tag);
 
 		SmartIterator& getIt();
 
@@ -45,8 +45,6 @@ namespace webss
 		SmartIterator& getItSafe();
 
 		void setIterator(SmartIterator it);
-
-		bool isSafe() { return valid; }
 
 		//sets tag to what the iterator currently points to
 		Tag update();

@@ -2,7 +2,10 @@
 //Copyright 2017 Patrick Laughrea
 #include "nameType.hpp"
 
+#include <cassert>
+
 #include "utilsSweepers.hpp"
+#include "utils/utilsWebss.hpp"
 
 using namespace std;
 using namespace webss;
@@ -13,6 +16,7 @@ NameType::NameType(const Entity& entity) : type(entity.getContent().isAbstract()
 
 NameType webss::parseNameType(TagIterator& tagit, const EntityManager& ents)
 {
+	assert(tagit.getIt() && isNameStart(*tagit.getIt()));
 	string name = parseName(tagit.getItSafe());
 	if (isKeyword(name))
 		return{ Keyword(name) };
@@ -25,8 +29,7 @@ scopeLoop:
 		return{ *ent };
 	try
 	{
-		if (++tagit != Tag::NAME_START)
-			throw runtime_error("expected name-start");
+		(++tagit).sofertTag(Tag::NAME_START);
 		const auto& content = ent->getContent();
 		if (content.isEnum())
 			return content.getEnum().at(parseName(tagit.getItSafe()));

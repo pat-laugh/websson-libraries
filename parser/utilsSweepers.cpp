@@ -163,7 +163,6 @@ string webss::parseName(SmartIterator& it)
 
 string webss::parseNameExplicit(TagIterator& tagit)
 {
-	if (++tagit != Tag::NAME_START)
-		throw runtime_error("expected name-start");
+	(++tagit).sofertTag(Tag::NAME_START);
 	return parseName(tagit.getItSafe());
 }
