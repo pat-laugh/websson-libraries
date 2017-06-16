@@ -101,22 +101,35 @@ Parser::OtherValue Parser::parseOtherValueName(string&& name)
 Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 {
 	const auto& content = ent.getContent();
-	switch (content.getType())
-	{
-	case WebssType::THEAD_BIN:
-		return{ parseTemplateBin(TheadBin(ent)) };
-	case WebssType::THEAD_STD:
-		return{ parseTemplateStd(TheadStd(ent)) };
-	case WebssType::THEAD_TEXT:
-		return{ parseTemplateText(TheadStd(ent)) };
-	case WebssType::THEAD_PLUS_BIN:
-		return{ parseTemplatePlusBin(TheadBin(ent)) };
-	case WebssType::THEAD_PLUS_STD:
-		return{ parseTemplatePlusStd(TheadStd(ent)) };
-	case WebssType::THEAD_PLUS_TEXT:
-		return{ parseTemplatePlusText(TheadStd(ent)) };
-	default:
+	if (!content.isThead())
 		return{ ent };
+	const auto& thead = content.getThead();
+	switch (thead.getType())
+	{
+	case TypeThead::BIN:
+		if (thead.isPlus())
+			return{ parseTemplatePlusBin(TheadBin(ent)) };
+		else
+			return{ parseTemplateBin(TheadBin(ent)) };
+	case TypeThead::STD:
+		if (thead.isPlus())
+		{
+			if (thead.isText())
+				return{ parseTemplatePlusText(TheadStd(ent)) };
+			else
+				return{ parseTemplatePlusStd(TheadStd(ent)) };
+		}
+		else
+		{
+			if (thead.isText())
+				return{ parseTemplateText(TheadStd(ent)) };
+			else
+				return{ parseTemplateStd(TheadStd(ent)) };
+		}
+	case TypeThead::ENTITY:
+		//...
+	default:
+		assert(false);
 	}
 }
 

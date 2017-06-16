@@ -40,26 +40,12 @@ string WebssType::toString() const
 		return "tuple text";
 	case WebssType::THEAD:
 		return "template head";
-	case WebssType::THEAD_BIN:
-		return "template head binary";
-	case WebssType::THEAD_SELF:
-		return "template head self";
-	case WebssType::THEAD_STD:
-		return "template head standard";
-	case WebssType::THEAD_TEXT:
-		return "template head text";
 	case WebssType::TEMPLATE_BIN:
 		return "template binary";
 	case WebssType::TEMPLATE_STD:
 		return "template standard";
 	case WebssType::TEMPLATE_TEXT:
 		return "template text";
-	case WebssType::THEAD_PLUS_BIN:
-		return "template value head binary";
-	case WebssType::THEAD_PLUS_STD:
-		return "template value head standard";
-	case WebssType::THEAD_PLUS_TEXT:
-		return "template value head text";
 	case WebssType::TEMPLATE_PLUS_BIN:
 		return "template value binary";
 	case WebssType::TEMPLATE_PLUS_STD:

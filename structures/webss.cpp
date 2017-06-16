@@ -71,14 +71,6 @@ Webss::Webss(Tuple tuple, WebssType type) : type(type), tuple(new Tuple(move(tup
 {
 	assert(type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT);
 }
-Webss::Webss(TheadBin theadBin, WebssType type) : type(type), theadBin(new TheadBin(move(theadBin)))
-{
-	assert(type == WebssType::THEAD_BIN || type == WebssType::THEAD_PLUS_BIN);
-}
-Webss::Webss(TheadStd theadStd, WebssType type) : type(type), theadStd(new TheadStd(move(theadStd)))
-{
-	assert(type == WebssType::THEAD_STD || type == WebssType::THEAD_TEXT || type == WebssType::THEAD_PLUS_STD || type == WebssType::THEAD_PLUS_TEXT);
-}
 Webss::Webss(TemplateBin templBin) : type(WebssType::TEMPLATE_BIN), templBin(new TemplateBin(move(templBin))) {}
 Webss::Webss(TemplateStd templStd, WebssType type) : type(type), templStd(new TemplateStd(move(templStd)))
 {
@@ -89,8 +81,6 @@ Webss::Webss(TemplatePlusStd templPlusStd, WebssType type) : type(type), templPl
 {
 	assert(type == WebssType::TEMPLATE_PLUS_STD || type == WebssType::TEMPLATE_PLUS_TEXT);
 }
-
-Webss::Webss(TheadSelf) : type(WebssType::THEAD_SELF) {}
 
 Webss::Webss(TheadBin&& head, Webss&& body, WebssType type) : type(type)
 {
@@ -130,7 +120,6 @@ void Webss::destroyUnion()
 	switch (type)
 	{
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
-	case WebssType::THEAD_SELF:
 		break;
 	case WebssType::ENTITY:
 		ent.~Entity();
@@ -155,12 +144,6 @@ void Webss::destroyUnion()
 		break;
 	case WebssType::THEAD:
 		delete thead;
-		break;
-	case WebssType::THEAD_BIN: case WebssType::THEAD_PLUS_BIN:
-		delete theadBin;
-		break;
-	case WebssType::THEAD_STD: case WebssType::THEAD_TEXT: case WebssType::THEAD_PLUS_STD: case WebssType::THEAD_PLUS_TEXT:
-		delete theadStd;
 		break;
 	case WebssType::TEMPLATE_BIN:
 		delete templBin;
@@ -191,7 +174,6 @@ void Webss::copyUnion(Webss&& o)
 	switch (o.type)
 	{
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
-	case WebssType::THEAD_SELF:
 		break;
 	case WebssType::ENTITY:
 		new (&ent) Entity(move(o.ent));
@@ -229,12 +211,6 @@ void Webss::copyUnion(Webss&& o)
 	case WebssType::THEAD:
 		thead = o.thead;
 		break;
-	case WebssType::THEAD_BIN: case WebssType::THEAD_PLUS_BIN:
-		theadBin = o.theadBin;
-		break;
-	case WebssType::THEAD_STD: case WebssType::THEAD_TEXT: case WebssType::THEAD_PLUS_STD: case WebssType::THEAD_PLUS_TEXT:
-		theadStd = o.theadStd;
-		break;
 	case WebssType::TEMPLATE_BIN:
 		templBin = o.templBin;
 		break;
@@ -267,7 +243,6 @@ void Webss::copyUnion(const Webss& o)
 	switch (o.type)
 	{
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
-	case WebssType::THEAD_SELF:
 		break;
 	case WebssType::ENTITY:
 		new (&ent) Entity(o.ent);
@@ -302,12 +277,6 @@ void Webss::copyUnion(const Webss& o)
 		break;
 	case WebssType::THEAD:
 		thead = new Thead(*o.thead);
-		break;
-	case WebssType::THEAD_BIN: case WebssType::THEAD_PLUS_BIN:
-		theadBin = new TheadBin(*o.theadBin);
-		break;
-	case WebssType::THEAD_STD: case WebssType::THEAD_TEXT: case WebssType::THEAD_PLUS_STD: case WebssType::THEAD_PLUS_TEXT:
-		theadStd = new TheadStd(*o.theadStd);
 		break;
 	case WebssType::TEMPLATE_BIN:
 		templBin = new TemplateBin(*o.templBin);
@@ -366,10 +335,6 @@ bool Webss::operator==(const Webss& o) const
 		return *tuple == *o.tuple;
 	case WebssType::THEAD:
 		return *thead == *o.thead;
-	case WebssType::THEAD_BIN: case WebssType::THEAD_PLUS_BIN:
-		return *theadBin == *o.theadBin;
-	case WebssType::THEAD_STD: case WebssType::THEAD_TEXT: case WebssType::THEAD_PLUS_STD: case WebssType::THEAD_PLUS_TEXT:
-		return *theadStd == *o.theadStd;
 	case WebssType::TEMPLATE_BIN:
 		return *templBin == *o.templBin;
 	case WebssType::TEMPLATE_STD: case WebssType::TEMPLATE_TEXT:
@@ -565,26 +530,6 @@ const Tuple& Webss::getTuple() const
 		throw runtime_error(errorMessageGet(WebssType::TUPLE, type));
 }
 
-const TheadBin& Webss::getTheadBin() const
-{
-	const auto& webss = getWebssLast();
-	const auto type = webss.getTypeRaw();
-	if (type == WebssType::THEAD_BIN || type == WebssType::THEAD_PLUS_BIN)
-		return webss.getTheadBinRaw();
-	else
-		throw runtime_error(errorMessageGet(WebssType::THEAD_BIN, type));
-}
-
-const TheadStd& Webss::getTheadStd() const
-{
-	const auto& webss = getWebssLast();
-	const auto type = webss.getTypeRaw();
-	if (type == WebssType::THEAD_STD || type == WebssType::THEAD_TEXT || type == WebssType::THEAD_PLUS_STD || type == WebssType::THEAD_PLUS_TEXT)
-		return webss.getTheadStdRaw();
-	else
-		throw runtime_error(errorMessageGet(WebssType::THEAD_STD, type));
-}
-
 bool Webss::isNone() const { return getType() == WebssType::NONE; }
 bool Webss::isNull() const { return getType() == WebssType::PRIMITIVE_NULL; }
 bool Webss::isBool() const { return getType() == WebssType::PRIMITIVE_BOOL; }
@@ -599,8 +544,6 @@ bool Webss::isEnum() const { return getType() == WebssType::ENUM; }
 bool Webss::isListText() const { return getType() == WebssType::LIST_TEXT; }
 bool Webss::isTupleText() const { return getType() == WebssType::TUPLE_TEXT; }
 bool Webss::isThead() const { return getType() == WebssType::THEAD; }
-bool Webss::isTheadPlusBin() const { return getType() == WebssType::THEAD_PLUS_BIN; }
-bool Webss::isTheadPlusText() const { return getType() == WebssType::THEAD_PLUS_TEXT; }
 
 bool Webss::isList() const
 {
@@ -611,30 +554,6 @@ bool Webss::isTuple() const
 {
 	const auto type = getType();
 	return type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT;
-}
-
-bool Webss::isTheadBin() const
-{
-	const auto type = getType();
-	return type == WebssType::THEAD_BIN || type == WebssType::THEAD_PLUS_BIN;
-}
-
-bool Webss::isTheadStd() const
-{
-	const auto type = getType();
-	return type == WebssType::THEAD_STD || type == WebssType::THEAD_TEXT || type == WebssType::THEAD_PLUS_STD || type == WebssType::THEAD_PLUS_TEXT;
-}
-
-bool Webss::isTheadText() const
-{
-	const auto type = getType();
-	return type == WebssType::THEAD_TEXT || type == WebssType::THEAD_PLUS_TEXT;
-}
-
-bool Webss::isTheadPlusStd() const
-{
-	const auto type = getType();
-	return type == WebssType::THEAD_PLUS_STD || type == WebssType::THEAD_PLUS_TEXT;
 }
 
 bool Webss::isTemplateBin() const
@@ -683,9 +602,7 @@ bool Webss::isAbstract() const
 		return ent.getContent().isAbstract();
 	case WebssType::DEFAULT:
 		return tDefault->isAbstract();
-	case WebssType::THEAD_BIN: case WebssType::THEAD_SELF: case WebssType::THEAD_STD: case WebssType::THEAD_TEXT:
-	case WebssType::THEAD_PLUS_BIN: case WebssType::THEAD_PLUS_STD: case WebssType::THEAD_PLUS_TEXT:
-	case WebssType::NAMESPACE: case WebssType::ENUM:
+	case WebssType::THEAD: case WebssType::NAMESPACE: case WebssType::ENUM:
 		return true;
 	default:
 		return false;
@@ -713,8 +630,6 @@ const Dictionary& Webss::getDictionaryRaw() const { assert(getTypeRaw() == Webss
 const List& Webss::getListRaw() const { assert(getTypeRaw() == WebssType::LIST || getTypeRaw() == WebssType::LIST_TEXT); return *list; }
 const Tuple& Webss::getTupleRaw() const { assert(getTypeRaw() == WebssType::TUPLE || getTypeRaw() == WebssType::TUPLE_TEXT); return *tuple; }
 const Thead& Webss::getTheadRaw() const { assert(getTypeRaw() == WebssType::THEAD); return *thead; }
-const TheadBin& Webss::getTheadBinRaw() const { assert(getTypeRaw() == WebssType::THEAD_BIN || getTypeRaw() == WebssType::THEAD_PLUS_BIN); return *theadBin; }
-const TheadStd& Webss::getTheadStdRaw() const { assert(getTypeRaw() == WebssType::THEAD_STD || getTypeRaw() == WebssType::THEAD_TEXT || getTypeRaw() == WebssType::THEAD_PLUS_STD || getTypeRaw() == WebssType::THEAD_PLUS_TEXT); return *theadStd; }
 const TemplateBin& Webss::getTemplateBinRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_BIN); return *templBin; }
 const TemplateStd& Webss::getTemplateStdRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_STD || getTypeRaw() == WebssType::TEMPLATE_TEXT); return *templStd; }
 const TemplatePlusBin& Webss::getTemplatePlusBinRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_PLUS_BIN); return *templPlusBin; }
@@ -731,8 +646,6 @@ Dictionary& Webss::getDictionaryRaw() { assert(getTypeRaw() == WebssType::DICTIO
 List& Webss::getListRaw() { assert(getTypeRaw() == WebssType::LIST || getTypeRaw() == WebssType::LIST_TEXT); return *list; }
 Tuple& Webss::getTupleRaw() { assert(getTypeRaw() == WebssType::TUPLE || getTypeRaw() == WebssType::TUPLE_TEXT); return *tuple; }
 Thead& Webss::getTheadRaw() { assert(getTypeRaw() == WebssType::THEAD); return *thead; }
-TheadBin& Webss::getTheadBinRaw() { assert(getTypeRaw() == WebssType::THEAD_BIN || getTypeRaw() == WebssType::THEAD_PLUS_BIN); return *theadBin; }
-TheadStd& Webss::getTheadStdRaw() { assert(getTypeRaw() == WebssType::THEAD_STD || getTypeRaw() == WebssType::THEAD_TEXT || getTypeRaw() == WebssType::THEAD_PLUS_STD || getTypeRaw() == WebssType::THEAD_PLUS_TEXT); return *theadStd; }
 TemplateBin& Webss::getTemplateBinRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_BIN); return *templBin; }
 TemplateStd& Webss::getTemplateStdRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_STD || getTypeRaw() == WebssType::TEMPLATE_TEXT); return *templStd; }
 TemplatePlusBin& Webss::getTemplatePlusBinRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_PLUS_BIN); return *templPlusBin; }

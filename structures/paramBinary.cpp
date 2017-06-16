@@ -141,7 +141,7 @@ WebssBinSize SizeHead::size() const
 
 SizeHead::SizeHead(const Entity& entThead) : type(Type::ENTITY_THEAD), ent(entThead)
 {
-	assert(entThead.getContent().isTheadBin());
+	assert(entThead.getContent().isThead() && !entThead.getContent().getThead().isTheadBin());
 }
 SizeHead::SizeHead(const Entity& entNumber, bool)
 	: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)

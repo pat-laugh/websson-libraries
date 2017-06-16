@@ -33,7 +33,7 @@ TheadBin makeTheadBinKeyword(Keyword keyword)
 void addTheadBinEntityKeywords(EntityManager& ents, vector<string> names, Keyword keyword)
 {
 	string entName(names[0]);
-	addPrivateEntities(ents, move(names), Entity(move(entName), makeTheadBinKeyword(keyword)));
+	addPrivateEntities(ents, move(names), Entity(move(entName), Thead(makeTheadBinKeyword(keyword))));
 }
 
 void initEnts(EntityManager& ents)

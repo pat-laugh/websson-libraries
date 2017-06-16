@@ -47,16 +47,12 @@ namespace webss
 		Webss(Dictionary dict);
 		Webss(List list, WebssType type = WebssType::LIST);
 		Webss(Tuple tuple, WebssType type = WebssType::TUPLE);
-		Webss(TheadBin theadBin, WebssType type = WebssType::THEAD_BIN);
-		Webss(TheadStd theadStd, WebssType type = WebssType::THEAD_STD);
 		Webss(TemplateBin templBin);
 		Webss(TemplateStd templStd, WebssType type = WebssType::TEMPLATE_STD);
 		Webss(TemplatePlusBin templPlusBin);
 		Webss(TemplatePlusStd templPlusStd, WebssType type = WebssType::TEMPLATE_PLUS_STD);
 
 		Webss(Thead thead);
-
-		Webss(TheadSelf);
 
 		Webss(TheadBin&& head, Webss&& body, WebssType type = WebssType::TEMPLATE_BIN);
 		Webss(TheadStd&& head, Webss&& body, WebssType type = WebssType::TEMPLATE_STD);
@@ -83,8 +79,6 @@ namespace webss
 		const List& getList() const;
 		const Tuple& getTuple() const;
 		const Thead& getThead() const;
-		const TheadBin& getTheadBin() const;
-		const TheadStd& getTheadStd() const;
 		const TemplateBin& getTemplateBin() const;
 		const TemplateStd& getTemplateStd() const;
 		const TemplatePlusBin& getTemplatePlusBin() const;
@@ -108,8 +102,6 @@ namespace webss
 		const List& getListRaw() const;
 		const Tuple& getTupleRaw() const;
 		const Thead& getTheadRaw() const;
-		const TheadBin& getTheadBinRaw() const;
-		const TheadStd& getTheadStdRaw() const;
 		const TemplateBin& getTemplateBinRaw() const;
 		const TemplateStd& getTemplateStdRaw() const;
 		const TemplatePlusBin& getTemplatePlusBinRaw() const;
@@ -126,8 +118,6 @@ namespace webss
 		List& getListRaw();
 		Tuple& getTupleRaw();
 		Thead& getTheadRaw();
-		TheadBin& getTheadBinRaw();
-		TheadStd& getTheadStdRaw();
 		TemplateBin& getTemplateBinRaw();
 		TemplateStd& getTemplateStdRaw();
 		TemplatePlusBin& getTemplatePlusBinRaw();
@@ -144,8 +134,6 @@ namespace webss
 		explicit operator const Dictionary&() const { return getDictionary(); }
 		explicit operator const List&() const { return getList(); }
 		explicit operator const Tuple&() const { return getTuple(); }
-		explicit operator const TheadBin&() const { return getTheadBin(); }
-		explicit operator const TheadStd&() const { return getTheadStd(); }
 		explicit operator const TemplateBin&() const { return getTemplateBin(); }
 		explicit operator const TemplateStd&() const { return getTemplateStd(); }
 		explicit operator const TemplatePlusBin&() const { return getTemplatePlusBin(); }
@@ -169,17 +157,11 @@ namespace webss
 		bool isListText() const;
 		bool isTupleText() const;
 		bool isThead() const;
-		bool isTheadBin() const;
-		bool isTheadStd() const;
-		bool isTheadText() const;
 		bool isTemplateBin() const;
 		bool isTemplateStd() const;
 		bool isTemplateText() const;
 		bool isNamespace() const;
 		bool isEnum() const;
-		bool isTheadPlusBin() const;
-		bool isTheadPlusStd() const;
-		bool isTheadPlusText() const;
 		bool isTemplatePlusBin() const;
 		bool isTemplatePlusStd() const;
 		bool isTemplatePlusText() const;
@@ -200,8 +182,6 @@ namespace webss
 			List* list;
 			Tuple* tuple;
 			Thead* thead;
-			TheadBin* theadBin;
-			TheadStd* theadStd;
 			TemplateBin* templBin;
 			TemplateStd* templStd;
 			TemplatePlusBin* templPlusBin;

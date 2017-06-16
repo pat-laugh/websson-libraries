@@ -146,7 +146,7 @@ TheadBin Parser::parseTheadBin(TheadBin&& thead)
 		else if (*tagit == Tag::EXPAND)
 		{
 			auto ent = parseExpandEntity(tagit, ents);
-			if (!ent.getContent().isTheadBin())
+			if (!ent.getContent().isThead() || !ent.getContent().getThead().isTheadBin())
 				throw runtime_error(ERROR_BIN_TEMPLATE);
 			thead.attach(ent);
 		}
@@ -177,7 +177,7 @@ TheadStd Parser::parseTheadStd(TheadStd&& thead)
 		else if (*tagit == Tag::EXPAND)
 		{
 			auto ent = parseExpandEntity(tagit, ents);
-			if (!ent.getContent().isTheadStd())
+			if (!ent.getContent().isThead() || !ent.getContent().getThead().isTheadStd())
 				throw runtime_error("expand entity within standard template head must be a standard template head");
 			thead.attach(ent);
 		}

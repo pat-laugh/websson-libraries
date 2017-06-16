@@ -58,7 +58,7 @@ void Parser::parseBinHead(TheadBin& thead)
 			case NameType::KEYWORD:
 				throw runtime_error("invalid binary type: " + nameType.keyword.toString());
 			case NameType::ENTITY_ABSTRACT:
-				if (!nameType.entity.getContent().isTheadBin())
+				if (!nameType.entity.getContent().isThead() || !nameType.entity.getContent().getThead().isTheadBin())
 					throw runtime_error(ERROR_UNEXPECTED);
 				bhead = Bhead::makeEntityThead(nameType.entity);
 				break;

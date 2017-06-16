@@ -311,21 +311,29 @@ void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 {
 	switch (webss.getTypeRaw())
 	{
-	case WebssType::THEAD_PLUS_BIN:
-		out += CHAR_THEAD_PLUS;
-	case WebssType::THEAD_BIN:
-		putTheadBin(out, webss.getTheadBinRaw());
+	case WebssType::THEAD:
+	{
+		const auto& thead = webss.getTheadRaw();
+		if (thead.isPlus())
+			out += CHAR_THEAD_PLUS;
+		switch (thead.getTypeRaw())
+		{
+		case TypeThead::BIN:
+			putTheadBin(out, thead.getTheadBinRaw());
+			break;
+		case TypeThead::STD:
+			if (thead.isText())
+				putTheadText(out, thead.getTheadStdRaw());
+			else
+				putTheadStd(out, thead.getTheadStdRaw());
+			break;
+		case TypeThead::ENTITY:
+			//...
+		default:
+			assert(false);
+		}
 		break;
-	case WebssType::THEAD_PLUS_STD:
-		out += CHAR_THEAD_PLUS;
-	case WebssType::THEAD_STD:
-		putTheadStd(out, webss.getTheadStdRaw());
-		break;
-	case WebssType::THEAD_PLUS_TEXT:
-		out += CHAR_THEAD_PLUS;
-	case WebssType::THEAD_TEXT:
-		putTheadText(out, webss.getTheadStdRaw());
-		break;
+	}
 	case WebssType::ENTITY:
 		assert(webss.getEntityRaw().getContent().isAbstract());
 		out += CHAR_EQUAL;
