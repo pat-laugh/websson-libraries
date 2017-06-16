@@ -143,6 +143,7 @@
     <ClInclude Include="template.hpp" />
     <ClInclude Include="templateBody.hpp" />
     <ClInclude Include="templateHead.hpp" />
+    <ClInclude Include="thead.hpp" />
     <ClInclude Include="templatePlus.hpp" />
     <ClInclude Include="tuple.hpp" />
     <ClInclude Include="types.hpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="paramBinary.cpp" />
     <ClCompile Include="paramStandard.cpp" />
     <ClCompile Include="templateBody.cpp" />
+    <ClCompile Include="thead.cpp" />
     <ClCompile Include="tuple.cpp" />
     <ClCompile Include="typeWebss.cpp" />
     <ClCompile Include="webss.cpp" />

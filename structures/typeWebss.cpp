@@ -38,6 +38,8 @@ string WebssType::toString() const
 		return "tuple";
 	case WebssType::TUPLE_TEXT:
 		return "tuple text";
+	case WebssType::TEMPLATE_HEAD:
+		return "template head";
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		return "template head binary";
 	case WebssType::TEMPLATE_HEAD_SELF:

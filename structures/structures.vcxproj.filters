@@ -81,6 +81,9 @@
     <ClInclude Include="templatePlus.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="thead.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="keywords.cpp">
@@ -120,6 +123,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="typeWebss.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thead.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

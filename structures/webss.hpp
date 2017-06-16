@@ -9,6 +9,7 @@
 #include "entity.hpp"
 #include "keywords.hpp"
 #include "namespace.hpp"
+#include "thead.hpp"
 #include "types.hpp"
 #include "typeWebss.hpp"
 
@@ -53,6 +54,8 @@ namespace webss
 		Webss(TemplatePlusBinary templPlusBinary);
 		Webss(TemplatePlusStandard templPlusStandard, WebssType type = WebssType::TEMPLATE_PLUS_STANDARD);
 
+		Webss(Thead thead);
+
 		Webss(TemplateHeadSelf);
 
 		Webss(TemplateHeadBinary&& head, Webss&& body, WebssType type = WebssType::TEMPLATE_BINARY);
@@ -79,6 +82,7 @@ namespace webss
 		const Dictionary& getDictionary() const;
 		const List& getList() const;
 		const Tuple& getTuple() const;
+		const Thead& getThead() const;
 		const TemplateHeadBinary& getTemplateHeadBinary() const;
 		const TemplateHeadStandard& getTemplateHeadStandard() const;
 		const TemplateBinary& getTemplateBinary() const;
@@ -103,6 +107,7 @@ namespace webss
 		const Dictionary& getDictionaryRaw() const;
 		const List& getListRaw() const;
 		const Tuple& getTupleRaw() const;
+		const Thead& getTheadRaw() const;
 		const TemplateHeadBinary& getTemplateHeadBinaryRaw() const;
 		const TemplateHeadStandard& getTemplateHeadStandardRaw() const;
 		const TemplateBinary& getTemplateBinaryRaw() const;
@@ -120,6 +125,7 @@ namespace webss
 		Dictionary& getDictionaryRaw();
 		List& getListRaw();
 		Tuple& getTupleRaw();
+		Thead& getTheadRaw();
 		TemplateHeadBinary& getTemplateHeadBinaryRaw();
 		TemplateHeadStandard& getTemplateHeadStandardRaw();
 		TemplateBinary& getTemplateBinaryRaw();
@@ -192,6 +198,7 @@ namespace webss
 			Dictionary* dict;
 			List* list;
 			Tuple* tuple;
+			Thead* thead;
 			TemplateHeadBinary* theadBinary;
 			TemplateHeadStandard* theadStandard;
 			TemplateBinary* templBinary;

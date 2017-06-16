@@ -61,6 +61,8 @@ Webss::Webss(string s) : type(WebssType::PRIMITIVE_STRING), tString(new string(m
 Webss::Webss(Document document) : type(WebssType::DOCUMENT), document(new Document(move(document))) {}
 Webss::Webss(Dictionary dict) : type(WebssType::DICTIONARY), dict(new Dictionary(move(dict))) {}
 
+Webss::Webss(Thead thead) : type(WebssType::TEMPLATE_HEAD), thead(new Thead(move(thead))) {}
+
 Webss::Webss(List list, WebssType type) : type(type), list(new List(move(list)))
 {
 	assert(type == WebssType::LIST || type == WebssType::LIST_TEXT);
@@ -151,6 +153,9 @@ void Webss::destroyUnion()
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		delete tuple;
 		break;
+	case WebssType::TEMPLATE_HEAD:
+		delete thead;
+		break;
 	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 		delete theadBinary;
 		break;
@@ -220,6 +225,9 @@ void Webss::copyUnion(Webss&& o)
 		break;
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		tuple = o.tuple;
+		break;
+	case WebssType::TEMPLATE_HEAD:
+		thead = o.thead;
 		break;
 	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 		theadBinary = o.theadBinary;
@@ -292,6 +300,9 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		tuple = new Tuple(*o.tuple);
 		break;
+	case WebssType::TEMPLATE_HEAD:
+		thead = new Thead(*o.thead);
+		break;
 	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 		theadBinary = new TemplateHeadBinary(*o.theadBinary);
 		break;
@@ -353,6 +364,8 @@ bool Webss::operator==(const Webss& o) const
 		return *list == *o.list;
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return *tuple == *o.tuple;
+	case WebssType::TEMPLATE_HEAD:
+		return *thead == *o.thead;
 	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 		return *theadBinary == *o.theadBinary;
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_HEAD_PLUS_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
@@ -525,6 +538,7 @@ double Webss::getDouble() const { PATTERN_GET_CONST_SAFE(WebssType::PRIMITIVE_DO
 const std::string& Webss::getString() const { PATTERN_GET_CONST_SAFE(WebssType::PRIMITIVE_STRING, getStringRaw); }
 const Document& Webss::getDocument() const { PATTERN_GET_CONST_SAFE(WebssType::DOCUMENT, getDocumentRaw); }
 const Dictionary& Webss::getDictionary() const { PATTERN_GET_CONST_SAFE(WebssType::DICTIONARY, getDictionaryRaw); }
+const Thead& Webss::getThead() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_HEAD, getTheadRaw); }
 const TemplateBinary& Webss::getTemplateBinary() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_BINARY, getTemplateBinaryRaw); }
 const TemplateStandard& Webss::getTemplateStandard() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_STANDARD, getTemplateStandardRaw); }
 const TemplatePlusBinary& Webss::getTemplatePlusBinary() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_PLUS_BINARY, getTemplatePlusBinaryRaw); }
@@ -697,6 +711,7 @@ const Document& Webss::getDocumentRaw() const { assert(getTypeRaw() == WebssType
 const Dictionary& Webss::getDictionaryRaw() const { assert(getTypeRaw() == WebssType::DICTIONARY); return *dict; }
 const List& Webss::getListRaw() const { assert(getTypeRaw() == WebssType::LIST || getTypeRaw() == WebssType::LIST_TEXT); return *list; }
 const Tuple& Webss::getTupleRaw() const { assert(getTypeRaw() == WebssType::TUPLE || getTypeRaw() == WebssType::TUPLE_TEXT); return *tuple; }
+const Thead& Webss::getTheadRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD); return *thead; }
 const TemplateHeadBinary& Webss::getTemplateHeadBinaryRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_BINARY || getTypeRaw() == WebssType::TEMPLATE_HEAD_PLUS_BINARY); return *theadBinary; }
 const TemplateHeadStandard& Webss::getTemplateHeadStandardRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_STANDARD || getTypeRaw() == WebssType::TEMPLATE_HEAD_TEXT || getTypeRaw() == WebssType::TEMPLATE_HEAD_PLUS_STANDARD || getTypeRaw() == WebssType::TEMPLATE_HEAD_PLUS_TEXT); return *theadStandard; }
 const TemplateBinary& Webss::getTemplateBinaryRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_BINARY); return *templBinary; }
@@ -714,6 +729,7 @@ Document& Webss::getDocumentRaw() { assert(getTypeRaw() == WebssType::DOCUMENT);
 Dictionary& Webss::getDictionaryRaw() { assert(getTypeRaw() == WebssType::DICTIONARY); return *dict; }
 List& Webss::getListRaw() { assert(getTypeRaw() == WebssType::LIST || getTypeRaw() == WebssType::LIST_TEXT); return *list; }
 Tuple& Webss::getTupleRaw() { assert(getTypeRaw() == WebssType::TUPLE || getTypeRaw() == WebssType::TUPLE_TEXT); return *tuple; }
+Thead& Webss::getTheadRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD); return *thead; }
 TemplateHeadBinary& Webss::getTemplateHeadBinaryRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_BINARY || getTypeRaw() == WebssType::TEMPLATE_HEAD_PLUS_BINARY); return *theadBinary; }
 TemplateHeadStandard& Webss::getTemplateHeadStandardRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_HEAD_STANDARD || getTypeRaw() == WebssType::TEMPLATE_HEAD_TEXT || getTypeRaw() == WebssType::TEMPLATE_HEAD_PLUS_STANDARD || getTypeRaw() == WebssType::TEMPLATE_HEAD_PLUS_TEXT); return *theadStandard; }
 TemplateBinary& Webss::getTemplateBinaryRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_BINARY); return *templBinary; }
