@@ -179,13 +179,13 @@ private:
 		});
 	}
 };
-
+/*
 Webss Parser::parseTemplateText()
 {
 	auto head = parseTemplateHeadText();
 	auto body = parseTemplateText(head.getParameters());
 	return{ move(head), move(body), WebssType::TEMPLATE_TEXT };
-}
+}*/
 
 Webss Parser::parseTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue)
 {
@@ -295,21 +295,21 @@ Webss Parser::buildTemplateBodyStandard(const TemplateHeadStandard::Parameters& 
 
 Webss Parser::parseTemplate()
 {
-	auto headWebss = parseTemplateHead();
+	auto headWebss = parseThead();
 	switch (headWebss.getTypeRaw())
 	{
-	case WebssType::TEMPLATE_HEAD_BINARY:
-		return parseTemplateBinary(headWebss.getTemplateHeadBinaryRaw());
-	case WebssType::TEMPLATE_HEAD_STANDARD:
-		return parseTemplateStandard(headWebss.getTemplateHeadStandardRaw());
-	case WebssType::TEMPLATE_HEAD_TEXT:
-		return parseTemplateText(headWebss.getTemplateHeadStandardRaw());
+	case TheadType::BINARY:
+		return parseTemplateBinary(headWebss.getTheadBinaryRaw());
+	case TheadType::STANDARD:
+		return parseTemplateStandard(headWebss.getTheadStandardRaw());
+/*	case WebssType::TEMPLATE_HEAD_TEXT:
+		return parseTemplateText(headWebss.getTheadStandardRaw());
 	case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 		return parseTemplatePlusBinary(headWebss.getTemplateHeadBinaryRaw());
 	case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
 		return parseTemplatePlusStandard(headWebss.getTemplateHeadStandardRaw());
 	case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
-		return parseTemplatePlusText(headWebss.getTemplateHeadStandardRaw());
+		return parseTemplatePlusText(headWebss.getTemplateHeadStandardRaw());*/
 	default:
 		assert(false); throw domain_error("");
 	}

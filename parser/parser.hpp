@@ -13,6 +13,7 @@
 #include "structures/document.hpp"
 #include "structures/dictionary.hpp"
 #include "structures/paramStandard.hpp"
+#include "structures/thead.hpp"
 #include "structures/templatePlus.hpp"
 #include "utils/stringBuilder.hpp"
 #include "utils/constants.hpp"
@@ -73,7 +74,8 @@ namespace webss
 		void parseExplicitKeyValue(std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly);
 
 		//parserTemplates.cpp
-		Webss parseTemplateHead(bool allowSelf = false);
+		TheadOptions parseTheadOptions();
+		Thead parseThead(bool allowSelf = false);
 
 		//parserBinary.cpp
 		void parseBinaryHead(TemplateHeadBinary& thead);
@@ -121,13 +123,16 @@ namespace webss
 		OtherValue checkAbstractEntity(const Entity& ent);
 		Webss parseValueOnly();
 
-		//parserTemplateHead.cpp
-		TemplateHeadStandard parseTemplateHeadStandard(TemplateHeadStandard&& thead = TemplateHeadStandard());
-		TemplateHeadBinary parseTemplateHeadBinary(TemplateHeadBinary&& thead = TemplateHeadBinary());
-		TemplateHeadStandard parseTemplateHeadText();
 
-		Webss parseTemplateHeadPlus();
-		TemplateHeadStandard parseTemplateHeadPlusText();
+		//parserTemplateHead.cpp
+		TemplateHeadStandard parseTheadStandard(TemplateHeadStandard&& thead = TemplateHeadStandard());
+		TemplateHeadBinary parseTheadBinary(TemplateHeadBinary&& thead = TemplateHeadBinary());
+		//TemplateHeadStandard parseTemplateHeadText();
+
+		//Thead parseTheadText();
+
+//		Webss parseTemplateHeadPlus();
+//		TemplateHeadStandard parseTemplateHeadPlusText();
 
 		Webss parseTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue);
 		Webss checkTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue, const Webss& value);
@@ -142,7 +147,7 @@ namespace webss
 		Tuple::size_type fillTemplateBodyTuple(const TemplateHeadStandard::Parameters& params, const Tuple& baseTuple, Tuple& filledTuple, Tuple::size_type index = 0);
 
 		Webss parseTemplate();
-		Webss parseTemplateText();
+//		Webss parseTemplateText();
 		Webss parseTemplateBinary(TemplateHeadBinary thead);
 		Webss parseTemplateStandard(TemplateHeadStandard thead);
 		Webss parseTemplateText(TemplateHeadStandard thead);

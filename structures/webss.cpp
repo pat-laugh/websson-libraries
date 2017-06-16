@@ -598,6 +598,7 @@ bool Webss::isEnum() const { return getType() == WebssType::ENUM; }
 
 bool Webss::isListText() const { return getType() == WebssType::LIST_TEXT; }
 bool Webss::isTupleText() const { return getType() == WebssType::TUPLE_TEXT; }
+bool Webss::isThead() const { return getType() == WebssType::TEMPLATE_HEAD; }
 bool Webss::isTemplateHeadPlusBinary() const { return getType() == WebssType::TEMPLATE_HEAD_PLUS_BINARY; }
 bool Webss::isTemplateHeadPlusText() const { return getType() == WebssType::TEMPLATE_HEAD_PLUS_TEXT; }
 

@@ -168,6 +168,7 @@ namespace webss
 		bool isTuple() const;
 		bool isListText() const;
 		bool isTupleText() const;
+		bool isThead() const;
 		bool isTemplateHeadBinary() const;
 		bool isTemplateHeadStandard() const;
 		bool isTemplateHeadText() const;

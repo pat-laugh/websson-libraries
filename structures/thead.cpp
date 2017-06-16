@@ -22,10 +22,10 @@ Thead& Thead::operator=(Thead o)
 	return *this;
 }
 
-Thead::Thead(Entity ent) : type(TheadType::ENTITY), ent(move(ent)) {}
-Thead::Thead(TemplateHeadBinary theadBinary, bool isText, bool isPlus) : type(TheadType::BINARY), isText(isText), isPlus(isPlus), theadBinary(new TemplateHeadBinary(move(theadBinary))) {}
-Thead::Thead(TemplateHeadStandard theadStandard, bool isText, bool isPlus) : type(TheadType::STANDARD), isText(isText), isPlus(isPlus), theadStandard(new TemplateHeadStandard(move(theadStandard))) {}
-Thead::Thead(TemplateHeadSelf, bool isText, bool isPlus) : type(TheadType::SELF), isText(isText), isPlus(isPlus) {}
+Thead::Thead(Entity ent) : type(TheadType::ENTITY), ent(move(ent)) { assert(ent.getContent().isThead()); }
+Thead::Thead(TemplateHeadBinary theadBinary, TheadOptions options) : type(TheadType::BINARY), options(move(options)), theadBinary(new TemplateHeadBinary(move(theadBinary))) {}
+Thead::Thead(TemplateHeadStandard theadStandard, TheadOptions options) : type(TheadType::STANDARD), options(move(options)), theadStandard(new TemplateHeadStandard(move(theadStandard))) {}
+Thead::Thead(TemplateHeadSelf, TheadOptions options) : type(TheadType::SELF), options(move(options)) {}
 
 void Thead::destroyUnion()
 {
@@ -69,6 +69,7 @@ void Thead::copyUnion(Thead&& o)
 	}
 	type = o.type;
 	o.type = TheadType::NONE;
+	options = o.options;
 }
 
 void Thead::copyUnion(const Thead& o)
@@ -90,6 +91,7 @@ void Thead::copyUnion(const Thead& o)
 		assert(false);
 	}
 	type = o.type;
+	options = o.options;
 }
 
 
@@ -97,7 +99,7 @@ bool Thead::operator==(const Thead& o) const
 {
 	if (this == &o)
 		return true;
-	if (type != o.type)
+	if (type != o.type || options.isText != o.options.isText || options.isPlus != o.options.isPlus)
 		return false;
 	switch (o.type)
 	{
@@ -150,3 +152,5 @@ const TemplateHeadStandard& Thead::getTheadStandardRaw() const { assert(getTypeR
 Entity& Thead::getEntityRaw() { assert(getTypeRaw() == TheadType::ENTITY); return ent; }
 TemplateHeadBinary& Thead::getTheadBinaryRaw() { assert(getTypeRaw() == TheadType::BINARY); return *theadBinary; }
 TemplateHeadStandard& Thead::getTheadStandardRaw() { assert(getTypeRaw() == TheadType::STANDARD); return *theadStandard; }
+
+TheadOptions Thead::getOptions() const { return options; }

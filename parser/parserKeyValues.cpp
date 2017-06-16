@@ -37,7 +37,7 @@ Webss Parser::parseCharValue()
 	case Tag::TEXT_DICTIONARY: return parseMultilineString(*this);
 	case Tag::TEXT_LIST: return{ parseListText(), WebssType::LIST_TEXT };
 	case Tag::TEXT_TUPLE: return{ parseTupleText(), WebssType::TUPLE_TEXT };
-	case Tag::TEXT_TEMPLATE: return parseTemplateText();
+//	case Tag::TEXT_TEMPLATE: return parseTemplateText();
 	default:
 		throw runtime_error(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
 	}

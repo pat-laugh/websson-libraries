@@ -310,17 +310,17 @@ void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 	switch (webss.getTypeRaw())
 	{
 	case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
-		out += CHAR_THEAD_VALUE;
+		out += CHAR_THEAD_PLUS;
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		putTemplateHeadBinary(out, webss.getTemplateHeadBinaryRaw());
 		break;
 	case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
-		out += CHAR_THEAD_VALUE;
+		out += CHAR_THEAD_PLUS;
 	case WebssType::TEMPLATE_HEAD_STANDARD:
 		putTemplateHeadStandard(out, webss.getTemplateHeadStandardRaw());
 		break;
 	case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
-		out += CHAR_THEAD_VALUE;
+		out += CHAR_THEAD_PLUS;
 	case WebssType::TEMPLATE_HEAD_TEXT:
 		putTemplateHeadText(out, webss.getTemplateHeadStandardRaw());
 		break;

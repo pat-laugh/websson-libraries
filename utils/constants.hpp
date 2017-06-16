@@ -20,7 +20,7 @@ namespace webss
 	const char CHAR_SCOPED_IMPORT = '~';
 	const char CHAR_SELF = '&';
 	const char CHAR_SEPARATOR = ',';
-	const char CHAR_THEAD_VALUE = '+';
+	const char CHAR_THEAD_PLUS = '+';
 
 	const char CHAR_BINARY_DEFAULT_FALSE = 0;
 	const char CHAR_BINARY_DEFAULT_TRUE = 1;

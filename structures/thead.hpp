@@ -16,6 +16,12 @@ namespace webss
 {
 	enum class TheadType { NONE, ENTITY, SELF, BINARY, STANDARD };
 
+	struct TheadOptions
+	{
+		bool isText = false;
+		bool isPlus = false;
+	};
+
 	class Thead
 	{
 	public:
@@ -28,9 +34,9 @@ namespace webss
 		Thead& operator=(Thead o);
 
 		Thead(Entity ent);
-		Thead(TemplateHeadSelf, bool isText = false, bool isPlus = false);
-		Thead(TemplateHeadBinary theadBinary, bool isText = false, bool isPlus = false);
-		Thead(TemplateHeadStandard theadStandard, bool isText = false, bool isPlus = false);
+		Thead(TemplateHeadSelf, TheadOptions options = TheadOptions());
+		Thead(TemplateHeadBinary theadBinary, TheadOptions options = TheadOptions());
+		Thead(TemplateHeadStandard theadStandard, TheadOptions options = TheadOptions());
 
 		bool operator==(const Thead& o) const;
 		bool operator!=(const Thead& o) const;
@@ -61,9 +67,11 @@ namespace webss
 		bool isTheadBinary() const;
 		bool isTheadStandard() const;
 
+		TheadOptions getOptions() const;
+
 	private:
 		TheadType type = TheadType::NONE;
-		bool isText, isPlus;
+		TheadOptions options;
 		union
 		{
 			TemplateHeadBinary* theadBinary;

@@ -75,13 +75,13 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 			break;
 		case Tag::START_TEMPLATE:
 		{
-			auto headWebss = parseTemplateHead(true);
+			auto headWebss = parseThead(true);
 			switch (headWebss.getTypeRaw())
 			{
-			case WebssType::TEMPLATE_HEAD_BINARY:
-				bhead = Bhead(move(headWebss.getTemplateHeadBinaryRaw()));
+			case TheadType::BINARY:
+				bhead = Bhead(move(headWebss.getTheadBinaryRaw()));
 				break;
-			case WebssType::TEMPLATE_HEAD_SELF:
+			case TheadType::SELF:
 				bhead = Bhead(TemplateHeadSelf());
 				break;
 			default:
