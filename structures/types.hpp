@@ -8,5 +8,5 @@
 namespace webss
 {
 	using WebssInt = int64_t;
-	using WebssBinarySize = std::string::size_type;
+	using WebssBinSize = std::string::size_type;
 }

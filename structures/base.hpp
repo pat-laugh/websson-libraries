@@ -13,28 +13,28 @@ namespace webss
 	class Entity;
 	class Namespace;
 	class TemplateBody;
-	class ParamBinary;
-	class ParamStandard;
+	class ParamBin;
+	class ParamStd;
 	class Document;
 
 	template <class Param>
-	class BasicTemplateHead;
+	class BasicThead;
 
-	template <class TemplateHead>
+	template <class Thead>
 	class BasicTemplate;
 
-	template <class TemplateHead>
+	template <class Thead>
 	class BasicTemplatePlus;
 
 	class ParamDocument;
 	using DocumentHead = std::vector<ParamDocument>;
 
-	class TemplateHeadSelf {}; //empty class
+	class TheadSelf {}; //empty class
 
-	using TemplateHeadBinary = BasicTemplateHead<ParamBinary>;
-	using TemplateHeadStandard = BasicTemplateHead<ParamStandard>;
-	using TemplateBinary = BasicTemplate<TemplateHeadBinary>;
-	using TemplateStandard = BasicTemplate<TemplateHeadStandard>;
-	using TemplatePlusBinary = BasicTemplatePlus<TemplateHeadBinary>;
-	using TemplatePlusStandard = BasicTemplatePlus<TemplateHeadStandard>;
+	using TheadBin = BasicThead<ParamBin>;
+	using TheadStd = BasicThead<ParamStd>;
+	using TemplateBin = BasicTemplate<TheadBin>;
+	using TemplateStd = BasicTemplate<TheadStd>;
+	using TemplatePlusBin = BasicTemplatePlus<TheadBin>;
+	using TemplatePlusStd = BasicTemplatePlus<TheadStd>;
 }

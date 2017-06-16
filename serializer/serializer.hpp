@@ -92,25 +92,25 @@ namespace webss
 		void putEntityAbstract(StringBuilder& out, const Entity& ent);
 		void putEntityConcrete(StringBuilder& out, const Entity& ent, ConType con);
 
-		void putTemplateBinary(StringBuilder& out, const TemplateBinary& templ);
-		void putTemplateStandard(StringBuilder& out, const TemplateStandard& templ);
-		void putTemplateStandardBody(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Webss& body);
+		void putTemplateBin(StringBuilder& out, const TemplateBin& templ);
+		void putTemplateStd(StringBuilder& out, const TemplateStd& templ);
+		void putTemplateStdBody(StringBuilder& out, const TheadStd::Params& params, const Webss& body);
 
-		void putTemplateText(StringBuilder& out, const TemplateStandard& templ);
+		void putTemplateText(StringBuilder& out, const TemplateStd& templ);
 
-		void putTemplateBinaryTuple(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple);
-		void putTemplateStandardTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
-		void putTemplateStandardTupleText(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
-		void putTemplateTextTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
+		void putTemplateBinTuple(StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple);
+		void putTemplateStdTuple(StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
+		void putTemplateStdTupleText(StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
+		void putTemplateTextTuple(StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
 
-		void putTemplatePlusBinary(StringBuilder& out, const TemplatePlusBinary& templ, ConType con);
-		void putTemplatePlusStandard(StringBuilder& out, const TemplatePlusStandard& templ, ConType con);
-		void putTemplatePlusText(StringBuilder& out, const TemplatePlusStandard& templ, ConType con);
+		void putTemplatePlusBin(StringBuilder& out, const TemplatePlusBin& templ, ConType con);
+		void putTemplatePlusStd(StringBuilder& out, const TemplatePlusStd& templ, ConType con);
+		void putTemplatePlusText(StringBuilder& out, const TemplatePlusStd& templ, ConType con);
 
-		void putTemplateHeadSelf(StringBuilder& out);
-		void putTemplateHeadBinary(StringBuilder& out, const TemplateHeadBinary& thead);
-		void putTemplateHeadStandard(StringBuilder& out, const TemplateHeadStandard& thead);
-		void putTemplateHeadText(StringBuilder& out, const TemplateHeadStandard& thead);
+		void putTheadSelf(StringBuilder& out);
+		void putTheadBin(StringBuilder& out, const TheadBin& thead);
+		void putTheadStd(StringBuilder& out, const TheadStd& thead);
+		void putTheadText(StringBuilder& out, const TheadStd& thead);
 		
 		class NamespaceIncluder
 		{

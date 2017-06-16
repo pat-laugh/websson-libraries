@@ -38,31 +38,31 @@ string WebssType::toString() const
 		return "tuple";
 	case WebssType::TUPLE_TEXT:
 		return "tuple text";
-	case WebssType::TEMPLATE_HEAD:
+	case WebssType::THEAD:
 		return "template head";
-	case WebssType::TEMPLATE_HEAD_BINARY:
+	case WebssType::THEAD_BIN:
 		return "template head binary";
-	case WebssType::TEMPLATE_HEAD_SELF:
+	case WebssType::THEAD_SELF:
 		return "template head self";
-	case WebssType::TEMPLATE_HEAD_STANDARD:
+	case WebssType::THEAD_STD:
 		return "template head standard";
-	case WebssType::TEMPLATE_HEAD_TEXT:
+	case WebssType::THEAD_TEXT:
 		return "template head text";
-	case WebssType::TEMPLATE_BINARY:
+	case WebssType::TEMPLATE_BIN:
 		return "template binary";
-	case WebssType::TEMPLATE_STANDARD:
+	case WebssType::TEMPLATE_STD:
 		return "template standard";
 	case WebssType::TEMPLATE_TEXT:
 		return "template text";
-	case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
+	case WebssType::THEAD_PLUS_BIN:
 		return "template value head binary";
-	case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
+	case WebssType::THEAD_PLUS_STD:
 		return "template value head standard";
-	case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
+	case WebssType::THEAD_PLUS_TEXT:
 		return "template value head text";
-	case WebssType::TEMPLATE_PLUS_BINARY:
+	case WebssType::TEMPLATE_PLUS_BIN:
 		return "template value binary";
-	case WebssType::TEMPLATE_PLUS_STANDARD:
+	case WebssType::TEMPLATE_PLUS_STD:
 		return "template value standard";
 	case WebssType::TEMPLATE_PLUS_TEXT:
 		return "template value text";

@@ -12,30 +12,30 @@
 
 namespace webss
 {
-	class ParamBinary
+	class ParamBin
 	{
 	public:
 		class SizeHead
 		{
 		public:
-			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, SELF, KEYWORD, NUMBER, TEMPLATE_HEAD, ENTITY_NUMBER, ENTITY_TEMPLATE_HEAD, BITS, ENTITY_BITS };
+			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, SELF, KEYWORD, NUMBER, THEAD, ENTITY_NUMBER, ENTITY_THEAD, BITS, ENTITY_BITS };
 
 			SizeHead();
 			SizeHead(Keyword keyword);
 
 			static SizeHead makeEntityThead(const Entity& entThead) { return SizeHead(entThead); }
 			static SizeHead makeEntityNumber(const Entity& entNumber) { return SizeHead(entNumber, true); }
-			static SizeHead makeSizeBits(WebssBinarySize num) { return SizeHead(num, true); }
+			static SizeHead makeSizeBits(WebssBinSize num) { return SizeHead(num, true); }
 			static SizeHead makeEntityBits(const Entity& entNumber) { return SizeHead(entNumber, true, true); }
 
-			SizeHead(WebssBinarySize num);
-			SizeHead(TemplateHeadSelf);
+			SizeHead(WebssBinSize num);
+			SizeHead(TheadSelf);
 			SizeHead(Type type);
 
 			~SizeHead();
 
-			SizeHead(TemplateHeadBinary&& o);
-			SizeHead(const TemplateHeadBinary& o);
+			SizeHead(TheadBin&& o);
+			SizeHead(const TheadBin& o);
 
 			SizeHead(SizeHead&& o);
 			SizeHead(const SizeHead& o);
@@ -49,12 +49,12 @@ namespace webss
 			bool isEmpty() const;
 			bool isKeyword() const;
 			bool isBool() const;
-			bool isTemplateHeadBinary() const;
+			bool isTheadBin() const;
 
 			bool hasEntity() const;
 
 			bool hasDefaultValue() const;
-			bool isTemplateHeadSelf() const;
+			bool isTheadSelf() const;
 
 			Type getType() const;
 			Keyword getKeyword() const;
@@ -65,25 +65,25 @@ namespace webss
 
 			const Entity& getEntity() const;
 
-			const TemplateHeadBinary& getTemplateHead() const;
+			const TheadBin& getThead() const;
 
-			WebssBinarySize size() const;
+			WebssBinSize size() const;
 
 		private:
 			Type type = Type::NONE;
 			union
 			{
 				Keyword keyword;
-				WebssBinarySize number;
+				WebssBinSize number;
 				Entity ent;
-				TemplateHeadBinary* thead;
+				TheadBin* thead;
 			};
 
 			std::shared_ptr<Webss> defaultValue;
 
 			SizeHead(const Entity& entThead);
 			SizeHead(const Entity& entNumber, bool);
-			SizeHead(WebssBinarySize num, bool);
+			SizeHead(WebssBinSize num, bool);
 			SizeHead(const Entity& entNumber, bool, bool);
 
 			void destroyUnion();
@@ -99,7 +99,7 @@ namespace webss
 			SizeList();
 			SizeList(Type type);
 			SizeList(const Entity& entNumber);
-			SizeList(WebssBinarySize num);
+			SizeList(WebssBinSize num);
 
 			~SizeList();
 
@@ -118,7 +118,7 @@ namespace webss
 
 			Type getType() const;
 
-			WebssBinarySize size() const;
+			WebssBinSize size() const;
 
 			const Entity& getEntity() const;
 
@@ -126,7 +126,7 @@ namespace webss
 			Type type = Type::NONE;
 			union
 			{
-				WebssBinarySize number;
+				WebssBinSize number;
 				Entity ent;
 			};
 
@@ -135,19 +135,19 @@ namespace webss
 			void copyUnion(const SizeList& o);
 		};
 
-		ParamBinary();
-		ParamBinary(SizeHead&& sizeHead, SizeList&& sizeList);
-		ParamBinary(const SizeHead& sizeHead, const SizeList& sizeList);
-		~ParamBinary();
+		ParamBin();
+		ParamBin(SizeHead&& sizeHead, SizeList&& sizeList);
+		ParamBin(const SizeHead& sizeHead, const SizeList& sizeList);
+		~ParamBin();
 
-		ParamBinary(ParamBinary&& o);
-		ParamBinary(const ParamBinary& o);
+		ParamBin(ParamBin&& o);
+		ParamBin(const ParamBin& o);
 
-		ParamBinary& operator=(ParamBinary&& o);
-		ParamBinary& operator=(const ParamBinary& o);
+		ParamBin& operator=(ParamBin&& o);
+		ParamBin& operator=(const ParamBin& o);
 
-		bool operator==(const ParamBinary& o) const;
-		bool operator!=(const ParamBinary& o) const;
+		bool operator==(const ParamBin& o) const;
+		bool operator!=(const ParamBin& o) const;
 
 		const SizeHead& getSizeHead() const;
 		const SizeList& getSizeList() const;
@@ -155,9 +155,9 @@ namespace webss
 		//functions for sizeHead
 		bool hasDefaultValue() const;
 		const std::shared_ptr<Webss>& getDefaultPointer() const;
-		bool isTemplateHeadBinary() const;
-		bool isTemplateHeadSelf() const;
-		const TemplateHeadBinary& getTemplateHead() const;
+		bool isTheadBin() const;
+		bool isTheadSelf() const;
+		const TheadBin& getThead() const;
 
 	private:
 		SizeHead sizeHead;

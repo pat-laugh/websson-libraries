@@ -19,8 +19,8 @@ namespace webss
 	class ConType
 	{
 	public:
-		enum class Enum { DOCUMENT, DICTIONARY, LIST, TUPLE, TEMPLATE_HEAD };
-		static const Enum DOCUMENT = Enum::DOCUMENT, DICTIONARY = Enum::DICTIONARY, LIST = Enum::LIST, TUPLE = Enum::TUPLE, TEMPLATE_HEAD = Enum::TEMPLATE_HEAD;
+		enum class Enum { DOCUMENT, DICTIONARY, LIST, TUPLE, THEAD };
+		static const Enum DOCUMENT = Enum::DOCUMENT, DICTIONARY = Enum::DICTIONARY, LIST = Enum::LIST, TUPLE = Enum::TUPLE, THEAD = Enum::THEAD;
 
 		constexpr ConType() : e(Enum::DOCUMENT) {}
 		constexpr ConType(Enum e) : e(e) {}

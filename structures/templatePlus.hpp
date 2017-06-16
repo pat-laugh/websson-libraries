@@ -7,11 +7,11 @@
 namespace webss
 {
 #define This BasicTemplatePlus
-	template <class TemplateHead>
-	class This : public BasicTemplate<TemplateHead>
+	template <class Thead>
+	class This : public BasicTemplate<Thead>
 	{
 	private:
-		using base = BasicTemplate<TemplateHead>;
+		using base = BasicTemplate<Thead>;
 		Webss content;
 
 	public:

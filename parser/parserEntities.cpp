@@ -37,16 +37,16 @@ Webss Parser::parseAbstractCharValue(const string& name, const Namespace& curren
 	case Tag::START_TEMPLATE:
 		return parseThead();
 //	case Tag::TEXT_TEMPLATE:
-//		return Webss(parseTemplateHeadText(), WebssType::TEMPLATE_HEAD_TEXT);
+//		return Webss(parseTheadText(), WebssType::THEAD_TEXT);
 	case Tag::EQUAL:
 		++tagit;
 		return parseAbstractValueEqual(name, currentNamespace);
 /*	case Tag::PLUS:
 		assert(*getIt() == CHAR_THEAD_PLUS);
 		if (++tagit == Tag::START_TEMPLATE)
-			return parseTemplateHeadPlus();
+			return parseTheadPlus();
 		else if (*tagit == Tag::TEXT_TEMPLATE)
-			return Webss(parseTemplateHeadPlusText(), WebssType::TEMPLATE_HEAD_PLUS_TEXT); */
+			return Webss(parseTheadPlusText(), WebssType::THEAD_PLUS_TEXT); */
 	default:
 		throw runtime_error(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
 	}

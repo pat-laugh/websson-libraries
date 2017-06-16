@@ -14,7 +14,7 @@
 
 namespace webss
 {
-	enum class TypeThead { NONE, ENTITY, SELF, BINARY, STANDARD };
+	enum class TypeThead { NONE, ENTITY, SELF, BIN, STD };
 
 	struct TheadOptions
 	{
@@ -34,9 +34,9 @@ namespace webss
 		Thead& operator=(Thead o);
 
 		Thead(Entity ent);
-		Thead(TemplateHeadSelf, TheadOptions options = TheadOptions());
-		Thead(TemplateHeadBinary theadBinary, TheadOptions options = TheadOptions());
-		Thead(TemplateHeadStandard theadStandard, TheadOptions options = TheadOptions());
+		Thead(TheadSelf, TheadOptions options = TheadOptions());
+		Thead(TheadBin theadBin, TheadOptions options = TheadOptions());
+		Thead(TheadStd theadStd, TheadOptions options = TheadOptions());
 
 		bool operator==(const Thead& o) const;
 		bool operator!=(const Thead& o) const;
@@ -44,28 +44,28 @@ namespace webss
 		const Thead& getTheadLast() const;
 
 		TypeThead getType() const;
-		const TemplateHeadBinary& getTheadBinary() const;
-		const TemplateHeadStandard& getTheadStandard() const;
+		const TheadBin& getTheadBin() const;
+		const TheadStd& getTheadStd() const;
 
 		TypeThead getTypeRaw() const;
 
 		const Entity& getEntityRaw() const;
-		const TemplateHeadBinary& getTheadBinaryRaw() const;
-		const TemplateHeadStandard& getTheadStandardRaw() const;
+		const TheadBin& getTheadBinRaw() const;
+		const TheadStd& getTheadStdRaw() const;
 
 		Entity& getEntityRaw();
-		TemplateHeadBinary& getTheadBinaryRaw();
-		TemplateHeadStandard& getTheadStandardRaw();
+		TheadBin& getTheadBinRaw();
+		TheadStd& getTheadStdRaw();
 
-		explicit operator const TemplateHeadBinary&() const { return getTheadBinary(); }
-		explicit operator const TemplateHeadStandard&() const { return getTheadStandard(); }
+		explicit operator const TheadBin&() const { return getTheadBin(); }
+		explicit operator const TheadStd&() const { return getTheadStd(); }
 
 		template <class Element>
 		const Element& getElement() const { return static_cast<const Element&>(*this); }
 
 		bool isNone() const;
-		bool isTheadBinary() const;
-		bool isTheadStandard() const;
+		bool isTheadBin() const;
+		bool isTheadStd() const;
 
 		TheadOptions getOptions() const;
 
@@ -77,8 +77,8 @@ namespace webss
 		TheadOptions options;
 		union
 		{
-			TemplateHeadBinary* theadBinary;
-			TemplateHeadStandard* theadStandard;
+			TheadBin* theadBin;
+			TheadStd* theadStd;
 			Entity ent;
 		};
 

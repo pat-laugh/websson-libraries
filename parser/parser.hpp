@@ -77,9 +77,9 @@ namespace webss
 		TheadOptions parseTheadOptions();
 		Thead parseThead(bool allowSelf = false);
 
-		//parserBinary.cpp
-		void parseBinaryHead(TemplateHeadBinary& thead);
-		Tuple parseTemplateTupleBinary(const TemplateHeadBinary::Parameters& params);
+		//parserBin.cpp
+		void parseBinHead(TheadBin& thead);
+		Tuple parseTemplateTupleBin(const TheadBin::Params& params);
 
 		//parserEntities.cpp
 		Entity parseConcreteEntity();
@@ -124,35 +124,35 @@ namespace webss
 		Webss parseValueOnly();
 
 
-		//parserTemplateHead.cpp
-		TemplateHeadStandard parseTheadStandard(TemplateHeadStandard&& thead = TemplateHeadStandard());
-		TemplateHeadBinary parseTheadBinary(TemplateHeadBinary&& thead = TemplateHeadBinary());
-		//TemplateHeadStandard parseTemplateHeadText();
+		//parserThead.cpp
+		TheadStd parseTheadStd(TheadStd&& thead = TheadStd());
+		TheadBin parseTheadBin(TheadBin&& thead = TheadBin());
+		//TheadStd parseTheadText();
 
 		//Thead parseTheadText();
 
-//		Webss parseTemplateHeadPlus();
-//		TemplateHeadStandard parseTemplateHeadPlusText();
+//		Webss parseTheadPlus();
+//		TheadStd parseTheadPlusText();
 
-		Webss parseTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue);
-		Webss checkTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue, const Webss& value);
+		Webss parseTemplateContainer(const TheadStd::Params& params, const ParamStd& defaultValue);
+		Webss checkTemplateContainer(const TheadStd::Params& params, const ParamStd& defaultValue, const Webss& value);
 
-		Webss buildTemplateBodyStandard(const TemplateHeadStandard::Parameters& params, const Webss& defaultValue);
-		Tuple parseTemplateTupleStandard(const TemplateHeadStandard::Parameters& params);
-		Tuple parseTemplateTupleText(const TemplateHeadStandard::Parameters& params);
-		Tuple::size_type expandTemplateTuple(const TemplateHeadStandard::Parameters& params, Tuple& templateTuple, Tuple::size_type index);
-		List buildTemplateBodyList(const TemplateHeadStandard::Parameters& params, const List& baseList);
-		void fillTemplateBodyList(const TemplateHeadStandard::Parameters& params, const List& baseList, List& filledList);
-		Tuple buildTemplateBodyTuple(const TemplateHeadStandard::Parameters& params, const Tuple& baseTuple);
-		Tuple::size_type fillTemplateBodyTuple(const TemplateHeadStandard::Parameters& params, const Tuple& baseTuple, Tuple& filledTuple, Tuple::size_type index = 0);
+		Webss buildTemplateBodyStd(const TheadStd::Params& params, const Webss& defaultValue);
+		Tuple parseTemplateTupleStd(const TheadStd::Params& params);
+		Tuple parseTemplateTupleText(const TheadStd::Params& params);
+		Tuple::size_type expandTemplateTuple(const TheadStd::Params& params, Tuple& templateTuple, Tuple::size_type index);
+		List buildTemplateBodyList(const TheadStd::Params& params, const List& baseList);
+		void fillTemplateBodyList(const TheadStd::Params& params, const List& baseList, List& filledList);
+		Tuple buildTemplateBodyTuple(const TheadStd::Params& params, const Tuple& baseTuple);
+		Tuple::size_type fillTemplateBodyTuple(const TheadStd::Params& params, const Tuple& baseTuple, Tuple& filledTuple, Tuple::size_type index = 0);
 
 		Webss parseTemplate();
 //		Webss parseTemplateText();
-		Webss parseTemplateBinary(TemplateHeadBinary thead);
-		Webss parseTemplateStandard(TemplateHeadStandard thead);
-		Webss parseTemplateText(TemplateHeadStandard thead);
-		Webss parseTemplatePlusBinary(TemplateHeadBinary thead);
-		Webss parseTemplatePlusStandard(TemplateHeadStandard thead);
-		Webss parseTemplatePlusText(TemplateHeadStandard thead);
+		Webss parseTemplateBin(TheadBin thead);
+		Webss parseTemplateStd(TheadStd thead);
+		Webss parseTemplateText(TheadStd thead);
+		Webss parseTemplatePlusBin(TheadBin thead);
+		Webss parseTemplatePlusStd(TheadStd thead);
+		Webss parseTemplatePlusText(TheadStd thead);
 	};
 }

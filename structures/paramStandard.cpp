@@ -7,96 +7,96 @@
 using namespace std;
 using namespace webss;
 
-ParamStandard::ParamStandard() {}
-ParamStandard::ParamStandard(Webss defaultValue) : defaultValue(new Webss(move(defaultValue))) {}
-ParamStandard::~ParamStandard() { destroyUnion(); }
+ParamStd::ParamStd() {}
+ParamStd::ParamStd(Webss defaultValue) : defaultValue(new Webss(move(defaultValue))) {}
+ParamStd::~ParamStd() { destroyUnion(); }
 
-ParamStandard::ParamStandard(ParamStandard&& o) { copyUnion(move(o)); }
-ParamStandard::ParamStandard(const ParamStandard& o) { copyUnion(o); }
+ParamStd::ParamStd(ParamStd&& o) { copyUnion(move(o)); }
+ParamStd::ParamStd(const ParamStd& o) { copyUnion(o); }
 
-ParamStandard& ParamStandard::operator=(ParamStandard o)
+ParamStd& ParamStd::operator=(ParamStd o)
 {
 	destroyUnion();
 	copyUnion(move(o));
 	return *this;
 }
 
-bool ParamStandard::operator==(const ParamStandard& o) const { return (this == &o) || (equalPtrs(thead, o.thead) && equalPtrs(defaultValue, o.defaultValue)); }
-bool ParamStandard::operator!=(const ParamStandard& o) const { return !(*this == o); }
+bool ParamStd::operator==(const ParamStd& o) const { return (this == &o) || (equalPtrs(thead, o.thead) && equalPtrs(defaultValue, o.defaultValue)); }
+bool ParamStd::operator!=(const ParamStd& o) const { return !(*this == o); }
 
-bool ParamStandard::hasDefaultValue() const { return defaultValue != nullptr; }
+bool ParamStd::hasDefaultValue() const { return defaultValue != nullptr; }
 
-const Webss& ParamStandard::getDefaultValue() const
+const Webss& ParamStd::getDefaultValue() const
 {
 	assert(hasDefaultValue());
 	return *defaultValue;
 }
-const shared_ptr<Webss>& ParamStandard::getDefaultPointer() const
+const shared_ptr<Webss>& ParamStd::getDefaultPointer() const
 {
 	assert(hasDefaultValue());
 	return defaultValue;
 }
 
-bool ParamStandard::hasThead() const { return thead != nullptr; }
+bool ParamStd::hasThead() const { return thead != nullptr; }
 
-const Thead& ParamStandard::getThead() const
+const Thead& ParamStd::getThead() const
 {
 	assert(hasThead());
 	return *thead;
 }
 
-TypeThead ParamStandard::getTypeThead() const
+TypeThead ParamStd::getTypeThead() const
 {
 	assert(hasThead());
 	return thead->getType();
 }
 
-const TemplateHeadStandard& ParamStandard::getTheadStd() const
+const TheadStd& ParamStd::getTheadStd() const
 {
-	assert(hasThead() && thead->isTheadStandard());
-	return thead->getTheadStandard();
+	assert(hasThead() && thead->isTheadStd());
+	return thead->getTheadStd();
 }
 
-const TemplateHeadBinary& ParamStandard::getTheadBin() const
+const TheadBin& ParamStd::getTheadBin() const
 {
-	assert(hasThead() && thead->isTheadBinary());
-	return thead->getTheadBinary();
+	assert(hasThead() && thead->isTheadBin());
+	return thead->getTheadBin();
 }
 
-bool ParamStandard::isTextThead() const
+bool ParamStd::isTextThead() const
 {
 	assert(hasThead());
 	return thead->isText();
 }
-bool ParamStandard::isPlusThead() const
+bool ParamStd::isPlusThead() const
 {
 	assert(hasThead());
 	return thead->isPlus();
 }
 
-void ParamStandard::setThead(Thead o)
+void ParamStd::setThead(Thead o)
 {
 	assert(!hasThead());
 	thead.reset(new Thead(move(o)));
 }
 
-void ParamStandard::removeThead()
+void ParamStd::removeThead()
 {
 	assert(hasThead());
 	thead.reset();
 }
 
-void ParamStandard::destroyUnion()
+void ParamStd::destroyUnion()
 {
 	removeThead();
 }
 
-void ParamStandard::copyUnion(ParamStandard&& o)
+void ParamStd::copyUnion(ParamStd&& o)
 {
 	thead = move(o.thead);
 	defaultValue = move(o.defaultValue);
 }
-void ParamStandard::copyUnion(const ParamStandard& o)
+void ParamStd::copyUnion(const ParamStd& o)
 {
 	thead = unique_ptr<Thead>(new Thead(*o.thead));
 	defaultValue = o.defaultValue;

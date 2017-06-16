@@ -21,32 +21,32 @@ void addEntityKeywords(EntityManager& ents)
 	addPrivateEntities(ents, { "N", "Nil", "None", "Null", "nil", "none", "null", "F", "False", "false", "T", "True", "true" }, Entity("", Webss()));
 }
 
-TemplateHeadBinary makeTheadBinaryKeyword(Keyword keyword)
+TheadBin makeTheadBinKeyword(Keyword keyword)
 {
-	using Bhead = ParamBinary::SizeHead;
-	using Blist = ParamBinary::SizeList;
-	TemplateHeadBinary thead;
-	thead.attach("", ParamBinary(Bhead(keyword), Blist(Blist::Type::ONE)));
+	using Bhead = ParamBin::SizeHead;
+	using Blist = ParamBin::SizeList;
+	TheadBin thead;
+	thead.attach("", ParamBin(Bhead(keyword), Blist(Blist::Type::ONE)));
 	return thead;
 }
 
-void addTheadBinaryEntityKeywords(EntityManager& ents, vector<string> names, Keyword keyword)
+void addTheadBinEntityKeywords(EntityManager& ents, vector<string> names, Keyword keyword)
 {
 	string entName(names[0]);
-	addPrivateEntities(ents, move(names), Entity(move(entName), makeTheadBinaryKeyword(keyword)));
+	addPrivateEntities(ents, move(names), Entity(move(entName), makeTheadBinKeyword(keyword)));
 }
 
 void initEnts(EntityManager& ents)
 {
 	addEntityKeywords(ents);
-	addTheadBinaryEntityKeywords(ents, { "B", "Bool", "bool" }, Keyword::BOOL);
-	addTheadBinaryEntityKeywords(ents, { "byte", "Byte" }, Keyword::INT8);
-	addTheadBinaryEntityKeywords(ents, { "short", "Short" }, Keyword::INT16);
-	addTheadBinaryEntityKeywords(ents, { "I", "Int", "int" }, Keyword::INT32);
-	addTheadBinaryEntityKeywords(ents, { "L", "Long", "long" }, Keyword::INT64);
-	addTheadBinaryEntityKeywords(ents, { "float", "Float" }, Keyword::FLOAT);
-	addTheadBinaryEntityKeywords(ents, { "D", "Double", "double" }, Keyword::DOUBLE);
-	addTheadBinaryEntityKeywords(ents, { "S", "String", "string" }, Keyword::STRING);
+	addTheadBinEntityKeywords(ents, { "B", "Bool", "bool" }, Keyword::BOOL);
+	addTheadBinEntityKeywords(ents, { "byte", "Byte" }, Keyword::INT8);
+	addTheadBinEntityKeywords(ents, { "short", "Short" }, Keyword::INT16);
+	addTheadBinEntityKeywords(ents, { "I", "Int", "int" }, Keyword::INT32);
+	addTheadBinEntityKeywords(ents, { "L", "Long", "long" }, Keyword::INT64);
+	addTheadBinEntityKeywords(ents, { "float", "Float" }, Keyword::FLOAT);
+	addTheadBinEntityKeywords(ents, { "D", "Double", "double" }, Keyword::DOUBLE);
+	addTheadBinEntityKeywords(ents, { "S", "String", "string" }, Keyword::STRING);
 }
 
 void initAliases(map<string, vector<string>>& aliases)

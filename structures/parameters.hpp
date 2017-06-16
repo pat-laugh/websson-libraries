@@ -6,12 +6,12 @@
 
 namespace webss
 {
-#define This BasicParameters
-	template <class Parameter>
-	class This : public BasicSharedMap<Parameter>
+#define This BasicParams
+	template <class Param>
+	class This : public BasicSharedMap<Param>
 	{
 	private:
-		using base = BasicSharedMap<Parameter>;
+		using base = BasicSharedMap<Param>;
 		using Data = typename base::Data;
 		using Keymap = typename base::Keymap;
 

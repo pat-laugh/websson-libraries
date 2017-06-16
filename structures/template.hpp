@@ -9,11 +9,11 @@
 namespace webss
 {
 #define This BasicTemplate
-	template <class TemplateHead>
-	class This : public TemplateHead, public TemplateBody
+	template <class Thead>
+	class This : public Thead, public TemplateBody
 	{
 	private:
-		using Head = TemplateHead;
+		using Head = Thead;
 		using Body = TemplateBody;
 
 	public:

@@ -38,7 +38,7 @@ namespace webss
 		void putQuotableString(StringBuilder& out, const std::string& str);
 		void putDocumentString(StringBuilder& out, const std::string& str);
 		void putList(StringBuilder& out, const List& list);
-		void putTemplateStandard(StringBuilder& out, const TemplateStandard& templ);
-		void putTemplatePlusStandard(StringBuilder& out, const TemplatePlusStandard& templ);
+		void putTemplateStd(StringBuilder& out, const TemplateStd& templ);
+		void putTemplatePlusStd(StringBuilder& out, const TemplatePlusStd& templ);
 	};
 }

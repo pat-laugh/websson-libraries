@@ -103,18 +103,18 @@ Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 	const auto& content = ent.getContent();
 	switch (content.getType())
 	{
-	case WebssType::TEMPLATE_HEAD_BINARY:
-		return{ parseTemplateBinary(TemplateHeadBinary(ent)) };
-	case WebssType::TEMPLATE_HEAD_STANDARD:
-		return{ parseTemplateStandard(TemplateHeadStandard(ent)) };
-	case WebssType::TEMPLATE_HEAD_TEXT:
-		return{ parseTemplateText(TemplateHeadStandard(ent)) };
-	case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
-		return{ parseTemplatePlusBinary(TemplateHeadBinary(ent)) };
-	case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
-		return{ parseTemplatePlusStandard(TemplateHeadStandard(ent)) };
-	case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
-		return{ parseTemplatePlusText(TemplateHeadStandard(ent)) };
+	case WebssType::THEAD_BIN:
+		return{ parseTemplateBin(TheadBin(ent)) };
+	case WebssType::THEAD_STD:
+		return{ parseTemplateStd(TheadStd(ent)) };
+	case WebssType::THEAD_TEXT:
+		return{ parseTemplateText(TheadStd(ent)) };
+	case WebssType::THEAD_PLUS_BIN:
+		return{ parseTemplatePlusBin(TheadBin(ent)) };
+	case WebssType::THEAD_PLUS_STD:
+		return{ parseTemplatePlusStd(TheadStd(ent)) };
+	case WebssType::THEAD_PLUS_TEXT:
+		return{ parseTemplatePlusText(TheadStd(ent)) };
 	default:
 		return{ ent };
 	}

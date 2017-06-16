@@ -10,12 +10,12 @@ using namespace webss;
 
 //#define REVERSE_ENDIANNESS_WRITE
 
-void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data);
-void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data, function<void(const Webss& webss)> func);
-void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss);
+void putBin(StringBuilder& out, const ParamBin& param, const Webss& data);
+void putBin(StringBuilder& out, const ParamBin& param, const Webss& data, function<void(const Webss& webss)> func);
+void putBinElement(StringBuilder& out, const ParamBin::SizeHead& bhead, const Webss& webss);
 
 //returns a string containing a number encoded in UTF-7 encoding thing
-void writeBinarySize(StringBuilder& out, WebssBinarySize num)
+void writeBinSize(StringBuilder& out, WebssBinSize num)
 {
 	if (num < power2<7>::value)
 	{
@@ -52,7 +52,7 @@ void writeBinarySize(StringBuilder& out, WebssBinarySize num)
 #undef POWER
 }
 
-void writeBytes(StringBuilder& out, WebssBinarySize num, char* value)
+void writeBytes(StringBuilder& out, WebssBinSize num, char* value)
 {
 #ifdef REVERSE_ENDIANNESS_WRITE
 	value += num;
@@ -64,7 +64,7 @@ void writeBytes(StringBuilder& out, WebssBinarySize num, char* value)
 #endif
 }
 
-void putTemplateBodyBinary(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
+void putTemplateBodyBin(StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple)
 {
 	assert(tuple.size() == params.size() && "size of binary tuple must match params");
 	decltype(params.size()) i = 0;
@@ -73,31 +73,31 @@ void putTemplateBodyBinary(StringBuilder& out, const TemplateHeadBinary::Paramet
 		const auto& binary = params[i++];
 		if (!binary.getSizeHead().hasDefaultValue())
 		{
-			assert(!binary.getSizeHead().isTemplateHeadSelf());
-			putBinary(out, binary, webss);
+			assert(!binary.getSizeHead().isTheadSelf());
+			putBin(out, binary, webss);
 		}
 		else if (webss.getTypeRaw() == WebssType::DEFAULT || webss.getTypeRaw() == WebssType::NONE)
-			out += CHAR_BINARY_DEFAULT_TRUE;
+			out += CHAR_BIN_DEFAULT_TRUE;
 		else
 		{
-			out += CHAR_BINARY_DEFAULT_FALSE;
-			if (binary.getSizeHead().isTemplateHeadSelf())
-				putTemplateBodyBinary(out, params, webss.getTuple());
+			out += CHAR_BIN_DEFAULT_FALSE;
+			if (binary.getSizeHead().isTheadSelf())
+				putTemplateBodyBin(out, params, webss.getTuple());
 			else
-				putBinary(out, binary, webss);
+				putBin(out, binary, webss);
 		}
 	}
 }
 
-void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data)
+void putBin(StringBuilder& out, const ParamBin& param, const Webss& data)
 {
 	const auto& sizeHead = param.getSizeHead();
-	if (!sizeHead.isTemplateHeadBinary())
-		putBinary(out, param, data, [&](const Webss& webss) { putBinaryElement(out, sizeHead, webss); });
+	if (!sizeHead.isTheadBin())
+		putBin(out, param, data, [&](const Webss& webss) { putBinElement(out, sizeHead, webss); });
 	else
 	{
-		const auto& params = sizeHead.getTemplateHead().getParameters();
-		putBinary(out, param, data, [&](const Webss& webss) { putTemplateBodyBinary(out, params, webss.getTuple()); });
+		const auto& params = sizeHead.getThead().getParams();
+		putBin(out, param, data, [&](const Webss& webss) { putTemplateBodyBin(out, params, webss.getTuple()); });
 	}
 }
 
@@ -119,7 +119,7 @@ void serializeBitList(StringBuilder& out, const List& list)
 	out += c;
 }
 
-void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data, function<void(const Webss& webss)> func)
+void putBin(StringBuilder& out, const ParamBin& param, const Webss& data, function<void(const Webss& webss)> func)
 {
 	if (param.getSizeList().isOne())
 	{
@@ -129,7 +129,7 @@ void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data, 
 
 	const auto& list = data.getList();
 	if (param.getSizeList().isEmpty())
-		writeBinarySize(out, list.size());
+		writeBinSize(out, list.size());
 
 	if (param.getSizeHead().isBool())
 		serializeBitList(out, list);
@@ -138,7 +138,7 @@ void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data, 
 			func(webss);
 }
 
-void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, const Webss& webss)
+void putBinElement(StringBuilder& out, const ParamBin::SizeHead& bhead, const Webss& webss)
 {
 	if (bhead.isKeyword())
 	{
@@ -193,7 +193,7 @@ void putBinaryElement(StringBuilder& out, const ParamBinary::SizeHead& bhead, co
 		assert(webss.getTypeRaw() == WebssType::PRIMITIVE_STRING);
 		const auto& s = webss.getStringRaw();
 		if (bhead.isEmpty())
-			writeBinarySize(out, s.length());
+			writeBinSize(out, s.length());
 #ifdef assert
 		else
 			assert(bhead.size() == s.length());

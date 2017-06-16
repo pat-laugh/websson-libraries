@@ -8,17 +8,17 @@
 
 namespace webss
 {
-#define This BasicTemplateHead
+#define This BasicThead
 	template <class Param>
 	class This
 	{
 	public:
-		using Parameters = BasicParameters<Param>;
-		using size_type = typename Parameters::size_type;
+		using Params = BasicParams<Param>;
+		using size_type = typename Params::size_type;
 
-		This() : type(Type::PARAMS), params(new Parameters()) {}
-		This(Parameters&& params) : type(Type::PARAMS), params(new Parameters(std::move(params))) {}
-		This(const Parameters& params) : This(Parameters(params)) {}
+		This() : type(Type::PARAMS), params(new Params()) {}
+		This(Params&& params) : type(Type::PARAMS), params(new Params(std::move(params))) {}
+		This(const Params& params) : This(Params(params)) {}
 		This(Entity&& ent) : type(Type::ENTITY), ent(std::move(ent)) {}
 		This(const Entity& ent) : type(Type::ENTITY), ent(ent) {}
 		~This() { destroyUnion(); }
@@ -48,13 +48,13 @@ namespace webss
 				return true;
 			if (type == Type::NONE || o.type == Type::NONE)
 				return type == Type::NONE && o.type == Type::NONE;
-			return getParameters() == o.getParameters();
+			return getParams() == o.getParams();
 		}
 		bool operator!=(const This& o) const { return !(*this == o); }
 
 		bool hasEntity() const { return type == Type::ENTITY; }
-		bool empty() const { return getParameters().empty(); }
-		size_type size() const { return getParameters().size(); }
+		bool empty() const { return getParams().empty(); }
+		size_type size() const { return getParams().size(); }
 
 		Param& back()
 		{
@@ -63,14 +63,14 @@ namespace webss
 				removeEntity();
 			return params->back();
 		}
-		const Param& back() const { return getParameters().back(); }
+		const Param& back() const { return getParams().back(); }
 		Param& last() { return back(); }
 		const Param& last() const { return back(); }
 
-		const Parameters& getParameters() const
+		const Params& getParams() const
 		{
 			assert(type != Type::NONE);
-			return type == Type::ENTITY ? ent.getContent(). template getElement<This>().getParameters() : *params;
+			return type == Type::ENTITY ? ent.getContent(). template getElement<This>().getParams() : *params;
 		}
 
 		const Entity& getEntity() const
@@ -83,7 +83,7 @@ namespace webss
 		{
 			if (type == Type::NONE)
 			{
-				params = new Parameters();
+				params = new Params();
 				type = Type::PARAMS;
 			}
 			else if (type == Type::ENTITY)
@@ -101,7 +101,7 @@ namespace webss
 		{
 			if (type == Type::NONE)
 			{
-				params = new Parameters();
+				params = new Params();
 				type = Type::PARAMS;
 			}
 			else if (type == Type::ENTITY)
@@ -124,7 +124,7 @@ namespace webss
 			else if (type == Type::ENTITY)
 				removeEntity();
 
-			params->merge(ent2.getContent(). template getElement<This>().getParameters());
+			params->merge(ent2.getContent(). template getElement<This>().getParams());
 		}
 
 		void attach(const This& value)
@@ -132,10 +132,10 @@ namespace webss
 			if (value.empty())
 				return;
 
-			const auto& valueTuple = value.getParameters();
+			const auto& valueTuple = value.getParams();
 			if (type == Type::NONE)
 			{
-				setParameters(valueTuple.makeCompleteCopy());
+				setParams(valueTuple.makeCompleteCopy());
 				return;
 			}
 			else if (type == Type::ENTITY)
@@ -158,23 +158,23 @@ namespace webss
 		Type type = Type::NONE;
 		union
 		{
-			Parameters* params;
+			Params* params;
 			Entity ent;
 		};
 
-		This(Parameters* params) : type(Type::PARAMS), params(params) {}
+		This(Params* params) : type(Type::PARAMS), params(params) {}
 
 		void removeEntity()
 		{
-			auto newParameters = ent.getContent(). template getElement<This>().getParameters().makeCompleteCopy();
+			auto newParams = ent.getContent(). template getElement<This>().getParams().makeCompleteCopy();
 			ent.~Entity();
 			type = Type::NONE;
-			setParameters(std::move(newParameters));
+			setParams(std::move(newParams));
 		}
 
-		void setParameters(Parameters&& newParameters)
+		void setParams(Params&& newParams)
 		{
-			params = new Parameters(std::move(newParameters));
+			params = new Params(std::move(newParams));
 			type = Type::PARAMS;
 		}
 
@@ -202,7 +202,7 @@ namespace webss
 		void copyUnion(const This& o)
 		{
 			if (o.type == Type::PARAMS)
-				params = new Parameters(*o.params);
+				params = new Params(*o.params);
 			else if (o.type == Type::ENTITY)
 				new (&ent) Entity(o.ent);
 			type = o.type;

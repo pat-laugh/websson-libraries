@@ -11,24 +11,24 @@
 
 namespace webss
 {
-	class ParamStandard
+	class ParamStd
 	{
 	private:
 		std::unique_ptr<Thead> thead;
 		std::shared_ptr<Webss> defaultValue; //shared pointer because value might be assigned to void params
 
 	public:
-		ParamStandard();
-		ParamStandard(Webss defaultValue);
-		~ParamStandard();
+		ParamStd();
+		ParamStd(Webss defaultValue);
+		~ParamStd();
 
-		ParamStandard(ParamStandard&& o);
-		ParamStandard(const ParamStandard& o);
+		ParamStd(ParamStd&& o);
+		ParamStd(const ParamStd& o);
 
-		ParamStandard& operator=(ParamStandard o);
+		ParamStd& operator=(ParamStd o);
 
-		bool operator==(const ParamStandard& o) const;
-		bool operator!=(const ParamStandard& o) const;
+		bool operator==(const ParamStd& o) const;
+		bool operator!=(const ParamStd& o) const;
 
 		bool hasDefaultValue() const;
 		const Webss& getDefaultValue() const;
@@ -40,8 +40,8 @@ namespace webss
 		//must have a thead
 		TypeThead getTypeThead() const;
 
-		const TemplateHeadStandard& getTheadStd() const;
-		const TemplateHeadBinary& getTheadBin() const;
+		const TheadStd& getTheadStd() const;
+		const TheadBin& getTheadBin() const;
 
 		bool isTextThead() const;
 		bool isPlusThead() const;
@@ -51,7 +51,7 @@ namespace webss
 
 	private:
 		void destroyUnion();
-		void copyUnion(ParamStandard&& o);
-		void copyUnion(const ParamStandard& o);
+		void copyUnion(ParamStd&& o);
+		void copyUnion(const ParamStd& o);
 	};
 }

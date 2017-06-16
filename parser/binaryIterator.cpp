@@ -10,7 +10,7 @@
 using namespace std;
 using namespace webss;
 
-int BinaryIterator::getBitmask(int num)
+int BinIterator::getBitmask(int num)
 {
 	switch (num)
 	{
@@ -30,7 +30,7 @@ int BinaryIterator::getBitmask(int num)
 	}
 }
 
-void BinaryIterator::checkBitshift()
+void BinIterator::checkBitshift()
 {
 	if (bitshift == 8)
 	{
@@ -39,9 +39,9 @@ void BinaryIterator::checkBitshift()
 	}
 }
 	
-BinaryIterator::BinaryIterator(SmartIterator& it) : it(it) {}
+BinIterator::BinIterator(SmartIterator& it) : it(it) {}
 
-int BinaryIterator::readBit()
+int BinIterator::readBit()
 {
 	checkBitshift();
 	int bit = (byteBlock >> bitshift) & 1;
@@ -49,7 +49,7 @@ int BinaryIterator::readBit()
 	return bit;
 }
 
-int BinaryIterator::readBits(int numBits)
+int BinIterator::readBits(int numBits)
 {
 	checkBitshift();
 
@@ -70,7 +70,7 @@ int BinaryIterator::readBits(int numBits)
 	return bits;
 }
 
-string::size_type BinaryIterator::readNumber()
+string::size_type BinIterator::readNumber()
 {
 	const int fullShift = 7, maxFullShifts = sizeof(string::size_type) / fullShift;
 	string::size_type num = 0;
@@ -94,20 +94,20 @@ readLoop:
 	goto readLoop;
 }
 
-void BinaryIterator::readBytes(string::size_type num, char* value)
+void BinIterator::readBytes(string::size_type num, char* value)
 {
 	while (num-- > 0)
 		*value++ = readByte();
 }
 
-char BinaryIterator::readByte()
+char BinIterator::readByte()
 {
 	if (!++it)
 		throw runtime_error("expected character");
 	return *it;
 }
 
-string BinaryIterator::readString(string::size_type num)
+string BinIterator::readString(string::size_type num)
 {
 	StringBuilder sb;
 	while (num-- > 0)

@@ -8,12 +8,12 @@
 
 namespace webss
 {
-	void setDefaultValue(Webss& value, const ParamBinary& defaultValue);
-	void setDefaultValue(Webss& value, const ParamStandard& defaultValue);
-	void checkDefaultValues(Tuple& tuple, const TemplateHeadStandard::Parameters& params);
+	void setDefaultValue(Webss& value, const ParamBin& defaultValue);
+	void setDefaultValue(Webss& value, const ParamStd& defaultValue);
+	void checkDefaultValues(Tuple& tuple, const TheadStd::Params& params);
 
-	template <class Parameters>
-	Tuple makeDefaultTuple(const Parameters& params)
+	template <class Params>
+	Tuple makeDefaultTuple(const Params& params)
 	{
 		Tuple tuple(params.getSharedKeys());
 		for (Tuple::size_type i = 0; i < params.size(); ++i)

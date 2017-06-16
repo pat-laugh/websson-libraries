@@ -14,75 +14,75 @@
 using namespace std;
 using namespace webss;
 
-const char ERROR_EXPAND_BINARY_TEMPLATE[] = "can't expand for a binary template";
+const char ERROR_EXPAND_BIN_TEMPLATE[] = "can't expand for a binary template";
 const char ERROR_EXPAND_TYPE[] = "expanded item in template body must contain tuple to implement template head";
 
 class ParserTemplates : public Parser
 {
 private:
-	using ParametersStandard = TemplateHeadStandard::Parameters;
-	using ParametersBinary = TemplateHeadBinary::Parameters;
+	using ParamsStd = TheadStd::Params;
+	using ParamsBin = TheadBin::Params;
 public:
-	Webss parseTemplateBinary(TemplateHeadBinary&& thead)
+	Webss parseTemplateBin(TheadBin&& thead)
 	{
-		return parseTemplateBinary(move(thead),
-				[&](const ParametersBinary& params) { return parseTemplateTupleBinary(params); },
-				[&](const ParametersBinary& params) { return parseTemplateTupleBinary(params); });
+		return parseTemplateBin(move(thead),
+				[&](const ParamsBin& params) { return parseTemplateTupleBin(params); },
+				[&](const ParamsBin& params) { return parseTemplateTupleBin(params); });
 	}
 
-	Webss parseTemplateStandard(TemplateHeadStandard&& thead)
+	Webss parseTemplateStd(TheadStd&& thead)
 	{
-		return parseTemplateStandard<WebssType::TEMPLATE_STANDARD>(move(thead),
-				[&](const ParametersStandard& params) { return parseTemplateTuple<false>(params); },
-				[&](const ParametersStandard& params) { return parseTemplateTuple<true>(params); });
+		return parseTemplateStd<WebssType::TEMPLATE_STD>(move(thead),
+				[&](const ParamsStd& params) { return parseTemplateTuple<false>(params); },
+				[&](const ParamsStd& params) { return parseTemplateTuple<true>(params); });
 	}
 
-	Webss parseTemplateText(TemplateHeadStandard&& thead)
+	Webss parseTemplateText(TheadStd&& thead)
 	{
-		return parseTemplateStandard<WebssType::TEMPLATE_TEXT>(move(thead),
-				[&](const ParametersStandard& params) { return parseTemplateTuple<true>(params); },
-				[&](const ParametersStandard& params) { return parseTemplateTuple<true>(params); });
+		return parseTemplateStd<WebssType::TEMPLATE_TEXT>(move(thead),
+				[&](const ParamsStd& params) { return parseTemplateTuple<true>(params); },
+				[&](const ParamsStd& params) { return parseTemplateTuple<true>(params); });
 	}
 
 	template <WebssType::Enum type>
-	Webss parseTemplateStandard(TemplateHeadStandard&& thead, function<Tuple(const ParametersStandard& params)>&& funcTemplateTupleRegular, function<Tuple(const ParametersStandard& params)>&& funcTemplateTupleText)
+	Webss parseTemplateStd(TheadStd&& thead, function<Tuple(const ParamsStd& params)>&& funcTemplateTupleRegular, function<Tuple(const ParamsStd& params)>&& funcTemplateTupleText)
 	{
 		Tuple body;
 		switch (tagit.getSafe())
 		{
 	//	case Tag::START_LIST:
-	//		return parseTemplateList<ParametersStandard>(params, move(funcTemplateTupleRegular), move(funcTemplateTupleText));
+	//		return parseTemplateList<ParamsStd>(params, move(funcTemplateTupleRegular), move(funcTemplateTupleText));
 		case Tag::START_TUPLE:
-			body = funcTemplateTupleRegular(thead.getParameters());
-			return{ TemplateStandard(move(thead), move(body), WebssType::TUPLE), type };
+			body = funcTemplateTupleRegular(thead.getParams());
+			return{ TemplateStd(move(thead), move(body), WebssType::TUPLE), type };
 		case Tag::TEXT_TUPLE:
-			body = funcTemplateTupleText(thead.getParameters());
-			return{ TemplateStandard(move(thead), move(body), WebssType::TUPLE_TEXT), type };
+			body = funcTemplateTupleText(thead.getParams());
+			return{ TemplateStd(move(thead), move(body), WebssType::TUPLE_TEXT), type };
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
 	}
 
-	Webss parseTemplateBinary(TemplateHeadBinary&& thead, function<Tuple(const ParametersBinary& params)>&& funcTemplateTupleRegular, function<Tuple(const ParametersBinary& params)>&& funcTemplateTupleText)
+	Webss parseTemplateBin(TheadBin&& thead, function<Tuple(const ParamsBin& params)>&& funcTemplateTupleRegular, function<Tuple(const ParamsBin& params)>&& funcTemplateTupleText)
 	{
 		Tuple body;
 		switch (tagit.getSafe())
 		{
 	//	case Tag::START_LIST:
-	//		return parseTemplateList<ParametersBinary>(params, move(funcTemplateTupleRegular), move(funcTemplateTupleText));
+	//		return parseTemplateList<ParamsBin>(params, move(funcTemplateTupleRegular), move(funcTemplateTupleText));
 		case Tag::START_TUPLE:
-			body = funcTemplateTupleRegular(thead.getParameters());
-			return TemplateBinary(move(thead), move(body), WebssType::TUPLE);
+			body = funcTemplateTupleRegular(thead.getParams());
+			return TemplateBin(move(thead), move(body), WebssType::TUPLE);
 		case Tag::TEXT_TUPLE:
-			body = funcTemplateTupleText(thead.getParameters());
-			return TemplateBinary(move(thead), move(body), WebssType::TUPLE_TEXT);
+			body = funcTemplateTupleText(thead.getParams());
+			return TemplateBin(move(thead), move(body), WebssType::TUPLE_TEXT);
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
 	}
 
 	template <bool isText>
-	Tuple parseTemplateTuple(const TemplateHeadStandard::Parameters& params)
+	Tuple parseTemplateTuple(const TheadStd::Params& params)
 	{
 		Tuple::size_type index = 0;
 		Tuple tuple = parseContainer<Tuple, ConType::TUPLE>(Tuple(params.getSharedKeys()), true, [&](Tuple& tuple)
@@ -117,17 +117,17 @@ public:
 	}
 
 private:
-	void expandTemplateList(const TemplateHeadBinary::Parameters&, List&)
+	void expandTemplateList(const TheadBin::Params&, List&)
 	{
-		throw runtime_error(ERROR_EXPAND_BINARY_TEMPLATE);
+		throw runtime_error(ERROR_EXPAND_BIN_TEMPLATE);
 	}
 
-	void expandTemplateList(const TemplateHeadStandard::Parameters& params, List& list)
+	void expandTemplateList(const TheadStd::Params& params, List& list)
 	{
 		fillTemplateBodyList(params, parseExpandList(tagit, ents), list);
 	}
 
-	void parseTemplateTupleName(const TemplateHeadStandard::Parameters& params, Tuple& tuple, Tuple::size_type& index)
+	void parseTemplateTupleName(const TheadStd::Params& params, Tuple& tuple, Tuple::size_type& index)
 	{
 		auto nameType = parseNameType(tagit, ents);
 		if (nameType.type != NameType::NAME && params.at(index).hasThead())
@@ -154,8 +154,8 @@ private:
 		}
 	}
 
-	template <class Parameters>
-	List parseTemplateList(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplateTupleRegular, function<Webss(const Parameters& params)>&& funcTemplateTupleText)
+	template <class Params>
+	List parseTemplateList(const Params& params, function<Webss(const Params& params)>&& funcTemplateTupleRegular, function<Webss(const Params& params)>&& funcTemplateTupleText)
 	{
 		return parseContainer<List, ConType::LIST>(List(), true, [&](List& list)
 		{
@@ -182,67 +182,67 @@ private:
 /*
 Webss Parser::parseTemplateText()
 {
-	auto head = parseTemplateHeadText();
-	auto body = parseTemplateText(head.getParameters());
+	auto head = parseTheadText();
+	auto body = parseTemplateText(head.getParams());
 	return{ move(head), move(body), WebssType::TEMPLATE_TEXT };
 }*/
 
-Webss Parser::parseTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& param)
+Webss Parser::parseTemplateContainer(const TheadStd::Params& params, const ParamStd& param)
 {
 	if (!param.hasThead())
 		return parseValueOnly();
 	switch (param.getTypeThead())
 	{
 	case TypeThead::SELF:
-		return parseTemplateStandard(params);
-	case TypeThead::BINARY:
+		return parseTemplateStd(params);
+	case TypeThead::BIN:
 		if (param.getThead().isPlus())
-			return parseTemplatePlusBinary(param.getTheadBin().getParameters());
+			return parseTemplatePlusBin(param.getTheadBin().getParams());
 		else
-			return parseTemplateBinary(param.getTheadBin().getParameters());
-	case TypeThead::STANDARD:
+			return parseTemplateBin(param.getTheadBin().getParams());
+	case TypeThead::STD:
 		if (param.getThead().isPlus())
 		{
 			if (param.getThead().isText())
-				return parseTemplatePlusText(param.getTheadStd().getParameters());
+				return parseTemplatePlusText(param.getTheadStd().getParams());
 			else
-				return parseTemplatePlusStandard(param.getTheadStd().getParameters());
+				return parseTemplatePlusStd(param.getTheadStd().getParams());
 		}
 		else
 		{
 			if (param.getThead().isText())
-				return parseTemplateStandard(param.getTheadStd().getParameters());
+				return parseTemplateStd(param.getTheadStd().getParams());
 			else
-				return parseTemplateText(param.getTheadStd().getParameters());
+				return parseTemplateText(param.getTheadStd().getParams());
 		}
 	default:
 		assert(false); throw domain_error("");
 	}
 }
 
-Tuple Parser::parseTemplateTupleStandard(const TemplateHeadStandard::Parameters& params)
+Tuple Parser::parseTemplateTupleStd(const TheadStd::Params& params)
 {
 	return static_cast<ParserTemplates*>(this)->parseTemplateTuple<false>(params);
 }
 
-Tuple Parser::parseTemplateTupleText(const TemplateHeadStandard::Parameters& params)
+Tuple Parser::parseTemplateTupleText(const TheadStd::Params& params)
 {
 	return static_cast<ParserTemplates*>(this)->parseTemplateTuple<true>(params);
 }
 
-Tuple::size_type Parser::expandTemplateTuple(const TemplateHeadStandard::Parameters& params, Tuple& templateTuple, Tuple::size_type index)
+Tuple::size_type Parser::expandTemplateTuple(const TheadStd::Params& params, Tuple& templateTuple, Tuple::size_type index)
 {
 	return fillTemplateBodyTuple(params, parseExpandTuple(tagit, ents), templateTuple, index);
 }
 
-List Parser::buildTemplateBodyList(const TemplateHeadStandard::Parameters& params, const List& baseList)
+List Parser::buildTemplateBodyList(const TheadStd::Params& params, const List& baseList)
 {
 	List templateList;
 	fillTemplateBodyList(params, baseList, templateList);
 	return templateList;
 }
 
-void Parser::fillTemplateBodyList(const TemplateHeadStandard::Parameters& params, const List& baseList, List& filledList)
+void Parser::fillTemplateBodyList(const TheadStd::Params& params, const List& baseList, List& filledList)
 {
 	for (const auto& item : baseList)
 	{
@@ -252,7 +252,7 @@ void Parser::fillTemplateBodyList(const TemplateHeadStandard::Parameters& params
 	}
 }
 
-Tuple Parser::buildTemplateBodyTuple(const TemplateHeadStandard::Parameters& params, const Tuple& baseTuple)
+Tuple Parser::buildTemplateBodyTuple(const TheadStd::Params& params, const Tuple& baseTuple)
 {
 	Tuple templateTuple(params.getSharedKeys());
 	if (fillTemplateBodyTuple(params, baseTuple, templateTuple) < templateTuple.size())
@@ -260,7 +260,7 @@ Tuple Parser::buildTemplateBodyTuple(const TemplateHeadStandard::Parameters& par
 	return templateTuple;
 }
 
-Tuple::size_type Parser::fillTemplateBodyTuple(const TemplateHeadStandard::Parameters& params, const Tuple& baseTuple, Tuple& filledTuple, Tuple::size_type index)
+Tuple::size_type Parser::fillTemplateBodyTuple(const TheadStd::Params& params, const Tuple& baseTuple, Tuple& filledTuple, Tuple::size_type index)
 {
 	for (const auto& item : baseTuple.getOrderedKeyValues())
 	{
@@ -273,27 +273,27 @@ Tuple::size_type Parser::fillTemplateBodyTuple(const TemplateHeadStandard::Param
 	return index;
 }
 
-Webss Parser::checkTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& param, const Webss& tupleItem)
+Webss Parser::checkTemplateContainer(const TheadStd::Params& params, const ParamStd& param, const Webss& tupleItem)
 {
 	if (!param.hasThead())
 		return tupleItem;
 	switch (param.getTypeThead())
 	{
 	case TypeThead::SELF:
-		return buildTemplateBodyStandard(params, tupleItem);
-	case TypeThead::BINARY:
-		throw runtime_error(ERROR_EXPAND_BINARY_TEMPLATE);
-	case TypeThead::STANDARD:
+		return buildTemplateBodyStd(params, tupleItem);
+	case TypeThead::BIN:
+		throw runtime_error(ERROR_EXPAND_BIN_TEMPLATE);
+	case TypeThead::STD:
 		if (param.isPlusThead())
 			; //...
 		else
-			return buildTemplateBodyStandard(param.getTheadStd().getParameters(), tupleItem);
+			return buildTemplateBodyStd(param.getTheadStd().getParams(), tupleItem);
 	default:
 		assert(false); throw domain_error("");
 	}
 }
 
-Webss Parser::buildTemplateBodyStandard(const TemplateHeadStandard::Parameters& params, const Webss& templateItem)
+Webss Parser::buildTemplateBodyStd(const TheadStd::Params& params, const Webss& templateItem)
 {
 	switch (templateItem.getType())
 	{
@@ -311,43 +311,43 @@ Webss Parser::parseTemplate()
 	auto headWebss = parseThead();
 	switch (headWebss.getTypeRaw())
 	{
-	case TypeThead::BINARY:
-		return parseTemplateBinary(headWebss.getTheadBinaryRaw());
-	case TypeThead::STANDARD:
-		return parseTemplateStandard(headWebss.getTheadStandardRaw());
-/*	case WebssType::TEMPLATE_HEAD_TEXT:
-		return parseTemplateText(headWebss.getTheadStandardRaw());
-	case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
-		return parseTemplatePlusBinary(headWebss.getTemplateHeadBinaryRaw());
-	case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
-		return parseTemplatePlusStandard(headWebss.getTemplateHeadStandardRaw());
-	case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
-		return parseTemplatePlusText(headWebss.getTemplateHeadStandardRaw());*/
+	case TypeThead::BIN:
+		return parseTemplateBin(headWebss.getTheadBinRaw());
+	case TypeThead::STD:
+		return parseTemplateStd(headWebss.getTheadStdRaw());
+/*	case WebssType::THEAD_TEXT:
+		return parseTemplateText(headWebss.getTheadStdRaw());
+	case WebssType::THEAD_PLUS_BIN:
+		return parseTemplatePlusBin(headWebss.getTheadBinRaw());
+	case WebssType::THEAD_PLUS_STD:
+		return parseTemplatePlusStd(headWebss.getTheadStdRaw());
+	case WebssType::THEAD_PLUS_TEXT:
+		return parseTemplatePlusText(headWebss.getTheadStdRaw());*/
 	default:
 		assert(false); throw domain_error("");
 	}
 }
 
-Webss Parser::parseTemplateBinary(TemplateHeadBinary thead) { return static_cast<ParserTemplates*>(this)->parseTemplateBinary(move(thead)); }
-Webss Parser::parseTemplateStandard(TemplateHeadStandard thead) { return static_cast<ParserTemplates*>(this)->parseTemplateStandard(move(thead)); }
-Webss Parser::parseTemplateText(TemplateHeadStandard thead) { return static_cast<ParserTemplates*>(this)->parseTemplateText(move(thead)); }
+Webss Parser::parseTemplateBin(TheadBin thead) { return static_cast<ParserTemplates*>(this)->parseTemplateBin(move(thead)); }
+Webss Parser::parseTemplateStd(TheadStd thead) { return static_cast<ParserTemplates*>(this)->parseTemplateStd(move(thead)); }
+Webss Parser::parseTemplateText(TheadStd thead) { return static_cast<ParserTemplates*>(this)->parseTemplateText(move(thead)); }
 
-Webss Parser::parseTemplatePlusBinary(TemplateHeadBinary thead)
+Webss Parser::parseTemplatePlusBin(TheadBin thead)
 {
 	Tuple body;
 	switch (tagit.getSafe())
 	{
 	case Tag::START_TUPLE: case Tag::TEXT_TUPLE:
-		body = parseTemplateTupleBinary(thead.getParameters());
+		body = parseTemplateTupleBin(thead.getParams());
 		break;
 	default:
-		body = makeDefaultTuple(thead.getParameters());
+		body = makeDefaultTuple(thead.getParams());
 		break;
 	}
-	return TemplatePlusBinary(TemplateBinary(move(thead), move(body)), parseValueOnly());
+	return TemplatePlusBin(TemplateBin(move(thead), move(body)), parseValueOnly());
 }
 
-Webss Parser::parseTemplatePlusStandard(TemplateHeadStandard thead)
+Webss Parser::parseTemplatePlusStd(TheadStd thead)
 {
 	Tuple body;
 	WebssType tupleType;
@@ -355,32 +355,32 @@ Webss Parser::parseTemplatePlusStandard(TemplateHeadStandard thead)
 	{
 	case Tag::START_TUPLE:
 		tupleType = WebssType::TUPLE;
-		body = parseTemplateTupleStandard(thead.getParameters());
+		body = parseTemplateTupleStd(thead.getParams());
 		break;
 	case Tag::TEXT_TUPLE:
 		tupleType = WebssType::TUPLE_TEXT;
-		body = parseTemplateTupleText(thead.getParameters());
+		body = parseTemplateTupleText(thead.getParams());
 		break;
 	default:
 		tupleType = WebssType::TUPLE;
-		body = makeDefaultTuple(thead.getParameters());
+		body = makeDefaultTuple(thead.getParams());
 		break;
 	}
-	return TemplatePlusStandard(TemplateStandard(move(thead), move(body), tupleType), parseValueOnly());
+	return TemplatePlusStd(TemplateStd(move(thead), move(body), tupleType), parseValueOnly());
 }
 
-Webss Parser::parseTemplatePlusText(TemplateHeadStandard thead)
+Webss Parser::parseTemplatePlusText(TheadStd thead)
 {
 	Tuple body;
 	WebssType tupleType;
 	switch (tagit.getSafe())
 	{
 	case Tag::START_TUPLE: case Tag::TEXT_TUPLE:
-		body = parseTemplateTupleText(thead.getParameters());
+		body = parseTemplateTupleText(thead.getParams());
 		break;
 	default:
-		body = makeDefaultTuple(thead.getParameters());
+		body = makeDefaultTuple(thead.getParams());
 		break;
 	}
-	return{ TemplatePlusStandard(TemplateStandard(move(thead), move(body)), parseValueOnly()), WebssType::TEMPLATE_PLUS_TEXT };
+	return{ TemplatePlusStd(TemplateStd(move(thead), move(body)), parseValueOnly()), WebssType::TEMPLATE_PLUS_TEXT };
 }

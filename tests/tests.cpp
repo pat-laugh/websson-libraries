@@ -23,7 +23,7 @@ string makeCompleteFilenameIn(string filename);
 string makeCompleteFilenameOut(string filename);
 ErrorType test(string filename, function<void(const Document& doc)> checkResult);
 void testDictionary();
-void testTemplateStandard();
+void testTemplateStd();
 ErrorType testSerializerHtml();
 template <class Element>
 bool hasKeys(const Element& elem, set<string> keys);
@@ -52,7 +52,7 @@ int main()
 #else
 		testDictionary();
 		cout << endl;
-		testTemplateStandard();
+		testTemplateStd();
 		cout << endl;
 		testSerializerHtml();
 		cin >> inChar;
@@ -293,9 +293,9 @@ void testDictionary()
 	});
 }
 
-void testTemplateStandard()
+void testTemplateStd()
 {
-	test("templateStandard", [](const Document& doc)
+	test("templateStd", [](const Document& doc)
 	{
 		sofert(doc.size() == 5);
 		sofert(hasKeys(doc, { "template1", "template2" }));

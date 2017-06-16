@@ -23,7 +23,7 @@ string ConType::toString() const
 		return "list";
 	case ConType::TUPLE:
 		return "tuple";
-	case ConType::TEMPLATE_HEAD:
+	case ConType::THEAD:
 		return "template head";
 	default:
 		assert(false); throw domain_error("");
@@ -40,7 +40,7 @@ bool ConType::isStart(char c) const
 		return c == OPEN_LIST;
 	case ConType::TUPLE:
 		return c == OPEN_TUPLE;
-	case ConType::TEMPLATE_HEAD:
+	case ConType::THEAD:
 		return c == OPEN_TEMPLATE;
 	default:
 		return false;
@@ -57,7 +57,7 @@ bool ConType::isEnd(char c) const
 		return c == CLOSE_LIST;
 	case ConType::TUPLE:
 		return c == CLOSE_TUPLE;
-	case ConType::TEMPLATE_HEAD:
+	case ConType::THEAD:
 		return c == CLOSE_TEMPLATE;
 	default:
 		return false;

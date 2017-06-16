@@ -11,9 +11,9 @@ using namespace webss;
 
 #define entNumInt entNumber.getContent().getInt()
 
-//ParamBinary::SizeHead
+//ParamBin::SizeHead
 
-using SizeHead = ParamBinary::SizeHead;
+using SizeHead = ParamBin::SizeHead;
 
 SizeHead::SizeHead() {}
 SizeHead::SizeHead(Keyword keyword) : type(Type::KEYWORD)
@@ -31,8 +31,8 @@ SizeHead::SizeHead(Keyword keyword) : type(Type::KEYWORD)
 	}
 }
 
-SizeHead::SizeHead(WebssBinarySize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
-SizeHead::SizeHead(TemplateHeadSelf) : type(Type::SELF) {}
+SizeHead::SizeHead(WebssBinSize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
+SizeHead::SizeHead(TheadSelf) : type(Type::SELF) {}
 SizeHead::SizeHead(Type type) : type(type)
 {
 	assert(type == Type::NONE || type == Type::EMPTY || type == Type::SELF);
@@ -40,8 +40,8 @@ SizeHead::SizeHead(Type type) : type(type)
 
 SizeHead::~SizeHead() { destroyUnion(); }
 
-SizeHead::SizeHead(TemplateHeadBinary&& o) : type(Type::TEMPLATE_HEAD), thead(new TemplateHeadBinary(move(o))) {}
-SizeHead::SizeHead(const TemplateHeadBinary& o) : type(Type::TEMPLATE_HEAD), thead(new TemplateHeadBinary(o)) {}
+SizeHead::SizeHead(TheadBin&& o) : type(Type::THEAD), thead(new TheadBin(move(o))) {}
+SizeHead::SizeHead(const TheadBin& o) : type(Type::THEAD), thead(new TheadBin(o)) {}
 
 SizeHead::SizeHead(SizeHead&& o) { copyUnion(move(o)); }
 SizeHead::SizeHead(const SizeHead& o) { copyUnion(o); }
@@ -76,9 +76,9 @@ bool SizeHead::operator==(const SizeHead& o) const
 		return keyword == o.keyword;
 	case Type::NUMBER: case Type::BITS:
 		return number == o.number;
-	case Type::TEMPLATE_HEAD:
+	case Type::THEAD:
 		return *thead == *o.thead;
-	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD: case Type::ENTITY_BITS:
+	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_THEAD: case Type::ENTITY_BITS:
 		return ent == o.ent;
 	default:
 		assert(false); throw domain_error("");
@@ -89,11 +89,11 @@ bool SizeHead::operator!=(const SizeHead& o) const { return !(*this == o); }
 bool SizeHead::isEmpty() const { return type == Type::EMPTY || type == Type::EMPTY_ENTITY_NUMBER; }
 bool SizeHead::isKeyword() const { return type == Type::KEYWORD; }
 bool SizeHead::isBool() const { return isKeyword() && keyword == Keyword::BOOL; }
-bool SizeHead::isTemplateHeadBinary() const { return type == Type::ENTITY_TEMPLATE_HEAD || type == Type::TEMPLATE_HEAD; }
-bool SizeHead::hasEntity() const { return type == Type::ENTITY_TEMPLATE_HEAD || type == Type::ENTITY_NUMBER || type == Type::EMPTY_ENTITY_NUMBER || type == Type::ENTITY_BITS; }
+bool SizeHead::isTheadBin() const { return type == Type::ENTITY_THEAD || type == Type::THEAD; }
+bool SizeHead::hasEntity() const { return type == Type::ENTITY_THEAD || type == Type::ENTITY_NUMBER || type == Type::EMPTY_ENTITY_NUMBER || type == Type::ENTITY_BITS; }
 
 bool SizeHead::hasDefaultValue() const { return defaultValue.get() != nullptr; }
-bool SizeHead::isTemplateHeadSelf() const { return type == Type::SELF; }
+bool SizeHead::isTheadSelf() const { return type == Type::SELF; }
 
 SizeHead::Type SizeHead::getType() const { return type; }
 Keyword SizeHead::getKeyword() const
@@ -120,18 +120,18 @@ const Entity& SizeHead::getEntity() const
 	return ent;
 }
 
-const TemplateHeadBinary& SizeHead::getTemplateHead() const
+const TheadBin& SizeHead::getThead() const
 {
-	assert(isTemplateHeadBinary());
-	return type == Type::ENTITY_TEMPLATE_HEAD ? ent.getContent(). template getElement<TemplateHeadBinary>() : *thead;
+	assert(isTheadBin());
+	return type == Type::ENTITY_THEAD ? ent.getContent(). template getElement<TheadBin>() : *thead;
 }
 
-WebssBinarySize SizeHead::size() const
+WebssBinSize SizeHead::size() const
 {
 	switch (type)
 	{
 	case Type::ENTITY_NUMBER: case Type::ENTITY_BITS:
-		return static_cast<WebssBinarySize>(ent.getContent().getInt());
+		return static_cast<WebssBinSize>(ent.getContent().getInt());
 	case Type::NUMBER: case Type::BITS:
 		return number;
 	default:
@@ -139,16 +139,16 @@ WebssBinarySize SizeHead::size() const
 	}
 }
 
-SizeHead::SizeHead(const Entity& entThead) : type(Type::ENTITY_TEMPLATE_HEAD), ent(entThead)
+SizeHead::SizeHead(const Entity& entThead) : type(Type::ENTITY_THEAD), ent(entThead)
 {
-	assert(entThead.getContent().isTemplateHeadBinary());
+	assert(entThead.getContent().isTheadBin());
 }
 SizeHead::SizeHead(const Entity& entNumber, bool)
 	: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
 {
-	assert(entNumInt >= 0 && static_cast<WebssBinarySize>(entNumInt) <= std::numeric_limits<WebssBinarySize>::max());
+	assert(entNumInt >= 0 && static_cast<WebssBinSize>(entNumInt) <= std::numeric_limits<WebssBinSize>::max());
 }
-SizeHead::SizeHead(WebssBinarySize num, bool) : type(Type::BITS), number(num)
+SizeHead::SizeHead(WebssBinSize num, bool) : type(Type::BITS), number(num)
 {
 	assert(num > 0 && num <= 8);
 }
@@ -161,10 +161,10 @@ void SizeHead::destroyUnion()
 {
 	switch (type)
 	{
-	case Type::TEMPLATE_HEAD:
+	case Type::THEAD:
 		delete thead;
 		break;
-	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD: case Type::ENTITY_BITS:
+	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_THEAD: case Type::ENTITY_BITS:
 		ent.~Entity();
 		break;
 	default:
@@ -185,10 +185,10 @@ void SizeHead::copyUnion(SizeHead&& o)
 	case Type::NUMBER: case Type::BITS:
 		number = o.number;
 		break;
-	case Type::TEMPLATE_HEAD:
+	case Type::THEAD:
 		thead = o.thead;
 		break;
-	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD: case Type::ENTITY_BITS:
+	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_THEAD: case Type::ENTITY_BITS:
 		new (&ent) Entity(move(o.ent));
 		o.ent.~Entity();
 		break;
@@ -213,10 +213,10 @@ void SizeHead::copyUnion(const SizeHead& o)
 	case Type::NUMBER: case Type::BITS:
 		number = o.number;
 		break;
-	case Type::TEMPLATE_HEAD:
-		thead = new TemplateHeadBinary(*o.thead);
+	case Type::THEAD:
+		thead = new TheadBin(*o.thead);
 		break;
-	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD: case Type::ENTITY_BITS:
+	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_THEAD: case Type::ENTITY_BITS:
 		new (&ent) Entity(o.ent);
 		break;
 	default:
@@ -228,9 +228,9 @@ void SizeHead::copyUnion(const SizeHead& o)
 		defaultValue = o.defaultValue;
 }
 
-//ParamBinary::SizeList
+//ParamBin::SizeList
 
-using SizeList = ParamBinary::SizeList;
+using SizeList = ParamBin::SizeList;
 
 SizeList::SizeList() {}
 SizeList::SizeList(Type type) : type(type)
@@ -240,9 +240,9 @@ SizeList::SizeList(Type type) : type(type)
 SizeList::SizeList(const Entity& entNumber)
 	: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
 {
-	assert(entNumInt >= 0 && static_cast<WebssBinarySize>(entNumInt) <= numeric_limits<WebssBinarySize>::max());
+	assert(entNumInt >= 0 && static_cast<WebssBinSize>(entNumInt) <= numeric_limits<WebssBinSize>::max());
 }
-SizeList::SizeList(WebssBinarySize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
+SizeList::SizeList(WebssBinSize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
 
 SizeList::~SizeList() { destroyUnion(); }
 
@@ -291,13 +291,13 @@ bool SizeList::hasEntity() const { return type == Type::ENTITY_NUMBER || type ==
 
 SizeList::Type SizeList::getType() const { return type; }
 
-WebssBinarySize SizeList::size() const
+WebssBinSize SizeList::size() const
 {
 	assert(type == Type::NUMBER || type == Type::ENTITY_NUMBER);
 	if (type == Type::NUMBER)
 		return number;
 	else
-		return static_cast<WebssBinarySize>(ent.getContent().getInt());
+		return static_cast<WebssBinSize>(ent.getContent().getInt());
 }
 
 const Entity& SizeList::getEntity() const
@@ -350,23 +350,23 @@ void SizeList::copyUnion(const SizeList& o)
 	type = o.type;
 }
 
-//ParamBinary
+//ParamBin
 
-ParamBinary::ParamBinary() {}
-ParamBinary::ParamBinary(SizeHead&& sizeHead, SizeList&& sizeList) : sizeHead(move(sizeHead)), sizeList(move(sizeList)) {}
-ParamBinary::ParamBinary(const SizeHead& sizeHead, const SizeList& sizeList) : sizeHead(sizeHead), sizeList(sizeList) {}
-ParamBinary::~ParamBinary() {}
+ParamBin::ParamBin() {}
+ParamBin::ParamBin(SizeHead&& sizeHead, SizeList&& sizeList) : sizeHead(move(sizeHead)), sizeList(move(sizeList)) {}
+ParamBin::ParamBin(const SizeHead& sizeHead, const SizeList& sizeList) : sizeHead(sizeHead), sizeList(sizeList) {}
+ParamBin::~ParamBin() {}
 
-ParamBinary::ParamBinary(ParamBinary&& o) : sizeHead(move(o.sizeHead)), sizeList(move(o.sizeList)) {}
-ParamBinary::ParamBinary(const ParamBinary& o) : sizeHead(o.sizeHead), sizeList(o.sizeList) {}
+ParamBin::ParamBin(ParamBin&& o) : sizeHead(move(o.sizeHead)), sizeList(move(o.sizeList)) {}
+ParamBin::ParamBin(const ParamBin& o) : sizeHead(o.sizeHead), sizeList(o.sizeList) {}
 
-ParamBinary& ParamBinary::operator=(ParamBinary&& o)
+ParamBin& ParamBin::operator=(ParamBin&& o)
 {
 	sizeHead = move(o.sizeHead);
 	sizeList = move(o.sizeList);
 	return *this;
 }
-ParamBinary& ParamBinary::operator=(const ParamBinary& o)
+ParamBin& ParamBin::operator=(const ParamBin& o)
 {
 	if (this != &o)
 	{
@@ -376,13 +376,13 @@ ParamBinary& ParamBinary::operator=(const ParamBinary& o)
 	return *this;
 }
 
-bool ParamBinary::operator==(const ParamBinary& o) const { return (this == &o) || (sizeHead == o.sizeHead && sizeList == o.sizeList); }
-bool ParamBinary::operator!=(const ParamBinary& o) const { return !(*this == o); }
+bool ParamBin::operator==(const ParamBin& o) const { return (this == &o) || (sizeHead == o.sizeHead && sizeList == o.sizeList); }
+bool ParamBin::operator!=(const ParamBin& o) const { return !(*this == o); }
 
-const SizeHead& ParamBinary::getSizeHead() const { return sizeHead; }
-const SizeList& ParamBinary::getSizeList() const { return sizeList; }
-bool ParamBinary::hasDefaultValue() const { return getSizeHead().hasDefaultValue(); }
-const shared_ptr<Webss>& ParamBinary::getDefaultPointer() const { return getSizeHead().getDefaultPointer(); }
-bool ParamBinary::isTemplateHeadBinary() const { return getSizeHead().isTemplateHeadBinary(); }
-bool ParamBinary::isTemplateHeadSelf() const { return getSizeHead().isTemplateHeadSelf(); }
-const TemplateHeadBinary& ParamBinary::getTemplateHead() const { return getSizeHead().getTemplateHead(); }
+const SizeHead& ParamBin::getSizeHead() const { return sizeHead; }
+const SizeList& ParamBin::getSizeList() const { return sizeList; }
+bool ParamBin::hasDefaultValue() const { return getSizeHead().hasDefaultValue(); }
+const shared_ptr<Webss>& ParamBin::getDefaultPointer() const { return getSizeHead().getDefaultPointer(); }
+bool ParamBin::isTheadBin() const { return getSizeHead().isTheadBin(); }
+bool ParamBin::isTheadSelf() const { return getSizeHead().isTheadSelf(); }
+const TheadBin& ParamBin::getThead() const { return getSizeHead().getThead(); }
