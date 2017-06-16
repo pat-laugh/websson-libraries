@@ -99,8 +99,8 @@ void SerializerHtml::putConcreteValue(StringBuilder& out, const Webss& value)
 		assert(value.getEntityRaw().getContent().isConcrete());
 		putConcreteValue(out, value.getEntityRaw().getContent());
 		break;
-	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT: case WebssType::TEMPLATE_VALUE_STANDARD: case WebssType::TEMPLATE_VALUE_TEXT:
-		putTemplStandard(out, value.getTemplateStandardRaw());
+	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT: case WebssType::TEMPLATE_PLUS_STANDARD: case WebssType::TEMPLATE_PLUS_TEXT:
+		putTemplateStandard(out, value.getTemplateStandardRaw());
 		break;
 	case WebssType::LIST: case WebssType::LIST_TEXT:
 		putList(out, value.getListRaw());
@@ -158,17 +158,17 @@ bool isDefaultValue(const Webss& value)
 	return value.getTypeRaw() == WebssType::NONE || value.getTypeRaw() == WebssType::DEFAULT;
 }
 
-void SerializerHtml::putTemplStandard(StringBuilder& out, const TemplateStandard& templ)
+void SerializerHtml::putTemplateStandard(StringBuilder& out, const TemplateStandard& templ)
 {
 	assert(templ.hasEntity() && templ.isTuple());
 	const auto& name = templ.getEntity().getName();
 	const auto& tuple = templ.getTuple();
 	const auto& params = templ.getParameters();
 	assert(tuple.size() == params.size() || tuple.size() == params.size() + 1);
-	bool isTemplValue = tuple.size() > params.size();
+	bool isTemplatePlus = tuple.size() > params.size();
 	auto keyValues = tuple.getOrderedKeyValues();
 	out += "<" + name;
-	for (Tuple::size_type i = 0; i < tuple.size() - (isTemplValue ? 1 : 0); ++i)
+	for (Tuple::size_type i = 0; i < tuple.size() - (isTemplatePlus ? 1 : 0); ++i)
 	{
 		assert(keyValues[i].first != nullptr);
 		const auto& key = *keyValues[i].first;
@@ -181,7 +181,7 @@ void SerializerHtml::putTemplStandard(StringBuilder& out, const TemplateStandard
 	}
 
 	out += '>';
-	if (isTemplValue)
+	if (isTemplatePlus)
 	{
 		putConcreteValue(out, tuple.back());
 		out += "</" + name + '>';

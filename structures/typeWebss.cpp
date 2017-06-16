@@ -52,17 +52,17 @@ string WebssType::toString() const
 		return "template standard";
 	case WebssType::TEMPLATE_TEXT:
 		return "template text";
-	case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
+	case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 		return "template value head binary";
-	case WebssType::TEMPLATE_VALUE_HEAD_STANDARD:
+	case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
 		return "template value head standard";
-	case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
+	case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
 		return "template value head text";
-	case WebssType::TEMPLATE_VALUE_BINARY:
+	case WebssType::TEMPLATE_PLUS_BINARY:
 		return "template value binary";
-	case WebssType::TEMPLATE_VALUE_STANDARD:
+	case WebssType::TEMPLATE_PLUS_STANDARD:
 		return "template value standard";
-	case WebssType::TEMPLATE_VALUE_TEXT:
+	case WebssType::TEMPLATE_PLUS_TEXT:
 		return "template value text";
 	case WebssType::DOCUMENT:
 		return "document";

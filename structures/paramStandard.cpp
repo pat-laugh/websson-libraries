@@ -40,9 +40,9 @@ bool ParamStandard::operator==(const ParamStandard& o) const
 	{
 	case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
 		return true;
-	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
+	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 		return *theadBin == *o.theadBin; 
-	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_VALUE_HEAD_STANDARD: case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
+	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_HEAD_PLUS_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
 		return *theadStd == *o.theadStd;
 	default:
 		assert(false); throw domain_error("");
@@ -71,12 +71,12 @@ WebssType ParamStandard::getTypeThead() const
 
 const TemplateHeadBinary& ParamStandard::getTemplateHeadBinary() const
 {
-	assert(typeThead == WebssType::TEMPLATE_HEAD_BINARY || typeThead == WebssType::TEMPLATE_VALUE_HEAD_BINARY);
+	assert(typeThead == WebssType::TEMPLATE_HEAD_BINARY || typeThead == WebssType::TEMPLATE_HEAD_PLUS_BINARY);
 	return *theadBin;
 }
 const TemplateHeadStandard& ParamStandard::getTemplateHeadStandard() const
 {
-	assert(typeThead == WebssType::TEMPLATE_HEAD_STANDARD || typeThead == WebssType::TEMPLATE_HEAD_TEXT || typeThead == WebssType::TEMPLATE_VALUE_HEAD_STANDARD || typeThead == WebssType::TEMPLATE_VALUE_HEAD_TEXT);
+	assert(typeThead == WebssType::TEMPLATE_HEAD_STANDARD || typeThead == WebssType::TEMPLATE_HEAD_TEXT || typeThead == WebssType::TEMPLATE_HEAD_PLUS_STANDARD || typeThead == WebssType::TEMPLATE_HEAD_PLUS_TEXT);
 	return *theadStd;
 }
 
@@ -86,10 +86,10 @@ void ParamStandard::removeTemplateHead()
 	{
 	case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
 		break;
-	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
+	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 		delete theadBin;
 		break;
-	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_VALUE_HEAD_STANDARD: case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
+	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_HEAD_PLUS_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
 		delete theadStd;
 		break;
 	default:
@@ -126,10 +126,10 @@ void ParamStandard::copyUnion(ParamStandard&& o)
 	{
 	case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
 		break;
-	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
+	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 		theadBin = o.theadBin;
 		break;
-	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_VALUE_HEAD_STANDARD: case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
+	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_HEAD_PLUS_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
 		theadStd = o.theadStd;
 		break;
 	default:
@@ -145,10 +145,10 @@ void ParamStandard::copyUnion(const ParamStandard& o)
 	{
 	case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
 		break;
-	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
+	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 		theadBin = new TemplateHeadBinary(*o.theadBin);
 		break;
-	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_VALUE_HEAD_STANDARD: case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
+	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_HEAD_PLUS_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
 		theadStd = new TemplateHeadStandard(*o.theadStd);
 		break;
 	default:

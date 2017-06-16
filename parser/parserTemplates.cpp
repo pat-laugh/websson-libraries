@@ -33,31 +33,31 @@ public:
 		return parseTemplateBodyStandard(params, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<true>(params), WebssType::TUPLE_TEXT); }, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<true>(params), WebssType::TUPLE_TEXT); });
 	}
 
-	Webss parseTemplateBodyStandard(const ParametersStandard& params, function<Webss(const ParametersStandard& params)>&& funcTemplTupleRegular, function<Webss(const ParametersStandard& params)>&& funcTemplTupleText)
+	Webss parseTemplateBodyStandard(const ParametersStandard& params, function<Webss(const ParametersStandard& params)>&& funcTemplateTupleRegular, function<Webss(const ParametersStandard& params)>&& funcTemplateTupleText)
 	{
 		switch (tagit.getSafe())
 		{
 		case Tag::START_LIST:
-			return parseTemplateList<ParametersStandard>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
+			return parseTemplateList<ParametersStandard>(params, move(funcTemplateTupleRegular), move(funcTemplateTupleText));
 		case Tag::START_TUPLE:
-			return funcTemplTupleRegular(params);
+			return funcTemplateTupleRegular(params);
 		case Tag::TEXT_TUPLE:
-			return funcTemplTupleText(params);
+			return funcTemplateTupleText(params);
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
 	}
 
-	Webss parseTemplateBodyBinary(const ParametersBinary& params, function<Webss(const ParametersBinary& params)>&& funcTemplTupleRegular, function<Webss(const ParametersBinary& params)>&& funcTemplTupleText)
+	Webss parseTemplateBodyBinary(const ParametersBinary& params, function<Webss(const ParametersBinary& params)>&& funcTemplateTupleRegular, function<Webss(const ParametersBinary& params)>&& funcTemplateTupleText)
 	{
 		switch (tagit.getSafe())
 		{
 		case Tag::START_LIST:
-			return parseTemplateList<ParametersBinary>(params, move(funcTemplTupleRegular), move(funcTemplTupleText));
+			return parseTemplateList<ParametersBinary>(params, move(funcTemplateTupleRegular), move(funcTemplateTupleText));
 		case Tag::START_TUPLE:
-			return funcTemplTupleRegular(params);
+			return funcTemplateTupleRegular(params);
 		case Tag::TEXT_TUPLE:
-			return funcTemplTupleText(params);
+			return funcTemplateTupleText(params);
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
@@ -137,7 +137,7 @@ private:
 	}
 
 	template <class Parameters>
-	List parseTemplateList(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplTupleRegular, function<Webss(const Parameters& params)>&& funcTemplTupleText)
+	List parseTemplateList(const Parameters& params, function<Webss(const Parameters& params)>&& funcTemplateTupleRegular, function<Webss(const Parameters& params)>&& funcTemplateTupleText)
 	{
 		return parseContainer<List, ConType::LIST>(List(), true, [&](List& list)
 		{
@@ -150,10 +150,10 @@ private:
 				expandTemplateList(params, list);
 				break;
 			case Tag::START_TUPLE:
-				list.add(funcTemplTupleRegular(params));
+				list.add(funcTemplateTupleRegular(params));
 				break;
 			case Tag::TEXT_TUPLE:
-				list.add(funcTemplTupleText(params));
+				list.add(funcTemplateTupleText(params));
 				break;
 			default:
 				throw runtime_error(ERROR_UNEXPECTED);
@@ -224,12 +224,12 @@ Webss Parser::parseTemplateContainer(const TemplateHeadStandard::Parameters& par
 		return parseTemplateBodyStandard(defaultValue.getTemplateHeadStandard().getParameters());
 	case WebssType::TEMPLATE_HEAD_TEXT:
 		return parseTemplateBodyText(defaultValue.getTemplateHeadStandard().getParameters());
-	case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
-		return parseTemplateValueBinary(defaultValue.getTemplateHeadBinary().getParameters());
-	case WebssType::TEMPLATE_VALUE_HEAD_STANDARD:
-		return parseTemplateValueStandard(defaultValue.getTemplateHeadStandard().getParameters());
-	case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
-		return parseTemplateValueText(defaultValue.getTemplateHeadStandard().getParameters());
+	case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
+		return parseTemplatePlusBinary(defaultValue.getTemplateHeadBinary().getParameters());
+	case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
+		return parseTemplatePlusStandard(defaultValue.getTemplateHeadStandard().getParameters());
+	case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
+		return parseTemplatePlusText(defaultValue.getTemplateHeadStandard().getParameters());
 	default:
 		return parseValueOnly();
 	}
@@ -294,11 +294,11 @@ Webss Parser::checkTemplateContainer(const TemplateHeadStandard::Parameters& par
 	{
 	case WebssType::TEMPLATE_HEAD_SELF:
 		return buildTemplateBodyStandard(params, tupleItem);
-	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
+	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 		throw runtime_error(ERROR_EXPAND_BINARY_TEMPLATE);
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
 		return buildTemplateBodyStandard(param.getTemplateHeadStandard().getParameters(), tupleItem);
-	case WebssType::TEMPLATE_VALUE_HEAD_STANDARD: case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
+	case WebssType::TEMPLATE_HEAD_PLUS_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
 		//...
 	default:
 		return tupleItem;
@@ -318,7 +318,7 @@ Webss Parser::buildTemplateBodyStandard(const TemplateHeadStandard::Parameters& 
 	}
 }
 
-Tuple Parser::parseTemplateValueBinary(const TemplateHeadBinary::Parameters& params)
+Tuple Parser::parseTemplatePlusBinary(const TemplateHeadBinary::Parameters& params)
 {
 	Tuple body;
 	switch (tagit.getSafe())
@@ -334,7 +334,7 @@ Tuple Parser::parseTemplateValueBinary(const TemplateHeadBinary::Parameters& par
 	return body;
 }
 
-Tuple Parser::parseTemplateValueStandard(const TemplateHeadStandard::Parameters& params)
+Tuple Parser::parseTemplatePlusStandard(const TemplateHeadStandard::Parameters& params)
 {
 	Tuple body;
 	switch (tagit.getSafe())
@@ -353,7 +353,7 @@ Tuple Parser::parseTemplateValueStandard(const TemplateHeadStandard::Parameters&
 	return body;
 }
 
-Tuple Parser::parseTemplateValueText(const TemplateHeadStandard::Parameters& params)
+Tuple Parser::parseTemplatePlusText(const TemplateHeadStandard::Parameters& params)
 {
 	Tuple body;
 	switch (tagit.getSafe())

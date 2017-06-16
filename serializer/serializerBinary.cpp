@@ -64,7 +64,7 @@ void writeBytes(StringBuilder& out, WebssBinarySize num, char* value)
 #endif
 }
 
-void putTemplBodyBinary(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
+void putTemplateBodyBinary(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
 {
 	assert(tuple.size() == params.size() && "size of binary tuple must match params");
 	decltype(params.size()) i = 0;
@@ -82,7 +82,7 @@ void putTemplBodyBinary(StringBuilder& out, const TemplateHeadBinary::Parameters
 		{
 			out += CHAR_BINARY_DEFAULT_FALSE;
 			if (binary.getSizeHead().isTemplateHeadSelf())
-				putTemplBodyBinary(out, params, webss.getTuple());
+				putTemplateBodyBinary(out, params, webss.getTuple());
 			else
 				putBinary(out, binary, webss);
 		}
@@ -97,7 +97,7 @@ void putBinary(StringBuilder& out, const ParamBinary& param, const Webss& data)
 	else
 	{
 		const auto& params = sizeHead.getTemplateHead().getParameters();
-		putBinary(out, param, data, [&](const Webss& webss) { putTemplBodyBinary(out, params, webss.getTuple()); });
+		putBinary(out, param, data, [&](const Webss& webss) { putTemplateBodyBinary(out, params, webss.getTuple()); });
 	}
 }
 

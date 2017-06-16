@@ -155,13 +155,13 @@ private:
 			case WebssType::TEMPLATE_HEAD_SELF:
 				putTheadSelf(out);
 				break;
-			case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
+			case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 				putTheadBinary(out, param.getTemplateHeadBinary());
 				break;
-			case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_VALUE_HEAD_STANDARD:
+			case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
 				putTheadStandard(out, param.getTemplateHeadStandard());
 				break;
-			case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
+			case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
 				putTheadText(out, param.getTemplateHeadStandard());
 				break;
 			default:
@@ -308,17 +308,17 @@ void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 {
 	switch (webss.getTypeRaw())
 	{
-	case WebssType::TEMPLATE_VALUE_HEAD_BINARY:
+	case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 		out += CHAR_THEAD_VALUE;
 	case WebssType::TEMPLATE_HEAD_BINARY:
 		putTheadBinary(out, webss.getTemplateHeadBinaryRaw());
 		break;
-	case WebssType::TEMPLATE_VALUE_HEAD_STANDARD:
+	case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
 		out += CHAR_THEAD_VALUE;
 	case WebssType::TEMPLATE_HEAD_STANDARD:
 		putTheadStandard(out, webss.getTemplateHeadStandardRaw());
 		break;
-	case WebssType::TEMPLATE_VALUE_HEAD_TEXT:
+	case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
 		out += CHAR_THEAD_VALUE;
 	case WebssType::TEMPLATE_HEAD_TEXT:
 		putTheadText(out, webss.getTemplateHeadStandardRaw());
@@ -374,22 +374,22 @@ void Serializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConTyp
 		putTupleText(out, webss.getTupleRaw());
 		break;
 	case WebssType::TEMPLATE_BINARY:
-		putTemplBinary(out, webss.getTemplateBinaryRaw());
+		putTemplateBinary(out, webss.getTemplateBinaryRaw());
 		break;
 	case WebssType::TEMPLATE_STANDARD:
-		putTemplStandard(out, webss.getTemplateStandardRaw());
+		putTemplateStandard(out, webss.getTemplateStandardRaw());
 		break;
 	case WebssType::TEMPLATE_TEXT:
-		putTemplText(out, webss.getTemplateStandardRaw());
+		putTemplateText(out, webss.getTemplateStandardRaw());
 		break;
-	case WebssType::TEMPLATE_VALUE_BINARY:
-		putTemplValueBinary(out, webss.getTemplateBinaryRaw(), con);
+	case WebssType::TEMPLATE_PLUS_BINARY:
+		putTemplatePlusBinary(out, webss.getTemplateBinaryRaw(), con);
 		break;
-	case WebssType::TEMPLATE_VALUE_STANDARD:
-		putTemplValueStandard(out, webss.getTemplateStandardRaw(), con);
+	case WebssType::TEMPLATE_PLUS_STANDARD:
+		putTemplatePlusStandard(out, webss.getTemplateStandardRaw(), con);
 		break;
-	case WebssType::TEMPLATE_VALUE_TEXT:
-		putTemplValueText(out, webss.getTemplateStandardRaw(), con);
+	case WebssType::TEMPLATE_PLUS_TEXT:
+		putTemplatePlusText(out, webss.getTemplateStandardRaw(), con);
 		break;
 	case WebssType::ENTITY:
 		assert(webss.getEntityRaw().getContent().isConcrete());
@@ -582,9 +582,9 @@ void Serializer::putImport(StringBuilder& out, const ImportedDocument& import)
 	out += CHAR_IMPORT;
 	const auto& data = import.getData();
 	if (data.isTupleText())
-		putTemplStandardTupleText(out, thead.getParameters(), data.getTuple());
+		putTemplateStandardTupleText(out, thead.getParameters(), data.getTuple());
 	else
-		putTemplStandardTuple(out, thead.getParameters(), data.getTuple());
+		putTemplateStandardTuple(out, thead.getParameters(), data.getTuple());
 }
 
 void Serializer::putScopedImport(StringBuilder& out, const Entity& ent, const ImportedDocument& import)
@@ -687,10 +687,10 @@ void Serializer::putTheadText(StringBuilder& out, const TemplateHeadStandard& th
 	static_cast<SerializerTemplate*>(this)->putTheadText(out, thead);
 }
 
-void Serializer::putTemplBinary(StringBuilder& out, const TemplateBinary& templ)
+void Serializer::putTemplateBinary(StringBuilder& out, const TemplateBinary& templ)
 {
-	auto putTupleRegular = [&](StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple) { putTemplBinaryTuple(out, params, tuple); };
-	auto putTupleText = [&](StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple) { putTemplBinaryTuple(out, params, tuple); };
+	auto putTupleRegular = [&](StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple) { putTemplateBinaryTuple(out, params, tuple); };
+	auto putTupleText = [&](StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple) { putTemplateBinaryTuple(out, params, tuple); };
 
 	putTheadBinary(out, templ);
 	const auto& params = templ.getParameters();
@@ -700,43 +700,43 @@ void Serializer::putTemplBinary(StringBuilder& out, const TemplateBinary& templ)
 		static_cast<SerializerTemplate*>(this)->putTemplateList<TemplateHeadBinary::Parameters>(out, params, templ.getList(), move(putTupleRegular), move(putTupleText));
 		break;
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
-		putTemplBinaryTuple(out, params, templ.getTuple());
+		putTemplateBinaryTuple(out, params, templ.getTuple());
 		break;
 	default:
 		assert(false);
 	}
 }
 
-void Serializer::putTemplStandard(StringBuilder& out, const TemplateStandard& templ)
+void Serializer::putTemplateStandard(StringBuilder& out, const TemplateStandard& templ)
 {
 	putTheadStandard(out, templ);
-	putTemplStandardBody(out, templ.getParameters(), templ.getWebss());
+	putTemplateStandardBody(out, templ.getParameters(), templ.getWebss());
 }
 
-void Serializer::putTemplStandardBody(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Webss& body)
+void Serializer::putTemplateStandardBody(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Webss& body)
 {
-	auto putTupleRegular = [&](StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple) { putTemplStandardTuple(out, params, tuple); };
-	auto putTupleText = [&](StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple) { putTemplStandardTupleText(out, params, tuple); };
+	auto putTupleRegular = [&](StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple) { putTemplateStandardTuple(out, params, tuple); };
+	auto putTupleText = [&](StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple) { putTemplateStandardTupleText(out, params, tuple); };
 	switch (body.getTypeRaw())
 	{
 	case WebssType::LIST:
 		static_cast<SerializerTemplate*>(this)->putTemplateList<TemplateHeadStandard::Parameters>(out, params, body.getListRaw(), move(putTupleRegular), move(putTupleText));
 		break;
 	case WebssType::TUPLE:
-		putTemplStandardTuple(out, params, body.getTupleRaw());
+		putTemplateStandardTuple(out, params, body.getTupleRaw());
 		break;
 	case WebssType::TUPLE_TEXT:
-		putTemplStandardTupleText(out, params, body.getTupleRaw());
+		putTemplateStandardTupleText(out, params, body.getTupleRaw());
 		break;
 	default:
 		assert(false);
 	}
 }
 
-void Serializer::putTemplText(StringBuilder& out, const TemplateStandard& templ)
+void Serializer::putTemplateText(StringBuilder& out, const TemplateStandard& templ)
 {
-	auto putTupleRegular = [&](StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple) { putTemplTextTuple(out, params, tuple); };
-	auto putTupleText = [&](StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple) { putTemplTextTuple(out, params, tuple); };
+	auto putTupleRegular = [&](StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple) { putTemplateTextTuple(out, params, tuple); };
+	auto putTupleText = [&](StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple) { putTemplateTextTuple(out, params, tuple); };
 
 	putTheadText(out, templ);
 	const auto& params = templ.getParameters();
@@ -746,22 +746,22 @@ void Serializer::putTemplText(StringBuilder& out, const TemplateStandard& templ)
 		static_cast<SerializerTemplate*>(this)->putTemplateList<TemplateHeadStandard::Parameters>(out, params, templ.getList(), move(putTupleRegular), move(putTupleText));
 		break;
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
-		putTemplTextTuple(out, params, templ.getTuple());
+		putTemplateTextTuple(out, params, templ.getTuple());
 		break;
 	default:
 		assert(false);
 	}
 }
 
-extern void putTemplBodyBinary(StringBuilder&, const TemplateHeadBinary::Parameters&, const Tuple&);
+extern void putTemplateBodyBinary(StringBuilder&, const TemplateHeadBinary::Parameters&, const Tuple&);
 
-void Serializer::putTemplBinaryTuple(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
+void Serializer::putTemplateBinaryTuple(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple)
 {
 	ContainerIncluder<ConType::TUPLE> includer(out);
-	putTemplBodyBinary(out, params, tuple);
+	putTemplateBodyBinary(out, params, tuple);
 }
 
-void Serializer::putTemplStandardTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
+void Serializer::putTemplateStandardTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
 	assert(tuple.size() <= params.size() && "too many elements in template tuple");
@@ -771,7 +771,7 @@ void Serializer::putTemplStandardTuple(StringBuilder& out, const TemplateHeadSta
 	{
 		const auto& param = params[i++];
 		if (param.hasTemplateHead())
-			putTemplStandardBody(out, param.getTemplateHeadStandard().getParameters(), *it);
+			putTemplateStandardBody(out, param.getTemplateHeadStandard().getParameters(), *it);
 		else
 		{
 			if (it->getTypeRaw() == WebssType::NONE || it->getTypeRaw() == WebssType::DEFAULT)
@@ -782,7 +782,7 @@ void Serializer::putTemplStandardTuple(StringBuilder& out, const TemplateHeadSta
 	});
 }
 
-void Serializer::putTemplStandardTupleText(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
+void Serializer::putTemplateStandardTupleText(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
 	assert(tuple.size() <= params.size() && "too many elements in template tuple");
@@ -811,7 +811,7 @@ void Serializer::putTemplStandardTupleText(StringBuilder& out, const TemplateHea
 #endif
 }
 
-void Serializer::putTemplTextTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
+void Serializer::putTemplateTextTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple)
 {
 	static const auto CON = ConType::TUPLE;
 	assert(tuple.size() <= params.size() && "too many elements in template tuple");
@@ -834,7 +834,7 @@ void Serializer::putTemplTextTuple(StringBuilder& out, const TemplateHeadStandar
 	});
 }
 
-Tuple copyTemplateValueTupleWithoutLast(const Tuple& tuple)
+Tuple copyTemplatePlusTupleWithoutLast(const Tuple& tuple)
 {
 	Tuple copy;
 	const auto& data = tuple.getData();
@@ -843,29 +843,29 @@ Tuple copyTemplateValueTupleWithoutLast(const Tuple& tuple)
 	return copy;
 }
 
-void Serializer::putTemplValueBinary(StringBuilder& out, const TemplateBinary& templ, ConType con)
+void Serializer::putTemplatePlusBinary(StringBuilder& out, const TemplateBinary& templ, ConType con)
 {
 	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().size() == templ.getParameters().size() + 1);
 	putEntityName(out, templ.getEntity());
-	putTemplBinaryTuple(out, templ.getParameters(), copyTemplateValueTupleWithoutLast(templ.getTuple()));
+	putTemplateBinaryTuple(out, templ.getParameters(), copyTemplatePlusTupleWithoutLast(templ.getTuple()));
 	putConcreteValue(out, templ.getTuple().back(), con);
 }
 
-void Serializer::putTemplValueStandard(StringBuilder& out, const TemplateStandard& templ, ConType con)
+void Serializer::putTemplatePlusStandard(StringBuilder& out, const TemplateStandard& templ, ConType con)
 {
 	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().size() == templ.getParameters().size() + 1);
 	putEntityName(out, templ.getEntity());
 	if (templ.isTupleText())
-		putTemplStandardTupleText(out, templ.getParameters(), copyTemplateValueTupleWithoutLast(templ.getTuple()));
+		putTemplateStandardTupleText(out, templ.getParameters(), copyTemplatePlusTupleWithoutLast(templ.getTuple()));
 	else
-		putTemplStandardTuple(out, templ.getParameters(), copyTemplateValueTupleWithoutLast(templ.getTuple()));
+		putTemplateStandardTuple(out, templ.getParameters(), copyTemplatePlusTupleWithoutLast(templ.getTuple()));
 	putConcreteValue(out, templ.getTuple().back(), con);
 }
 
-void Serializer::putTemplValueText(StringBuilder& out, const TemplateStandard& templ, ConType con)
+void Serializer::putTemplatePlusText(StringBuilder& out, const TemplateStandard& templ, ConType con)
 {
 	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().size() == templ.getParameters().size() + 1);
 	putEntityName(out, templ.getEntity());
-	putTemplTextTuple(out, templ.getParameters(), copyTemplateValueTupleWithoutLast(templ.getTuple()));
+	putTemplateTextTuple(out, templ.getParameters(), copyTemplatePlusTupleWithoutLast(templ.getTuple()));
 	putConcreteValue(out, templ.getTuple().back(), con);
 }

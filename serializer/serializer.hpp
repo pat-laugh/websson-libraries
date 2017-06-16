@@ -93,20 +93,20 @@ namespace webss
 		void putEntityAbstract(StringBuilder& out, const Entity& ent);
 		void putEntityConcrete(StringBuilder& out, const Entity& ent, ConType con);
 
-		void putTemplBinary(StringBuilder& out, const TemplateBinary& templ);
-		void putTemplStandard(StringBuilder& out, const TemplateStandard& templ);
-		void putTemplStandardBody(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Webss& body);
+		void putTemplateBinary(StringBuilder& out, const TemplateBinary& templ);
+		void putTemplateStandard(StringBuilder& out, const TemplateStandard& templ);
+		void putTemplateStandardBody(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Webss& body);
 
-		void putTemplText(StringBuilder& out, const TemplateStandard& templ);
+		void putTemplateText(StringBuilder& out, const TemplateStandard& templ);
 
-		void putTemplBinaryTuple(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple);
-		void putTemplStandardTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
-		void putTemplStandardTupleText(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
-		void putTemplTextTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
+		void putTemplateBinaryTuple(StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple);
+		void putTemplateStandardTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
+		void putTemplateStandardTupleText(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
+		void putTemplateTextTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
 
-		void putTemplValueBinary(StringBuilder& out, const TemplateBinary& templ, ConType con);
-		void putTemplValueStandard(StringBuilder& out, const TemplateStandard& templ, ConType con);
-		void putTemplValueText(StringBuilder& out, const TemplateStandard& templ, ConType con);
+		void putTemplatePlusBinary(StringBuilder& out, const TemplateBinary& templ, ConType con);
+		void putTemplatePlusStandard(StringBuilder& out, const TemplateStandard& templ, ConType con);
+		void putTemplatePlusText(StringBuilder& out, const TemplateStandard& templ, ConType con);
 
 		void putTheadSelf(StringBuilder& out);
 		void putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead);

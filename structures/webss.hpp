@@ -160,12 +160,12 @@ namespace webss
 		bool isTemplateText() const;
 		bool isNamespace() const;
 		bool isEnum() const;
-		bool isTemplateValueHeadBinary() const;
-		bool isTemplateValueHeadStandard() const;
-		bool isTemplateValueHeadText() const;
-		bool isTemplateValueBinary() const;
-		bool isTemplateValueStandard() const;
-		bool isTemplateValueText() const;
+		bool isTemplatePlusHeadBinary() const;
+		bool isTemplatePlusHeadStandard() const;
+		bool isTemplatePlusHeadText() const;
+		bool isTemplatePlusBinary() const;
+		bool isTemplatePlusStandard() const;
+		bool isTemplatePlusText() const;
 
 		bool isAbstract() const;
 		bool isConcrete() const;

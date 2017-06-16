@@ -44,9 +44,9 @@ Webss Parser::parseAbstractCharValue(const string& name, const Namespace& curren
 	case Tag::PLUS:
 		assert(*getIt() == CHAR_THEAD_VALUE);
 		if (++tagit == Tag::START_TEMPLATE)
-			return parseTemplateValueHead();
+			return parseTemplatePlusHead();
 		else if (*tagit == Tag::TEXT_TEMPLATE)
-			return Webss(parseTemplateValueHeadText(), WebssType::TEMPLATE_VALUE_HEAD_TEXT);
+			return Webss(parseTemplatePlusHeadText(), WebssType::TEMPLATE_HEAD_PLUS_TEXT);
 	default:
 		throw runtime_error(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
 	}

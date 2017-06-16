@@ -39,7 +39,7 @@ int main()
 	do
 #endif
 	{
-		vector<string> filenames { "strings", "expandTuple", "templateValue", "namespace", "enum",
+		vector<string> filenames { "strings", "expandTuple", "templatePlus", "namespace", "enum",
 			"list", "tuple", "names-keywords", "multiline-string-options",
 			"option", "assignAbstractEntity", "expandThead" };
 		for (const auto& filename : filenames)
