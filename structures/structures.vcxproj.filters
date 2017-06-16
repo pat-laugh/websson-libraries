@@ -78,6 +78,9 @@
     <ClInclude Include="webss.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="templatePlus.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="keywords.cpp">

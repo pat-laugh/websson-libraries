@@ -143,6 +143,7 @@
     <ClInclude Include="template.hpp" />
     <ClInclude Include="templateBody.hpp" />
     <ClInclude Include="templateHead.hpp" />
+    <ClInclude Include="templatePlus.hpp" />
     <ClInclude Include="tuple.hpp" />
     <ClInclude Include="types.hpp" />
     <ClInclude Include="typeWebss.hpp" />

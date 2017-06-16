@@ -62,7 +62,7 @@ TemplateHeadStandard Parser::parseTemplateHeadText()
 	return move(webssThead.getTemplateHeadStandardRaw());
 }
 
-Webss Parser::parseTemplatePlusHead()
+Webss Parser::parseTemplateHeadPlus()
 {
 	auto webssThead = parseTemplateHead();
 	switch (webssThead.getTypeRaw())
@@ -80,7 +80,7 @@ Webss Parser::parseTemplatePlusHead()
 	}
 }
 
-TemplateHeadStandard Parser::parseTemplatePlusHeadText()
+TemplateHeadStandard Parser::parseTemplateHeadPlusText()
 {
 	return parseTemplateHeadText();
 }
@@ -146,11 +146,11 @@ void parseStandardParameterTemplateHead(Parser& parser, TemplateHeadStandard& th
 	auto type = webssThead.getTypeRaw();
 	switch (webssThead.getTypeRaw())
 	{
-	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
-		lastParam.setTemplateHead(move(webssThead.getTemplateHeadBinaryRaw()), type);
-		break;
 	case WebssType::TEMPLATE_HEAD_SELF:
 		lastParam.setTemplateHead(TemplateHeadSelf());
+		break;
+	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
+		lastParam.setTemplateHead(move(webssThead.getTemplateHeadBinaryRaw()), type);
 		break;
 	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_HEAD_PLUS_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
 		lastParam.setTemplateHead(move(webssThead.getTemplateHeadStandardRaw()), type);
