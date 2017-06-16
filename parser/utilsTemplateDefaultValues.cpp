@@ -27,7 +27,7 @@ void webss::setDefaultValue(Webss& value, const ParamStandard& defaultValue)
 		value = Webss(defaultValue.getDefaultPointer());
 	else
 	{
-		switch (defaultValue.getTypeThead())
+		switch (defaultValue.getTypeTemplateHead())
 		{
 		case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 			value = makeDefaultTuple(defaultValue.getTemplateHeadBinary().getParameters());

@@ -7,6 +7,7 @@
 #include <limits>
 #include <type_traits>
 
+#include "structures/templatePlus.hpp"
 #include "utils/constants.hpp"
 #include "utils/utils.hpp"
 #include "utils/utilsWebss.hpp"
@@ -57,18 +58,18 @@ void putSeparatedValues(StringBuilder& out, const Container& cont, function<void
 class SerializerTemplate : public Serializer
 {
 public:
-	void putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
+	void putTemplateHeadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
 	{
-		putThead<TemplateHeadBinary, ParamBinary>(out, thead, [&](StringBuilder& out, const string& key, const ParamBinary& param) { putParamBinary(out, key, param); });
+		putTemplateHead<TemplateHeadBinary, ParamBinary>(out, thead, [&](StringBuilder& out, const string& key, const ParamBinary& param) { putParamBinary(out, key, param); });
 	}
-	void putTheadStandard(StringBuilder& out, const TemplateHeadStandard& thead)
+	void putTemplateHeadStandard(StringBuilder& out, const TemplateHeadStandard& thead)
 	{
-		putThead<TemplateHeadStandard, ParamStandard>(out, thead, [&](StringBuilder& out, const string& key, const ParamStandard& param) { putParamStandard(out, key, param); });
+		putTemplateHead<TemplateHeadStandard, ParamStandard>(out, thead, [&](StringBuilder& out, const string& key, const ParamStandard& param) { putParamStandard(out, key, param); });
 	}
-	void putTheadText(StringBuilder& out, const TemplateHeadStandard& thead)
+	void putTemplateHeadText(StringBuilder& out, const TemplateHeadStandard& thead)
 	{
 		out += ASSIGN_CONTAINER_STRING;
-		putThead<TemplateHeadStandard, ParamStandard>(out, thead, [&](StringBuilder& out, const string& key, const ParamStandard& param) { putParamText(out, key, param); });
+		putTemplateHead<TemplateHeadStandard, ParamStandard>(out, thead, [&](StringBuilder& out, const string& key, const ParamStandard& param) { putParamText(out, key, param); });
 	}
 
 	template <class Parameters>
@@ -89,7 +90,7 @@ public:
 	}
 private:
 	template <class TemplateHead, class Param>
-	void putThead(StringBuilder& out, const TemplateHead& thead, function<void(StringBuilder& out, const string& key, const Param& param)>&& putParam)
+	void putTemplateHead(StringBuilder& out, const TemplateHead& thead, function<void(StringBuilder& out, const string& key, const Param& param)>&& putParam)
 	{
 		static const auto CON = ConType::TEMPLATE_HEAD;
 		if (thead.hasEntity())
@@ -127,13 +128,13 @@ private:
 				out += to_string(bhead.size());
 				break;
 			case Type::TEMPLATE_HEAD:
-				putTheadBinary(out, bhead.getTemplateHead());
+				putTemplateHeadBinary(out, bhead.getTemplateHead());
 				break;
 			case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_TEMPLATE_HEAD:
 				putEntityName(out, bhead.getEntity());
 				break;
 			case Type::SELF:
-				putTheadSelf(out);
+				putTemplateHeadSelf(out);
 				break;
 			default:
 				assert(false);
@@ -150,19 +151,19 @@ private:
 	void putParamStandard(StringBuilder& out, const string& key, const ParamStandard& param)
 	{
 		if (param.hasTemplateHead())
-			switch (param.getTypeThead())
+			switch (param.getTypeTemplateHead())
 			{
 			case WebssType::TEMPLATE_HEAD_SELF:
-				putTheadSelf(out);
+				putTemplateHeadSelf(out);
 				break;
 			case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
-				putTheadBinary(out, param.getTemplateHeadBinary());
+				putTemplateHeadBinary(out, param.getTemplateHeadBinary());
 				break;
 			case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
-				putTheadStandard(out, param.getTemplateHeadStandard());
+				putTemplateHeadStandard(out, param.getTemplateHeadStandard());
 				break;
 			case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
-				putTheadText(out, param.getTemplateHeadStandard());
+				putTemplateHeadText(out, param.getTemplateHeadStandard());
 				break;
 			default:
 				assert(false); break;
@@ -172,7 +173,7 @@ private:
 		if (param.hasDefaultValue())
 			putCharValue(out, param.getDefaultValue(), ConType::TEMPLATE_HEAD);
 		else
-			assert(param.getTypeThead() != WebssType::TEMPLATE_HEAD_SELF);
+			assert(param.getTypeTemplateHead() != WebssType::TEMPLATE_HEAD_SELF);
 	}
 	void putParamText(StringBuilder& out, const string& key, const ParamStandard& param)
 	{
@@ -311,17 +312,17 @@ void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 	case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 		out += CHAR_THEAD_VALUE;
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		putTheadBinary(out, webss.getTemplateHeadBinaryRaw());
+		putTemplateHeadBinary(out, webss.getTemplateHeadBinaryRaw());
 		break;
 	case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
 		out += CHAR_THEAD_VALUE;
 	case WebssType::TEMPLATE_HEAD_STANDARD:
-		putTheadStandard(out, webss.getTemplateHeadStandardRaw());
+		putTemplateHeadStandard(out, webss.getTemplateHeadStandardRaw());
 		break;
 	case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
 		out += CHAR_THEAD_VALUE;
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		putTheadText(out, webss.getTemplateHeadStandardRaw());
+		putTemplateHeadText(out, webss.getTemplateHeadStandardRaw());
 		break;
 	case WebssType::ENTITY:
 		assert(webss.getEntityRaw().getContent().isAbstract());
@@ -383,13 +384,13 @@ void Serializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConTyp
 		putTemplateText(out, webss.getTemplateStandardRaw());
 		break;
 	case WebssType::TEMPLATE_PLUS_BINARY:
-		putTemplatePlusBinary(out, webss.getTemplateBinaryRaw(), con);
+		putTemplatePlusBinary(out, webss.getTemplatePlusBinaryRaw(), con);
 		break;
 	case WebssType::TEMPLATE_PLUS_STANDARD:
-		putTemplatePlusStandard(out, webss.getTemplateStandardRaw(), con);
+		putTemplatePlusStandard(out, webss.getTemplatePlusStandardRaw(), con);
 		break;
 	case WebssType::TEMPLATE_PLUS_TEXT:
-		putTemplatePlusText(out, webss.getTemplateStandardRaw(), con);
+		putTemplatePlusText(out, webss.getTemplatePlusStandardRaw(), con);
 		break;
 	case WebssType::ENTITY:
 		assert(webss.getEntityRaw().getContent().isConcrete());
@@ -567,7 +568,7 @@ void Serializer::putExpandDocumentHead(StringBuilder& out, const Namespace& nspa
 	out += nspace.getName();
 }
 
-static TemplateHeadStandard makeTheadImport()
+static TemplateHeadStandard makeTemplateHeadImport()
 {
 	TemplateHeadStandard thead;
 	thead.attachEmpty("name");
@@ -578,7 +579,7 @@ static TemplateHeadStandard makeTheadImport()
 
 void Serializer::putImport(StringBuilder& out, const ImportedDocument& import)
 {
-	static const auto thead = makeTheadImport();
+	static const auto thead = makeTemplateHeadImport();
 	out += CHAR_IMPORT;
 	const auto& data = import.getData();
 	if (data.isTupleText())
@@ -669,22 +670,22 @@ void Serializer::putTupleText(StringBuilder& out, const Tuple& tuple)
 	});
 }
 
-void Serializer::putTheadSelf(StringBuilder& out)
+void Serializer::putTemplateHeadSelf(StringBuilder& out)
 {
 	ContainerIncluder<ConType::TEMPLATE_HEAD> includer(out);
 	out += CHAR_SELF;
 }
-void Serializer::putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
+void Serializer::putTemplateHeadBinary(StringBuilder& out, const TemplateHeadBinary& thead)
 {
-	static_cast<SerializerTemplate*>(this)->putTheadBinary(out, thead);
+	static_cast<SerializerTemplate*>(this)->putTemplateHeadBinary(out, thead);
 }
-void Serializer::putTheadStandard(StringBuilder& out, const TemplateHeadStandard& thead)
+void Serializer::putTemplateHeadStandard(StringBuilder& out, const TemplateHeadStandard& thead)
 {
-	static_cast<SerializerTemplate*>(this)->putTheadStandard(out, thead);
+	static_cast<SerializerTemplate*>(this)->putTemplateHeadStandard(out, thead);
 }
-void Serializer::putTheadText(StringBuilder& out, const TemplateHeadStandard& thead)
+void Serializer::putTemplateHeadText(StringBuilder& out, const TemplateHeadStandard& thead)
 {
-	static_cast<SerializerTemplate*>(this)->putTheadText(out, thead);
+	static_cast<SerializerTemplate*>(this)->putTemplateHeadText(out, thead);
 }
 
 void Serializer::putTemplateBinary(StringBuilder& out, const TemplateBinary& templ)
@@ -692,7 +693,7 @@ void Serializer::putTemplateBinary(StringBuilder& out, const TemplateBinary& tem
 	auto putTupleRegular = [&](StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple) { putTemplateBinaryTuple(out, params, tuple); };
 	auto putTupleText = [&](StringBuilder& out, const TemplateHeadBinary::Parameters& params, const Tuple& tuple) { putTemplateBinaryTuple(out, params, tuple); };
 
-	putTheadBinary(out, templ);
+	putTemplateHeadBinary(out, templ);
 	const auto& params = templ.getParameters();
 	switch (templ.getType())
 	{
@@ -709,7 +710,7 @@ void Serializer::putTemplateBinary(StringBuilder& out, const TemplateBinary& tem
 
 void Serializer::putTemplateStandard(StringBuilder& out, const TemplateStandard& templ)
 {
-	putTheadStandard(out, templ);
+	putTemplateHeadStandard(out, templ);
 	putTemplateStandardBody(out, templ.getParameters(), templ.getWebss());
 }
 
@@ -738,7 +739,7 @@ void Serializer::putTemplateText(StringBuilder& out, const TemplateStandard& tem
 	auto putTupleRegular = [&](StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple) { putTemplateTextTuple(out, params, tuple); };
 	auto putTupleText = [&](StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple) { putTemplateTextTuple(out, params, tuple); };
 
-	putTheadText(out, templ);
+	putTemplateHeadText(out, templ);
 	const auto& params = templ.getParameters();
 	switch (templ.getType())
 	{
@@ -834,38 +835,29 @@ void Serializer::putTemplateTextTuple(StringBuilder& out, const TemplateHeadStan
 	});
 }
 
-Tuple copyTemplatePlusTupleWithoutLast(const Tuple& tuple)
+void Serializer::putTemplatePlusBinary(StringBuilder& out, const TemplatePlusBinary& templ, ConType con)
 {
-	Tuple copy;
-	const auto& data = tuple.getData();
-	for (Tuple::size_type i = 0; i < data.size() - 1; ++i) //less one more because content is at the end
-		copy.add(data[i]);
-	return copy;
+	assert(templ.isTuple());
+	putTemplateHeadBinary(out, templ);
+	putTemplateBinaryTuple(out, templ.getParameters(), templ.getTuple());
+	putConcreteValue(out, templ.getContent(), con);
 }
 
-void Serializer::putTemplatePlusBinary(StringBuilder& out, const TemplateBinary& templ, ConType con)
+void Serializer::putTemplatePlusStandard(StringBuilder& out, const TemplatePlusStandard& templ, ConType con)
 {
-	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().size() == templ.getParameters().size() + 1);
-	putEntityName(out, templ.getEntity());
-	putTemplateBinaryTuple(out, templ.getParameters(), copyTemplatePlusTupleWithoutLast(templ.getTuple()));
-	putConcreteValue(out, templ.getTuple().back(), con);
-}
-
-void Serializer::putTemplatePlusStandard(StringBuilder& out, const TemplateStandard& templ, ConType con)
-{
-	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().size() == templ.getParameters().size() + 1);
-	putEntityName(out, templ.getEntity());
+	assert(templ.isTuple());
+	putTemplateHeadStandard(out, templ);
 	if (templ.isTupleText())
-		putTemplateStandardTupleText(out, templ.getParameters(), copyTemplatePlusTupleWithoutLast(templ.getTuple()));
+		putTemplateStandardTupleText(out, templ.getParameters(), templ.getTuple());
 	else
-		putTemplateStandardTuple(out, templ.getParameters(), copyTemplatePlusTupleWithoutLast(templ.getTuple()));
-	putConcreteValue(out, templ.getTuple().back(), con);
+		putTemplateStandardTuple(out, templ.getParameters(), templ.getTuple());
+	putConcreteValue(out, templ.getContent(), con);
 }
 
-void Serializer::putTemplatePlusText(StringBuilder& out, const TemplateStandard& templ, ConType con)
+void Serializer::putTemplatePlusText(StringBuilder& out, const TemplatePlusStandard& templ, ConType con)
 {
-	assert(templ.isTuple() && templ.hasEntity() && templ.getTuple().size() == templ.getParameters().size() + 1);
-	putEntityName(out, templ.getEntity());
-	putTemplateTextTuple(out, templ.getParameters(), copyTemplatePlusTupleWithoutLast(templ.getTuple()));
-	putConcreteValue(out, templ.getTuple().back(), con);
+	assert(templ.isTuple());
+	putTemplateHeadText(out, templ);
+	putTemplateTextTuple(out, templ.getParameters(), templ.getTuple());
+	putConcreteValue(out, templ.getContent(), con);
 }

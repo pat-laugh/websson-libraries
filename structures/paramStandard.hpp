@@ -45,7 +45,7 @@ namespace webss
 		const std::shared_ptr<Webss>& getDefaultPointer() const;
 
 		//returns binary, self, standard, or text if it has a template head, else WebssType::NONE
-		WebssType getTypeThead() const;
+		WebssType getTypeTemplateHead() const;
 
 		const TemplateHeadBinary& getTemplateHeadBinary() const;
 		const TemplateHeadStandard& getTemplateHeadStandard() const;

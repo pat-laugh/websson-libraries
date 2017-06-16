@@ -189,7 +189,7 @@ Webss Parser::parseTemplateText()
 
 Webss Parser::parseTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue)
 {
-	switch (defaultValue.getTypeThead())
+	switch (defaultValue.getTypeTemplateHead())
 	{
 	case WebssType::TEMPLATE_HEAD_SELF:
 		return parseTemplateStandard(params);
@@ -265,7 +265,7 @@ Tuple::size_type Parser::fillTemplateBodyTuple(const TemplateHeadStandard::Param
 
 Webss Parser::checkTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& param, const Webss& tupleItem)
 {
-	switch (param.getTypeThead())
+	switch (param.getTypeTemplateHead())
 	{
 	case WebssType::TEMPLATE_HEAD_SELF:
 		return buildTemplateBodyStandard(params, tupleItem);
@@ -369,5 +369,5 @@ Webss Parser::parseTemplatePlusText(TemplateHeadStandard thead)
 		body = makeDefaultTuple(thead.getParameters());
 		break;
 	}
-	return{ TemplatePlusStandard(TemplateStandard(move(thead), move(body)), parseValueOnly()), WebssType::TEMPLATE_TEXT };
+	return{ TemplatePlusStandard(TemplateStandard(move(thead), move(body)), parseValueOnly()), WebssType::TEMPLATE_PLUS_TEXT };
 }

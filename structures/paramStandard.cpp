@@ -64,7 +64,7 @@ const shared_ptr<Webss>& ParamStandard::getDefaultPointer() const
 	return defaultValue;
 }
 
-WebssType ParamStandard::getTypeThead() const
+WebssType ParamStandard::getTypeTemplateHead() const
 {
 	return typeThead;
 }

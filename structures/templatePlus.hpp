@@ -20,7 +20,7 @@ namespace webss
 		bool operator==(const This& o) const { return (this == &o) || (base::operator==(o) && content == o.content); }
 		bool operator!=(const This& o) const { return !(*this == o); }
 
-		const Webss& getContent() { return content; }
+		const Webss& getContent() const { return content; }
 	};
 #undef This
 }

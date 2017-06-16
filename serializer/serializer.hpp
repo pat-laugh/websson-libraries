@@ -14,7 +14,6 @@
 #include "structures/document.hpp"
 #include "structures/dictionary.hpp"
 #include "structures/paramStandard.hpp"
-#include "structures/template.hpp"
 #include "utils/conType.hpp"
 #include "utils/stringBuilder.hpp"
 
@@ -104,14 +103,14 @@ namespace webss
 		void putTemplateStandardTupleText(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
 		void putTemplateTextTuple(StringBuilder& out, const TemplateHeadStandard::Parameters& params, const Tuple& tuple);
 
-		void putTemplatePlusBinary(StringBuilder& out, const TemplateBinary& templ, ConType con);
-		void putTemplatePlusStandard(StringBuilder& out, const TemplateStandard& templ, ConType con);
-		void putTemplatePlusText(StringBuilder& out, const TemplateStandard& templ, ConType con);
+		void putTemplatePlusBinary(StringBuilder& out, const TemplatePlusBinary& templ, ConType con);
+		void putTemplatePlusStandard(StringBuilder& out, const TemplatePlusStandard& templ, ConType con);
+		void putTemplatePlusText(StringBuilder& out, const TemplatePlusStandard& templ, ConType con);
 
-		void putTheadSelf(StringBuilder& out);
-		void putTheadBinary(StringBuilder& out, const TemplateHeadBinary& thead);
-		void putTheadStandard(StringBuilder& out, const TemplateHeadStandard& thead);
-		void putTheadText(StringBuilder& out, const TemplateHeadStandard& thead);
+		void putTemplateHeadSelf(StringBuilder& out);
+		void putTemplateHeadBinary(StringBuilder& out, const TemplateHeadBinary& thead);
+		void putTemplateHeadStandard(StringBuilder& out, const TemplateHeadStandard& thead);
+		void putTemplateHeadText(StringBuilder& out, const TemplateHeadStandard& thead);
 		
 		class NamespaceIncluder
 		{

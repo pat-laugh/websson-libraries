@@ -5,7 +5,6 @@
 #include "structures/webss.hpp"
 #include "structures/list.hpp"
 #include "structures/document.hpp"
-#include "structures/template.hpp"
 #include "utils/stringBuilder.hpp"
 
 namespace webss
@@ -40,5 +39,6 @@ namespace webss
 		void putDocumentString(StringBuilder& out, const std::string& str);
 		void putList(StringBuilder& out, const List& list);
 		void putTemplateStandard(StringBuilder& out, const TemplateStandard& templ);
+		void putTemplatePlusStandard(StringBuilder& out, const TemplatePlusStandard& templ);
 	};
 }

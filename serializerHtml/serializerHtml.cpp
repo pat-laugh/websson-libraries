@@ -6,6 +6,7 @@
 #include <set>
 
 #include "structures/paramStandard.hpp"
+#include "structures/templatePlus.hpp"
 #include "structures/tuple.hpp"
 #include "utils/utils.hpp"
 
@@ -99,8 +100,11 @@ void SerializerHtml::putConcreteValue(StringBuilder& out, const Webss& value)
 		assert(value.getEntityRaw().getContent().isConcrete());
 		putConcreteValue(out, value.getEntityRaw().getContent());
 		break;
-	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT: case WebssType::TEMPLATE_PLUS_STANDARD: case WebssType::TEMPLATE_PLUS_TEXT:
+	case WebssType::TEMPLATE_STANDARD: case WebssType::TEMPLATE_TEXT:
 		putTemplateStandard(out, value.getTemplateStandardRaw());
+		break;
+	case WebssType::TEMPLATE_PLUS_STANDARD: case WebssType::TEMPLATE_PLUS_TEXT:
+		putTemplatePlusStandard(out, value.getTemplatePlusStandardRaw());
 		break;
 	case WebssType::LIST: case WebssType::LIST_TEXT:
 		putList(out, value.getListRaw());
@@ -164,28 +168,27 @@ void SerializerHtml::putTemplateStandard(StringBuilder& out, const TemplateStand
 	const auto& name = templ.getEntity().getName();
 	const auto& tuple = templ.getTuple();
 	const auto& params = templ.getParameters();
-	assert(tuple.size() == params.size() || tuple.size() == params.size() + 1);
-	bool isTemplatePlus = tuple.size() > params.size();
-	auto keyValues = tuple.getOrderedKeyValues();
+	auto keys = tuple.getOrderedKeys();
 	out += "<" + name;
-	for (Tuple::size_type i = 0; i < tuple.size() - (isTemplatePlus ? 1 : 0); ++i)
+	for (Tuple::size_type i = 0; i < tuple.size(); ++i)
 	{
-		assert(keyValues[i].first != nullptr);
-		const auto& key = *keyValues[i].first;
-		const auto& value = *keyValues[i].second;
+		assert(keys[i] != nullptr);
+		const auto& key = *keys[i];
+		const auto& value = tuple[i];
 		const auto& param = params[i];
 		if (value.isNull())
 			assert(isDefaultValue(value));
 		else
 			putKeyValue(out, key, isDefaultValue(value) ? param.getDefaultValue() : value);
 	}
-
 	out += '>';
-	if (isTemplatePlus)
-	{
-		putConcreteValue(out, tuple.back());
-		out += "</" + name + '>';
-	}
+}
+
+void SerializerHtml::putTemplatePlusStandard(StringBuilder& out, const TemplatePlusStandard& templ)
+{
+	putTemplateStandard(out, templ);
+	putConcreteValue(out, templ.getContent());
+	out += "</" + templ.getEntity().getName() + '>';
 }
 
 void SerializerHtml::putList(StringBuilder& out, const List& list)
