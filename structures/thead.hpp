@@ -49,6 +49,8 @@ namespace webss
 
 		TypeThead getTypeRaw() const;
 
+		bool hasEntity() const;
+
 		const Entity& getEntityRaw() const;
 		const TheadBin& getTheadBinRaw() const;
 		const TheadStd& getTheadStdRaw() const;

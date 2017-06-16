@@ -145,6 +145,8 @@ bool Thead::isTheadStd() const { return getType() == TypeThead::STD; }
 
 TypeThead Thead::getTypeRaw() const { return type; }
 
+bool Thead::hasEntity() const { return getTypeRaw() == TypeThead::ENTITY; }
+
 const Entity& Thead::getEntityRaw() const { assert(getTypeRaw() == TypeThead::ENTITY); return ent; }
 const TheadBin& Thead::getTheadBinRaw() const { assert(getTypeRaw() == TypeThead::BIN); return *theadBin; }
 const TheadStd& Thead::getTheadStdRaw() const { assert(getTypeRaw() == TypeThead::STD); return *theadStd; }
