@@ -7,53 +7,47 @@
 #include "paramBinary.hpp"
 #include "documentHead.hpp"
 #include "typeWebss.hpp"
+#include "thead.hpp"
 
 namespace webss
 {
 	class ParamStandard
 	{
 	private:
-		WebssType typeThead = WebssType::NONE;
-		union
-		{
-			TemplateHeadBinary* theadBin;
-			TemplateHeadStandard* theadStd;
-		};
-
-		std::shared_ptr<Webss> defaultValue;
+		std::unique_ptr<Thead> thead;
+		std::shared_ptr<Webss> defaultValue; //shared pointer because value might be assigned to void params
 
 	public:
 		ParamStandard();
-		ParamStandard(Webss&& webss);
+		ParamStandard(Webss defaultValue);
 		~ParamStandard();
 
 		ParamStandard(ParamStandard&& o);
 		ParamStandard(const ParamStandard& o);
 
-		ParamStandard& operator=(ParamStandard&& o);
-		ParamStandard& operator=(const ParamStandard& o);
+		ParamStandard& operator=(ParamStandard o);
 
 		bool operator==(const ParamStandard& o) const;
 		bool operator!=(const ParamStandard& o) const;
 
 		bool hasDefaultValue() const;
-
-		//returns true if the param has any kind of template head, else false
-		bool hasTemplateHead() const;
-
 		const Webss& getDefaultValue() const;
 		const std::shared_ptr<Webss>& getDefaultPointer() const;
 
-		//returns binary, self, standard, or text if it has a template head, else WebssType::NONE
-		WebssType getTypeTemplateHead() const;
+		bool hasThead() const;
+		const Thead& getThead() const;
 
-		const TemplateHeadBinary& getTemplateHeadBinary() const;
-		const TemplateHeadStandard& getTemplateHeadStandard() const;
+		//must have a thead
+		TypeThead getTypeThead() const;
 
-		void removeTemplateHead();
-		void setTemplateHead(TemplateHeadBinary&& o, WebssType type = WebssType::TEMPLATE_HEAD_BINARY);
-		void setTemplateHead(TemplateHeadStandard&& o, WebssType type = WebssType::TEMPLATE_HEAD_STANDARD);
-		void setTemplateHead(TemplateHeadSelf);
+		const TemplateHeadStandard& getTheadStd() const;
+		const TemplateHeadBinary& getTheadBin() const;
+
+		bool isTextThead() const;
+		bool isPlusThead() const;
+
+		void setThead(Thead thead);
+		void removeThead();
 
 	private:
 		void destroyUnion();

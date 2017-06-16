@@ -150,30 +150,32 @@ private:
 	}
 	void putParamStandard(StringBuilder& out, const string& key, const ParamStandard& param)
 	{
-		if (param.hasTemplateHead())
-			switch (param.getTypeTemplateHead())
+		if (param.hasThead())
+		{
+			switch (param.getTypeThead())
 			{
-			case WebssType::TEMPLATE_HEAD_SELF:
+			case TypeThead::SELF:
 				putTemplateHeadSelf(out);
 				break;
-			case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
-				putTemplateHeadBinary(out, param.getTemplateHeadBinary());
+			case TypeThead::BINARY:
+				putTemplateHeadBinary(out, param.getTheadBin());
 				break;
-			case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
-				putTemplateHeadStandard(out, param.getTemplateHeadStandard());
-				break;
-			case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
-				putTemplateHeadText(out, param.getTemplateHeadStandard());
+			case TypeThead::STANDARD:
+				if (param.getThead().isText())
+					putTemplateHeadText(out, param.getTheadStd());
+				else
+					putTemplateHeadStandard(out, param.getTheadStd());
 				break;
 			default:
 				assert(false); break;
 			}
+		}
 
 		out += key;
 		if (param.hasDefaultValue())
 			putCharValue(out, param.getDefaultValue(), ConType::TEMPLATE_HEAD);
 		else
-			assert(param.getTypeTemplateHead() != WebssType::TEMPLATE_HEAD_SELF);
+			assert(param.getTypeThead() != TypeThead::SELF);
 	}
 	void putParamText(StringBuilder& out, const string& key, const ParamStandard& param)
 	{
@@ -771,8 +773,8 @@ void Serializer::putTemplateStandardTuple(StringBuilder& out, const TemplateHead
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
 	{
 		const auto& param = params[i++];
-		if (param.hasTemplateHead())
-			putTemplateStandardBody(out, param.getTemplateHeadStandard().getParameters(), *it);
+		if (param.hasThead())
+			putTemplateStandardBody(out, param.getTheadStd().getParameters(), *it);
 		else
 		{
 			if (it->getTypeRaw() == WebssType::NONE || it->getTypeRaw() == WebssType::DEFAULT)
@@ -793,7 +795,7 @@ void Serializer::putTemplateStandardTupleText(StringBuilder& out, const Template
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
 	{
 		const auto& param = params[i++];
-		assert(!param.hasTemplateHead());
+		assert(!param.hasThead());
 		switch (it->getTypeRaw())
 		{
 		case WebssType::NONE: case WebssType::DEFAULT:

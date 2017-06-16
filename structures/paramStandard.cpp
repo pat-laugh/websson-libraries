@@ -8,50 +8,23 @@ using namespace std;
 using namespace webss;
 
 ParamStandard::ParamStandard() {}
-ParamStandard::ParamStandard(Webss&& webss) : defaultValue(new Webss(move(webss))) {}
+ParamStandard::ParamStandard(Webss defaultValue) : defaultValue(new Webss(move(defaultValue))) {}
 ParamStandard::~ParamStandard() { destroyUnion(); }
 
 ParamStandard::ParamStandard(ParamStandard&& o) { copyUnion(move(o)); }
 ParamStandard::ParamStandard(const ParamStandard& o) { copyUnion(o); }
 
-ParamStandard& ParamStandard::operator=(ParamStandard&& o)
+ParamStandard& ParamStandard::operator=(ParamStandard o)
 {
 	destroyUnion();
 	copyUnion(move(o));
 	return *this;
 }
-ParamStandard& ParamStandard::operator=(const ParamStandard& o)
-{
-	if (this != &o)
-	{
-		destroyUnion();
-		copyUnion(o);
-	}
-	return *this;
-}
 
-bool ParamStandard::operator==(const ParamStandard& o) const
-{
-	if (this == &o)
-		return true;
-	if (typeThead != o.typeThead || !equalPtrs(defaultValue, o.defaultValue))
-		return false;
-	switch (o.typeThead)
-	{
-	case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
-		return true;
-	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
-		return *theadBin == *o.theadBin; 
-	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_HEAD_PLUS_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
-		return *theadStd == *o.theadStd;
-	default:
-		assert(false); throw domain_error("");
-	}
-}
+bool ParamStandard::operator==(const ParamStandard& o) const { return (this == &o) || (equalPtrs(thead, o.thead) && equalPtrs(defaultValue, o.defaultValue)); }
 bool ParamStandard::operator!=(const ParamStandard& o) const { return !(*this == o); }
 
 bool ParamStandard::hasDefaultValue() const { return defaultValue != nullptr; }
-bool ParamStandard::hasTemplateHead() const { return typeThead != WebssType::NONE; }
 
 const Webss& ParamStandard::getDefaultValue() const
 {
@@ -64,96 +37,67 @@ const shared_ptr<Webss>& ParamStandard::getDefaultPointer() const
 	return defaultValue;
 }
 
-WebssType ParamStandard::getTypeTemplateHead() const
+bool ParamStandard::hasThead() const { return thead != nullptr; }
+
+const Thead& ParamStandard::getThead() const
 {
-	return typeThead;
+	assert(hasThead());
+	return *thead;
 }
 
-const TemplateHeadBinary& ParamStandard::getTemplateHeadBinary() const
+TypeThead ParamStandard::getTypeThead() const
 {
-	assert(typeThead == WebssType::TEMPLATE_HEAD_BINARY || typeThead == WebssType::TEMPLATE_HEAD_PLUS_BINARY);
-	return *theadBin;
-}
-const TemplateHeadStandard& ParamStandard::getTemplateHeadStandard() const
-{
-	assert(typeThead == WebssType::TEMPLATE_HEAD_STANDARD || typeThead == WebssType::TEMPLATE_HEAD_TEXT || typeThead == WebssType::TEMPLATE_HEAD_PLUS_STANDARD || typeThead == WebssType::TEMPLATE_HEAD_PLUS_TEXT);
-	return *theadStd;
+	assert(hasThead());
+	return thead->getType();
 }
 
-void ParamStandard::removeTemplateHead()
+const TemplateHeadStandard& ParamStandard::getTheadStd() const
 {
-	switch (typeThead)
-	{
-	case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
-		break;
-	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
-		delete theadBin;
-		break;
-	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_HEAD_PLUS_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
-		delete theadStd;
-		break;
-	default:
-		assert(false);
-	}
-	typeThead = WebssType::NONE;
+	assert(hasThead() && thead->isTheadStandard());
+	return thead->getTheadStandard();
 }
-void ParamStandard::setTemplateHead(TemplateHeadBinary&& o, WebssType type)
+
+const TemplateHeadBinary& ParamStandard::getTheadBin() const
 {
-	assert(!hasTemplateHead());
-	theadBin = new TemplateHeadBinary(move(o));
-	typeThead = type;
+	assert(hasThead() && thead->isTheadBinary());
+	return thead->getTheadBinary();
 }
-void ParamStandard::setTemplateHead(TemplateHeadStandard&& o, WebssType type)
+
+bool ParamStandard::isTextThead() const
 {
-	assert(!hasTemplateHead() && (type == WebssType::TEMPLATE_HEAD_STANDARD || type == WebssType::TEMPLATE_HEAD_TEXT));
-	theadStd = new TemplateHeadStandard(move(o));
-	typeThead = type;
+	assert(hasThead());
+	return thead->isText();
 }
-void ParamStandard::setTemplateHead(TemplateHeadSelf)
+bool ParamStandard::isPlusThead() const
 {
-	assert(!hasTemplateHead());
-	typeThead = WebssType::TEMPLATE_HEAD_SELF;
+	assert(hasThead());
+	return thead->isPlus();
+}
+
+void ParamStandard::setThead(Thead o)
+{
+	assert(!hasThead());
+	thead.reset(new Thead(move(o)));
+}
+
+void ParamStandard::removeThead()
+{
+	assert(hasThead());
+	thead.reset();
 }
 
 void ParamStandard::destroyUnion()
 {
-	removeTemplateHead();
+	removeThead();
 }
 
 void ParamStandard::copyUnion(ParamStandard&& o)
 {
-	switch (o.typeThead)
-	{
-	case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
-		break;
-	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
-		theadBin = o.theadBin;
-		break;
-	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_HEAD_PLUS_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
-		theadStd = o.theadStd;
-		break;
-	default:
-		assert(false);
-	}
-	typeThead = o.typeThead;
-	o.typeThead = WebssType::NONE;
+	thead = move(o.thead);
 	defaultValue = move(o.defaultValue);
 }
 void ParamStandard::copyUnion(const ParamStandard& o)
 {
-	switch (o.typeThead)
-	{
-	case WebssType::NONE: case WebssType::TEMPLATE_HEAD_SELF:
-		break;
-	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
-		theadBin = new TemplateHeadBinary(*o.theadBin);
-		break;
-	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_HEAD_PLUS_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
-		theadStd = new TemplateHeadStandard(*o.theadStd);
-		break;
-	default:
-		assert(false);
-	}
-	typeThead = o.typeThead;
+	thead = unique_ptr<Thead>(new Thead(*o.thead));
 	defaultValue = o.defaultValue;
 }

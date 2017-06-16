@@ -14,7 +14,7 @@
 
 namespace webss
 {
-	enum class TheadType { NONE, ENTITY, SELF, BINARY, STANDARD };
+	enum class TypeThead { NONE, ENTITY, SELF, BINARY, STANDARD };
 
 	struct TheadOptions
 	{
@@ -43,11 +43,11 @@ namespace webss
 
 		const Thead& getTheadLast() const;
 
-		TheadType getType() const;
+		TypeThead getType() const;
 		const TemplateHeadBinary& getTheadBinary() const;
 		const TemplateHeadStandard& getTheadStandard() const;
 
-		TheadType getTypeRaw() const;
+		TypeThead getTypeRaw() const;
 
 		const Entity& getEntityRaw() const;
 		const TemplateHeadBinary& getTheadBinaryRaw() const;
@@ -69,8 +69,11 @@ namespace webss
 
 		TheadOptions getOptions() const;
 
+		bool isText() const;
+		bool isPlus() const;
+
 	private:
-		TheadType type = TheadType::NONE;
+		TypeThead type = TypeThead::NONE;
 		TheadOptions options;
 		union
 		{

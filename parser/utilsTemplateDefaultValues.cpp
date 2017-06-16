@@ -21,23 +21,18 @@ void webss::setDefaultValue(Webss& value, const ParamBinary& defaultValue)
 		throw runtime_error(ERROR_NO_DEFAULT);
 }
 
-void webss::setDefaultValue(Webss& value, const ParamStandard& defaultValue)
+void webss::setDefaultValue(Webss& value, const ParamStandard& param)
 {
-	if (defaultValue.hasDefaultValue())
-		value = Webss(defaultValue.getDefaultPointer());
+	if (param.hasDefaultValue())
+		value = Webss(param.getDefaultPointer());
+	else if (!param.hasThead())
+		throw runtime_error(ERROR_NO_DEFAULT);
+	else if (param.getTypeThead() == TypeThead::BINARY)
+		value = makeDefaultTuple(param.getTheadBin().getParameters());
 	else
 	{
-		switch (defaultValue.getTypeTemplateHead())
-		{
-		case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
-			value = makeDefaultTuple(defaultValue.getTemplateHeadBinary().getParameters());
-			break;
-		case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT: case WebssType::TEMPLATE_HEAD_PLUS_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
-			value = makeDefaultTuple(defaultValue.getTemplateHeadStandard().getParameters());
-			break;
-		default:
-			throw runtime_error(ERROR_NO_DEFAULT);
-		}
+		assert(param.getTypeThead() == TypeThead::STANDARD);
+		value = makeDefaultTuple(param.getTheadStd().getParameters());
 	}
 }
 

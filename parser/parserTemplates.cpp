@@ -130,7 +130,7 @@ private:
 	void parseTemplateTupleName(const TemplateHeadStandard::Parameters& params, Tuple& tuple, Tuple::size_type& index)
 	{
 		auto nameType = parseNameType(tagit, ents);
-		if (nameType.type != NameType::NAME && params.at(index).hasTemplateHead())
+		if (nameType.type != NameType::NAME && params.at(index).hasThead())
 			throw runtime_error(ERROR_UNEXPECTED);
 		switch (nameType.type)
 		{
@@ -187,26 +187,36 @@ Webss Parser::parseTemplateText()
 	return{ move(head), move(body), WebssType::TEMPLATE_TEXT };
 }*/
 
-Webss Parser::parseTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue)
+Webss Parser::parseTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& param)
 {
-	switch (defaultValue.getTypeTemplateHead())
-	{
-	case WebssType::TEMPLATE_HEAD_SELF:
-		return parseTemplateStandard(params);
-	case WebssType::TEMPLATE_HEAD_BINARY:
-		return parseTemplateBinary(defaultValue.getTemplateHeadBinary().getParameters());
-	case WebssType::TEMPLATE_HEAD_STANDARD:
-		return parseTemplateStandard(defaultValue.getTemplateHeadStandard().getParameters());
-	case WebssType::TEMPLATE_HEAD_TEXT:
-		return parseTemplateText(defaultValue.getTemplateHeadStandard().getParameters());
-	case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
-		return parseTemplatePlusBinary(defaultValue.getTemplateHeadBinary().getParameters());
-	case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
-		return parseTemplatePlusStandard(defaultValue.getTemplateHeadStandard().getParameters());
-	case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
-		return parseTemplatePlusText(defaultValue.getTemplateHeadStandard().getParameters());
-	default:
+	if (!param.hasThead())
 		return parseValueOnly();
+	switch (param.getTypeThead())
+	{
+	case TypeThead::SELF:
+		return parseTemplateStandard(params);
+	case TypeThead::BINARY:
+		if (param.getThead().isPlus())
+			return parseTemplatePlusBinary(param.getTheadBin().getParameters());
+		else
+			return parseTemplateBinary(param.getTheadBin().getParameters());
+	case TypeThead::STANDARD:
+		if (param.getThead().isPlus())
+		{
+			if (param.getThead().isText())
+				return parseTemplatePlusText(param.getTheadStd().getParameters());
+			else
+				return parseTemplatePlusStandard(param.getTheadStd().getParameters());
+		}
+		else
+		{
+			if (param.getThead().isText())
+				return parseTemplateStandard(param.getTheadStd().getParameters());
+			else
+				return parseTemplateText(param.getTheadStd().getParameters());
+		}
+	default:
+		assert(false); throw domain_error("");
 	}
 }
 
@@ -265,18 +275,21 @@ Tuple::size_type Parser::fillTemplateBodyTuple(const TemplateHeadStandard::Param
 
 Webss Parser::checkTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& param, const Webss& tupleItem)
 {
-	switch (param.getTypeTemplateHead())
-	{
-	case WebssType::TEMPLATE_HEAD_SELF:
-		return buildTemplateBodyStandard(params, tupleItem);
-	case WebssType::TEMPLATE_HEAD_BINARY: case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
-		throw runtime_error(ERROR_EXPAND_BINARY_TEMPLATE);
-	case WebssType::TEMPLATE_HEAD_STANDARD: case WebssType::TEMPLATE_HEAD_TEXT:
-		return buildTemplateBodyStandard(param.getTemplateHeadStandard().getParameters(), tupleItem);
-	case WebssType::TEMPLATE_HEAD_PLUS_STANDARD: case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
-		//...
-	default:
+	if (!param.hasThead())
 		return tupleItem;
+	switch (param.getTypeThead())
+	{
+	case TypeThead::SELF:
+		return buildTemplateBodyStandard(params, tupleItem);
+	case TypeThead::BINARY:
+		throw runtime_error(ERROR_EXPAND_BINARY_TEMPLATE);
+	case TypeThead::STANDARD:
+		if (param.isPlusThead())
+			; //...
+		else
+			return buildTemplateBodyStandard(param.getTheadStd().getParameters(), tupleItem);
+	default:
+		assert(false); throw domain_error("");
 	}
 }
 
@@ -298,9 +311,9 @@ Webss Parser::parseTemplate()
 	auto headWebss = parseThead();
 	switch (headWebss.getTypeRaw())
 	{
-	case TheadType::BINARY:
+	case TypeThead::BINARY:
 		return parseTemplateBinary(headWebss.getTheadBinaryRaw());
-	case TheadType::STANDARD:
+	case TypeThead::STANDARD:
 		return parseTemplateStandard(headWebss.getTheadStandardRaw());
 /*	case WebssType::TEMPLATE_HEAD_TEXT:
 		return parseTemplateText(headWebss.getTheadStandardRaw());

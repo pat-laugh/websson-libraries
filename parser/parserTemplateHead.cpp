@@ -79,8 +79,8 @@ Thead Parser::parseThead(bool allowSelf)
 				return ent;
 			const auto& thead = ent.getContent().getThead();
 			auto typeThead = thead.getType();
-			assert(typeThead == TheadType::BINARY || typeThead == TheadType::STANDARD);
-			if (typeThead == TheadType::BINARY)
+			assert(typeThead == TypeThead::BINARY || typeThead == TypeThead::STANDARD);
+			if (typeThead == TypeThead::BINARY)
 				return{ !checkNextElement() ? TemplateHeadBinary(thead.getTheadBinary()) : parseTheadBinary(TemplateHeadBinary(thead.getTheadBinary())), options };
 			else
 				return{ !checkNextElement() ? TemplateHeadStandard(thead.getTheadStandard()) : parseTheadStandard(TemplateHeadStandard(thead.getTheadStandard())), options };
@@ -99,8 +99,8 @@ Thead Parser::parseThead(bool allowSelf)
 	const auto& thead = ent.getContent().getThead();
 	auto options = thead.getOptions();
 	auto typeThead = thead.getType();
-	assert(typeThead == TheadType::BINARY || typeThead == TheadType::STANDARD);
-	if (typeThead == TheadType::BINARY)
+	assert(typeThead == TypeThead::BINARY || typeThead == TypeThead::STANDARD);
+	if (typeThead == TypeThead::BINARY)
 		return{ parseTheadBinary(TemplateHeadBinary(thead.getTheadBinary())), options };
 	else
 		return{ parseTheadStandard(TemplateHeadStandard(thead.getTheadStandard())), options };
@@ -199,14 +199,14 @@ void parseStandardParameterTemplateHead(Parser& parser, TemplateHeadStandard& th
 	auto type = webssThead.getTypeRaw();
 	switch (webssThead.getTypeRaw())
 	{
-	case TheadType::SELF:
-		lastParam.setTemplateHead(TemplateHeadSelf());
+	case TypeThead::SELF:
+		lastParam.setThead(TemplateHeadSelf());
 		break;
-	case TheadType::BINARY:
-		lastParam.setTemplateHead(move(webssThead.getTheadBinaryRaw()));
+	case TypeThead::BINARY:
+		lastParam.setThead(move(webssThead.getTheadBinaryRaw()));
 		break;
-	case TheadType::STANDARD:
-		lastParam.setTemplateHead(move(webssThead.getTheadStandardRaw()));
+	case TypeThead::STANDARD:
+		lastParam.setThead(move(webssThead.getTheadStandardRaw()));
 		break;
 	default:
 		assert(false);

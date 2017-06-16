@@ -78,10 +78,10 @@ void Parser::parseBinaryHead(TemplateHeadBinary& thead)
 			auto headWebss = parseThead(true);
 			switch (headWebss.getTypeRaw())
 			{
-			case TheadType::BINARY:
+			case TypeThead::BINARY:
 				bhead = Bhead(move(headWebss.getTheadBinaryRaw()));
 				break;
-			case TheadType::SELF:
+			case TypeThead::SELF:
 				bhead = Bhead(TemplateHeadSelf());
 				break;
 			default:
