@@ -104,17 +104,17 @@ Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 	switch (content.getType())
 	{
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		return{ Webss(TemplateHeadBinary(ent), parseTemplateBodyBinary(content.getTemplateHeadBinary().getParameters())) };
+		return{ parseTemplateBinary(TemplateHeadBinary(ent)) };
 	case WebssType::TEMPLATE_HEAD_STANDARD:
-		return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyStandard(content.getTemplateHeadStandard().getParameters())) };
+		return{ parseTemplateStandard(TemplateHeadStandard(ent)) };
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		return{ Webss(TemplateHeadStandard(ent), parseTemplateBodyText(content.getTemplateHeadStandard().getParameters()), WebssType::TEMPLATE_TEXT) };
+		return{ parseTemplateText(TemplateHeadStandard(ent)) };
 	case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
-		return{ Webss(TemplateHeadBinary(ent), parseTemplatePlusBinary(ent.getContent().getTemplateHeadBinary().getParameters()), WebssType::TEMPLATE_PLUS_BINARY) };
+		return{ parseTemplatePlusBinary(TemplateHeadBinary(ent)) };
 	case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
-		return{ Webss(TemplateHeadStandard(ent), parseTemplatePlusStandard(ent.getContent().getTemplateHeadStandard().getParameters()), WebssType::TEMPLATE_PLUS_STANDARD) };
+		return{ parseTemplatePlusStandard(TemplateHeadStandard(ent)) };
 	case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
-		return{ Webss(TemplateHeadStandard(ent), parseTemplatePlusText(ent.getContent().getTemplateHeadStandard().getParameters()), WebssType::TEMPLATE_PLUS_TEXT) };
+		return{ parseTemplatePlusText(TemplateHeadStandard(ent)) };
 	default:
 		return{ ent };
 	}

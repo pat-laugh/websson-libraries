@@ -13,7 +13,7 @@
 #include "structures/document.hpp"
 #include "structures/dictionary.hpp"
 #include "structures/paramStandard.hpp"
-#include "structures/template.hpp"
+#include "structures/templatePlus.hpp"
 #include "utils/stringBuilder.hpp"
 #include "utils/constants.hpp"
 
@@ -129,12 +129,6 @@ namespace webss
 		Webss parseTemplateHeadPlus();
 		TemplateHeadStandard parseTemplateHeadPlusText();
 
-		Webss parseTemplate();
-		Webss parseTemplateText();
-		Webss parseTemplateBodyBinary(const TemplateHeadBinary::Parameters& params);
-		Webss parseTemplateBodyStandard(const TemplateHeadStandard::Parameters& params);
-		Webss parseTemplateBodyText(const TemplateHeadStandard::Parameters& params);
-
 		Webss parseTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue);
 		Webss checkTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue, const Webss& value);
 
@@ -147,8 +141,13 @@ namespace webss
 		Tuple buildTemplateBodyTuple(const TemplateHeadStandard::Parameters& params, const Tuple& baseTuple);
 		Tuple::size_type fillTemplateBodyTuple(const TemplateHeadStandard::Parameters& params, const Tuple& baseTuple, Tuple& filledTuple, Tuple::size_type index = 0);
 
-		Tuple parseTemplatePlusBinary(const TemplateHeadBinary::Parameters& params);
-		Tuple parseTemplatePlusStandard(const TemplateHeadStandard::Parameters& params);
-		Tuple parseTemplatePlusText(const TemplateHeadStandard::Parameters& params);
+		Webss parseTemplate();
+		Webss parseTemplateText();
+		Webss parseTemplateBinary(TemplateHeadBinary thead);
+		Webss parseTemplateStandard(TemplateHeadStandard thead);
+		Webss parseTemplateText(TemplateHeadStandard thead);
+		Webss parseTemplatePlusBinary(TemplateHeadBinary thead);
+		Webss parseTemplatePlusStandard(TemplateHeadStandard thead);
+		Webss parseTemplatePlusText(TemplateHeadStandard thead);
 	};
 }

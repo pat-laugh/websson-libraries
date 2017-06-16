@@ -586,8 +586,6 @@ bool Webss::isListText() const { return getType() == WebssType::LIST_TEXT; }
 bool Webss::isTupleText() const { return getType() == WebssType::TUPLE_TEXT; }
 bool Webss::isTemplateHeadPlusBinary() const { return getType() == WebssType::TEMPLATE_HEAD_PLUS_BINARY; }
 bool Webss::isTemplateHeadPlusText() const { return getType() == WebssType::TEMPLATE_HEAD_PLUS_TEXT; }
-bool Webss::isTemplatePlusBinary() const { return getType() == WebssType::TEMPLATE_PLUS_BINARY; }
-bool Webss::isTemplatePlusText() const { return getType() == WebssType::TEMPLATE_PLUS_TEXT; }
 
 bool Webss::isList() const
 {
@@ -622,12 +620,6 @@ bool Webss::isTemplateHeadPlusStandard() const
 {
 	const auto type = getType();
 	return type == WebssType::TEMPLATE_HEAD_PLUS_STANDARD || type == WebssType::TEMPLATE_HEAD_PLUS_TEXT;
-}
-
-bool Webss::isTemplatePlusStandard() const
-{
-	const auto type = getType();
-	return type == WebssType::TEMPLATE_PLUS_STANDARD || type == WebssType::TEMPLATE_PLUS_TEXT;
 }
 
 bool Webss::isTemplateBinary() const

@@ -15,7 +15,7 @@ namespace webss
 		Webss content;
 
 	public:
-		This(Head head, Tuple body, Webss content, WebssType type = WebssType::TUPLE) : base(std::move(head), std::move(body), type), content(std::move(content)) {}
+		This(base templ, Webss content) : base(move(templ)), content(std::move(content)) {}
 
 		bool operator==(const This& o) const { return (this == &o) || (base::operator==(o) && content == o.content); }
 		bool operator!=(const This& o) const { return !(*this == o); }

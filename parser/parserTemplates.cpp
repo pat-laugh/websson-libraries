@@ -23,41 +23,59 @@ private:
 	using ParametersStandard = TemplateHeadStandard::Parameters;
 	using ParametersBinary = TemplateHeadBinary::Parameters;
 public:
-	Webss parseTemplateBodyStandard(const ParametersStandard& params)
+	Webss parseTemplateBinary(TemplateHeadBinary&& thead)
 	{
-		return parseTemplateBodyStandard(params, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<false>(params)); }, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<true>(params), WebssType::TUPLE_TEXT); });
+		return parseTemplateBinary(move(thead),
+				[&](const ParametersBinary& params) { return parseTemplateTupleBinary(params); },
+				[&](const ParametersBinary& params) { return parseTemplateTupleBinary(params); });
 	}
 
-	Webss parseTemplateBodyText(const ParametersStandard& params)
+	Webss parseTemplateStandard(TemplateHeadStandard&& thead)
 	{
-		return parseTemplateBodyStandard(params, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<true>(params), WebssType::TUPLE_TEXT); }, [&](const ParametersStandard& params) { return Webss(parseTemplateTuple<true>(params), WebssType::TUPLE_TEXT); });
+		return parseTemplateStandard<WebssType::TEMPLATE_STANDARD>(move(thead),
+				[&](const ParametersStandard& params) { return parseTemplateTuple<false>(params); },
+				[&](const ParametersStandard& params) { return parseTemplateTuple<true>(params); });
 	}
 
-	Webss parseTemplateBodyStandard(const ParametersStandard& params, function<Webss(const ParametersStandard& params)>&& funcTemplateTupleRegular, function<Webss(const ParametersStandard& params)>&& funcTemplateTupleText)
+	Webss parseTemplateText(TemplateHeadStandard&& thead)
 	{
+		return parseTemplateStandard<WebssType::TEMPLATE_TEXT>(move(thead),
+				[&](const ParametersStandard& params) { return parseTemplateTuple<true>(params); },
+				[&](const ParametersStandard& params) { return parseTemplateTuple<true>(params); });
+	}
+
+	template <WebssType::Enum type>
+	Webss parseTemplateStandard(TemplateHeadStandard&& thead, function<Tuple(const ParametersStandard& params)>&& funcTemplateTupleRegular, function<Tuple(const ParametersStandard& params)>&& funcTemplateTupleText)
+	{
+		Tuple body;
 		switch (tagit.getSafe())
 		{
-		case Tag::START_LIST:
-			return parseTemplateList<ParametersStandard>(params, move(funcTemplateTupleRegular), move(funcTemplateTupleText));
+	//	case Tag::START_LIST:
+	//		return parseTemplateList<ParametersStandard>(params, move(funcTemplateTupleRegular), move(funcTemplateTupleText));
 		case Tag::START_TUPLE:
-			return funcTemplateTupleRegular(params);
+			body = funcTemplateTupleRegular(thead.getParameters());
+			return{ TemplateStandard(move(thead), move(body), WebssType::TUPLE), type };
 		case Tag::TEXT_TUPLE:
-			return funcTemplateTupleText(params);
+			body = funcTemplateTupleText(thead.getParameters());
+			return{ TemplateStandard(move(thead), move(body), WebssType::TUPLE_TEXT), type };
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
 	}
 
-	Webss parseTemplateBodyBinary(const ParametersBinary& params, function<Webss(const ParametersBinary& params)>&& funcTemplateTupleRegular, function<Webss(const ParametersBinary& params)>&& funcTemplateTupleText)
+	Webss parseTemplateBinary(TemplateHeadBinary&& thead, function<Tuple(const ParametersBinary& params)>&& funcTemplateTupleRegular, function<Tuple(const ParametersBinary& params)>&& funcTemplateTupleText)
 	{
+		Tuple body;
 		switch (tagit.getSafe())
 		{
-		case Tag::START_LIST:
-			return parseTemplateList<ParametersBinary>(params, move(funcTemplateTupleRegular), move(funcTemplateTupleText));
+	//	case Tag::START_LIST:
+	//		return parseTemplateList<ParametersBinary>(params, move(funcTemplateTupleRegular), move(funcTemplateTupleText));
 		case Tag::START_TUPLE:
-			return funcTemplateTupleRegular(params);
+			body = funcTemplateTupleRegular(thead.getParameters());
+			return TemplateBinary(move(thead), move(body), WebssType::TUPLE);
 		case Tag::TEXT_TUPLE:
-			return funcTemplateTupleText(params);
+			body = funcTemplateTupleText(thead.getParameters());
+			return TemplateBinary(move(thead), move(body), WebssType::TUPLE_TEXT);
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
@@ -162,54 +180,11 @@ private:
 	}
 };
 
-Webss Parser::parseTemplate()
-{
-	auto headWebss = parseTemplateHead();
-	switch (headWebss.getTypeRaw())
-	{
-	case WebssType::TEMPLATE_HEAD_BINARY:
-	{
-		auto head = move(headWebss.getTemplateHeadBinaryRaw());
-		auto body = parseTemplateBodyBinary(head.getParameters());
-		return{ move(head), move(body) };
-	}
-	case WebssType::TEMPLATE_HEAD_STANDARD:
-	{
-		auto head = move(headWebss.getTemplateHeadStandardRaw());
-		auto body = parseTemplateBodyStandard(head.getParameters());
-		return{ move(head), move(body) };
-	}
-	case WebssType::TEMPLATE_HEAD_TEXT:
-	{
-		auto head = move(headWebss.getTemplateHeadStandardRaw());
-		auto body = parseTemplateBodyText(head.getParameters());
-		return{ move(head), move(body), WebssType::TEMPLATE_TEXT };
-	}
-	default:
-		assert(false); throw domain_error("");
-	}
-}
-
 Webss Parser::parseTemplateText()
 {
 	auto head = parseTemplateHeadText();
-	auto body = parseTemplateBodyText(head.getParameters());
+	auto body = parseTemplateText(head.getParameters());
 	return{ move(head), move(body), WebssType::TEMPLATE_TEXT };
-}
-
-Webss Parser::parseTemplateBodyBinary(const TemplateHeadBinary::Parameters& params)
-{
-	return static_cast<ParserTemplates*>(this)->parseTemplateBodyBinary(params, [&](const TemplateHeadBinary::Parameters& params) { return parseTemplateTupleBinary(params); }, [&](const TemplateHeadBinary::Parameters&) -> Webss { throw runtime_error(ERROR_UNEXPECTED); });
-}
-
-Webss Parser::parseTemplateBodyStandard(const TemplateHeadStandard::Parameters& params)
-{
-	return static_cast<ParserTemplates*>(this)->parseTemplateBodyStandard(params);
-}
-
-Webss Parser::parseTemplateBodyText(const TemplateHeadStandard::Parameters& params)
-{
-	return static_cast<ParserTemplates*>(this)->parseTemplateBodyText(params);
 }
 
 Webss Parser::parseTemplateContainer(const TemplateHeadStandard::Parameters& params, const ParamStandard& defaultValue)
@@ -217,13 +192,13 @@ Webss Parser::parseTemplateContainer(const TemplateHeadStandard::Parameters& par
 	switch (defaultValue.getTypeThead())
 	{
 	case WebssType::TEMPLATE_HEAD_SELF:
-		return parseTemplateBodyStandard(params);
+		return parseTemplateStandard(params);
 	case WebssType::TEMPLATE_HEAD_BINARY:
-		return parseTemplateBodyBinary(defaultValue.getTemplateHeadBinary().getParameters());
+		return parseTemplateBinary(defaultValue.getTemplateHeadBinary().getParameters());
 	case WebssType::TEMPLATE_HEAD_STANDARD:
-		return parseTemplateBodyStandard(defaultValue.getTemplateHeadStandard().getParameters());
+		return parseTemplateStandard(defaultValue.getTemplateHeadStandard().getParameters());
 	case WebssType::TEMPLATE_HEAD_TEXT:
-		return parseTemplateBodyText(defaultValue.getTemplateHeadStandard().getParameters());
+		return parseTemplateText(defaultValue.getTemplateHeadStandard().getParameters());
 	case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
 		return parseTemplatePlusBinary(defaultValue.getTemplateHeadBinary().getParameters());
 	case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
@@ -318,53 +293,81 @@ Webss Parser::buildTemplateBodyStandard(const TemplateHeadStandard::Parameters& 
 	}
 }
 
-Tuple Parser::parseTemplatePlusBinary(const TemplateHeadBinary::Parameters& params)
+Webss Parser::parseTemplate()
+{
+	auto headWebss = parseTemplateHead();
+	switch (headWebss.getTypeRaw())
+	{
+	case WebssType::TEMPLATE_HEAD_BINARY:
+		return parseTemplateBinary(headWebss.getTemplateHeadBinaryRaw());
+	case WebssType::TEMPLATE_HEAD_STANDARD:
+		return parseTemplateStandard(headWebss.getTemplateHeadStandardRaw());
+	case WebssType::TEMPLATE_HEAD_TEXT:
+		return parseTemplateText(headWebss.getTemplateHeadStandardRaw());
+	case WebssType::TEMPLATE_HEAD_PLUS_BINARY:
+		return parseTemplatePlusBinary(headWebss.getTemplateHeadBinaryRaw());
+	case WebssType::TEMPLATE_HEAD_PLUS_STANDARD:
+		return parseTemplatePlusStandard(headWebss.getTemplateHeadStandardRaw());
+	case WebssType::TEMPLATE_HEAD_PLUS_TEXT:
+		return parseTemplatePlusText(headWebss.getTemplateHeadStandardRaw());
+	default:
+		assert(false); throw domain_error("");
+	}
+}
+
+Webss Parser::parseTemplateBinary(TemplateHeadBinary thead) { return static_cast<ParserTemplates*>(this)->parseTemplateBinary(move(thead)); }
+Webss Parser::parseTemplateStandard(TemplateHeadStandard thead) { return static_cast<ParserTemplates*>(this)->parseTemplateStandard(move(thead)); }
+Webss Parser::parseTemplateText(TemplateHeadStandard thead) { return static_cast<ParserTemplates*>(this)->parseTemplateText(move(thead)); }
+
+Webss Parser::parseTemplatePlusBinary(TemplateHeadBinary thead)
 {
 	Tuple body;
 	switch (tagit.getSafe())
 	{
 	case Tag::START_TUPLE: case Tag::TEXT_TUPLE:
-		body = parseTemplateTupleBinary(params);
+		body = parseTemplateTupleBinary(thead.getParameters());
 		break;
 	default:
-		body = makeDefaultTuple(params);
+		body = makeDefaultTuple(thead.getParameters());
 		break;
 	}
-	body.add(parseValueOnly());
-	return body;
+	return TemplatePlusBinary(TemplateBinary(move(thead), move(body)), parseValueOnly());
 }
 
-Tuple Parser::parseTemplatePlusStandard(const TemplateHeadStandard::Parameters& params)
+Webss Parser::parseTemplatePlusStandard(TemplateHeadStandard thead)
 {
 	Tuple body;
+	WebssType tupleType;
 	switch (tagit.getSafe())
 	{
 	case Tag::START_TUPLE:
-		body = parseTemplateTupleStandard(params);
+		tupleType = WebssType::TUPLE;
+		body = parseTemplateTupleStandard(thead.getParameters());
 		break;
 	case Tag::TEXT_TUPLE:
-		body = parseTemplateTupleText(params);
+		tupleType = WebssType::TUPLE_TEXT;
+		body = parseTemplateTupleText(thead.getParameters());
 		break;
 	default:
-		body = makeDefaultTuple(params);
+		tupleType = WebssType::TUPLE;
+		body = makeDefaultTuple(thead.getParameters());
 		break;
 	}
-	body.add(parseValueOnly());
-	return body;
+	return TemplatePlusStandard(TemplateStandard(move(thead), move(body), tupleType), parseValueOnly());
 }
 
-Tuple Parser::parseTemplatePlusText(const TemplateHeadStandard::Parameters& params)
+Webss Parser::parseTemplatePlusText(TemplateHeadStandard thead)
 {
 	Tuple body;
+	WebssType tupleType;
 	switch (tagit.getSafe())
 	{
 	case Tag::START_TUPLE: case Tag::TEXT_TUPLE:
-		body = parseTemplateTupleText(params);
+		body = parseTemplateTupleText(thead.getParameters());
 		break;
 	default:
-		body = makeDefaultTuple(params);
+		body = makeDefaultTuple(thead.getParameters());
 		break;
 	}
-	body.add(parseValueOnly());
-	return body;
+	return{ TemplatePlusStandard(TemplateStandard(move(thead), move(body)), parseValueOnly()), WebssType::TEMPLATE_TEXT };
 }
