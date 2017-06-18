@@ -78,6 +78,8 @@ namespace webss
 		void putTuple(StringBuilder& out, const Tuple& tuple);
 		void putTupleText(StringBuilder& out, const Tuple& tuple);
 
+		void putThead(StringBuilder & out, const Thead& thead);
+
 		void putImport(StringBuilder& out, const ImportedDocument& import);
 
 		void putScopedImport(StringBuilder& out, const Entity& ent, const ImportedDocument& import);
@@ -106,6 +108,10 @@ namespace webss
 		void putTemplatePlusBin(StringBuilder& out, const TemplatePlusBin& templ, ConType con);
 		void putTemplatePlusStd(StringBuilder& out, const TemplatePlusStd& templ, ConType con);
 		void putTemplatePlusText(StringBuilder& out, const TemplatePlusStd& templ, ConType con);
+
+		void putBinSizeList(StringBuilder& out, const ParamBin::SizeList& blist);
+		void putParamBin(StringBuilder& out, const std::string& key, const ParamBin& param);
+		void putParamStd(StringBuilder& out, const string& key, const ParamStd& param);
 
 		void putTheadSelf(StringBuilder& out);
 		void putTheadBin(StringBuilder& out, const TheadBin& thead);

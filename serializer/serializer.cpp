@@ -311,39 +311,19 @@ void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 {
 	switch (webss.getTypeRaw())
 	{
-	case WebssType::THEAD:
-	{
-		const auto& thead = webss.getTheadRaw();
-		if (thead.isPlus())
-			out += CHAR_THEAD_PLUS;
-		switch (thead.getTypeRaw())
-		{
-		case TypeThead::BIN:
-			putTheadBin(out, thead.getTheadBinRaw());
-			break;
-		case TypeThead::STD:
-			if (thead.isText())
-				putTheadText(out, thead.getTheadStdRaw());
-			else
-				putTheadStd(out, thead.getTheadStdRaw());
-			break;
-		case TypeThead::ENTITY:
-			//...
-		default:
-			assert(false);
-		}
-		break;
-	}
-	case WebssType::ENTITY:
-		assert(webss.getEntityRaw().getContent().isAbstract());
-		out += CHAR_EQUAL;
-		putEntityName(out, webss.getEntityRaw());
-		break;
 	case WebssType::NAMESPACE:
 		putNamespace(out, webss.getNamespaceRaw());
 		break;
 	case WebssType::ENUM:
 		putEnum(out, webss.getEnumRaw());
+		break;
+	case WebssType::THEAD:
+		putThead(out, webss.getTheadRaw());
+		break;
+	case WebssType::ENTITY:
+		assert(webss.getEntityRaw().getContent().isAbstract());
+		out += CHAR_EQUAL;
+		putEntityName(out, webss.getEntityRaw());
 		break;
 	default:
 		assert(false && "type is not an abstract value");
@@ -680,6 +660,100 @@ void Serializer::putTupleText(StringBuilder& out, const Tuple& tuple)
 	});
 }
 
+void putTheadOptions(StringBuilder& out, TheadOptions options)
+{
+	ContainerIncluder<ConType::LIST> includer(out);
+	if (options.isText)
+		out += "::";
+	if (options.isPlus)
+		out += '+';
+}
+
+void Serializer::putThead(StringBuilder& out, const Thead& thead)
+{
+	static const auto CON = ConType::THEAD;
+	ContainerIncluder<CON> includer(out);
+	switch (thead.getTypeRaw())
+	{
+	case TypeThead::BIN:
+	{
+		const auto& theadBin = thead.getTheadBinRaw();
+		if (thead.hasBase())
+		{
+			const auto& baseEnt = thead.getBase();
+			const auto& baseThead = baseEnt.getContent().getThead();
+			if (thead.isPlus() != baseThead.isPlus() || thead.isText() != baseThead.isText())
+				putTheadOptions(out, thead.getOptions());
+			out += CHAR_EXPAND;
+			putEntityName(out, baseEnt);
+			auto&& keyValues = theadBin.getParams().getOrderedKeyValues();
+			for (auto i = baseThead.getTheadBin().size(); i < theadBin.size(); ++i)
+			{
+				out += CHAR_SEPARATOR;
+				assert(keyValues[i].first != nullptr && "can't have anonymous key in dictionary, template head or enum");
+				putParamBin(out, *keyValues[i].first, *keyValues[i].second);
+			}
+		}
+		else
+		{
+			if (thead.isPlus() || thead.isText())
+				putTheadOptions(out, thead.getOptions());
+			for (const auto& keyValue : theadBin.getParams().getOrderedKeyValues())
+			{
+				assert(keyValue.first != nullptr && "can't have anonymous key in dictionary, template head or enum");
+				putParamBin(out, *keyValue.first, *keyValue.second);
+				out += CHAR_SEPARATOR;
+			}
+		}
+		break;
+	}
+	case TypeThead::STD:
+	{
+		const auto& theadStd = thead.getTheadStdRaw();
+		if (thead.hasBase())
+		{
+			const auto& baseEnt = thead.getBase();
+			const auto& baseThead = baseEnt.getContent().getThead();
+			if (thead.isPlus() != baseThead.isPlus() || thead.isText() != baseThead.isText())
+				putTheadOptions(out, thead.getOptions());
+			out += CHAR_EXPAND;
+			putEntityName(out, baseEnt);
+			auto&& keyValues = theadStd.getParams().getOrderedKeyValues();
+			for (auto i = baseThead.getTheadStd().size(); i < theadStd.size(); ++i)
+			{
+				out += CHAR_SEPARATOR;
+				assert(keyValues[i].first != nullptr && "can't have anonymous key in dictionary, template head or enum");
+				putParamStd(out, *keyValues[i].first, *keyValues[i].second);
+			}
+		}
+		else
+		{
+			if (thead.isPlus() || thead.isText())
+				putTheadOptions(out, thead.getOptions());
+			for (const auto& keyValue : theadStd.getParams().getOrderedKeyValues())
+			{
+				assert(keyValue.first != nullptr && "can't have anonymous key in dictionary, template head or enum");
+				putParamStd(out, *keyValue.first, *keyValue.second);
+				out += CHAR_SEPARATOR;
+			}
+		}
+		break;
+	}
+	case TypeThead::ENTITY:
+	{
+		const auto& ent = thead.getEntityRaw();
+		const auto& entThead = ent.getContent().getThead();
+		if (thead.isPlus() != entThead.isPlus() || thead.isText() != entThead.isText())
+			putTheadOptions(out, thead.getOptions());
+		out += CHAR_EXPAND;
+		putEntityName(out, ent);
+		break;
+	}
+	default:
+		assert(false);
+	}
+}
+
 void Serializer::putTheadSelf(StringBuilder& out)
 {
 	ContainerIncluder<ConType::THEAD> includer(out);
@@ -870,4 +944,94 @@ void Serializer::putTemplatePlusText(StringBuilder& out, const TemplatePlusStd& 
 	putTheadText(out, templ);
 	putTemplateTextTuple(out, templ.getParams(), templ.getTuple());
 	putConcreteValue(out, templ.getContent(), con);
+}
+
+void Serializer::putParamBin(StringBuilder& out, const string& key, const ParamBin& param)
+{
+	const auto& bhead = param.getSizeHead();
+	{
+		ContainerIncluder<ConType::TUPLE> includer(out);
+		using Type = ParamBin::SizeHead::Type;
+		switch (bhead.getType())
+		{
+		case Type::EMPTY:
+			break;
+		case Type::KEYWORD:
+			out += bhead.getKeyword().toString();
+			break;
+		case Type::NUMBER:
+			out += to_string(bhead.size());
+			break;
+		case Type::THEAD:
+			putTheadBin(out, bhead.getThead());
+			break;
+		case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_THEAD:
+			putEntityName(out, bhead.getEntity());
+			break;
+		case Type::SELF:
+			putTheadSelf(out);
+			break;
+		default:
+			assert(false);
+		}
+		putBinSizeList(out, param.getSizeList());
+	}
+
+	out += key;
+	if (bhead.hasDefaultValue())
+		putCharValue(out, bhead.getDefaultValue(), ConType::THEAD);
+	else
+		assert(!bhead.isTheadSelf());
+}
+
+void Serializer::putBinSizeList(StringBuilder& out, const ParamBin::SizeList& blist)
+{
+	using Type = ParamBin::SizeList::Type;
+	if (blist.isOne())
+		return;
+
+	ContainerIncluder<ConType::LIST> includer(out);
+	switch (blist.getType())
+	{
+	case Type::EMPTY:
+		break;
+	case Type::NUMBER:
+		out += to_string(blist.size());
+		break;
+	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
+		putEntityName(out, blist.getEntity());
+		break;
+	default:
+		assert(false);
+	}
+}
+
+void Serializer::putParamStd(StringBuilder& out, const string& key, const ParamStd& param)
+{
+	if (param.hasThead())
+	{
+		switch (param.getTypeThead())
+		{
+		case TypeThead::SELF:
+			putTheadSelf(out);
+			break;
+		case TypeThead::BIN:
+			putTheadBin(out, param.getTheadBin());
+			break;
+		case TypeThead::STD:
+			if (param.getThead().isText())
+				putTheadText(out, param.getTheadStd());
+			else
+				putTheadStd(out, param.getTheadStd());
+			break;
+		default:
+			assert(false); break;
+		}
+	}
+
+	out += key;
+	if (param.hasDefaultValue())
+		putCharValue(out, param.getDefaultValue(), ConType::THEAD);
+	else
+		assert(param.getTypeThead() != TypeThead::SELF);
 }

@@ -46,6 +46,8 @@ namespace webss
 				params.merge(valueTuple);
 		}
 
+		const Params& getParams() const { return params; }
+
 	private:
 		Params params;
 	};
