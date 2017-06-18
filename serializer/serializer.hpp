@@ -94,24 +94,16 @@ namespace webss
 		void putEntityAbstract(StringBuilder& out, const Entity& ent);
 		void putEntityConcrete(StringBuilder& out, const Entity& ent, ConType con);
 
-		void putTemplateBin(StringBuilder& out, const TemplateBin& templ);
-		void putTemplateStd(StringBuilder& out, const TemplateStd& templ);
-		void putTemplateStdBody(StringBuilder& out, const TheadStd::Params& params, const Webss& body);
-
-		void putTemplateText(StringBuilder& out, const TemplateStd& templ);
+		void putTemplate(StringBuilder& out, const Template& templ, ConType con);
 
 		void putTemplateBinTuple(StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple);
 		void putTemplateStdTuple(StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
 		void putTemplateStdTupleText(StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
 		void putTemplateTextTuple(StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
 
-		void putTemplatePlusBin(StringBuilder& out, const TemplatePlusBin& templ, ConType con);
-		void putTemplatePlusStd(StringBuilder& out, const TemplatePlusStd& templ, ConType con);
-		void putTemplatePlusText(StringBuilder& out, const TemplatePlusStd& templ, ConType con);
-
 		void putBinSizeList(StringBuilder& out, const ParamBin::SizeList& blist);
 		void putParamBin(StringBuilder& out, const std::string& key, const ParamBin& param);
-		void putParamStd(StringBuilder& out, const string& key, const ParamStd& param);
+		void putParamStd(StringBuilder& out, const std::string& key, const ParamStd& param);
 
 		void putTheadSelf(StringBuilder& out);
 		void putTheadBin(StringBuilder& out, const TheadBin& thead);

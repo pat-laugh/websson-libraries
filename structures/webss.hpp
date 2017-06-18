@@ -47,15 +47,9 @@ namespace webss
 		Webss(Dictionary dict);
 		Webss(List list, WebssType type = WebssType::LIST);
 		Webss(Tuple tuple, WebssType type = WebssType::TUPLE);
-		Webss(TemplateBin templBin);
-		Webss(TemplateStd templStd, WebssType type = WebssType::TEMPLATE_STD);
-		Webss(TemplatePlusBin templPlusBin);
-		Webss(TemplatePlusStd templPlusStd, WebssType type = WebssType::TEMPLATE_PLUS_STD);
+		Webss(Template templ);
 
 		Webss(Thead thead);
-
-		Webss(TheadBin&& head, Webss&& body, WebssType type = WebssType::TEMPLATE_BIN);
-		Webss(TheadStd&& head, Webss&& body, WebssType type = WebssType::TEMPLATE_STD);
 
 		bool operator==(const Webss& o) const;
 		bool operator!=(const Webss& o) const;
@@ -66,10 +60,8 @@ namespace webss
 		const Webss& at(const std::string& key) const;
 
 		const Webss& getWebssLast() const;
-		const Webss& getWebssUpToTemplate() const;
 
 		WebssType getType() const;
-		WebssType getTypeUpToTemplate() const;
 		bool getBool() const;
 		WebssInt getInt() const;
 		double getDouble() const;
@@ -79,10 +71,7 @@ namespace webss
 		const List& getList() const;
 		const Tuple& getTuple() const;
 		const Thead& getThead() const;
-		const TemplateBin& getTemplateBin() const;
-		const TemplateStd& getTemplateStd() const;
-		const TemplatePlusBin& getTemplatePlusBin() const;
-		const TemplatePlusStd& getTemplatePlusStd() const;
+		const Template& getTemplate() const;
 		const Namespace& getNamespace() const;
 		const Enum& getEnum() const;
 
@@ -102,10 +91,7 @@ namespace webss
 		const List& getListRaw() const;
 		const Tuple& getTupleRaw() const;
 		const Thead& getTheadRaw() const;
-		const TemplateBin& getTemplateBinRaw() const;
-		const TemplateStd& getTemplateStdRaw() const;
-		const TemplatePlusBin& getTemplatePlusBinRaw() const;
-		const TemplatePlusStd& getTemplatePlusStdRaw() const;
+		const Template& getTemplateRaw() const;
 
 		Entity& getEntityRaw();
 		Default& getDefaultRaw();
@@ -118,10 +104,7 @@ namespace webss
 		List& getListRaw();
 		Tuple& getTupleRaw();
 		Thead& getTheadRaw();
-		TemplateBin& getTemplateBinRaw();
-		TemplateStd& getTemplateStdRaw();
-		TemplatePlusBin& getTemplatePlusBinRaw();
-		TemplatePlusStd& getTemplatePlusStdRaw();
+		Template& getTemplateRaw();
 
 		explicit operator bool() const { return getBool(); }
 		explicit operator int() const { return (int)getInt(); }
@@ -134,10 +117,7 @@ namespace webss
 		explicit operator const Dictionary&() const { return getDictionary(); }
 		explicit operator const List&() const { return getList(); }
 		explicit operator const Tuple&() const { return getTuple(); }
-		explicit operator const TemplateBin&() const { return getTemplateBin(); }
-		explicit operator const TemplateStd&() const { return getTemplateStd(); }
-		explicit operator const TemplatePlusBin&() const { return getTemplatePlusBin(); }
-		explicit operator const TemplatePlusStd&() const { return getTemplatePlusStd(); }
+		explicit operator const Template&() const { return getTemplate(); }
 		explicit operator const Namespace&() const { return getNamespace(); }
 		explicit operator const Enum&() const { return getEnum(); }
 
@@ -157,14 +137,9 @@ namespace webss
 		bool isListText() const;
 		bool isTupleText() const;
 		bool isThead() const;
-		bool isTemplateBin() const;
-		bool isTemplateStd() const;
-		bool isTemplateText() const;
+		bool isTemplate() const;
 		bool isNamespace() const;
 		bool isEnum() const;
-		bool isTemplatePlusBin() const;
-		bool isTemplatePlusStd() const;
-		bool isTemplatePlusText() const;
 
 		bool isAbstract() const;
 		bool isConcrete() const;
@@ -182,10 +157,7 @@ namespace webss
 			List* list;
 			Tuple* tuple;
 			Thead* thead;
-			TemplateBin* templBin;
-			TemplateStd* templStd;
-			TemplatePlusBin* templPlusBin;
-			TemplatePlusStd* templPlusStd;
+			Template* templ;
 			Namespace nspace;
 			Enum tEnum;
 			Entity ent;

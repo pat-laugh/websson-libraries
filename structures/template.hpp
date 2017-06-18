@@ -3,25 +3,22 @@
 #pragma once
 
 #include "base.hpp"
-#include "templateBody.hpp"
-#include "templateHead.hpp"
+#include "thead.hpp"
 
 namespace webss
 {
-#define This BasicTemplate
-	template <class Thead>
-	class This : public Thead, public TemplateBody
+	class Template : public Thead
 	{
 	private:
-		using Head = Thead;
-		using Body = TemplateBody;
+		using base = Thead;
 
 	public:
-		This(Head head, List body) : Head(std::move(head)), Body(std::move(body)) {}
-		This(Head head, Tuple body, WebssType type = WebssType::TUPLE) : Head(std::move(head)), Body(std::move(body), type) {}
+		Webss body, content;
 
-		bool operator==(const This& o) const { return (this == &o) || (Head::operator==(o) && Body::operator==(o)); }
-		bool operator!=(const This& o) const { return !(*this == o); }
+		Template(base thead, Tuple body, WebssType type = WebssType::TUPLE) : base(std::move(thead)), body(std::move(body), type) {}
+		Template(base thead, Tuple body, Webss content, WebssType type = WebssType::TUPLE) : base(std::move(thead)), body(std::move(body), type), content(std::move(content)) {}
+
+		bool operator==(const Template& o) const { return (this == &o) || (base::operator==(o) && body == o.body && content == o.content); }
+		bool operator!=(const Template& o) const { return !(*this == o); }
 	};
-#undef This
 }

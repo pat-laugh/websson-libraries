@@ -7,7 +7,7 @@
 #include "dictionary.hpp"
 #include "list.hpp"
 #include "tuple.hpp"
-#include "templatePlus.hpp"
+#include "template.hpp"
 #include "document.hpp"
 #include "paramStandard.hpp"
 
@@ -71,49 +71,7 @@ Webss::Webss(Tuple tuple, WebssType type) : type(type), tuple(new Tuple(move(tup
 {
 	assert(type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT);
 }
-Webss::Webss(TemplateBin templBin) : type(WebssType::TEMPLATE_BIN), templBin(new TemplateBin(move(templBin))) {}
-Webss::Webss(TemplateStd templStd, WebssType type) : type(type), templStd(new TemplateStd(move(templStd)))
-{
-	assert(type == WebssType::TEMPLATE_STD || type == WebssType::TEMPLATE_TEXT);
-}
-Webss::Webss(TemplatePlusBin templPlusBin) : type(WebssType::TEMPLATE_PLUS_BIN), templPlusBin(new TemplatePlusBin(move(templPlusBin))) {}
-Webss::Webss(TemplatePlusStd templPlusStd, WebssType type) : type(type), templPlusStd(new TemplatePlusStd(move(templPlusStd)))
-{
-	assert(type == WebssType::TEMPLATE_PLUS_STD || type == WebssType::TEMPLATE_PLUS_TEXT);
-}
-
-Webss::Webss(TheadBin&& head, Webss&& body, WebssType type) : type(type)
-{
-	assert(type == WebssType::TEMPLATE_BIN);
-	switch (body.type)
-	{
-	case WebssType::LIST:
-		assert(type == WebssType::TEMPLATE_BIN);
-		templBin = new TemplateBin(move(head), move(*body.list));
-		break;
-	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
-		templBin = new TemplateBin(move(head), move(*body.tuple));
-		break;
-	default:
-		assert(false);
-	}
-}
-
-Webss::Webss(TheadStd&& head, Webss&& body, WebssType type) : type(type)
-{
-	assert(type == WebssType::TEMPLATE_STD || type == WebssType::TEMPLATE_TEXT);
-	switch (body.type)
-	{
-	case WebssType::LIST:
-		templStd = new TemplateStd(move(head), move(*body.list));
-		break;
-	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
-		templStd = new TemplateStd(move(head), move(*body.tuple), body.type);
-		break;
-	default:
-		assert(false);
-	}
-}
+Webss::Webss(Template templ) : type(WebssType::TEMPLATE), templ(new Template(move(templ))) {}
 
 void Webss::destroyUnion()
 {
@@ -145,17 +103,8 @@ void Webss::destroyUnion()
 	case WebssType::THEAD:
 		delete thead;
 		break;
-	case WebssType::TEMPLATE_BIN:
-		delete templBin;
-		break;
-	case WebssType::TEMPLATE_STD: case WebssType::TEMPLATE_TEXT:
-		delete templStd;
-		break;
-	case WebssType::TEMPLATE_PLUS_BIN:
-		delete templPlusBin;
-		break;
-	case WebssType::TEMPLATE_PLUS_STD: case WebssType::TEMPLATE_PLUS_TEXT:
-		delete templPlusStd;
+	case WebssType::TEMPLATE:
+		delete templ;
 		break;
 	case WebssType::NAMESPACE:
 		nspace.~Namespace();
@@ -211,17 +160,8 @@ void Webss::copyUnion(Webss&& o)
 	case WebssType::THEAD:
 		thead = o.thead;
 		break;
-	case WebssType::TEMPLATE_BIN:
-		templBin = o.templBin;
-		break;
-	case WebssType::TEMPLATE_STD: case WebssType::TEMPLATE_TEXT:
-		templStd = o.templStd;
-		break;
-	case WebssType::TEMPLATE_PLUS_BIN:
-		templPlusBin = o.templPlusBin;
-		break;
-	case WebssType::TEMPLATE_PLUS_STD: case WebssType::TEMPLATE_PLUS_TEXT:
-		templPlusStd = o.templPlusStd;
+	case WebssType::TEMPLATE:
+		templ = o.templ;
 		break;
 	case WebssType::NAMESPACE:
 		new (&nspace) Namespace(move(o.nspace));
@@ -278,17 +218,8 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::THEAD:
 		thead = new Thead(*o.thead);
 		break;
-	case WebssType::TEMPLATE_BIN:
-		templBin = new TemplateBin(*o.templBin);
-		break;
-	case WebssType::TEMPLATE_STD: case WebssType::TEMPLATE_TEXT:
-		templStd = new TemplateStd(*o.templStd);
-		break;
-	case WebssType::TEMPLATE_PLUS_BIN:
-		templPlusBin = new TemplatePlusBin(*o.templPlusBin);
-		break;
-	case WebssType::TEMPLATE_PLUS_STD: case WebssType::TEMPLATE_PLUS_TEXT:
-		templPlusStd = new TemplatePlusStd(*o.templPlusStd);
+	case WebssType::TEMPLATE:
+		templ = new Template(*o.templ);
 		break;
 	case WebssType::NAMESPACE:
 		new (&nspace) Namespace(o.nspace);
@@ -335,14 +266,8 @@ bool Webss::operator==(const Webss& o) const
 		return *tuple == *o.tuple;
 	case WebssType::THEAD:
 		return *thead == *o.thead;
-	case WebssType::TEMPLATE_BIN:
-		return *templBin == *o.templBin;
-	case WebssType::TEMPLATE_STD: case WebssType::TEMPLATE_TEXT:
-		return *templStd == *o.templStd;
-	case WebssType::TEMPLATE_PLUS_BIN:
-		return *templPlusBin == *o.templPlusBin;
-	case WebssType::TEMPLATE_PLUS_STD: case WebssType::TEMPLATE_PLUS_TEXT:
-		return *templPlusStd == *o.templPlusStd;
+	case WebssType::TEMPLATE:
+		return *templ == *o.templ;
 	case WebssType::NAMESPACE:
 		return nspace == o.nspace;
 	case WebssType::ENUM:
@@ -370,10 +295,6 @@ const Webss& Webss::operator[](int index) const
 		return (*list)[index];
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return (*tuple)[index];
-	case WebssType::TEMPLATE_BIN:
-		return (*templBin)[index];
-	case WebssType::TEMPLATE_STD: case WebssType::TEMPLATE_TEXT:
-		return (*templStd)[index];
 	default:
 		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_INDEX);
 	}
@@ -392,10 +313,6 @@ const Webss& Webss::operator[](const std::string& key) const
 		return (*dict)[key];
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return (*tuple)[key];
-	case WebssType::TEMPLATE_BIN:
-		return (*templBin)[key];
-	case WebssType::TEMPLATE_STD: case WebssType::TEMPLATE_TEXT:
-		return (*templStd)[key];
 	default:
 		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_KEY);
 	}
@@ -414,10 +331,6 @@ const Webss& Webss::at(int index) const
 		return list->at(index);
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return tuple->at(index);
-	case WebssType::TEMPLATE_BIN:
-		return templBin->at(index);
-	case WebssType::TEMPLATE_STD: case WebssType::TEMPLATE_TEXT:
-		return templStd->at(index);
 	default:
 		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_INDEX);
 	}
@@ -436,10 +349,6 @@ const Webss& Webss::at(const std::string& key) const
 		return dict->at(key);
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return tuple->at(key);
-	case WebssType::TEMPLATE_BIN:
-		return templBin->at(key);
-	case WebssType::TEMPLATE_STD: case WebssType::TEMPLATE_TEXT:
-		return templStd->at(key);
 	default:
 		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_KEY);
 	}
@@ -447,42 +356,17 @@ const Webss& Webss::at(const std::string& key) const
 
 const Webss& Webss::getWebssLast() const
 {
-	switch (type)
-	{
-	case WebssType::ENTITY:
+	if (type == WebssType::ENTITY)
 		return ent.getContent().getWebssLast();
-	case WebssType::DEFAULT:
+	else if (type == WebssType::DEFAULT)
 		return tDefault->getWebssLast();
-	case WebssType::TEMPLATE_BIN:
-		return templBin->getWebss();
-	case WebssType::TEMPLATE_STD: case WebssType::TEMPLATE_TEXT:
-		return templStd->getWebss();
-	default:
+	else
 		return *this;
-	}
-}
-
-const Webss& Webss::getWebssUpToTemplate() const
-{
-	switch (type)
-	{
-	case WebssType::ENTITY:
-		return ent.getContent().getWebssUpToTemplate();
-	case WebssType::DEFAULT:
-		return tDefault->getWebssUpToTemplate();
-	default:
-		return *this;
-	}
 }
 
 WebssType Webss::getType() const
 {
 	return getWebssLast().getTypeRaw();
-}
-
-WebssType Webss::getTypeUpToTemplate() const
-{
-	return getWebssUpToTemplate().getTypeRaw();
 }
 
 string errorMessageGet(WebssType expected, WebssType actual)
@@ -504,10 +388,7 @@ const std::string& Webss::getString() const { PATTERN_GET_CONST_SAFE(WebssType::
 const Document& Webss::getDocument() const { PATTERN_GET_CONST_SAFE(WebssType::DOCUMENT, getDocumentRaw); }
 const Dictionary& Webss::getDictionary() const { PATTERN_GET_CONST_SAFE(WebssType::DICTIONARY, getDictionaryRaw); }
 const Thead& Webss::getThead() const { PATTERN_GET_CONST_SAFE(WebssType::THEAD, getTheadRaw); }
-const TemplateBin& Webss::getTemplateBin() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_BIN, getTemplateBinRaw); }
-const TemplateStd& Webss::getTemplateStd() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_STD, getTemplateStdRaw); }
-const TemplatePlusBin& Webss::getTemplatePlusBin() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_PLUS_BIN, getTemplatePlusBinRaw); }
-const TemplatePlusStd& Webss::getTemplatePlusStd() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE_PLUS_STD, getTemplatePlusStdRaw); }
+const Template& Webss::getTemplate() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE, getTemplateRaw); }
 const Namespace& Webss::getNamespace() const { PATTERN_GET_CONST_SAFE(WebssType::NAMESPACE, getNamespaceRaw); }
 const Enum& Webss::getEnum() const { PATTERN_GET_CONST_SAFE(WebssType::ENUM, getEnumRaw); }
 
@@ -556,40 +437,10 @@ bool Webss::isTuple() const
 	return type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT;
 }
 
-bool Webss::isTemplateBin() const
+bool Webss::isTemplate() const
 {
-	const auto type = getTypeUpToTemplate();
-	return type == WebssType::TEMPLATE_BIN;
-}
-
-bool Webss::isTemplateStd() const
-{
-	const auto type = getTypeUpToTemplate();
-	return type == WebssType::TEMPLATE_STD || type == WebssType::TEMPLATE_TEXT;
-}
-
-bool Webss::isTemplateText() const
-{
-	const auto type = getTypeUpToTemplate();
-	return type == WebssType::TEMPLATE_TEXT;
-}
-
-bool Webss::isTemplatePlusBin() const
-{
-	const auto type = getTypeUpToTemplate();
-	return type == WebssType::TEMPLATE_PLUS_BIN;
-}
-
-bool Webss::isTemplatePlusStd() const
-{
-	const auto type = getTypeUpToTemplate();
-	return type == WebssType::TEMPLATE_PLUS_STD || type == WebssType::TEMPLATE_PLUS_TEXT;
-}
-
-bool Webss::isTemplatePlusText() const
-{
-	const auto type = getTypeUpToTemplate();
-	return type == WebssType::TEMPLATE_PLUS_TEXT;
+	const auto type = getType();
+	return type == WebssType::TEMPLATE;
 }
 
 bool Webss::isAbstract() const
@@ -630,10 +481,7 @@ const Dictionary& Webss::getDictionaryRaw() const { assert(getTypeRaw() == Webss
 const List& Webss::getListRaw() const { assert(getTypeRaw() == WebssType::LIST || getTypeRaw() == WebssType::LIST_TEXT); return *list; }
 const Tuple& Webss::getTupleRaw() const { assert(getTypeRaw() == WebssType::TUPLE || getTypeRaw() == WebssType::TUPLE_TEXT); return *tuple; }
 const Thead& Webss::getTheadRaw() const { assert(getTypeRaw() == WebssType::THEAD); return *thead; }
-const TemplateBin& Webss::getTemplateBinRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_BIN); return *templBin; }
-const TemplateStd& Webss::getTemplateStdRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_STD || getTypeRaw() == WebssType::TEMPLATE_TEXT); return *templStd; }
-const TemplatePlusBin& Webss::getTemplatePlusBinRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_PLUS_BIN); return *templPlusBin; }
-const TemplatePlusStd& Webss::getTemplatePlusStdRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE_PLUS_STD || getTypeRaw() == WebssType::TEMPLATE_PLUS_TEXT); return *templPlusStd; }
+const Template& Webss::getTemplateRaw() const { assert(getTypeRaw() == WebssType::TEMPLATE); return *templ; }
 
 Entity& Webss::getEntityRaw() { assert(getTypeRaw() == WebssType::ENTITY); return ent; }
 Default& Webss::getDefaultRaw() { assert(getTypeRaw() == WebssType::DEFAULT); return tDefault; }
@@ -646,7 +494,4 @@ Dictionary& Webss::getDictionaryRaw() { assert(getTypeRaw() == WebssType::DICTIO
 List& Webss::getListRaw() { assert(getTypeRaw() == WebssType::LIST || getTypeRaw() == WebssType::LIST_TEXT); return *list; }
 Tuple& Webss::getTupleRaw() { assert(getTypeRaw() == WebssType::TUPLE || getTypeRaw() == WebssType::TUPLE_TEXT); return *tuple; }
 Thead& Webss::getTheadRaw() { assert(getTypeRaw() == WebssType::THEAD); return *thead; }
-TemplateBin& Webss::getTemplateBinRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_BIN); return *templBin; }
-TemplateStd& Webss::getTemplateStdRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_STD || getTypeRaw() == WebssType::TEMPLATE_TEXT); return *templStd; }
-TemplatePlusBin& Webss::getTemplatePlusBinRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_PLUS_BIN); return *templPlusBin; }
-TemplatePlusStd& Webss::getTemplatePlusStdRaw() { assert(getTypeRaw() == WebssType::TEMPLATE_PLUS_STD || getTypeRaw() == WebssType::TEMPLATE_PLUS_TEXT); return *templPlusStd; }
+Template& Webss::getTemplateRaw() { assert(getTypeRaw() == WebssType::TEMPLATE); return *templ; }

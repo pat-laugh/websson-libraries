@@ -7,7 +7,7 @@
 #include <limits>
 #include <type_traits>
 
-#include "structures/templatePlus.hpp"
+#include "structures/template.hpp"
 #include "utils/constants.hpp"
 #include "utils/utils.hpp"
 #include "utils/utilsWebss.hpp"
@@ -364,23 +364,8 @@ void Serializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConTyp
 	case WebssType::TUPLE_TEXT:
 		putTupleText(out, webss.getTupleRaw());
 		break;
-	case WebssType::TEMPLATE_BIN:
-		putTemplateBin(out, webss.getTemplateBinRaw());
-		break;
-	case WebssType::TEMPLATE_STD:
-		putTemplateStd(out, webss.getTemplateStdRaw());
-		break;
-	case WebssType::TEMPLATE_TEXT:
-		putTemplateText(out, webss.getTemplateStdRaw());
-		break;
-	case WebssType::TEMPLATE_PLUS_BIN:
-		putTemplatePlusBin(out, webss.getTemplatePlusBinRaw(), con);
-		break;
-	case WebssType::TEMPLATE_PLUS_STD:
-		putTemplatePlusStd(out, webss.getTemplatePlusStdRaw(), con);
-		break;
-	case WebssType::TEMPLATE_PLUS_TEXT:
-		putTemplatePlusText(out, webss.getTemplatePlusStdRaw(), con);
+	case WebssType::TEMPLATE:
+		putTemplate(out, webss.getTemplateRaw(), con);
 		break;
 	case WebssType::ENTITY:
 		assert(webss.getEntityRaw().getContent().isConcrete());
@@ -772,7 +757,7 @@ void Serializer::putTheadText(StringBuilder& out, const TheadStd& thead)
 	static_cast<SerializerTemplate*>(this)->putTheadText(out, thead);
 }
 
-void Serializer::putTemplateBin(StringBuilder& out, const TemplateBin& templ)
+void Serializer::putTemplate(StringBuilder& out, const Template& templ, ConType con)
 {
 	auto putTupleRegular = [&](StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple) { putTemplateBinTuple(out, params, tuple); };
 	auto putTupleText = [&](StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple) { putTemplateBinTuple(out, params, tuple); };
@@ -790,52 +775,9 @@ void Serializer::putTemplateBin(StringBuilder& out, const TemplateBin& templ)
 	default:
 		assert(false);
 	}
-}
 
-void Serializer::putTemplateStd(StringBuilder& out, const TemplateStd& templ)
-{
-	putTheadStd(out, templ);
-	putTemplateStdBody(out, templ.getParams(), templ.getWebss());
-}
-
-void Serializer::putTemplateStdBody(StringBuilder& out, const TheadStd::Params& params, const Webss& body)
-{
-	auto putTupleRegular = [&](StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple) { putTemplateStdTuple(out, params, tuple); };
-	auto putTupleText = [&](StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple) { putTemplateStdTupleText(out, params, tuple); };
-	switch (body.getTypeRaw())
-	{
-	case WebssType::LIST:
-		static_cast<SerializerTemplate*>(this)->putTemplateList<TheadStd::Params>(out, params, body.getListRaw(), move(putTupleRegular), move(putTupleText));
-		break;
-	case WebssType::TUPLE:
-		putTemplateStdTuple(out, params, body.getTupleRaw());
-		break;
-	case WebssType::TUPLE_TEXT:
-		putTemplateStdTupleText(out, params, body.getTupleRaw());
-		break;
-	default:
-		assert(false);
-	}
-}
-
-void Serializer::putTemplateText(StringBuilder& out, const TemplateStd& templ)
-{
-	auto putTupleRegular = [&](StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple) { putTemplateTextTuple(out, params, tuple); };
-	auto putTupleText = [&](StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple) { putTemplateTextTuple(out, params, tuple); };
-
-	putTheadText(out, templ);
-	const auto& params = templ.getParams();
-	switch (templ.getType())
-	{
-	case WebssType::LIST:
-		static_cast<SerializerTemplate*>(this)->putTemplateList<TheadStd::Params>(out, params, templ.getList(), move(putTupleRegular), move(putTupleText));
-		break;
-	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
-		putTemplateTextTuple(out, params, templ.getTuple());
-		break;
-	default:
-		assert(false);
-	}
+	if (templ.isPlus())
+		putConcreteValue(out, templ.content, con);
 }
 
 extern void putTemplateBodyBin(StringBuilder&, const TheadBin::Params&, const Tuple&);
@@ -917,33 +859,6 @@ void Serializer::putTemplateTextTuple(StringBuilder& out, const TheadStd::Params
 			assert(false);
 		}
 	});
-}
-
-void Serializer::putTemplatePlusBin(StringBuilder& out, const TemplatePlusBin& templ, ConType con)
-{
-	assert(templ.isTuple());
-	putTheadBin(out, templ);
-	putTemplateBinTuple(out, templ.getParams(), templ.getTuple());
-	putConcreteValue(out, templ.getContent(), con);
-}
-
-void Serializer::putTemplatePlusStd(StringBuilder& out, const TemplatePlusStd& templ, ConType con)
-{
-	assert(templ.isTuple());
-	putTheadStd(out, templ);
-	if (templ.isTupleText())
-		putTemplateStdTupleText(out, templ.getParams(), templ.getTuple());
-	else
-		putTemplateStdTuple(out, templ.getParams(), templ.getTuple());
-	putConcreteValue(out, templ.getContent(), con);
-}
-
-void Serializer::putTemplatePlusText(StringBuilder& out, const TemplatePlusStd& templ, ConType con)
-{
-	assert(templ.isTuple());
-	putTheadText(out, templ);
-	putTemplateTextTuple(out, templ.getParams(), templ.getTuple());
-	putConcreteValue(out, templ.getContent(), con);
 }
 
 void Serializer::putParamBin(StringBuilder& out, const string& key, const ParamBin& param)

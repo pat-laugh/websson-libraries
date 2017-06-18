@@ -57,9 +57,6 @@
     <ClInclude Include="template.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="templateBody.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="templateHead.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -76,9 +73,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="webss.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="templatePlus.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="thead.hpp">
@@ -105,9 +99,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="namespace.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="templateBody.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tuple.cpp">

@@ -32,19 +32,18 @@ public:
 
 	Webss parseTemplateStd(TheadStd&& thead)
 	{
-		return parseTemplateStd<WebssType::TEMPLATE_STD>(move(thead),
+		return parseTemplateStd(move(thead),
 				[&](const ParamsStd& params) { return parseTemplateTuple<false>(params); },
 				[&](const ParamsStd& params) { return parseTemplateTuple<true>(params); });
 	}
 
 	Webss parseTemplateText(TheadStd&& thead)
 	{
-		return parseTemplateStd<WebssType::TEMPLATE_TEXT>(move(thead),
+		return parseTemplateStd(move(thead),
 				[&](const ParamsStd& params) { return parseTemplateTuple<true>(params); },
 				[&](const ParamsStd& params) { return parseTemplateTuple<true>(params); });
 	}
 
-	template <WebssType::Enum type>
 	Webss parseTemplateStd(TheadStd&& thead, function<Tuple(const ParamsStd& params)>&& funcTemplateTupleRegular, function<Tuple(const ParamsStd& params)>&& funcTemplateTupleText)
 	{
 		Tuple body;
@@ -54,10 +53,10 @@ public:
 	//		return parseTemplateList<ParamsStd>(params, move(funcTemplateTupleRegular), move(funcTemplateTupleText));
 		case Tag::START_TUPLE:
 			body = funcTemplateTupleRegular(thead.getParams());
-			return{ TemplateStd(move(thead), move(body), WebssType::TUPLE), type };
+			return Template(move(thead), move(body), WebssType::TUPLE);
 		case Tag::TEXT_TUPLE:
 			body = funcTemplateTupleText(thead.getParams());
-			return{ TemplateStd(move(thead), move(body), WebssType::TUPLE_TEXT), type };
+			return Template(move(thead), move(body), WebssType::TUPLE_TEXT);
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
@@ -72,10 +71,10 @@ public:
 	//		return parseTemplateList<ParamsBin>(params, move(funcTemplateTupleRegular), move(funcTemplateTupleText));
 		case Tag::START_TUPLE:
 			body = funcTemplateTupleRegular(thead.getParams());
-			return TemplateBin(move(thead), move(body), WebssType::TUPLE);
+			return Template(move(thead), move(body), WebssType::TUPLE);
 		case Tag::TEXT_TUPLE:
 			body = funcTemplateTupleText(thead.getParams());
-			return TemplateBin(move(thead), move(body), WebssType::TUPLE_TEXT);
+			return Template(move(thead), move(body), WebssType::TUPLE_TEXT);
 		default:
 			throw runtime_error(ERROR_UNEXPECTED);
 		}
@@ -337,7 +336,7 @@ Webss Parser::parseTemplatePlusBin(TheadBin thead)
 		body = makeDefaultTuple(thead.getParams());
 		break;
 	}
-	return TemplatePlusBin(TemplateBin(move(thead), move(body)), parseValueOnly());
+	return Template(move(thead), move(body)), parseValueOnly();
 }
 
 Webss Parser::parseTemplatePlusStd(TheadStd thead)
@@ -359,7 +358,7 @@ Webss Parser::parseTemplatePlusStd(TheadStd thead)
 		body = makeDefaultTuple(thead.getParams());
 		break;
 	}
-	return TemplatePlusStd(TemplateStd(move(thead), move(body), tupleType), parseValueOnly());
+	return Template(move(thead), move(body), parseValueOnly(), tupleType);
 }
 
 Webss Parser::parseTemplatePlusText(TheadStd thead)
@@ -375,5 +374,5 @@ Webss Parser::parseTemplatePlusText(TheadStd thead)
 		body = makeDefaultTuple(thead.getParams());
 		break;
 	}
-	return{ TemplatePlusStd(TemplateStd(move(thead), move(body)), parseValueOnly()), WebssType::TEMPLATE_PLUS_TEXT };
+	return Template(move(thead), move(body), parseValueOnly());
 }

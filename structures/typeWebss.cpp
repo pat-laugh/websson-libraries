@@ -40,18 +40,8 @@ string WebssType::toString() const
 		return "tuple text";
 	case WebssType::THEAD:
 		return "template head";
-	case WebssType::TEMPLATE_BIN:
-		return "template binary";
-	case WebssType::TEMPLATE_STD:
-		return "template standard";
-	case WebssType::TEMPLATE_TEXT:
-		return "template text";
-	case WebssType::TEMPLATE_PLUS_BIN:
-		return "template value binary";
-	case WebssType::TEMPLATE_PLUS_STD:
-		return "template value standard";
-	case WebssType::TEMPLATE_PLUS_TEXT:
-		return "template value text";
+	case WebssType::TEMPLATE:
+		return "template";
 	case WebssType::DOCUMENT:
 		return "document";
 	case WebssType::NAMESPACE:
