@@ -72,6 +72,9 @@
     <ClInclude Include="tagIterator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="parserThead.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="parser.cpp">
@@ -93,9 +96,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="parserStrings.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="parserTemplateHead.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="parserTemplates.cpp">
@@ -141,6 +141,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tagIterator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="parserThead.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

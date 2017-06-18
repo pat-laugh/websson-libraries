@@ -33,10 +33,12 @@ namespace webss
 
 		Thead& operator=(Thead o);
 
-		Thead(Entity ent);
+		Thead(Entity ent, TheadOptions options = TheadOptions());
 		Thead(TheadSelf, TheadOptions options = TheadOptions());
 		Thead(TheadBin theadBin, TheadOptions options = TheadOptions());
 		Thead(TheadStd theadStd, TheadOptions options = TheadOptions());
+		Thead(TheadBin theadBin, Entity base, TheadOptions options = TheadOptions());
+		Thead(TheadStd theadStd, Entity base, TheadOptions options = TheadOptions());
 
 		bool operator==(const Thead& o) const;
 		bool operator!=(const Thead& o) const;
@@ -74,6 +76,9 @@ namespace webss
 		bool isText() const;
 		bool isPlus() const;
 
+		bool hasBase() const;
+		const Entity& getBase() const;
+
 	private:
 		TypeThead type = TypeThead::NONE;
 		TheadOptions options;
@@ -83,6 +88,7 @@ namespace webss
 			TheadStd* theadStd;
 			Entity ent;
 		};
+		Entity base;
 
 		void destroyUnion();
 		void copyUnion(Thead&& o);

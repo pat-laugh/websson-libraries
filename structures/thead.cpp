@@ -22,10 +22,16 @@ Thead& Thead::operator=(Thead o)
 	return *this;
 }
 
-Thead::Thead(Entity ent) : type(TypeThead::ENTITY), ent(move(ent)) { assert(ent.getContent().isThead()); }
+Thead::Thead(Entity ent, TheadOptions options) : type(TypeThead::ENTITY), options(move(options)), ent(move(ent)) { assert(ent.getContent().isThead()); }
+Thead::Thead(TheadSelf, TheadOptions options) : type(TypeThead::SELF), options(move(options)) {}
 Thead::Thead(TheadBin theadBin, TheadOptions options) : type(TypeThead::BIN), options(move(options)), theadBin(new TheadBin(move(theadBin))) {}
 Thead::Thead(TheadStd theadStd, TheadOptions options) : type(TypeThead::STD), options(move(options)), theadStd(new TheadStd(move(theadStd))) {}
-Thead::Thead(TheadSelf, TheadOptions options) : type(TypeThead::SELF), options(move(options)) {}
+Thead::Thead(TheadBin theadBin, Entity base, TheadOptions options)
+	: type(TypeThead::BIN), options(move(options)), theadBin(new TheadBin(move(theadBin))), base(move(base))
+	{ assert(base.getContent().isThead()); }
+Thead::Thead(TheadStd theadStd, Entity base, TheadOptions options)
+	: type(TypeThead::STD), options(move(options)), theadStd(new TheadStd(move(theadStd))), base(move(base))
+	{ assert(base.getContent().isThead()); }
 
 void Thead::destroyUnion()
 {
@@ -159,3 +165,6 @@ TheadOptions Thead::getOptions() const { return options; }
 
 bool Thead::isText() const { return options.isText; }
 bool Thead::isPlus() const { return options.isPlus; }
+
+bool Thead::hasBase() const { return base.hasBody(); }
+const Entity& Thead::getBase() const { return base; }

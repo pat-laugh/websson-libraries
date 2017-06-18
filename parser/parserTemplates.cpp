@@ -179,13 +179,6 @@ private:
 		});
 	}
 };
-/*
-Webss Parser::parseTemplateText()
-{
-	auto head = parseTheadText();
-	auto body = parseTemplateText(head.getParams());
-	return{ move(head), move(body), WebssType::TEMPLATE_TEXT };
-}*/
 
 Webss Parser::parseTemplateContainer(const TheadStd::Params& params, const ParamStd& param)
 {

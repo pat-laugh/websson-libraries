@@ -74,7 +74,6 @@ namespace webss
 		void parseExplicitKeyValue(std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly);
 
 		//parserTemplates.cpp
-		TheadOptions parseTheadOptions();
 		Thead parseThead(bool allowSelf = false);
 
 		//parserBin.cpp
@@ -123,16 +122,9 @@ namespace webss
 		OtherValue checkAbstractEntity(const Entity& ent);
 		Webss parseValueOnly();
 
+		class ParserThead;
 
 		//parserThead.cpp
-		TheadStd parseTheadStd(TheadStd&& thead = TheadStd());
-		TheadBin parseTheadBin(TheadBin&& thead = TheadBin());
-		//TheadStd parseTheadText();
-
-		//Thead parseTheadText();
-
-//		Webss parseTheadPlus();
-//		TheadStd parseTheadPlusText();
 
 		Webss parseTemplateContainer(const TheadStd::Params& params, const ParamStd& defaultValue);
 		Webss checkTemplateContainer(const TheadStd::Params& params, const ParamStd& defaultValue, const Webss& value);
