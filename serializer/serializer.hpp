@@ -97,6 +97,7 @@ namespace webss
 		void putTemplate(StringBuilder& out, const Template& templ, ConType con);
 
 		void putTemplateBinTuple(StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple);
+		void putTemplateStdBody(StringBuilder & out, const TheadStd::Params & params, const Webss & body);
 		void putTemplateStdTuple(StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
 		void putTemplateStdTupleText(StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
 		void putTemplateTextTuple(StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
@@ -105,10 +106,7 @@ namespace webss
 		void putParamBin(StringBuilder& out, const std::string& key, const ParamBin& param);
 		void putParamStd(StringBuilder& out, const std::string& key, const ParamStd& param);
 
-		void putTheadSelf(StringBuilder& out);
 		void putTheadBin(StringBuilder& out, const TheadBin& thead);
-		void putTheadStd(StringBuilder& out, const TheadStd& thead);
-		void putTheadText(StringBuilder& out, const TheadStd& thead);
 		
 		class NamespaceIncluder
 		{

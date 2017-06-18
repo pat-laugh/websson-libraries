@@ -104,32 +104,22 @@ Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 	if (!content.isThead())
 		return{ ent };
 	const auto& thead = content.getThead();
-	switch (thead.getType())
+	switch (thead.getTypeRaw())
 	{
 	case TypeThead::BIN:
-		if (thead.isPlus())
-			return{ parseTemplatePlusBin(TheadBin(ent)) };
-		else
-			return{ parseTemplateBin(TheadBin(ent)) };
+		return parseTemplateBin(Thead(ent));
 	case TypeThead::STD:
-		if (thead.isPlus())
-		{
-			if (thead.isText())
-				return{ parseTemplatePlusText(TheadStd(ent)) };
-			else
-				return{ parseTemplatePlusStd(TheadStd(ent)) };
-		}
+		return parseTemplateStd(Thead(ent));
+	case TypeThead::ENTITY:
+		if (thead.isTheadBin())
+			return parseTemplateBin(thead);
 		else
 		{
-			if (thead.isText())
-				return{ parseTemplateText(TheadStd(ent)) };
-			else
-				return{ parseTemplateStd(TheadStd(ent)) };
+			assert(thead.isTheadStd());
+			return parseTemplateStd(thead);
 		}
-	case TypeThead::ENTITY:
-		//...
 	default:
-		assert(false);
+		assert(false); throw domain_error("");
 	}
 }
 

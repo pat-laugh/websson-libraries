@@ -33,7 +33,8 @@ namespace webss
 
 		Thead& operator=(Thead o);
 
-		Thead(Entity ent, TheadOptions options = TheadOptions());
+		Thead(Entity ent);
+		Thead(Entity ent, TheadOptions options);
 		Thead(TheadSelf, TheadOptions options = TheadOptions());
 		Thead(TheadBin theadBin, TheadOptions options = TheadOptions());
 		Thead(TheadStd theadStd, TheadOptions options = TheadOptions());

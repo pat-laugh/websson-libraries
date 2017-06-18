@@ -47,9 +47,8 @@ namespace webss
 		Webss(Dictionary dict);
 		Webss(List list, WebssType type = WebssType::LIST);
 		Webss(Tuple tuple, WebssType type = WebssType::TUPLE);
-		Webss(Template templ);
-
 		Webss(Thead thead);
+		Webss(Template templ);
 
 		bool operator==(const Webss& o) const;
 		bool operator!=(const Webss& o) const;
@@ -117,7 +116,6 @@ namespace webss
 		explicit operator const Dictionary&() const { return getDictionary(); }
 		explicit operator const List&() const { return getList(); }
 		explicit operator const Tuple&() const { return getTuple(); }
-		explicit operator const Template&() const { return getTemplate(); }
 		explicit operator const Namespace&() const { return getNamespace(); }
 		explicit operator const Enum&() const { return getEnum(); }
 

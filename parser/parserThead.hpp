@@ -2,8 +2,10 @@
 //Copyright 2017 Patrick Laughrea
 #pragma once
 
+#include "errors.hpp"
 #include "parser.hpp"
 #include "patternsContainers.hpp"
+#include "utilsExpand.hpp"
 
 namespace webss
 {
@@ -21,7 +23,7 @@ namespace webss
 				else if (*it == CHAR_COLON && ++it && *it == CHAR_COLON)
 					options.isText = true;
 				else
-					throw runtime_error(ERROR_UNEXPECTED);
+					throw std::runtime_error(ERROR_UNEXPECTED);
 			}
 			++self.tagit;
 			return options;
@@ -37,13 +39,13 @@ namespace webss
 				{
 					const auto& content = parseExpandEntity(self.tagit, self.ents).getContent();
 					if (!content.isThead() || !content.getThead().isTheadBin())
-						throw runtime_error("expand entity within binary template head must be a binary template head");
+						throw std::runtime_error("expand entity within binary template head must be a binary template head");
 					thead.attach(content.getThead().getTheadBin());
 				}
 				else
-					throw runtime_error("all values in a binary template must be binary");
+					throw std::runtime_error("all values in a binary template must be binary");
 			} while (self.checkNextElement());
-			return move(thead);
+			return std::move(thead);
 		}
 
 		static TheadStd parseTheadStd(Parser& self, TheadStd&& thead = TheadStd())
@@ -56,25 +58,25 @@ namespace webss
 				{
 					const auto& content = parseExpandEntity(self.tagit, self.ents).getContent();
 					if (!content.isThead() || !content.getThead().isTheadStd())
-						throw runtime_error("expand entity within standard template head must be a standard template head");
+						throw std::runtime_error("expand entity within standard template head must be a standard template head");
 					thead.attach(content.getThead().getTheadStd());
 				}
 				else
 				{
 					self.parseExplicitKeyValue(
-						CaseKeyValue{ thead.attach(move(key), move(value)); },
-						CaseKeyOnly{ thead.attachEmpty(move(key)); });
+						CaseKeyValue{ thead.attach(std::move(key), std::move(value)); },
+						CaseKeyOnly{ thead.attachEmpty(std::move(key)); });
 				}
 			} while (self.checkNextElement());
-			return move(thead);
+			return std::move(thead);
 		}
 
 	private:
 		static void parseOtherValuesTheadStdAfterThead(Parser& self, TheadStd& thead)
 		{
 			self.parseExplicitKeyValue(
-				CaseKeyValue{ thead.attach(move(key), move(value)); },
-				CaseKeyOnly{ thead.attachEmpty(move(key)); });
+				CaseKeyValue{ thead.attach(std::move(key), std::move(value)); },
+				CaseKeyOnly{ thead.attachEmpty(std::move(key)); });
 		}
 
 		static void parseStdParamThead(Parser& self, TheadStd& thead)
@@ -89,10 +91,10 @@ namespace webss
 				lastParam.setThead(TheadSelf());
 				break;
 			case TypeThead::BIN:
-				lastParam.setThead(move(webssThead.getTheadBinRaw()));
+				lastParam.setThead(std::move(webssThead.getTheadBinRaw()));
 				break;
 			case TypeThead::STD:
-				lastParam.setThead(move(webssThead.getTheadStdRaw()));
+				lastParam.setThead(std::move(webssThead.getTheadStdRaw()));
 				break;
 			default:
 				assert(false);

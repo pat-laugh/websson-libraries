@@ -22,6 +22,7 @@ Thead& Thead::operator=(Thead o)
 	return *this;
 }
 
+Thead::Thead(Entity ent) : type(TypeThead::ENTITY), options(ent.getContent().getThead().options), ent(ent) { assert(ent.getContent().isThead()); }
 Thead::Thead(Entity ent, TheadOptions options) : type(TypeThead::ENTITY), options(move(options)), ent(move(ent)) { assert(ent.getContent().isThead()); }
 Thead::Thead(TheadSelf, TheadOptions options) : type(TypeThead::SELF), options(move(options)) {}
 Thead::Thead(TheadBin theadBin, TheadOptions options) : type(TypeThead::BIN), options(move(options)), theadBin(new TheadBin(move(theadBin))) {}
@@ -76,6 +77,7 @@ void Thead::copyUnion(Thead&& o)
 	type = o.type;
 	o.type = TypeThead::NONE;
 	options = o.options;
+	base = move(o.base);
 }
 
 void Thead::copyUnion(const Thead& o)
@@ -98,6 +100,7 @@ void Thead::copyUnion(const Thead& o)
 	}
 	type = o.type;
 	options = o.options;
+	base = o.base;
 }
 
 
@@ -105,7 +108,7 @@ bool Thead::operator==(const Thead& o) const
 {
 	if (this == &o)
 		return true;
-	if (type != o.type || options.isText != o.options.isText || options.isPlus != o.options.isPlus)
+	if (type != o.type || options.isText != o.options.isText || options.isPlus != o.options.isPlus || base != o.base)
 		return false;
 	switch (o.type)
 	{

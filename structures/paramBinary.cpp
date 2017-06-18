@@ -123,7 +123,7 @@ const Entity& SizeHead::getEntity() const
 const TheadBin& SizeHead::getThead() const
 {
 	assert(isTheadBin());
-	return type == Type::ENTITY_THEAD ? ent.getContent(). template getElement<TheadBin>() : *thead;
+	return type == Type::ENTITY_THEAD ? ent.getContent().getThead().getTheadBin() : *thead;
 }
 
 WebssBinSize SizeHead::size() const

@@ -2,8 +2,7 @@
 //Copyright 2017 Patrick Laughrea
 #pragma once
 
-#include "structures/webss.hpp"
-#include "structures/list.hpp"
+#include "structures/base.hpp"
 #include "structures/document.hpp"
 #include "utils/stringBuilder.hpp"
 

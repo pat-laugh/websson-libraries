@@ -126,12 +126,12 @@ namespace webss
 
 		//parserThead.cpp
 
-		Webss parseTemplateContainer(const TheadStd::Params& params, const ParamStd& defaultValue);
+		Webss parseTemplateContainer(const Thead& thead, const ParamStd& defaultValue);
 		Webss checkTemplateContainer(const TheadStd::Params& params, const ParamStd& defaultValue, const Webss& value);
 
 		Webss buildTemplateBodyStd(const TheadStd::Params& params, const Webss& defaultValue);
-		Tuple parseTemplateTupleStd(const TheadStd::Params& params);
-		Tuple parseTemplateTupleText(const TheadStd::Params& params);
+		Tuple parseTemplateTupleStd(const Thead& thead);
+		Tuple parseTemplateTupleText(const Thead& thead);
 		Tuple::size_type expandTemplateTuple(const TheadStd::Params& params, Tuple& templateTuple, Tuple::size_type index);
 		List buildTemplateBodyList(const TheadStd::Params& params, const List& baseList);
 		void fillTemplateBodyList(const TheadStd::Params& params, const List& baseList, List& filledList);
@@ -139,12 +139,7 @@ namespace webss
 		Tuple::size_type fillTemplateBodyTuple(const TheadStd::Params& params, const Tuple& baseTuple, Tuple& filledTuple, Tuple::size_type index = 0);
 
 		Webss parseTemplate();
-//		Webss parseTemplateText();
-		Webss parseTemplateBin(TheadBin thead);
-		Webss parseTemplateStd(TheadStd thead);
-		Webss parseTemplateText(TheadStd thead);
-		Webss parseTemplatePlusBin(TheadBin thead);
-		Webss parseTemplatePlusStd(TheadStd thead);
-		Webss parseTemplatePlusText(TheadStd thead);
+		Webss parseTemplateBin(Thead thead);
+		Webss parseTemplateStd(Thead thead);
 	};
 }

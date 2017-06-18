@@ -5,9 +5,11 @@
 #include <cmath>
 #include <set>
 
+#include "structures/list.hpp"
 #include "structures/paramStandard.hpp"
 #include "structures/template.hpp"
 #include "structures/tuple.hpp"
+#include "structures/webss.hpp"
 #include "utils/utils.hpp"
 
 using namespace std;
@@ -162,7 +164,7 @@ bool isDefaultValue(const Webss& value)
 const string& getTheadRootName(const Thead* thead)
 {
 	const string* name = nullptr;
-	while (name)
+	while (true)
 	{
 		const Entity* ent;
 		if (thead->hasEntity())

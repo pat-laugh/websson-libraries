@@ -360,29 +360,30 @@ ParamDocument Parser::parseScopedImport()
 		throw runtime_error(ERROR_UNEXPECTED);
 }
 
-static TheadStd makeTheadImport()
+static Thead makeTheadImport()
 {
 	TheadStd thead;
 	thead.attachEmpty("name");
 	thead.attach("location", ParamStd("Std"));
 	thead.attach("version", ParamStd("1"));
-	return thead;
+	return Thead(move(thead));
 }
 
 ImportedDocument Parser::parseImport()
 {
 	static const auto thead = makeTheadImport();
+	const auto& params = thead.getTheadStd().getParams();
 	switch (++tagit)
 	{
 	case Tag::START_TUPLE:
-		return ImportedDocument(parseTemplateTupleStd(thead.getParams()));
+		return ImportedDocument(parseTemplateTupleStd(thead));
 	case Tag::TEXT_TUPLE:
-		return ImportedDocument(Webss(parseTemplateTupleText(thead.getParams()), WebssType::TUPLE_TEXT));
+		return ImportedDocument(Webss(parseTemplateTupleText(thead), WebssType::TUPLE_TEXT));
 	case Tag::NAME_START: case Tag::SCOPE: case Tag::SLASH:
 	{
-		Tuple tuple(thead.getParams().getSharedKeys());
+		Tuple tuple(params.getSharedKeys());
 		tuple[0] = parseStickyLineString(*this);
-		checkDefaultValues(tuple, thead.getParams());
+		checkDefaultValues(tuple, params);
 		return ImportedDocument(move(tuple));
 	}
 	case Tag::EXPAND:
@@ -390,16 +391,16 @@ ImportedDocument Parser::parseImport()
 		auto content = parseExpandEntity(tagit, ents).getContent();
 		if (content.isString())
 		{
-			Tuple tuple(thead.getParams().getSharedKeys());
+			Tuple tuple(params.getSharedKeys());
 			tuple[0] = content.getString();
-			checkDefaultValues(tuple, thead.getParams());
+			checkDefaultValues(tuple, params);
 			return ImportedDocument(move(tuple));
 		}
 		else if (content.isTuple())
 		{
 			Tuple tuple;
-			fillTemplateBodyTuple(thead.getParams(), content.getTuple(), tuple);
-			checkDefaultValues(tuple, thead.getParams());
+			fillTemplateBodyTuple(params, content.getTuple(), tuple);
+			checkDefaultValues(tuple, params);
 			for (const auto& item : tuple)
 				if (!item.isString())
 					throw runtime_error(ERROR_UNEXPECTED);

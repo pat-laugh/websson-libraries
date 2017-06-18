@@ -62,6 +62,7 @@ Webss::Webss(Document document) : type(WebssType::DOCUMENT), document(new Docume
 Webss::Webss(Dictionary dict) : type(WebssType::DICTIONARY), dict(new Dictionary(move(dict))) {}
 
 Webss::Webss(Thead thead) : type(WebssType::THEAD), thead(new Thead(move(thead))) {}
+Webss::Webss(Template templ) : type(WebssType::TEMPLATE), templ(new Template(move(templ))) {}
 
 Webss::Webss(List list, WebssType type) : type(type), list(new List(move(list)))
 {
@@ -71,7 +72,6 @@ Webss::Webss(Tuple tuple, WebssType type) : type(type), tuple(new Tuple(move(tup
 {
 	assert(type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT);
 }
-Webss::Webss(Template templ) : type(WebssType::TEMPLATE), templ(new Template(move(templ))) {}
 
 void Webss::destroyUnion()
 {
@@ -425,6 +425,7 @@ bool Webss::isEnum() const { return getType() == WebssType::ENUM; }
 bool Webss::isListText() const { return getType() == WebssType::LIST_TEXT; }
 bool Webss::isTupleText() const { return getType() == WebssType::TUPLE_TEXT; }
 bool Webss::isThead() const { return getType() == WebssType::THEAD; }
+bool Webss::isTemplate() const { return getType() == WebssType::TEMPLATE; }
 
 bool Webss::isList() const
 {
@@ -435,12 +436,6 @@ bool Webss::isTuple() const
 {
 	const auto type = getType();
 	return type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT;
-}
-
-bool Webss::isTemplate() const
-{
-	const auto type = getType();
-	return type == WebssType::TEMPLATE;
 }
 
 bool Webss::isAbstract() const
