@@ -20,7 +20,6 @@ namespace webss
 	public:
 		ParamStd();
 		ParamStd(Webss defaultValue);
-		~ParamStd();
 
 		ParamStd(ParamStd&& o);
 		ParamStd(const ParamStd& o);
@@ -48,10 +47,5 @@ namespace webss
 
 		void setThead(Thead thead);
 		void removeThead();
-
-	private:
-		void destroyUnion();
-		void copyUnion(ParamStd&& o);
-		void copyUnion(const ParamStd& o);
 	};
 }

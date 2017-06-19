@@ -903,5 +903,5 @@ void Serializer::putParamStd(StringBuilder& out, const string& key, const ParamS
 	if (param.hasDefaultValue())
 		putCharValue(out, param.getDefaultValue(), ConType::THEAD);
 	else
-		assert(param.getTypeThead() != TypeThead::SELF);
+		assert(!param.hasThead() || param.getTypeThead() != TypeThead::SELF);
 }

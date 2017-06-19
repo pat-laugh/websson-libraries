@@ -1,12 +1,12 @@
 !TheadStandard<val1, val2, <&>stuff=N>
-!TheadText::<val1, val2>
+!TheadText<[::]val1, val2>
 !TheadBinary<(int)i, (bool)b=true>
-!TheadPlusStandard+<^TheadStandard>
-!TheadPlusText+<^TheadText>
-!TheadPlusBinary+<^TheadBinary>
+!TheadPlusStandard<[+]^TheadStandard>
+!TheadPlusText<[+]^TheadText>
+!TheadPlusBinary<[+]^TheadBinary>
 
 !TheadStandardExpand<^TheadStandard>
-!TheadTextExpand::<^TheadText>
+!TheadTextExpand<^TheadText>
 !TheadBinaryExpand<^TheadBinary>
 !TheadPlusStandardExpand<^TheadPlusStandard>
 !TheadPlusTextExpand<^TheadPlusText>

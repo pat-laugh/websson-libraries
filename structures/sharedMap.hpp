@@ -12,9 +12,8 @@
 
 namespace webss
 {
-#define This BasicSharedMap
 	template <class T>
-	class This
+	class BasicSharedMap
 	{
 	public:
 		using Data = std::vector<T>;
@@ -25,9 +24,9 @@ namespace webss
 		using reverse_iterator = typename Data::reverse_iterator;
 		using const_reverse_iterator = typename Data::const_reverse_iterator;
 
-		This() : keys(new Keymap()) {}
-		This(const std::shared_ptr<Keymap>& keys) : keys(keys), data(keys->size()) {}
-		This(const std::shared_ptr<Keymap>& keys, const Data& data) : keys(keys), data(data) {}
+		BasicSharedMap() : keys(new Keymap()) {}
+		BasicSharedMap(const std::shared_ptr<Keymap>& keys) : keys(keys), data(keys->size()) {}
+		BasicSharedMap(const std::shared_ptr<Keymap>& keys, const Data& data) : keys(keys), data(data) {}
 
 		bool empty() const { return data.empty(); }
 		size_type size() const { return data.size(); }
@@ -61,8 +60,8 @@ namespace webss
 		T& last() { return back(); }
 		const T& last() const { return back(); }
 
-		bool operator==(const This& o) const { return (this == &o) || (equalPtrs(keys, o.keys) && data == o.data); }
-		bool operator!=(const This& o) const { return !(*this == o); }
+		bool operator==(const BasicSharedMap& o) const { return (this == &o) || (equalPtrs(keys, o.keys) && data == o.data); }
+		bool operator!=(const BasicSharedMap& o) const { return !(*this == o); }
 
 		T& operator[](size_type index) { return accessIndexUnsafe<Data, T>(data, index); }
 		const T& operator[](size_type index) const { return accessIndexUnsafe<Data, T>(data, index); }
@@ -114,7 +113,6 @@ namespace webss
 		std::shared_ptr<Keymap> keys;
 		Data data;
 
-		This(const Keymap& keymap, const Data& data) : keys(new Keymap(keymap)), data(data) {}
+		BasicSharedMap(const Keymap& keymap, const Data& data) : keys(new Keymap(keymap)), data(data) {}
 	};
-#undef This
 }

@@ -1,5 +1,5 @@
-!p+<>, !table+<>, !tr+<>, !th+<>, !td+<>
-!a+<download=N, href=N, hreflang=N, media=N, rel=N, target=N, type=N>
+!p<[+]>, !table<[+]>, !tr<[+]>, !th<[+]>, !td<[+]>
+!a<[+]download=N, href=N, hreflang=N, media=N, rel=N, target=N, type=N>
 !input<accept=N, alt=N, autocomplete=N, autofocus=N, checked=N, dirname=N,
 	disabled=N, form=N, formaction=N, formenctype=N, formmethod=N,
 	formnovalidate=N, formtarget=N, height=N, list=N, max=N, maxlength=N,

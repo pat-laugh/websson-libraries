@@ -29,10 +29,10 @@ Thead::Thead(TheadBin theadBin, TheadOptions options) : type(TypeThead::BIN), op
 Thead::Thead(TheadStd theadStd, TheadOptions options) : type(TypeThead::STD), options(move(options)), theadStd(new TheadStd(move(theadStd))) {}
 Thead::Thead(TheadBin theadBin, Entity base, TheadOptions options)
 	: type(TypeThead::BIN), options(move(options)), theadBin(new TheadBin(move(theadBin))), base(move(base))
-	{ assert(base.getContent().isThead() && base.getContent().getThead().isTheadBin()); }
+	{ assert(this->base.getContent().isThead() && this->base.getContent().getThead().isTheadBin()); }
 Thead::Thead(TheadStd theadStd, Entity base, TheadOptions options)
 	: type(TypeThead::STD), options(move(options)), theadStd(new TheadStd(move(theadStd))), base(move(base))
-	{ assert(base.getContent().isThead() && base.getContent().getThead().isTheadStd()); }
+	{ assert(this->base.getContent().isThead() && this->base.getContent().getThead().isTheadStd()); }
 
 void Thead::destroyUnion()
 {

@@ -9,15 +9,14 @@ using namespace webss;
 
 ParamStd::ParamStd() {}
 ParamStd::ParamStd(Webss defaultValue) : defaultValue(new Webss(move(defaultValue))) {}
-ParamStd::~ParamStd() { destroyUnion(); }
 
-ParamStd::ParamStd(ParamStd&& o) { copyUnion(move(o)); }
-ParamStd::ParamStd(const ParamStd& o) { copyUnion(o); }
+ParamStd::ParamStd(ParamStd&& o) : thead(move(o.thead)), defaultValue(move(o.defaultValue)) {}
+ParamStd::ParamStd(const ParamStd& o) : thead(o.hasThead() ? new Thead(*o.thead) : nullptr), defaultValue(o.defaultValue) {}
 
 ParamStd& ParamStd::operator=(ParamStd o)
 {
-	destroyUnion();
-	copyUnion(move(o));
+	thead = move(o.thead);
+	defaultValue = move(o.defaultValue);
 	return *this;
 }
 
@@ -84,20 +83,4 @@ void ParamStd::removeThead()
 {
 	assert(hasThead());
 	thead.reset();
-}
-
-void ParamStd::destroyUnion()
-{
-	removeThead();
-}
-
-void ParamStd::copyUnion(ParamStd&& o)
-{
-	thead = move(o.thead);
-	defaultValue = move(o.defaultValue);
-}
-void ParamStd::copyUnion(const ParamStd& o)
-{
-	thead = unique_ptr<Thead>(new Thead(*o.thead));
-	defaultValue = o.defaultValue;
 }

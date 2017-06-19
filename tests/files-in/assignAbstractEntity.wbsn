@@ -1,7 +1,7 @@
 !Nspace = { ?Name1=N }
 !Enum = [ Elem1, Elem2 ]
 !Thead = <val1, val2>
-!TheadValue = +<^Thead>
+!TheadValue = <[+]^Thead>
 !Nspace2 = Nspace
 !Enum2 = Enum
 !Thead2 = Thead
