@@ -37,9 +37,9 @@ namespace webss
 		bool operator==(char c) const;
 		bool operator!=(char c) const;
 
-		char peek();
-		bool peekGood();
-		bool peekEnd();
+		char peek() const;
+		bool peekGood() const;
+		bool peekEnd() const;
 
 		int getLine() const;
 		int getCharCount() const;

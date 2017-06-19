@@ -91,9 +91,9 @@ bool SmartIterator::operator!() const { return end(); }
 bool SmartIterator::operator==(char c) const { return good() && c == operator*(); }
 bool SmartIterator::operator!=(char c) const { return !operator==(c); }
 
-char SmartIterator::peek() { return c2; }
-bool SmartIterator::peekGood() { return hasPeek; }
-bool SmartIterator::peekEnd() { return !peekGood(); }
+char SmartIterator::peek() const { return c2; }
+bool SmartIterator::peekGood() const { return hasPeek; }
+bool SmartIterator::peekEnd() const { return !peekGood(); }
 
 int SmartIterator::getLine() const { return line; }
 int SmartIterator::getCharCount() const { return charCount; }
