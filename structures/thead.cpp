@@ -24,7 +24,7 @@ Thead& Thead::operator=(Thead o)
 
 Thead::Thead(Entity ent) : type(TypeThead::ENTITY), options(ent.getContent().getThead().options), ent(ent) { assert(ent.getContent().isThead()); }
 Thead::Thead(Entity ent, TheadOptions options) : type(TypeThead::ENTITY), options(move(options)), ent(move(ent)) { assert(ent.getContent().isThead()); }
-Thead::Thead(TheadSelf, TheadOptions options) : type(TypeThead::SELF), options(move(options)) {}
+Thead::Thead(TheadSelf) : type(TypeThead::SELF) {}
 Thead::Thead(TheadBin theadBin, TheadOptions options) : type(TypeThead::BIN), options(move(options)), theadBin(new TheadBin(move(theadBin))) {}
 Thead::Thead(TheadStd theadStd, TheadOptions options) : type(TypeThead::STD), options(move(options)), theadStd(new TheadStd(move(theadStd))) {}
 Thead::Thead(TheadBin theadBin, Entity base, TheadOptions options)

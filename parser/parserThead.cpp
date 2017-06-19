@@ -3,11 +3,7 @@
 #include "parserThead.hpp"
 
 #include "containerSwitcher.hpp"
-#include "errors.hpp"
-#include "nameType.hpp"
-#include "patternsContainers.hpp"
 #include "utilsExpand.hpp"
-#include "utils/constants.hpp"
 
 using namespace std;
 using namespace webss;
@@ -30,10 +26,12 @@ switchStart:
 		return{ ParserThead::parseTheadBin(*this), options };
 	case Tag::SELF:
 		if (!allowSelf)
-			throw runtime_error("self in a thead must be within a non-empty thead");
+			throw runtime_error("self in a template head must be within a non-empty template head");
+		if (optionsSet)
+			throw runtime_error("can't set options in a self template head");
 		(++tagit).sofertTag(Tag::END_TEMPLATE);
 		++tagit;
-		return{ TheadSelf(), options };
+		return TheadSelf();
 	case Tag::START_LIST:
 		if (optionsSet)
 			throw runtime_error("template head options must be at the start only");
@@ -46,15 +44,14 @@ switchStart:
 
 	auto ent = parseExpandEntity(tagit, ents);
 	if (ent.getContent().getType() != WebssType::THEAD)
-		throw runtime_error("expand entity in template head must be a template head");
+		throw runtime_error("expand entity within template head must be a template head");
 	const auto& thead = ent.getContent().getThead();
 	if (!optionsSet)
 		options = thead.getOptions();
 	if (!checkNextElement())
 		return{ ent, options };
-	auto typeThead = thead.getType();
-	assert(typeThead == TypeThead::BIN || typeThead == TypeThead::STD);
-	if (typeThead == TypeThead::BIN)
+	assert(thead.isTheadBin() || thead.isTheadStd());
+	if (thead.isTheadBin())
 		return{ ParserThead::parseTheadBin(*this, TheadBin(thead.getTheadBin())), ent, options };
 	else
 		return{ ParserThead::parseTheadStd(*this, TheadStd(thead.getTheadStd())), ent, options };

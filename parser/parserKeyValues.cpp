@@ -111,13 +111,8 @@ Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 	case TypeThead::STD:
 		return parseTemplateStd(Thead(ent));
 	case TypeThead::ENTITY:
-		if (thead.isTheadBin())
-			return parseTemplateBin(thead);
-		else
-		{
-			assert(thead.isTheadStd());
-			return parseTemplateStd(thead);
-		}
+		assert(thead.isTheadStd() || thead.isTheadBin());
+		return thead.isTheadBin() ? parseTemplateBin(thead) : parseTemplateStd(thead);
 	default:
 		assert(false); throw domain_error("");
 	}

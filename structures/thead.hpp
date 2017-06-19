@@ -35,7 +35,7 @@ namespace webss
 
 		Thead(Entity ent);
 		Thead(Entity ent, TheadOptions options);
-		Thead(TheadSelf, TheadOptions options = TheadOptions());
+		Thead(TheadSelf);
 		Thead(TheadBin theadBin, TheadOptions options = TheadOptions());
 		Thead(TheadStd theadStd, TheadOptions options = TheadOptions());
 		Thead(TheadBin theadBin, Entity base, TheadOptions options = TheadOptions());

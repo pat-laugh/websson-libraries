@@ -73,13 +73,6 @@ namespace webss
 		void parseOtherValue(std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly, std::function<void(Webss&& value)> funcValueOnly, std::function<void(const Entity& abstractEntity)> funcAbstractEntity);
 		void parseExplicitKeyValue(std::function<void(std::string&& key, Webss&& value)> funcKeyValue, std::function<void(std::string&& key)> funcKeyOnly);
 
-		//parserTemplates.cpp
-		Thead parseThead(bool allowSelf = false);
-
-		//parserBin.cpp
-		void parseBinHead(TheadBin& thead);
-		Tuple parseTemplateTupleBin(const TheadBin::Params& params);
-
 		//parserEntities.cpp
 		Entity parseConcreteEntity();
 		Entity parseAbstractEntity(const Namespace& currentNamespace);
@@ -123,23 +116,15 @@ namespace webss
 		Webss parseValueOnly();
 
 		class ParserThead;
+		class ParserTempl;
 
-		//parserThead.cpp
-
-		Webss parseTemplateContainer(const Thead& thead, const ParamStd& defaultValue);
-		Webss checkTemplateContainer(const TheadStd::Params& params, const ParamStd& defaultValue, const Webss& value);
-
-		Webss buildTemplateBodyStd(const TheadStd::Params& params, const Webss& defaultValue);
-		Tuple parseTemplateTupleStd(const Thead& thead);
-		Tuple parseTemplateTupleText(const Thead& thead);
-		Tuple::size_type expandTemplateTuple(const TheadStd::Params& params, Tuple& templateTuple, Tuple::size_type index);
-		List buildTemplateBodyList(const TheadStd::Params& params, const List& baseList);
-		void fillTemplateBodyList(const TheadStd::Params& params, const List& baseList, List& filledList);
-		Tuple buildTemplateBodyTuple(const TheadStd::Params& params, const Tuple& baseTuple);
-		Tuple::size_type fillTemplateBodyTuple(const TheadStd::Params& params, const Tuple& baseTuple, Tuple& filledTuple, Tuple::size_type index = 0);
-
+		Thead parseThead(bool allowSelf = false);
 		Webss parseTemplate();
 		Webss parseTemplateBin(Thead thead);
 		Webss parseTemplateStd(Thead thead);
+
+		//parserBinary.cpp
+		void parseBinHead(TheadBin& thead);
+		Tuple parseTemplateTupleBin(const TheadBin::Params& params);
 	};
 }

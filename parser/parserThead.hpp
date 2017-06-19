@@ -14,13 +14,13 @@ namespace webss
 	public:
 		static TheadOptions parseTheadOptions(Parser& self)
 		{
-			TheadOptions options;
 			auto& it = self.getIt();
+			TheadOptions options;
 			while (*skipJunkToValid(++it) != CLOSE_LIST)
 			{
 				if (*it == CHAR_THEAD_PLUS)
 					options.isPlus = true;
-				else if (*it == CHAR_COLON && ++it && *it == CHAR_COLON)
+				else if (*it == CHAR_COLON && ++it == CHAR_COLON)
 					options.isText = true;
 				else
 					throw std::runtime_error(ERROR_UNEXPECTED);
@@ -72,33 +72,13 @@ namespace webss
 		}
 
 	private:
-		static void parseOtherValuesTheadStdAfterThead(Parser& self, TheadStd& thead)
+		static void parseStdParamThead(Parser& self, TheadStd& thead)
 		{
+			auto paramThead = self.parseThead(true);
 			self.parseExplicitKeyValue(
 				CaseKeyValue{ thead.attach(std::move(key), std::move(value)); },
 				CaseKeyOnly{ thead.attachEmpty(std::move(key)); });
-		}
-
-		static void parseStdParamThead(Parser& self, TheadStd& thead)
-		{
-			auto webssThead = self.parseThead(true);
-			parseOtherValuesTheadStdAfterThead(self, thead);
-			auto& lastParam = thead.back();
-			auto type = webssThead.getTypeRaw();
-			switch (webssThead.getTypeRaw())
-			{
-			case TypeThead::SELF:
-				lastParam.setThead(TheadSelf());
-				break;
-			case TypeThead::BIN:
-				lastParam.setThead(std::move(webssThead.getTheadBinRaw()));
-				break;
-			case TypeThead::STD:
-				lastParam.setThead(std::move(webssThead.getTheadStdRaw()));
-				break;
-			default:
-				assert(false);
-			}
+			thead.back().setThead(std::move(paramThead));
 		}
 	};
 }

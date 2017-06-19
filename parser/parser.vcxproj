@@ -136,6 +136,7 @@
     <ClInclude Include="iteratorSwitcher.hpp" />
     <ClInclude Include="parserNumbers.hpp" />
     <ClInclude Include="parserStrings.hpp" />
+    <ClInclude Include="parserTempl.hpp" />
     <ClInclude Include="parserThead.hpp" />
     <ClInclude Include="tagIterator.hpp" />
     <ClInclude Include="utilsExpand.hpp" />

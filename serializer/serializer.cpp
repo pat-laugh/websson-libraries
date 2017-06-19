@@ -604,9 +604,9 @@ void putTheadOptions(StringBuilder& out, TheadOptions options)
 {
 	ContainerIncluder<ConType::LIST> includer(out);
 	if (options.isText)
-		out += "::";
+		out += ASSIGN_CONTAINER_STRING;
 	if (options.isPlus)
-		out += '+';
+		out += CHAR_THEAD_PLUS;
 }
 
 void Serializer::putThead(StringBuilder& out, const Thead& thead)
