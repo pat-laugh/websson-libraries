@@ -63,3 +63,131 @@ platform as the library (for instance, 32-bit with 32-bit).
 I only tried compiling with [GCC](https://gcc.gnu.org/). The Makefile in the
 tests directory can compile the whole project. It assumes the curl include files
 and library are in a location that the compiler and linker check by default.
+
+## The language
+
+This is a short introduction to WebSSON. I'll make comparisons with JSON since
+that's probably well-known by anybody reading this.
+
+WebSSON allows the same structures as JSON, and more, except an object is called
+a dictionary and an array is called a list.
+
+The syntax is similar. However, keys in dictionaries don't require quotes, and
+assignment is usually done using the equal sign rather than a colon. The colon
+actually represents a *line-string*, a string that ends at a newline or a comma
+(a separator). The behavior isn't exactly like this, but this is a good summary.
+
+Comments are allowed. `//` is a line comment and `/*...*/` a multiline comment.
+
+An "object" in JSON...
+```json
+{
+	"firstName": "John",
+	"lastName": "Doe"
+}
+```
+is equivalent to a "dictionary" WebSSON:
+```websson
+{
+	firstName: John
+	lastName: Doe
+}
+```
+
+An "array" in JSON...
+```json
+[
+	true,
+	123
+]
+```
+is equivalent to a "list" in WebSSON:
+```websson
+[
+	true
+	123
+]
+```
+
+The cool thing in WebSSON is using entities alongside templates and tuples.
+(Entities could be considered as variables, but all constants. In XML, the
+word entity is used, so I thought this was a better name.)
+
+A tuple is a structure that could be considered like the mix of a dictionary and
+a list. Its values can be accessed by name (if they have a key associated with
+them) and index. It's mostly useful when used with a template.
+
+A template basically sets up keys that must be given values by a tuple
+associated with the template.
+
+Instead of doing...
+```websson
+person
+{
+	firstName: John
+	lastName: Doe
+	age = 38
+}
+```
+you could do:
+```websson
+person<firstName, lastName, age>
+(
+	:John
+	:Doe
+	38
+)
+```
+
+Entities allow to avoid duplication. There are two types of entities: abstract
+and concrete. Basically, a concrete entity stores a value that is intended to
+be manipulated by a program using the data in the document. It could be said
+that abstract entities provide support and that only the parser and serializer
+should really have to deal with them &mdash; at least when consuming the data.
+
+For the last example, an entity could have been declared as such:
+```websson
+!Person<firstName, lastName, age>
+```
+This is an **abstract** entity that represents a *template head*, the head part
+of a template. It can be completed by a *template body*, which is a tuple. The
+above example can become:
+```websson
+person = Person(:John, :Doe, 38)
+```
+
+Finally, I leave a more complex example.
+
+This in JSON...
+```json
+{
+	"person1": {
+		"firstName": "John",
+		"lastName": "Doe",
+		"age": 38,
+		"numbers": {
+			"home": "890 456-7123",
+			"work": "890 357-1246",
+			"cell": null
+		}
+	},
+	"person2": {
+		"firstName": "Jane",
+		"lastName": "Doe",
+		"age": 38,
+		"numbers": {
+			"home": "733 435-0187",
+			"work": "733 853-7211",
+			"cell": "629 457-3173"
+		}
+	}
+}
+```
+is equivalent to this in WebSSON:
+```websson
+!Numbers<home=null, work=null, cell=null>
+!Person<firstName, lastName, age, <^Numbers>numbers>
+
+person1 = Person(:John, :Doe, 38, ::(890 456-7123, 890 357-1246))
+person2 = Person(:Jane, :Doe, 38, ::(733 435-0187, 733 853-7211, 629 457-3173))
+```
