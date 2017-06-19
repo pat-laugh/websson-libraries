@@ -4,6 +4,7 @@
 
 #include "base.hpp"
 #include "thead.hpp"
+#include "tuple.hpp"
 #include "webss.hpp"
 
 namespace webss
