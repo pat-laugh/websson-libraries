@@ -24,7 +24,7 @@ Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 }
 
 #define CASE_TAG_ABSTRACT_CHAR_VALUE Tag::START_DICTIONARY: case Tag::START_LIST: \
-	case Tag::START_TEMPLATE: case Tag::TEXT_TEMPLATE: case Tag::EQUAL: case Tag::PLUS
+	case Tag::START_TEMPLATE: case Tag::EQUAL: case Tag::PLUS
 
 Webss Parser::parseAbstractCharValue(const string& name, const Namespace& currentNamespace)
 {

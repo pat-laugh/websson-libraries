@@ -22,8 +22,8 @@ Thead& Thead::operator=(Thead o)
 	return *this;
 }
 
-Thead::Thead(Entity ent) : type(TypeThead::ENTITY), options(ent.getContent().getThead().options), ent(ent) { assert(ent.getContent().isThead()); }
-Thead::Thead(Entity ent, TheadOptions options) : type(TypeThead::ENTITY), options(move(options)), ent(move(ent)) { assert(ent.getContent().isThead()); }
+Thead::Thead(Entity ent) : type(TypeThead::ENTITY), options(ent.getContent().getThead().options), ent(ent) { assert(this->ent.getContent().isThead()); }
+Thead::Thead(Entity ent, TheadOptions options) : type(TypeThead::ENTITY), options(move(options)), ent(move(ent)) { assert(this->ent.getContent().isThead()); }
 Thead::Thead(TheadSelf) : type(TypeThead::SELF) {}
 Thead::Thead(TheadBin theadBin, TheadOptions options) : type(TypeThead::BIN), options(move(options)), theadBin(new TheadBin(move(theadBin))) {}
 Thead::Thead(TheadStd theadStd, TheadOptions options) : type(TypeThead::STD), options(move(options)), theadStd(new TheadStd(move(theadStd))) {}

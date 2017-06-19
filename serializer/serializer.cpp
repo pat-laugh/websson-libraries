@@ -694,6 +694,7 @@ void Serializer::putThead(StringBuilder& out, const Thead& thead)
 		if (thead.isPlus() || thead.isText())
 			putTheadOptions(out, thead.getOptions());
 		out += CHAR_SELF;
+		break;
 	}
 	default:
 		assert(false);
@@ -712,15 +713,15 @@ void Serializer::putTemplate(StringBuilder& out, const Template& templ, ConType 
 	switch (templ.getType())
 	{
 	case TypeThead::BIN:
-		putTemplateBinTuple(out, templ.getTheadBin().getParams(), templ.content.getTuple());
+		putTemplateBinTuple(out, templ.getTheadBin().getParams(), templ.body.getTuple());
 		break;
 	case TypeThead::STD:
 		if (templ.isText())
-			putTemplateTextTuple(out, templ.getTheadStd().getParams(), templ.content.getTuple());
-		else if (templ.content.isTupleText())
-			putTemplateStdTupleText(out, templ.getTheadStd().getParams(), templ.content.getTuple());
+			putTemplateTextTuple(out, templ.getTheadStd().getParams(), templ.body.getTuple());
+		else if (templ.body.isTupleText())
+			putTemplateStdTupleText(out, templ.getTheadStd().getParams(), templ.body.getTuple());
 		else
-			putTemplateStdTuple(out, templ.getTheadStd().getParams(), templ.content.getTuple());
+			putTemplateStdTuple(out, templ.getTheadStd().getParams(), templ.body.getTuple());
 		break;
 	default:
 		assert(false);

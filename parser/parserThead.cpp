@@ -19,7 +19,7 @@ Thead Parser::parseThead(bool allowSelf)
 switchStart:
 	switch (*tagit)
 	{
-	case Tag::START_TEMPLATE: case Tag::TEXT_TEMPLATE:
+	case Tag::START_TEMPLATE:
 	default:
 		return{ ParserThead::parseTheadStd(*this), options };
 	case Tag::START_TUPLE:
@@ -36,6 +36,8 @@ switchStart:
 		if (optionsSet)
 			throw runtime_error("template head options must be at the start only");
 		options = ParserThead::parseTheadOptions(*this);
+		if (!checkNextElement())
+			return{ TheadStd(), options };
 		optionsSet = true;
 		goto switchStart;
 	case Tag::EXPAND:
@@ -49,10 +51,10 @@ switchStart:
 	if (!optionsSet)
 		options = thead.getOptions();
 	if (!checkNextElement())
-		return{ ent, options };
+		return{ move(ent), options };
 	assert(thead.isTheadBin() || thead.isTheadStd());
 	if (thead.isTheadBin())
-		return{ ParserThead::parseTheadBin(*this, TheadBin(thead.getTheadBin())), ent, options };
+		return{ ParserThead::parseTheadBin(*this, TheadBin(thead.getTheadBin())), move(ent), options };
 	else
-		return{ ParserThead::parseTheadStd(*this, TheadStd(thead.getTheadStd())), ent, options };
+		return{ ParserThead::parseTheadStd(*this, TheadStd(thead.getTheadStd())), move(ent), options };
 }

@@ -21,7 +21,7 @@ Webss Parser::parseValueEqual()
 
 #define CASE_TAG_KEY_CHAR Tag::START_DICTIONARY: case Tag::START_LIST: case Tag::START_TUPLE: \
 	case Tag::START_TEMPLATE: case Tag::LINE_STRING: case Tag::EQUAL: case Tag::C_STRING: \
-	case Tag::TEXT_DICTIONARY: case Tag::TEXT_LIST: case Tag::TEXT_TUPLE: case Tag::TEXT_TEMPLATE
+	case Tag::TEXT_DICTIONARY: case Tag::TEXT_LIST: case Tag::TEXT_TUPLE
 
 Webss Parser::parseCharValue()
 {
@@ -37,7 +37,6 @@ Webss Parser::parseCharValue()
 	case Tag::TEXT_DICTIONARY: return parseMultilineString(*this);
 	case Tag::TEXT_LIST: return{ parseListText(), WebssType::LIST_TEXT };
 	case Tag::TEXT_TUPLE: return{ parseTupleText(), WebssType::TUPLE_TEXT };
-//	case Tag::TEXT_TEMPLATE: return parseTemplateText();
 	default:
 		throw runtime_error(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
 	}
@@ -92,7 +91,7 @@ Parser::OtherValue Parser::parseOtherValueName(string&& name)
 	switch (tagit.getSafe())
 	{
 	case CASE_TAG_KEY_CHAR:
-		return{ move(name), parseOtherValue().value };
+		return{ move(name), parseCharValue() };
 	default:
 		return{ move(name) };
 	}

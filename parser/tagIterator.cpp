@@ -66,7 +66,7 @@ Tag getTagColon(SmartIterator& it)
 	case OPEN_TUPLE:
 		return Tag::TEXT_TUPLE;
 	case OPEN_TEMPLATE:
-		return Tag::TEXT_TEMPLATE;
+		throw runtime_error(ERROR_UNEXPECTED);
 	default:
 		return Tag::TEXT_DICTIONARY;
 	}

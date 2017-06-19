@@ -32,12 +32,7 @@ char inChar;
 
 int main()
 {
-//#define TEST_PERFORMANCE
-#ifdef TEST_PERFORMANCE
-	for (int i = 0; i < 2000; ++i)
-#else
 	do
-#endif
 	{
 		vector<string> filenames { "strings", "expandTuple", "templatePlus", "namespace", "enum",
 			"list", "tuple", "names-keywords", "multiline-string-options",
@@ -47,9 +42,7 @@ int main()
 			test(filename, [](const Document&) {});
 			cout << endl;
 		}
-#ifdef TEST_PERFORMANCE
-	}
-#else
+
 		testDictionary();
 		cout << endl;
 		testTemplateStd();
@@ -57,7 +50,6 @@ int main()
 		testSerializerHtml();
 		cin >> inChar;
 	} while (inChar != 'q');
-#endif
 
     return 0;
 }
@@ -295,7 +287,7 @@ void testDictionary()
 
 void testTemplateStd()
 {
-	test("templateStd", [](const Document& doc)
+	test("templateStandard", [](const Document& doc)
 	{
 		sofert(doc.size() == 5);
 		sofert(hasKeys(doc, { "template1", "template2" }));
