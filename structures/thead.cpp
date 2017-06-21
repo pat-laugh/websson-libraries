@@ -108,18 +108,16 @@ bool Thead::operator==(const Thead& o) const
 {
 	if (this == &o)
 		return true;
-	if (type != o.type || options.isText != o.options.isText || options.isPlus != o.options.isPlus || base != o.base)
+	if (getType() != o.getType() || options.isText != o.options.isText || options.isPlus != o.options.isPlus)
 		return false;
-	switch (o.type)
+	switch (getType())
 	{
 	case TypeThead::NONE: case TypeThead::SELF:
 		return true;
-	case TypeThead::ENTITY:
-		return ent == o.ent;
 	case TypeThead::BIN:
-		return *theadBin == *o.theadBin;
+		return getTheadBin() == o.getTheadBin();
 	case TypeThead::STD:
-		return *theadStd == *o.theadStd;
+		return getTheadStd() == o.getTheadStd();
 	default:
 		assert(false); throw domain_error("");
 	}

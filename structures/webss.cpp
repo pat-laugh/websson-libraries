@@ -238,40 +238,37 @@ bool Webss::operator==(const Webss& o) const
 {
 	if (this == &o)
 		return true;
-	if (type != o.type)
+	if (getType() != o.getType())
 		return false;
-	switch (o.type)
+	const auto& w1 = getWebssLast(), w2 = o.getWebssLast();
+	switch (getType())
 	{
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
 		return true;
-	case WebssType::ENTITY:
-		return ent == o.ent;
-	case WebssType::DEFAULT:
-		return *tDefault == *o.tDefault;
 	case WebssType::PRIMITIVE_BOOL:
-		return tBool == o.tBool;
+		return w1.tBool == w2.tBool;
 	case WebssType::PRIMITIVE_INT:
-		return tInt == o.tInt;
+		return w1.tInt == w2.tInt;
 	case WebssType::PRIMITIVE_DOUBLE:
-		return tDouble == o.tDouble;
+		return w1.tDouble == w2.tDouble;
 	case WebssType::PRIMITIVE_STRING:
-		return *tString == *o.tString;
+		return *w1.tString == *w2.tString;
 	case WebssType::DOCUMENT:
-		return *document == *o.document;
+		return *w1.document == *w2.document;
 	case WebssType::DICTIONARY:
-		return *dict == *o.dict;
+		return *w1.dict == *w2.dict;
 	case WebssType::LIST: case WebssType::LIST_TEXT:
-		return *list == *o.list;
+		return *w1.list == *w2.list;
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
-		return *tuple == *o.tuple;
+		return *w1.tuple == *w2.tuple;
 	case WebssType::THEAD:
-		return *thead == *o.thead;
+		return *w1.thead == *w2.thead;
 	case WebssType::TEMPLATE:
-		return *templ == *o.templ;
+		return *w1.templ == *w2.templ;
 	case WebssType::NAMESPACE:
-		return nspace == o.nspace;
+		return w1.nspace == w2.nspace;
 	case WebssType::ENUM:
-		return tEnum == o.tEnum;
+		return w1.tEnum == w2.tEnum;
 	default:
 		assert(false); throw domain_error("");
 	}
