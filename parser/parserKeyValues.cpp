@@ -74,11 +74,11 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 		return parseOtherValueName(parseNameExplicit(tagit));
 	case Tag::SEPARATOR:
 		if (!allowVoid)
-			throw runtime_error("cannot have void element");
+			throw runtime_error(ERROR_VOID);
 		return Webss();
 	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
 		if (!allowVoid)
-			throw runtime_error("cannot have void element");
+			throw runtime_error(ERROR_VOID);
 		if (con.isEnd(*getIt()))
 			return Webss();
 	default:
@@ -103,18 +103,7 @@ Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 	if (!content.isThead())
 		return{ ent };
 	const auto& thead = content.getThead();
-	switch (thead.getTypeRaw())
-	{
-	case TypeThead::BIN:
-		return parseTemplateBin(Thead(ent));
-	case TypeThead::STD:
-		return parseTemplateStd(Thead(ent));
-	case TypeThead::ENTITY:
-		assert(thead.isTheadStd() || thead.isTheadBin());
-		return thead.isTheadBin() ? parseTemplateBin(thead) : parseTemplateStd(thead);
-	default:
-		assert(false); throw domain_error("");
-	}
+	return parseTemplateBody(thead.getTypeRaw() == TypeThead::ENTITY ? thead : Thead(ent));
 }
 
 void Parser::parseOtherValue(function<void(string&& key, Webss&& value)> funcKeyValue, function<void(string&& key)> funcKeyOnly, function<void(Webss&& value)> funcValueOnly, function<void(const Entity& abstractEntity)> funcAbstractEntity)

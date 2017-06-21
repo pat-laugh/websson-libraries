@@ -78,9 +78,6 @@ Tag TagIterator::getTag()
 		return Tag::NONE;
 	switch (*it)
 	{
-	case CHAR_CSTRING: return Tag::C_STRING;
-	case CHAR_COLON: return getTagColon(it);
-	case CHAR_EQUAL: return Tag::EQUAL;
 	case OPEN_DICTIONARY: return Tag::START_DICTIONARY;
 	case OPEN_LIST: return Tag::START_LIST;
 	case OPEN_TUPLE: return Tag::START_TUPLE;
@@ -90,15 +87,19 @@ Tag TagIterator::getTag()
 	case CLOSE_TUPLE: return Tag::END_TUPLE;
 	case CLOSE_TEMPLATE: return Tag::END_TEMPLATE;
 	case CHAR_ABSTRACT_ENTITY: return Tag::ENTITY_ABSTRACT;
+	case CHAR_COLON: return getTagColon(it);
 	case CHAR_CONCRETE_ENTITY: return Tag::ENTITY_CONCRETE;
+	case CHAR_CSTRING: return Tag::C_STRING;
+	case CHAR_EQUAL: return Tag::EQUAL;
 	case CHAR_EXPAND: return Tag::EXPAND;
-	case CHAR_SCOPED_IMPORT: return Tag::SCOPED_IMPORT;
+	case CHAR_EXPLICIT_NAME: return Tag::EXPLICIT_NAME;
+	case CHAR_FOREACH: return Tag::FOREACH;
 	case CHAR_IMPORT: return Tag::IMPORT;
 	case CHAR_OPTION: return Tag::OPTION;
+	case CHAR_SCOPE: return Tag::SCOPE;
+	case CHAR_SCOPED_IMPORT: return Tag::SCOPED_IMPORT;
 	case CHAR_SELF: return Tag::SELF;
 	case CHAR_SEPARATOR: return Tag::SEPARATOR;
-	case CHAR_EXPLICIT_NAME: return Tag::EXPLICIT_NAME;
-	case CHAR_SCOPE: return Tag::SCOPE;
 
 		//junk
 	case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x06: case 0x07: case 0x08: case 0x09: case 0x0a: case 0x0b: case 0x0c: case 0x0d: case 0x0e: case 0x0f:

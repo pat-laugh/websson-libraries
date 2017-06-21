@@ -4,17 +4,17 @@
 
 //template1 will be equal to template2
 
-template1<firstName, lastName, age>
-//[
+template1<firstName, lastName, age> |
+[
 	(:First, :Last, 38)
-//	(:Second, :Third, 47)
-//]
+	(:Second, :Third, 47)
+]
 
-template2<^Template>
-//[
-	(^tuple1)//(^tuple2)
-//]
+template2<^Template> |
+[
+	(^tuple1)(^tuple2)
+]
 
 Default(,,) //two void values
-//Default[] //creates empty list
-//Default[,] //one void value
+Default|[] //creates empty list
+Default|[,] //one void value

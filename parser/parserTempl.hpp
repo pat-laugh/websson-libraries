@@ -19,6 +19,47 @@ namespace webss
 	class Parser::ParserTempl
 	{
 	public:
+		static Webss parseTemplateBin(Parser& self, Thead thead)
+		{
+			Tuple body;
+			auto tag = self.tagit.getSafe();
+			if (tag == Tag::START_TUPLE || tag == Tag::TEXT_TUPLE)
+				body = self.parseTemplateTupleBin(thead.getTheadBin().getParams());
+			else if (thead.isPlus())
+				body = makeDefaultTuple(thead.getTheadBin().getParams());
+			else
+				throw std::runtime_error("expected tuple");
+
+			if (thead.isPlus())
+				return Template(std::move(thead), std::move(body), self.parseValueOnly());
+			else
+				return Template(std::move(thead), std::move(body));
+		}
+
+#define ParseTemplateTuple(IsText) parseTemplateTuple<IsText>(self, thead)
+		static Webss parseTemplateStd(Parser& self, Thead thead)
+		{
+			Tuple body;
+			WebssType typeTuple = WebssType::TUPLE;
+			auto tag = self.tagit.getSafe();
+			if (tag == Tag::START_TUPLE)
+				body = thead.isText() ? ParseTemplateTuple(true) : ParseTemplateTuple(false);
+			else if (tag == Tag::TEXT_TUPLE)
+			{
+				body = ParseTemplateTuple(true);
+				typeTuple = WebssType::TUPLE_TEXT;
+			}
+			else if (thead.isPlus())
+				body = makeDefaultTuple(thead.getTheadStd().getParams());
+			else
+				throw std::runtime_error("expected tuple");
+
+			if (thead.isPlus())
+				return Template(std::move(thead), std::move(body), self.parseValueOnly(), typeTuple);
+			else
+				return Template(std::move(thead), std::move(body), typeTuple);
+		}
+
 		template <bool isText>
 		static Tuple parseTemplateTuple(Parser& self, const Thead& thead)
 		{
@@ -91,11 +132,11 @@ namespace webss
 			switch (param.getTypeThead())
 			{
 			case TypeThead::SELF:
-				return self.parseTemplateStd(thead);
+				return parseTemplateStd(self, thead);
 			case TypeThead::BIN:
-				return self.parseTemplateBin(param.getThead());
+				return parseTemplateBin(self, param.getThead());
 			case TypeThead::STD:
-				return self.parseTemplateStd(param.getThead());
+				return parseTemplateStd(self, param.getThead());
 			default:
 				assert(false); throw std::domain_error("");
 			}

@@ -4,12 +4,21 @@
 
 #include "structures/paramBinary.hpp"
 #include "structures/paramStandard.hpp"
-#include "structures/tuple.hpp"
+#include "structures/thead.hpp"
 
 using namespace std;
 using namespace webss;
 
 const char ERROR_NO_DEFAULT[] = "no default value, so value must be implemented";
+
+Tuple webss::makeDefaultTuple(const Thead& thead)
+{
+	assert(thead.isTheadBin() || thead.isTheadStd());
+	if (thead.isTheadBin())
+		return makeDefaultTuple(thead.getTheadBin().getParams());
+	else
+		return makeDefaultTuple(thead.getTheadStd().getParams());
+}
 
 void webss::setDefaultValue(Webss& value, const ParamBin& defaultValue)
 {
@@ -25,15 +34,10 @@ void webss::setDefaultValue(Webss& value, const ParamStd& param)
 {
 	if (param.hasDefaultValue())
 		value = Webss(param.getDefaultPointer());
-	else if (!param.hasThead())
-		throw runtime_error(ERROR_NO_DEFAULT);
-	else if (param.getTypeThead() == TypeThead::BIN)
-		value = makeDefaultTuple(param.getTheadBin().getParams());
+	else if (param.hasThead())
+		value = makeDefaultTuple(param.getThead());
 	else
-	{
-		assert(param.getTypeThead() == TypeThead::STD);
-		value = makeDefaultTuple(param.getTheadStd().getParams());
-	}
+		throw runtime_error(ERROR_NO_DEFAULT);
 }
 
 void webss::checkDefaultValues(Tuple& tuple, const TheadStd::Params& params)

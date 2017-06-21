@@ -17,92 +17,34 @@ using namespace webss;
 Webss Parser::parseTemplate()
 {
 	auto thead = parseThead();
+	return parseTemplateBody(move(thead));
+}
+
+Webss Parser::parseTemplateBody(Thead thead)
+{
 	assert(thead.isTheadBin() || thead.isTheadStd());
-	if (thead.isTheadBin())
-		return parseTemplateBin(move(thead));
-	else
-		return parseTemplateStd(move(thead));
-}
-
-Webss Parser::parseTemplateBin(Thead thead)
-{
-	Tuple body;
-	auto tag = tagit.getSafe();
-	if (tag == Tag::START_TUPLE || tag == Tag::TEXT_TUPLE)
-		body = parseTemplateTupleBin(thead.getTheadBin().getParams());
-	else if (thead.isPlus())
-		body = makeDefaultTuple(thead.getTheadBin().getParams());
-	else
-		throw runtime_error("expected tuple");
-
-	if (thead.isPlus())
-		return Template(move(thead), move(body), parseValueOnly());
-	else
-		return Template(move(thead), move(body));
-}
-
-#define ParseTemplateTuple(IsText) ParserTempl::parseTemplateTuple<IsText>(*this, thead)
-
-Webss Parser::parseTemplateStd(Thead thead)
-{
-	Tuple body;
-	WebssType typeTuple = WebssType::TUPLE;
-	auto tag = tagit.getSafe();
-	if (tag == Tag::START_TUPLE)
-		body = thead.isText() ? ParseTemplateTuple(true) : ParseTemplateTuple(false);
-	else if (tag == Tag::TEXT_TUPLE)
+	const function<Webss(Parser&, Thead)>& funcTempl = thead.isTheadBin() ? ParserTempl::parseTemplateBin : ParserTempl::parseTemplateStd;
+	if (tagit.getSafe() != Tag::FOREACH)
+		return funcTempl(*this, move(thead));
+	
+	(++tagit).sofertTag(Tag::START_LIST);
+	return parseContainer<List, ConType::LIST>(List(), true, [&](List& list)
 	{
-		body = ParseTemplateTuple(true);
-		typeTuple = WebssType::TUPLE_TEXT;
-	}
-	else if (thead.isPlus())
-		body = makeDefaultTuple(thead.getTheadStd().getParams());
-	else
-		throw runtime_error("expected tuple");
-
-	if (thead.isPlus())
-		return Template(move(thead), move(body), parseValueOnly(), typeTuple);
-	else
-		return Template(move(thead), move(body), typeTuple);
-}
-
-/*
-class ParserTemplates : public Parser
-{
-private:
-	void expandTemplateList(const TheadBin::Params&, List&)
-	{
-		throw runtime_error(ERROR_EXPAND_BIN_TEMPLATE);
-	}
-
-	void expandTemplateList(const TheadStd::Params& params, List& list)
-	{
-		fillTemplateBodyList(params, parseExpandList(tagit, ents), list);
-	}
-
-	template <class Params>
-	List parseTemplateList(const Params& params, function<Webss(const Params& params)>&& funcTemplateTupleRegular, function<Webss(const Params& params)>&& funcTemplateTupleText)
-	{
-		return parseContainer<List, ConType::LIST>(List(), true, [&](List& list)
+		switch (*tagit)
 		{
-			switch (*tagit)
-			{
-			case Tag::SEPARATOR: //void
-				list.add(makeDefaultTuple(params));
-				break;
-			case Tag::EXPAND:
-				expandTemplateList(params, list);
-				break;
-			case Tag::START_TUPLE:
-				list.add(funcTemplateTupleRegular(params));
-				break;
-			case Tag::TEXT_TUPLE:
-				list.add(funcTemplateTupleText(params));
-				break;
-			default:
-				throw runtime_error(ERROR_UNEXPECTED);
-			}
-		});
-	}
-};
-*/
+		case Tag::SEPARATOR: //void
+			if (thead.isPlus())
+				throw runtime_error(ERROR_VOID);
+			list.add(Template(thead, makeDefaultTuple(thead)));
+			break;
+		case Tag::EXPAND:
+			expandList(list, tagit, ents);
+			break;
+		case Tag::EXPLICIT_NAME:
+			throw runtime_error("list can only contain values");
+		default:
+			list.add(funcTempl(*this, thead));
+			break;
+		}
+	});
+}

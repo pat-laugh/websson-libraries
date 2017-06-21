@@ -71,8 +71,6 @@ Parser& Parser::addEntity(string&& name, Webss&& value)
 	return *this;
 }
 
-const char* ERROR_VOID = "can't have void element";
-
 bool Parser::containerEmpty()
 {
 	switch (tagit.getSafe())

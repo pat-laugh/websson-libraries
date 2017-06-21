@@ -299,10 +299,10 @@ void testTemplateStd()
 			sofert(templ1.isList());
 			const auto& list = templ1.getList();
 			sofert(list.size() == 2);
-			sofert(list[0].isTuple());
-			sofert(list[1].isTuple());
+			sofert(list[0].isTemplate());
+			sofert(list[1].isTemplate());
 			{
-				const auto& tuple = list[0].getTuple();
+				const auto& tuple = list[0].getTemplate().body.getTuple();
 				sofert(tuple.size() == 3);
 				sofertString(tuple[0], "First");
 				sofertString(tuple[1], "Last");
@@ -313,7 +313,7 @@ void testTemplateStd()
 				sofertInt(tuple["age"], 38);
 			}
 			{
-				const auto& tuple = list[1].getTuple();
+				const auto& tuple = list[1].getTemplate().body.getTuple();
 				sofert(tuple.size() == 3);
 				sofertString(tuple[0], "Second");
 				sofertString(tuple[1], "Third");
@@ -328,8 +328,8 @@ void testTemplateStd()
 		Tuple tupleTempl3;
 		const auto& templ3 = doc[2];
 		{
-			sofert(templ3.isTuple());
-			const auto& tuple = templ3.getTuple();
+			sofert(templ3.isTemplate());
+			const auto& tuple = templ3.getTemplate().body.getTuple();
 			sofert(tuple.size() == 2);
 			sofertString(tuple[0], "default1");
 			sofertString(tuple[1], "default2");
@@ -347,8 +347,8 @@ void testTemplateStd()
 			sofert(templ5.isList());
 			const auto& list = templ5.getList();
 			sofert(list.size() == 1);
-			sofert(list[0].isTuple());
-			sofert(tupleTempl3 == list[0].getTuple());
+			sofert(list[0].isTemplate());
+			sofert(tupleTempl3 == list[0].getTemplate().body.getTuple());
 		}
 	});
 }

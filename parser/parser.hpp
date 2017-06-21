@@ -120,8 +120,7 @@ namespace webss
 
 		Thead parseThead(bool allowSelf = false);
 		Webss parseTemplate();
-		Webss parseTemplateBin(Thead thead);
-		Webss parseTemplateStd(Thead thead);
+		Webss parseTemplateBody(Thead thead);
 
 		//parserBinary.cpp
 		void parseBinHead(TheadBin& thead);
