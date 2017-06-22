@@ -110,7 +110,7 @@ void SerializerHtml::putConcreteValue(StringBuilder& out, const Webss& value)
 		putList(out, value.getListRaw());
 		break;
 	default:
-		assert(false && "type is not a concrete value");
+		assert(false && "type is not a concrete value or is not serializable in html");
 	}
 }
 

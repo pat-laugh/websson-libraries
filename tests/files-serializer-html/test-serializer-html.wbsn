@@ -6,6 +6,7 @@
 	min=N, multiple=N, name=N, pattern=N, placeholder=N, readonly=N,
 	required=N, size=N, src=N, step=N, type=N, value=N, width=N>
 !br<>
+!customInput<^input, more-stuff=N>
 
 p:This is some text.
 
@@ -27,3 +28,5 @@ a(href:test.html):This is a link
 
 input(type:text, name:theName, required=true)br()
 input(type:button, value:Submit)
+
+customInput()
