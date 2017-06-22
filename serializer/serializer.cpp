@@ -12,22 +12,24 @@
 #include "utils/utils.hpp"
 #include "utils/utilsWebss.hpp"
 
+const char ASSIGN_CONTAINER_STRING[] = "::";
+
 using namespace std;
 using namespace webss;
 
 template <ConType::Enum CON> void putContainerStart(StringBuilder&) { assert(false); }
 template <> void putContainerStart<ConType::DOCUMENT>(StringBuilder&) {}
-template <> void putContainerStart<ConType::DICTIONARY>(StringBuilder& out) { out += OPEN_DICTIONARY; }
-template <> void putContainerStart<ConType::LIST>(StringBuilder& out) { out += OPEN_LIST; }
-template <> void putContainerStart<ConType::TUPLE>(StringBuilder& out) { out += OPEN_TUPLE; }
-template <> void putContainerStart<ConType::THEAD>(StringBuilder& out) { out += OPEN_TEMPLATE; }
+template <> void putContainerStart<ConType::DICTIONARY>(StringBuilder& out) { out += CHAR_START_DICTIONARY; }
+template <> void putContainerStart<ConType::LIST>(StringBuilder& out) { out += CHAR_START_LIST; }
+template <> void putContainerStart<ConType::TUPLE>(StringBuilder& out) { out += CHAR_START_TUPLE; }
+template <> void putContainerStart<ConType::THEAD>(StringBuilder& out) { out += CHAR_START_TEMPLATE; }
 
 template <ConType::Enum CON> void putContainerEnd(StringBuilder&) { assert(false); }
 template <> void putContainerEnd<ConType::DOCUMENT>(StringBuilder&) {}
-template <> void putContainerEnd<ConType::DICTIONARY>(StringBuilder& out) { out += CLOSE_DICTIONARY; }
-template <> void putContainerEnd<ConType::LIST>(StringBuilder& out) { out += CLOSE_LIST; }
-template <> void putContainerEnd<ConType::TUPLE>(StringBuilder& out) { out += CLOSE_TUPLE; }
-template <> void putContainerEnd<ConType::THEAD>(StringBuilder& out) { out += CLOSE_TEMPLATE; }
+template <> void putContainerEnd<ConType::DICTIONARY>(StringBuilder& out) { out += CHAR_END_DICTIONARY; }
+template <> void putContainerEnd<ConType::LIST>(StringBuilder& out) { out += CHAR_END_LIST; }
+template <> void putContainerEnd<ConType::TUPLE>(StringBuilder& out) { out += CHAR_END_TUPLE; }
+template <> void putContainerEnd<ConType::THEAD>(StringBuilder& out) { out += CHAR_END_TEMPLATE; }
 
 template <ConType::Enum CON>
 class ContainerIncluder

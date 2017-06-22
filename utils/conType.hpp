@@ -6,16 +6,6 @@
 
 namespace webss
 {
-	const char OPEN_DICTIONARY = '{';
-	const char OPEN_LIST = '[';
-	const char OPEN_TUPLE = '(';
-	const char OPEN_TEMPLATE = '<';
-	const char CLOSE_DICTIONARY = '}';
-	const char CLOSE_LIST = ']';
-	const char CLOSE_TUPLE = ')';
-	const char CLOSE_TEMPLATE = '>';
-	const char ASSIGN_CONTAINER_STRING[] = "::";
-
 	class ConType
 	{
 	public:

@@ -10,9 +10,9 @@ namespace webss
 	const char CHAR_CONCRETE_ENTITY = '?';
 	const char CHAR_CSTRING = '"';
 	const char CHAR_DECIMAL_SEPARATOR = '.';
-	const char CHAR_EXPAND = '^';
 	const char CHAR_EQUAL = '=';
 	const char CHAR_ESCAPE = '\\';
+	const char CHAR_EXPAND = '^';
 	const char CHAR_EXPLICIT_NAME = '$';
 	const char CHAR_FOREACH = '|';
 	const char CHAR_IMPORT = '@';
@@ -25,4 +25,13 @@ namespace webss
 
 	const char CHAR_BIN_DEFAULT_FALSE = 0;
 	const char CHAR_BIN_DEFAULT_TRUE = 1;
+
+	const char CHAR_START_DICTIONARY = '{';
+	const char CHAR_START_LIST = '[';
+	const char CHAR_START_TUPLE = '(';
+	const char CHAR_START_TEMPLATE = '<';
+	const char CHAR_END_DICTIONARY = '}';
+	const char CHAR_END_LIST = ']';
+	const char CHAR_END_TUPLE = ')';
+	const char CHAR_END_TEMPLATE = '>';
 }

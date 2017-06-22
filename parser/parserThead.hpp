@@ -16,7 +16,7 @@ namespace webss
 		{
 			auto& it = self.getIt();
 			TheadOptions options;
-			while (*skipJunkToValid(++it) != CLOSE_LIST)
+			while (*skipJunkToValid(++it) != CHAR_END_LIST)
 			{
 				if (*it == CHAR_THEAD_PLUS)
 					options.isPlus = true;

@@ -5,6 +5,8 @@
 #include <cassert>
 #include <stdexcept>
 
+#include "constants.hpp"
+
 using namespace std;
 using namespace webss;
 
@@ -35,13 +37,13 @@ bool ConType::isStart(char c) const
 	switch (e)
 	{
 	case ConType::DICTIONARY:
-		return c == OPEN_DICTIONARY;
+		return c == CHAR_START_DICTIONARY;
 	case ConType::LIST:
-		return c == OPEN_LIST;
+		return c == CHAR_START_LIST;
 	case ConType::TUPLE:
-		return c == OPEN_TUPLE;
+		return c == CHAR_START_TUPLE;
 	case ConType::THEAD:
-		return c == OPEN_TEMPLATE;
+		return c == CHAR_START_TEMPLATE;
 	default:
 		return false;
 	}
@@ -52,13 +54,13 @@ bool ConType::isEnd(char c) const
 	switch (e)
 	{
 	case ConType::DICTIONARY:
-		return c == CLOSE_DICTIONARY;
+		return c == CHAR_END_DICTIONARY;
 	case ConType::LIST:
-		return c == CLOSE_LIST;
+		return c == CHAR_END_LIST;
 	case ConType::TUPLE:
-		return c == CLOSE_TUPLE;
+		return c == CHAR_END_TUPLE;
 	case ConType::THEAD:
-		return c == CLOSE_TEMPLATE;
+		return c == CHAR_END_TEMPLATE;
 	default:
 		return false;
 	}

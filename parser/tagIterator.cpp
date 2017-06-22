@@ -61,11 +61,11 @@ Tag getTagColon(SmartIterator& it)
 		return Tag::LINE_STRING;
 	switch (*skipJunkToValid(it.incTwo()))
 	{
-	case OPEN_LIST:
+	case CHAR_START_LIST:
 		return Tag::TEXT_LIST;
-	case OPEN_TUPLE:
+	case CHAR_START_TUPLE:
 		return Tag::TEXT_TUPLE;
-	case OPEN_TEMPLATE:
+	case CHAR_START_TEMPLATE:
 		throw runtime_error(ERROR_UNEXPECTED);
 	default:
 		return Tag::TEXT_DICTIONARY;
@@ -78,14 +78,14 @@ Tag TagIterator::getTag()
 		return Tag::NONE;
 	switch (*it)
 	{
-	case OPEN_DICTIONARY: return Tag::START_DICTIONARY;
-	case OPEN_LIST: return Tag::START_LIST;
-	case OPEN_TUPLE: return Tag::START_TUPLE;
-	case OPEN_TEMPLATE: return Tag::START_TEMPLATE;
-	case CLOSE_DICTIONARY: return Tag::END_DICTIONARY;
-	case CLOSE_LIST: return Tag::END_LIST;
-	case CLOSE_TUPLE: return Tag::END_TUPLE;
-	case CLOSE_TEMPLATE: return Tag::END_TEMPLATE;
+	case CHAR_START_DICTIONARY: return Tag::START_DICTIONARY;
+	case CHAR_START_LIST: return Tag::START_LIST;
+	case CHAR_START_TUPLE: return Tag::START_TUPLE;
+	case CHAR_START_TEMPLATE: return Tag::START_TEMPLATE;
+	case CHAR_END_DICTIONARY: return Tag::END_DICTIONARY;
+	case CHAR_END_LIST: return Tag::END_LIST;
+	case CHAR_END_TUPLE: return Tag::END_TUPLE;
+	case CHAR_END_TEMPLATE: return Tag::END_TEMPLATE;
 	case CHAR_ABSTRACT_ENTITY: return Tag::ENTITY_ABSTRACT;
 	case CHAR_COLON: return getTagColon(it);
 	case CHAR_CONCRETE_ENTITY: return Tag::ENTITY_CONCRETE;

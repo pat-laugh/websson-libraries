@@ -201,7 +201,7 @@ Tuple Parser::parseTemplateTupleBin(const TheadBin::Params& params)
 {
 	BinIterator itBin(getItSafe());
 	auto tuple = parseBinTemplate(itBin, params);
-	if (++getIt() != CLOSE_TUPLE)
+	if (++getIt() != CHAR_END_TUPLE)
 		throw runtime_error("binary tuple is not closed");
 	tagit.incSafe();
 	return tuple;

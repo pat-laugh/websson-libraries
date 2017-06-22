@@ -90,10 +90,10 @@ MultilineStringOptions checkMultilineStringOptions(Parser& parser)
 {
 	auto& it = parser.getIt();
 	MultilineStringOptions options{ false, false, false, false, false };
-	if (*it == OPEN_DICTIONARY)
+	if (*it == CHAR_START_DICTIONARY)
 		return options;
 
-	auto items = parseOptionLine(parser, [](char c) { return c == OPEN_DICTIONARY || c == '~'; });
+	auto items = parseOptionLine(parser, [](char c) { return c == CHAR_START_DICTIONARY || c == '~'; });
 	if (!it)
 		throw runtime_error(ERROR_MULTILINE_STRING);
 	for (decltype(items.size()) i = 0; i < items.size(); ++i)
@@ -227,9 +227,9 @@ string parseMultilineStringLineIndent(SmartIterator& it, bool opJunkOperators)
 	if (*it != '\n')
 		do
 		{
-			if (*it == OPEN_DICTIONARY)
+			if (*it == CHAR_START_DICTIONARY)
 				++countStartEnd;
-			else if (*it == CLOSE_DICTIONARY && --countStartEnd == 0)
+			else if (*it == CHAR_END_DICTIONARY && --countStartEnd == 0)
 			{
 				++it;
 				return sb;
@@ -286,9 +286,9 @@ string parseMultilineStringLineIndent(SmartIterator& it, bool opJunkOperators)
 			checkJunkOperators(it);
 			continue;
 		}
-		else if (*it == OPEN_DICTIONARY)
+		else if (*it == CHAR_START_DICTIONARY)
 			++countStartEnd;
-		else if (*it == CLOSE_DICTIONARY && --countStartEnd == 0)
+		else if (*it == CHAR_END_DICTIONARY && --countStartEnd == 0)
 		{
 			++it;
 			return sb;
@@ -318,7 +318,7 @@ string parseMultilineStringNoIndent(SmartIterator& it, bool opJunkOperators)
 				if (!it)
 					throw runtime_error(ERROR_MULTILINE_STRING);
 			}
-			if (*it == CLOSE_DICTIONARY)
+			if (*it == CHAR_END_DICTIONARY)
 			{
 				++it;
 				return sb;
@@ -358,9 +358,9 @@ string parseMultilineStringLineNoIndent(SmartIterator& it, bool opJunkOperators)
 			checkJunkOperators(it);
 			continue;
 		}
-		else if (*it == OPEN_DICTIONARY)
+		else if (*it == CHAR_START_DICTIONARY)
 			++countStartEnd;
-		else if (*it == CLOSE_DICTIONARY && --countStartEnd == 0)
+		else if (*it == CHAR_END_DICTIONARY && --countStartEnd == 0)
 		{
 			++it;
 			return sb;
@@ -374,7 +374,7 @@ string parseMultilineStringRegular(Parser& parser)
 	auto& it = parser.getIt();
 	Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, true);
 	StringBuilder sb;
-	if (skipJunk(it) == CLOSE_DICTIONARY)
+	if (skipJunk(it) == CHAR_END_DICTIONARY)
 	{
 		++it;
 		return "";
@@ -386,7 +386,7 @@ string parseMultilineStringRegular(Parser& parser)
 	if (parser.multilineContainer)
 		endCondition = []() { return false; };
 	else
-		endCondition = [&]() { return *it == CLOSE_DICTIONARY && --countStartEnd == 0; };
+		endCondition = [&]() { return *it == CHAR_END_DICTIONARY && --countStartEnd == 0; };
 loopStart:
 	while (hasNextChar(it, sb, endCondition))
 	{
@@ -401,7 +401,7 @@ loopStart:
 			addSpace = true;
 			continue;
 		}
-		else if (*it == OPEN_DICTIONARY && !parser.multilineContainer)
+		else if (*it == CHAR_START_DICTIONARY && !parser.multilineContainer)
 			++countStartEnd;
 		addSpace = true;
 		putChar(it, sb);
@@ -414,7 +414,7 @@ loopStart:
 		skipJunkToValid(++it);
 		break;
 	case 1:
-		if (*skipJunkToValid(++it) != CLOSE_DICTIONARY)
+		if (*skipJunkToValid(++it) != CHAR_END_DICTIONARY)
 			break;
 	case 0:
 		++it;
@@ -457,7 +457,7 @@ bool hasNextCharSpecial(SmartIterator& it, StringBuilder& sb)
 string webss::parseMultilineString(Parser& parser)
 {
 	auto& it = parser.getItSafe();
-	if (*it == OPEN_DICTIONARY)
+	if (*it == CHAR_START_DICTIONARY)
 		return parseMultilineStringRegular(parser);
 	auto options = checkMultilineStringOptions(parser);
 
@@ -472,7 +472,7 @@ string webss::parseMultilineString(Parser& parser)
 			if (options.indent)
 			{
 				content = parseMultilineStringIndent(it, options.junkOperator);
-				if (it != CLOSE_DICTIONARY)
+				if (it != CHAR_END_DICTIONARY)
 					throw runtime_error(ERROR_MULTILINE_STRING);
 				++it;
 			}
