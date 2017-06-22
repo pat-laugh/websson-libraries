@@ -10,6 +10,7 @@ using namespace webss;
 SmartIterator::SmartIterator(SmartIterator&& it) : in(move(it.in)), c1(it.c1), c2(it.c2), isValid(it.isValid), hasPeek(it.hasPeek), line(it.line), charCount(it.charCount) {}
 SmartIterator::SmartIterator(stringstream&& in) : in(move(in)) { readStart(); }
 SmartIterator::SmartIterator(string in) : in(move(in)) { readStart(); }
+SmartIterator::SmartIterator(std::streambuf* sb) { in << sb; readStart(); }
 
 SmartIterator& SmartIterator::operator=(SmartIterator&& o)
 {

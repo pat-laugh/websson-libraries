@@ -21,6 +21,7 @@ namespace webss
 		SmartIterator(std::stringstream&& in);
 		SmartIterator(const std::stringstream& in) = delete;
 		SmartIterator(std::string in);
+		SmartIterator(std::streambuf* sb);
 
 		SmartIterator& operator=(SmartIterator&& o);
 		SmartIterator& operator=(const SmartIterator& o) = delete;
