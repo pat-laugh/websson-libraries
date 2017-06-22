@@ -23,12 +23,10 @@ namespace webss
 	class Parser
 	{
 	public:
-		Parser(SmartIterator&& it);
+		Parser(SmartIterator it);
 		Parser(const std::istream& in);
-		Parser(const std::stringstream& in);
-		Parser(const std::string& in);
-		Parser& setIterator(SmartIterator&& it);
-		Parser& addEntity(std::string&& name, Webss&& value);
+		Parser& setIterator(SmartIterator it);
+		Parser& addEntity(std::string name, Webss value);
 
 		Document parseDocument();
 

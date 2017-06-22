@@ -54,18 +54,23 @@ void initAliases(map<string, vector<string>>& aliases)
 	aliases.insert({ "alias", { "-", "a" } });
 }
 
-Parser::Parser(SmartIterator&& it) : tagit(move(it)) { initEnts(ents); initAliases(aliases); }
-Parser::Parser(const istream& in) : tagit(SmartIterator(in)) { initEnts(ents); initAliases(aliases); }
-Parser::Parser(const stringstream& in) : tagit(SmartIterator(in)) { initEnts(ents); initAliases(aliases); }
-Parser::Parser(const string& in) : tagit(SmartIterator(in)) { initEnts(ents); initAliases(aliases); }
+Parser::Parser(SmartIterator it) : tagit(move(it)) { initEnts(ents); initAliases(aliases); }
+Parser::Parser(const istream& in) : tagit(SmartIterator(""))
+{
+	stringstream ss;
+	ss << in.rdbuf();
+	tagit.setIterator(SmartIterator(move(ss)));
+	initEnts(ents);
+	initAliases(aliases);
+}
 
-Parser& Parser::setIterator(SmartIterator&& it)
+Parser& Parser::setIterator(SmartIterator it)
 {
 	tagit.setIterator(move(it));
 	return *this;
 }
 
-Parser& Parser::addEntity(string&& name, Webss&& value)
+Parser& Parser::addEntity(string name, Webss value)
 {
 	ents.addPrivate(move(name), move(value));
 	return *this;

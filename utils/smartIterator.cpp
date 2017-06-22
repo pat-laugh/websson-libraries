@@ -2,43 +2,14 @@
 //Copyright 2017 Patrick Laughrea
 #include "smartIterator.hpp"
 
+#include <cassert>
+
 using namespace std;
 using namespace webss;
 
 SmartIterator::SmartIterator(SmartIterator&& it) : in(move(it.in)), c1(it.c1), c2(it.c2), isValid(it.isValid), hasPeek(it.hasPeek), line(it.line), charCount(it.charCount) {}
-SmartIterator::SmartIterator(const SmartIterator& it)
-{
-	this->in << it.in.rdbuf();
-	readStart();
-}
-SmartIterator::SmartIterator(istream&& in)
-{
-	this->in << in.rdbuf();
-	readStart();
-}
-SmartIterator::SmartIterator(const istream& in)
-{
-	this->in << in.rdbuf();
-	readStart();
-}
-SmartIterator::SmartIterator(stringstream&& in) : in(move(in))
-{
-	readStart();
-}
-SmartIterator::SmartIterator(const stringstream& in)
-{
-	this->in << in.rdbuf();
-	readStart();
-}
-
-SmartIterator::SmartIterator(string&& in) : in(move(in))
-{
-	readStart();
-}
-SmartIterator::SmartIterator(const string& in) : in(in)
-{
-	readStart();
-}
+SmartIterator::SmartIterator(stringstream&& in) : in(move(in)) { readStart(); }
+SmartIterator::SmartIterator(string in) : in(move(in)) { readStart(); }
 
 SmartIterator& SmartIterator::operator=(SmartIterator&& o)
 {
@@ -51,18 +22,10 @@ SmartIterator& SmartIterator::operator=(SmartIterator&& o)
 	charCount = o.charCount;
 	return *this;
 }
-SmartIterator& SmartIterator::operator=(const SmartIterator& o)
-{
-	if (this != &o)
-	{
-		in << o.in.rdbuf();
-		readStart();
-	}
-	return *this;
-}
 
-SmartIterator& SmartIterator::operator++() //prefix
+SmartIterator& SmartIterator::operator++()
 {
+	assert(good());
 	checkChar(c1);
 	if (hasPeek)
 	{
@@ -73,14 +36,17 @@ SmartIterator& SmartIterator::operator++() //prefix
 		isValid = false;
 	return *this;
 }
+
 SmartIterator& SmartIterator::incTwo()
 {
+	assert(good() && peekGood());
 	checkChar(c1);
 	checkChar(c2);
 	readStart();
 	return *this;
 }
-char SmartIterator::operator*() const { return c1; }
+
+char SmartIterator::operator*() const { assert(good()); return c1; }
 
 bool SmartIterator::good() const { return isValid; }
 bool SmartIterator::end() const { return !good(); }
@@ -91,7 +57,8 @@ bool SmartIterator::operator!() const { return end(); }
 bool SmartIterator::operator==(char c) const { return good() && c == operator*(); }
 bool SmartIterator::operator!=(char c) const { return !operator==(c); }
 
-char SmartIterator::peek() const { return c2; }
+char SmartIterator::peek() const { assert(peekGood()); return c2; }
+
 bool SmartIterator::peekGood() const { return hasPeek; }
 bool SmartIterator::peekEnd() const { return !peekGood(); }
 
@@ -114,7 +81,7 @@ void SmartIterator::checkChar(char c)
 
 void SmartIterator::readStart()
 {
-	c1 = in.get();
+	c1 = in.get(); //in.good() refers to last get, so have to get first
 	if (in.good())
 		getPeek();
 	else
