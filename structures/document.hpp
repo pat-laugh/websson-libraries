@@ -12,6 +12,7 @@ namespace webss
 	{
 	private:
 		using base = BasicSharedMap<Webss>;
+
 	public:
 		DocumentHead& getHead() { return head; }
 		const DocumentHead& getHead() const { return head; }

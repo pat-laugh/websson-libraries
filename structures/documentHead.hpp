@@ -2,6 +2,7 @@
 //Copyright 2017 Patrick Laughrea
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "base.hpp"
@@ -15,13 +16,14 @@ namespace webss
 	class ImportedDocument
 	{
 	public:
-		ImportedDocument(Webss&& data);
+		ImportedDocument(Webss data);
 
 		bool operator==(const ImportedDocument& o) const;
 		bool operator!=(const ImportedDocument& o) const;
 
 		const Webss& getData() const;
 		const std::string& getLink() const;
+
 	private:
 		Webss data;
 	};
@@ -47,8 +49,7 @@ namespace webss
 		ParamDocument(ParamDocument&& o);
 		ParamDocument(const ParamDocument& o);
 
-		ParamDocument& operator=(ParamDocument&& o);
-		ParamDocument& operator=(const ParamDocument& o);
+		ParamDocument& operator=(ParamDocument o);
 
 		bool operator==(const ParamDocument& o) const;
 		bool operator!=(const ParamDocument& o) const;
@@ -67,16 +68,14 @@ namespace webss
 			Entity ent;
 			std::vector<Entity>* entList;
 		};
-		ImportedDocument* import = nullptr;
+		std::unique_ptr<ImportedDocument> import;
 
 		ParamDocument(Entity ent, Type type);
 		ParamDocument(Entity ent, Type type, ImportedDocument import);
 		ParamDocument(std::vector<Entity> entList, ImportedDocument import);
 
 		void destroyUnion();
-
 		void copyUnion(ParamDocument&& o);
-
 		void copyUnion(const ParamDocument& o);
 	};
 }

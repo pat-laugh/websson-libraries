@@ -8,7 +8,7 @@
 using namespace std;
 using namespace webss;
 
-ImportedDocument::ImportedDocument(Webss&& data) : data(move(data))
+ImportedDocument::ImportedDocument(Webss data) : data(move(data))
 {
 	assert(this->data.isTuple() && "import must reference a tuple");
 	assert(this->data.getTuple().size() == 3);
@@ -31,19 +31,10 @@ ParamDocument::~ParamDocument() { destroyUnion(); }
 ParamDocument::ParamDocument(ParamDocument&& o) { copyUnion(move(o)); }
 ParamDocument::ParamDocument(const ParamDocument& o) { copyUnion(o); }
 
-ParamDocument& ParamDocument::operator=(ParamDocument&& o)
+ParamDocument& ParamDocument::operator=(ParamDocument o)
 {
 	destroyUnion();
 	copyUnion(move(o));
-	return *this;
-}
-ParamDocument& ParamDocument::operator=(const ParamDocument& o)
-{
-	if (this != &o)
-	{
-		destroyUnion();
-		copyUnion(o);
-	}
 	return *this;
 }
 
@@ -65,17 +56,14 @@ bool ParamDocument::operator==(const ParamDocument& o) const
 		assert(false); throw domain_error("");
 	}
 }
-bool ParamDocument::operator!=(const ParamDocument& o) const
-{
-	return !(*this == o);
-}
+bool ParamDocument::operator!=(const ParamDocument& o) const { return !(*this == o); }
 
 ParamDocument::Type ParamDocument::getType() const { return type; }
 bool ParamDocument::hasNamespace() const { return type == Type::EXPAND; }
 const Entity& ParamDocument::getEntity() const { assert(type != Type::SCOPED_IMPORT_LIST); return ent; }
 const std::vector<Entity>& ParamDocument::getEntityList() const { assert(type == Type::SCOPED_IMPORT_LIST); return *entList; }
-const Namespace& ParamDocument::getNamespace() const { return ent.getContent().getNamespace(); }
-const ImportedDocument& ParamDocument::getImport() const { return *import; }
+const Namespace& ParamDocument::getNamespace() const { assert(hasNamespace()); return ent.getContent().getNamespace(); }
+const ImportedDocument& ParamDocument::getImport() const { assert(import != nullptr); return *import; }
 
 ParamDocument::ParamDocument(Entity ent, Type type) : type(type), ent(move(ent)) {}
 ParamDocument::ParamDocument(Entity ent, Type type, ImportedDocument import) : type(type), ent(move(ent)), import(new ImportedDocument(move(import))) {}
@@ -96,11 +84,7 @@ void ParamDocument::destroyUnion()
 	}
 
 	type = Type::NONE;
-	if (import != nullptr)
-	{
-		delete import;
-		import = nullptr;
-	}
+	import.reset();
 }
 
 void ParamDocument::copyUnion(ParamDocument&& o)
@@ -119,8 +103,7 @@ void ParamDocument::copyUnion(ParamDocument&& o)
 	}
 
 	type = o.type;
-	import = o.import;
-	o.import = nullptr;
+	import = move(o.import);
 	o.type = Type::NONE;
 }
 
@@ -140,5 +123,5 @@ void ParamDocument::copyUnion(const ParamDocument& o)
 
 	type = o.type;
 	if (o.import != nullptr)
-		import = new ImportedDocument(*o.import);
+		import.reset(new ImportedDocument(*o.import));
 }
