@@ -6,8 +6,9 @@
 
 namespace webss
 {
-	std::string parseStickyLineString(Parser & parser);
+	std::string parseStickyLineString(Parser& parser);
 	std::string parseLineString(Parser& parser);
 	std::string parseMultilineString(Parser& parser);
 	std::string parseCString(Parser& parser);
+	std::string parseTabContainer(Parser& parser);
 }

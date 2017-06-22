@@ -147,6 +147,61 @@ bool skipIndent(SmartIterator& it, int num)
 	return true;
 }
 
+//parses all the chars on the line, including the newline
+//returns false if the end of it is reached, else true if a newline is reached
+bool parseLine(SmartIterator& it, StringBuilder& sb)
+{
+	for (; it; ++it)
+	{
+		checkCRNL(it);
+		sb += *it;
+		if (*it == '\n')
+			return true;
+	}
+	return false;
+}
+
+int countIndentReal(SmartIterator& it)
+{
+	for (int numIndent = 0; it; ++it)
+		if (*it == '\n' || checkCRNL(it))
+			numIndent = 0;
+		else if (isJunk(*it))
+			++numIndent;
+		else
+			return numIndent;
+	return 0;
+}
+
+bool skipIndentReal(SmartIterator& it, int numIndent)
+{
+	for (int numCopy = numIndent; it; ++it)
+		if (numCopy-- == 0)
+			return true;
+		else if (*it == '\n' || checkCRNL(it))
+			numCopy = numIndent;
+		else if (!isJunk(*it))
+			return false;
+	return false;
+}
+
+string webss::parseTabContainer(Parser& parser)
+{
+	auto& it = parser.getItSafe();
+	StringBuilder sb;
+	if (!parseLine(++it, sb))
+		return sb;
+
+	int numIndent = countIndentReal(++it);
+	if (!parseLine(it, sb))
+		return sb;
+
+	while (skipIndentReal(++it, numIndent))
+		if (!parseLine(it, sb))
+			break;
+	return sb;
+}
+
 string parseMultilineStringIndent(SmartIterator& it, bool opJunkOperators)
 {
 	StringBuilder sb;
