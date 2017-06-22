@@ -20,6 +20,9 @@ namespace webss
 		bool operator==(const BasicThead& o) const { return params == o.params; }
 		bool operator!=(const BasicThead& o) const { return !(*this == o); }
 
+		//instead of the keys being shared, this creates an indepedent copy of the keys and the data
+		BasicThead makeCompleteCopy() const { return BasicThead(params.makeCompleteCopy()); }
+
 		bool empty() const { return params.empty(); }
 		size_type size() const { return params.size(); }
 

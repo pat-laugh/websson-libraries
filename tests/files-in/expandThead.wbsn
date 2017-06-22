@@ -5,7 +5,7 @@
 !TheadPlusText<[+]^TheadText>
 !TheadPlusBinary<[+]^TheadBinary>
 
-!TheadStandardExpand<^TheadStandard>
+!TheadStandardExpand<^TheadStandard, param=null>
 !TheadTextExpand<^TheadText>
 !TheadBinaryExpand<^TheadBinary>
 !TheadPlusStandardExpand<^TheadPlusStandard>

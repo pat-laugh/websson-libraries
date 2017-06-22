@@ -54,7 +54,7 @@ switchStart:
 		return{ move(ent), options };
 	assert(thead.isTheadBin() || thead.isTheadStd());
 	if (thead.isTheadBin())
-		return{ ParserThead::parseTheadBin(*this, TheadBin(thead.getTheadBin())), move(ent), options };
+		return{ ParserThead::parseTheadBin(*this, TheadBin(thead.getTheadBin().makeCompleteCopy())), move(ent), options };
 	else
-		return{ ParserThead::parseTheadStd(*this, TheadStd(thead.getTheadStd())), move(ent), options };
+		return{ ParserThead::parseTheadStd(*this, TheadStd(thead.getTheadStd().makeCompleteCopy())), move(ent), options };
 }
