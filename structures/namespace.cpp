@@ -16,6 +16,12 @@ struct Namespace::NamespaceBody
 	Data data;
 	Keymap keys;
 
+	NamespaceBody(string&& name) : name(move(name)) {}
+	NamespaceBody(string&& name, const Namespace& previousNspace) : name(move(name)), nspaces(previousNspace.getNamespaces())
+	{
+		nspaces.push_back(previousNspace);
+	}
+
 	bool operator==(const NamespaceBody& o) const
 	{
 		if (this == &o)
@@ -31,20 +37,15 @@ struct Namespace::NamespaceBody
 			if (data[i].getContent() != o.data[i].getContent())
 				return false;
 
-		//in-depth check of nspaces
-		if (nspaces.size() != o.nspaces.size())
-			return false;
-		for (Namespaces::size_type i = 0; i < nspaces.size(); ++i)
-			if (nspaces[i] != o.nspaces[i])
-				return false;
+		//don't compare previous namespaces as only the content of current namespaces matter
 		return true;
 	}
 	bool operator!=(const NamespaceBody& o) const { return !(*this == o); }
 };
 
 Namespace::Namespace() {}
-Namespace::Namespace(string name) : ptrBody(new NamespaceBody{ move(name) }) {}
-Namespace::Namespace(string name, const Namespace& previousNspace) : ptrBody(new NamespaceBody{ move(name), previousNspace.getNamespaces() }) {}
+Namespace::Namespace(string name) : ptrBody(new NamespaceBody(move(name))) {}
+Namespace::Namespace(string name, const Namespace& previousNspace) : ptrBody(new NamespaceBody(move(name), previousNspace)) {}
 
 bool Namespace::empty() const { return getData().empty(); }
 Namespace::size_type Namespace::size() const { return getData().size(); }
@@ -75,8 +76,8 @@ const Entity& Namespace::operator[](const string& key) const { return getData()[
 Entity& Namespace::at(const string& key) { return getData()[accessKeySafe<Keymap, size_type>(getKeys(), key)]; }
 const Entity& Namespace::at(const string& key) const { return getData()[accessKeySafe<Keymap, size_type>(getKeys(), key)]; }
 
-const string& Namespace::getName() const { return getBody().name; }
-const Namespace::Namespaces& Namespace::getNamespaces() const { return getBody().nspaces; }
+const string& Namespace::getName() const { assert(hasBody()); return getBody().name; }
+const Namespace::Namespaces& Namespace::getNamespaces() const { assert(hasBody()); return getBody().nspaces; }
 
 Namespace::iterator Namespace::begin() { return getData().begin(); }
 Namespace::iterator Namespace::end() { return getData().end(); }

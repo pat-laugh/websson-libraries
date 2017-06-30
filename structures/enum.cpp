@@ -6,7 +6,6 @@ using namespace std;
 using namespace webss;
 
 Enum::Enum(std::string name) : nspace(std::move(name)) {}
-Enum::Enum(std::string name, const Namespace& previousNspace) : nspace(std::move(name), previousNspace) {}
 
 bool Enum::empty() const { return nspace.empty(); }
 Enum::size_type Enum::size() const { return nspace.size(); }

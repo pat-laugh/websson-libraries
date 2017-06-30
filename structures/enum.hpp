@@ -15,7 +15,6 @@ namespace webss
 		using const_iterator = Namespace::const_iterator;
 
 		Enum(std::string name);
-		Enum(std::string name, const Namespace& previousNspace);
 
 		bool empty() const;
 		size_type size() const;

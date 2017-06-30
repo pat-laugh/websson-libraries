@@ -34,9 +34,8 @@ int main()
 {
 	do
 	{
-		vector<string> filenames { "strings", "expandTuple", "templatePlus", "namespace", "enum",
-			"list", "tuple", "names-keywords", "multiline-string-options",
-			"option", "assignAbstractEntity", "expandThead" };
+	//	vector<string> filenames { "strings", "namespace", "enum", "names-keywords", "multiline-string-options", "assignAbstractEntity" };
+		vector<string> filenames { "expandTuple", "templatePlus", "list", "tuple", "option", "expandThead" };
 		for (const auto& filename : filenames)
 		{
 			test(filename, [](const Document&) {});
@@ -255,7 +254,7 @@ ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 	}
 	catch (const exception& e)
 	{
-		cout << endl; 
+		cout << endl;
 		putRed("Test failed");
 		cout << ": " << e.what() << endl;
 		return ErrorType::TEST;
@@ -324,7 +323,7 @@ void testTemplateStd()
 				sofertInt(tuple["age"], 47);
 			}
 		}
-		
+
 		Tuple tupleTempl3;
 		const auto& templ3 = doc[2];
 		{
@@ -338,10 +337,10 @@ void testTemplateStd()
 			sofertString(tuple["val2"], "default2");
 			tupleTempl3 = tuple;
 		}
-		
+
 		const auto& templ4 = doc[3];
 		sofert(templ4.isList() && templ4.getList().empty());
-		
+
 		const auto& templ5 = doc[4];
 		{
 			sofert(templ5.isList());

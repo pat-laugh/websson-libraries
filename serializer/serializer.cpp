@@ -225,13 +225,13 @@ void Serializer::putDocument(StringBuilder& out, const Document& doc)
 void Serializer::putPreviousNamespaceNames(StringBuilder& out, const Namespace& nspace)
 {
 	const auto& nspaces = nspace.getNamespaces();
-	if (!nspaces.empty())
+	if (nspaces.size() > 1) //one to exclude global namespace
 	{
 		//check the list of namespaces in reverse order until there is an namespace that is in
 		//the current scope, then put all the namespaces that were not in the current scope
 
 		auto i = nspaces.size();
-		while (i > 0 && !namespaceCurrentScope(nspaces[i - 1]))
+		while (i > 1 && !namespaceCurrentScope(nspaces[i - 1])) //one to exclude global namespace
 			--i;
 
 		while (i < nspaces.size())
