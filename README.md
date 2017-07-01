@@ -29,6 +29,8 @@ about the language itself.
 
 ### External libraries
 
+All libraries except structures require the library [various](https://github.com/pat-laugh/various-cpp).
+
 The parser uses the [curl](https://curl.haxx.se/) library to fetch web
 documents. If you use Linux or Mac, it's possibly already installed; otherwise
 it's pretty easy to install. In Windows, it's a lot more complicated... You can
@@ -46,7 +48,8 @@ For each project that requires files from another project, go in their
 properties, and then in the tab Configuration Properties -> C/C++ -> General.
 For "Additional Include Directories", add the value "$(SolutionDir)" (values are
 separated by semi-colons). The parser also requires the directory of the curl
-library's header files if imports are not disabled.
+library's header files if imports are not disabled. The location of the library
+various also needs to be added like this.
 
 The project for tests is the only one that produces an executable, so the only
 one that needs to be linked. If the curl library is used, in the properties of
@@ -63,6 +66,8 @@ platform as the library (for instance, 32-bit with 32-bit).
 I only tried compiling with [GCC](https://gcc.gnu.org/). The Makefile in the
 tests directory can compile the whole project. It assumes the curl include files
 and library are in a location that the compiler and linker check by default.
+
+For the library various, you can make a symbolic link to it.
 
 ## The language
 
