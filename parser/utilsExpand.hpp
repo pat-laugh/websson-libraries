@@ -5,7 +5,6 @@
 #include "entityManager.hpp"
 #include "tagIterator.hpp"
 #include "structures/entity.hpp"
-#include "utils/smartIterator.hpp"
 
 namespace webss
 {

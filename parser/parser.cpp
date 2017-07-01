@@ -8,6 +8,7 @@
 #include "errors.hpp"
 
 using namespace std;
+using namespace various;
 using namespace webss;
 
 void addPrivateEntities(EntityManager& ents, vector<string> names, Entity ent)

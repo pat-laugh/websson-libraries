@@ -2,8 +2,9 @@
 //Copyright 2017 Patrick Laughrea
 #include "utilsWebss.hpp"
 
-#include "utils.hpp"
+#include <various/utils.hpp>
 
+using namespace various;
 using namespace webss;
 
 bool webss::isNameStart(char c)

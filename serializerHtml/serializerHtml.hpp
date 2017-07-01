@@ -2,23 +2,24 @@
 //Copyright 2017 Patrick Laughrea
 #pragma once
 
+#include <various/stringBuilder.hpp>
+
 #include "structures/base.hpp"
 #include "structures/document.hpp"
-#include "utils/stringBuilder.hpp"
 
 namespace webss
 {
 	class SerializerHtml
 	{
 	public:
-		static void serialize(StringBuilder& out, const Document& doc)
+		static void serialize(various::StringBuilder& out, const Document& doc)
 		{
 			SerializerHtml().putDocument(out, doc);
 		}
 
 		static std::string serialize(const Document& doc)
 		{
-			StringBuilder out;
+			various::StringBuilder out;
 			serialize(out, doc);
 			return out;
 		}
@@ -26,17 +27,17 @@ namespace webss
 	private:
 		SerializerHtml();
 
-		void putDocument(StringBuilder& out, const Document& doc);
+		void putDocument(various::StringBuilder& out, const Document& doc);
 
-		void putQuotableValue(StringBuilder& out, const Webss& value);
-		void putKeyValue(StringBuilder& out, const std::string& key, const Webss& value);
-		void putConcreteValue(StringBuilder& out, const Webss& value);
+		void putQuotableValue(various::StringBuilder& out, const Webss& value);
+		void putKeyValue(various::StringBuilder& out, const std::string& key, const Webss& value);
+		void putConcreteValue(various::StringBuilder& out, const Webss& value);
 
-		void putInt(StringBuilder& out, WebssInt i);
-		void putDouble(StringBuilder& out, double d);
-		void putQuotableString(StringBuilder& out, const std::string& str);
-		void putDocumentString(StringBuilder& out, const std::string& str);
-		void putList(StringBuilder& out, const List& list);
-		void putTemplate(StringBuilder& out, const Template& templ);
+		void putInt(various::StringBuilder& out, WebssInt i);
+		void putDouble(various::StringBuilder& out, double d);
+		void putQuotableString(various::StringBuilder& out, const std::string& str);
+		void putDocumentString(various::StringBuilder& out, const std::string& str);
+		void putList(various::StringBuilder& out, const List& list);
+		void putTemplate(various::StringBuilder& out, const Template& templ);
 	};
 }

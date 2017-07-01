@@ -5,6 +5,7 @@
 #include <functional>
 #include <memory>
 #include <set>
+#include <various/stringBuilder.hpp>
 
 #include "structures/webss.hpp"
 #include "structures/documentHead.hpp"
@@ -15,33 +16,32 @@
 #include "structures/dictionary.hpp"
 #include "structures/paramStandard.hpp"
 #include "utils/conType.hpp"
-#include "utils/stringBuilder.hpp"
 
 namespace webss
 {
 	class Serializer
 	{
 	public:
-		static void serialize(StringBuilder& out, const Document& doc)
+		static void serialize(various::StringBuilder& out, const Document& doc)
 		{
 			Serializer().putDocument(out, doc);
 		}
 
 		static std::string serialize(const Document& doc)
 		{
-			StringBuilder out;
+			various::StringBuilder out;
 			serialize(out, doc);
 			return out;
 		}
 
-		static void serialize(StringBuilder& out, const DocumentHead& docHead)
+		static void serialize(various::StringBuilder& out, const DocumentHead& docHead)
 		{
 			Serializer().putDocumentHead(out, docHead);
 		}
 
 		static std::string serialize(const DocumentHead& docHead)
 		{
-			StringBuilder out;
+			various::StringBuilder out;
 			serialize(out, docHead);
 			return out;
 		}
@@ -51,62 +51,62 @@ namespace webss
 
 		Serializer();
 
-		void putDocumentHead(StringBuilder& out, const DocumentHead& docHead);
-		void putDocument(StringBuilder& out, const Document& doc);
+		void putDocumentHead(various::StringBuilder& out, const DocumentHead& docHead);
+		void putDocument(various::StringBuilder& out, const Document& doc);
 
-		void putPreviousNamespaceNames(StringBuilder& out, const Namespace& nspace);
+		void putPreviousNamespaceNames(various::StringBuilder& out, const Namespace& nspace);
 		bool namespaceCurrentScope(const std::weak_ptr<Namespace::NamespaceBody>& nspace);
-		void putEntityNameWithoutNamespace(StringBuilder & out, const Entity & ent);
-		void putEntityName(StringBuilder& out, const Entity& ent);
+		void putEntityNameWithoutNamespace(various::StringBuilder & out, const Entity & ent);
+		void putEntityName(various::StringBuilder& out, const Entity& ent);
 
-		void putAbstractValue(StringBuilder& out, const Webss& webss);
+		void putAbstractValue(various::StringBuilder& out, const Webss& webss);
 
-		void putConcreteValue(StringBuilder& out, const Webss& webss, ConType con);
+		void putConcreteValue(various::StringBuilder& out, const Webss& webss, ConType con);
 
-		void putCharValue(StringBuilder& out, const Webss& value, ConType con);
+		void putCharValue(various::StringBuilder& out, const Webss& value, ConType con);
 
-		void putKeyValue(StringBuilder& out, const std::string& key, const Webss& value, ConType con);
-		void putExplicitKeyValue(StringBuilder& out, const std::string& key, const Webss& value, ConType con);
+		void putKeyValue(various::StringBuilder& out, const std::string& key, const Webss& value, ConType con);
+		void putExplicitKeyValue(various::StringBuilder& out, const std::string& key, const Webss& value, ConType con);
 
-		void putInt(StringBuilder& out, WebssInt i);
-		void putDouble(StringBuilder& out, double d);
-		void putLineString(StringBuilder& out, const std::string& str, ConType con);
-		void putCString(StringBuilder& out, const std::string& str);
-		void putDictionary(StringBuilder& out, const Dictionary& dict);
-		void putList(StringBuilder& out, const List& list);
-		void putListText(StringBuilder& out, const List& list);
-		void putTuple(StringBuilder& out, const Tuple& tuple);
-		void putTupleText(StringBuilder& out, const Tuple& tuple);
+		void putInt(various::StringBuilder& out, WebssInt i);
+		void putDouble(various::StringBuilder& out, double d);
+		void putLineString(various::StringBuilder& out, const std::string& str, ConType con);
+		void putCString(various::StringBuilder& out, const std::string& str);
+		void putDictionary(various::StringBuilder& out, const Dictionary& dict);
+		void putList(various::StringBuilder& out, const List& list);
+		void putListText(various::StringBuilder& out, const List& list);
+		void putTuple(various::StringBuilder& out, const Tuple& tuple);
+		void putTupleText(various::StringBuilder& out, const Tuple& tuple);
 
-		void putThead(StringBuilder & out, const Thead& thead);
+		void putThead(various::StringBuilder & out, const Thead& thead);
 
-		void putImport(StringBuilder& out, const ImportedDocument& import);
+		void putImport(various::StringBuilder& out, const ImportedDocument& import);
 
-		void putScopedImport(StringBuilder& out, const Entity& ent, const ImportedDocument& import);
-		void putScopedImportList(StringBuilder & out, const std::vector<Entity>& entList, const ImportedDocument & import);
+		void putScopedImport(various::StringBuilder& out, const Entity& ent, const ImportedDocument& import);
+		void putScopedImportList(various::StringBuilder & out, const std::vector<Entity>& entList, const ImportedDocument & import);
 
-		void putExpandDocumentHead(StringBuilder& out, const Namespace& nspace);
+		void putExpandDocumentHead(various::StringBuilder& out, const Namespace& nspace);
 
-		void putNamespace(StringBuilder& out, const Namespace& nspace);
+		void putNamespace(various::StringBuilder& out, const Namespace& nspace);
 
-		void putEnum(StringBuilder& out, const Enum& tEnum);
+		void putEnum(various::StringBuilder& out, const Enum& tEnum);
 
-		void putEntityAbstract(StringBuilder& out, const Entity& ent);
-		void putEntityConcrete(StringBuilder& out, const Entity& ent, ConType con);
+		void putEntityAbstract(various::StringBuilder& out, const Entity& ent);
+		void putEntityConcrete(various::StringBuilder& out, const Entity& ent, ConType con);
 
-		void putTemplate(StringBuilder& out, const Template& templ, ConType con);
+		void putTemplate(various::StringBuilder& out, const Template& templ, ConType con);
 
-		void putTemplateBinTuple(StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple);
-		void putTemplateStdBody(StringBuilder & out, const TheadStd::Params & params, const Webss & body);
-		void putTemplateStdTuple(StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
-		void putTemplateStdTupleText(StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
-		void putTemplateTextTuple(StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
+		void putTemplateBinTuple(various::StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple);
+		void putTemplateStdBody(various::StringBuilder & out, const TheadStd::Params & params, const Webss & body);
+		void putTemplateStdTuple(various::StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
+		void putTemplateStdTupleText(various::StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
+		void putTemplateTextTuple(various::StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
 
-		void putBinSizeList(StringBuilder& out, const ParamBin::SizeList& blist);
-		void putParamBin(StringBuilder& out, const std::string& key, const ParamBin& param);
-		void putParamStd(StringBuilder& out, const std::string& key, const ParamStd& param);
+		void putBinSizeList(various::StringBuilder& out, const ParamBin::SizeList& blist);
+		void putParamBin(various::StringBuilder& out, const std::string& key, const ParamBin& param);
+		void putParamStd(various::StringBuilder& out, const std::string& key, const ParamStd& param);
 
-		void putTheadBin(StringBuilder& out, const TheadBin& thead);
+		void putTheadBin(various::StringBuilder& out, const TheadBin& thead);
 
 		class NamespaceIncluder
 		{

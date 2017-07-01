@@ -21,16 +21,7 @@
     <ClInclude Include="conType.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stringBuilder.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="utils.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="utilsWebss.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="smartIterator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -38,13 +29,7 @@
     <ClCompile Include="conType.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="utilsWebss.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="smartIterator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

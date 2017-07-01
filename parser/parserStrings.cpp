@@ -2,16 +2,18 @@
 //Copyright 2017 Patrick Laughrea
 #include "parserStrings.hpp"
 
+#include <various/utils.hpp>
+
 #include "containerSwitcher.hpp"
 #include "errors.hpp"
 #include "iteratorSwitcher.hpp"
 #include "unicode.hpp"
 #include "utilsOptions.hpp"
 #include "utils/constants.hpp"
-#include "utils/utils.hpp"
 #include "utils/utilsWebss.hpp"
 
 using namespace std;
+using namespace various;
 using namespace webss;
 
 const char ERROR_MULTILINE_STRING[] = "multiline-string is not closed";

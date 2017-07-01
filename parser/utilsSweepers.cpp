@@ -9,6 +9,7 @@
 #include "utils/utilsWebss.hpp"
 
 using namespace std;
+using namespace various;
 using namespace webss;
 
 void skipLineComment(SmartIterator& it);

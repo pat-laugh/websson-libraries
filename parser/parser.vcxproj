@@ -77,7 +77,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\LibrariesC++\curl\builds\libcurl-vc14-x86-release-static-ipv6-sspi-winssl\include;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\LibrariesC++\curl\builds\libcurl-vc14-x86-release-static-ipv6-sspi-winssl\include;$(SolutionDir);$(SolutionDir)\..\various-cpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -176,6 +176,9 @@
     <ClCompile Include="utilsTemplateDefaultValues.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\various-cpp\various\various.vcxproj">
+      <Project>{d0c1a91a-fd04-4dc1-b8d6-5fa8efe5d08d}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\structures\structures.vcxproj">
       <Project>{94954003-9d13-4891-985b-d28e7acc6825}</Project>
     </ProjectReference>

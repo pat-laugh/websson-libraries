@@ -2,11 +2,11 @@
 //Copyright 2017 Patrick Laughrea
 #pragma once
 
-#include "utils/smartIterator.hpp"
-
 #ifdef VOID //in Windows
 #undef VOID
 #endif
+
+#include <various/smartIterator.hpp>
 
 namespace webss
 {
@@ -23,7 +23,7 @@ namespace webss
 	class TagIterator
 	{
 	public:
-		TagIterator(SmartIterator it);
+		TagIterator(various::SmartIterator it);
 
 		TagIterator& operator=(TagIterator&& o);
 		TagIterator& operator=(const TagIterator& o) = delete;
@@ -39,18 +39,18 @@ namespace webss
 
 		void sofertTag(Tag tag);
 
-		SmartIterator& getIt();
+		various::SmartIterator& getIt();
 
 		//invalidates the tag iterator
-		SmartIterator& getItSafe();
+		various::SmartIterator& getItSafe();
 
-		void setIterator(SmartIterator it);
+		void setIterator(various::SmartIterator it);
 
 		//sets tag to what the iterator currently points to
 		Tag update();
 
 	private:
-		SmartIterator it;
+		various::SmartIterator it;
 		Tag tag;
 		bool valid;
 

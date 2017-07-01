@@ -16,6 +16,7 @@
 #include "utils/utilsWebss.hpp"
 
 using namespace std;
+using namespace various;
 using namespace webss;
 
 const char ERROR_INPUT_DICTIONARY[] = "dictionary can only have key-values";

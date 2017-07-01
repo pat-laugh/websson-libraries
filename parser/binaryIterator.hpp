@@ -2,14 +2,14 @@
 //Copyright 2017 Patrick Laughrea
 #pragma once
 
-#include "utils/smartIterator.hpp"
+#include <various/smartIterator.hpp>
 
 namespace webss
 {
 	class BinIterator
 	{
 	private:
-		SmartIterator& it;
+		various::SmartIterator& it;
 		char bitshift = 8;
 		char byteBlock;
 
@@ -17,7 +17,7 @@ namespace webss
 
 		void checkBitshift();
 	public:
-		BinIterator(SmartIterator& it);
+		BinIterator(various::SmartIterator& it);
 
 		int readBit();
 

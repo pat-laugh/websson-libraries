@@ -4,16 +4,17 @@
 
 #include <cmath>
 #include <set>
+#include <various/utils.hpp>
 
 #include "structures/list.hpp"
 #include "structures/paramStandard.hpp"
 #include "structures/template.hpp"
 #include "structures/tuple.hpp"
 #include "structures/webss.hpp"
-#include "utils/utils.hpp"
 
 using namespace std;
 using namespace webss;
+using namespace various;
 
 bool equalAny(const string& name, set<string> names)
 {

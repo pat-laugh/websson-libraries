@@ -2,17 +2,17 @@
 //Copyright 2017 Patrick Laughrea
 #pragma once
 
-#include "utils/smartIterator.hpp"
+#include <various/smartIterator.hpp>
 
 namespace webss
 {
 	class IteratorSwitcher
 	{
 	private:
-		SmartIterator& oldIt;
-		SmartIterator savedIt;
+		various::SmartIterator& oldIt;
+		various::SmartIterator savedIt;
 	public:
-		IteratorSwitcher(SmartIterator& oldIt, SmartIterator&& newIt);
+		IteratorSwitcher(various::SmartIterator& oldIt, various::SmartIterator&& newIt);
 		~IteratorSwitcher();
 	};
 }

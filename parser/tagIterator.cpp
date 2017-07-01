@@ -10,6 +10,7 @@
 #include "utils/utilsWebss.hpp"
 
 using namespace std;
+using namespace various;
 using namespace webss;
 
 TagIterator::TagIterator(SmartIterator it) : it(move(it)) { update(); }

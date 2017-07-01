@@ -2,10 +2,12 @@
 //Copyright 2017 Patrick Laughrea
 #include "serializer.hpp"
 
+#include <various/utils.hpp>
+
 #include "utils/constants.hpp"
-#include "utils/utils.hpp"
 
 using namespace std;
+using namespace various;
 using namespace webss;
 
 //#define REVERSE_ENDIANNESS_WRITE

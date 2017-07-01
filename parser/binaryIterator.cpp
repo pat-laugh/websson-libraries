@@ -4,10 +4,10 @@
 
 #include <cassert>
 #include <stdexcept>
-
-#include "utils/stringBuilder.hpp"
+#include <various/stringBuilder.hpp>
 
 using namespace std;
+using namespace various;
 using namespace webss;
 
 int BinIterator::getBitmask(int num)

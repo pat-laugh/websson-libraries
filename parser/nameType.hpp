@@ -8,7 +8,6 @@
 #include "tagIterator.hpp"
 #include "structures/entity.hpp"
 #include "structures/keywords.hpp"
-#include "utils/smartIterator.hpp"
 
 namespace webss
 {

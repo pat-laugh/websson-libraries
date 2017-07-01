@@ -3,11 +3,13 @@
 
 #include <iostream>
 #include <fstream>
+#include <various/smartIterator.hpp>
 
 #include "parser/parser.hpp"
 #include "serializerHtml/serializerHtml.hpp"
 
 using namespace std;
+using namespace various;
 using namespace webss;
 
 int main(int argc, char** argv)

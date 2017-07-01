@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "parser.hpp"
-#include "utils/smartIterator.hpp"
 
 namespace webss
 {

@@ -2,15 +2,17 @@
 //Copyright 2017 Patrick Laughrea
 #include "utilsOptions.hpp"
 
+#include <various/stringBuilder.hpp>
+
 #include "errors.hpp"
 #include "iteratorSwitcher.hpp"
 #include "parserStrings.hpp"
 #include "utilsSweepers.hpp"
 #include "utils/constants.hpp"
-#include "utils/stringBuilder.hpp"
 #include "utils/utilsWebss.hpp"
 
 using namespace std;
+using namespace various;
 using namespace webss;
 
 const char ERROR_OPTION[] = "expected option";

@@ -15,7 +15,6 @@
 #include "structures/paramStandard.hpp"
 #include "structures/thead.hpp"
 #include "structures/template.hpp"
-#include "utils/stringBuilder.hpp"
 #include "utils/constants.hpp"
 
 namespace webss
@@ -23,9 +22,9 @@ namespace webss
 	class Parser
 	{
 	public:
-		Parser(SmartIterator it);
+		Parser(various::SmartIterator it);
 		Parser(const std::istream& in);
-		Parser& setIterator(SmartIterator it);
+		Parser& setIterator(various::SmartIterator it);
 		Parser& addEntity(std::string name, Webss value);
 
 		Document parseDocument();
@@ -41,8 +40,8 @@ namespace webss
 		template <class Container, ConType::Enum CON>
 		Container parseContainer(Container&& cont, bool allowVoid, std::function<void(Container& cont)> func);
 
-		SmartIterator& getIt() { return tagit.getIt(); }
-		SmartIterator& getItSafe() { return tagit.getItSafe(); }
+		various::SmartIterator& getIt() { return tagit.getIt(); }
+		various::SmartIterator& getItSafe() { return tagit.getItSafe(); }
 		const EntityManager& getEnts() { return ents; }
 		ConType getCurrentContainer() { return con; }
 

@@ -4,13 +4,14 @@
 
 #include <cassert>
 #include <limits>
+#include <various/utils.hpp>
 
 #include "errors.hpp"
 #include "utilsNumbers.hpp"
 #include "utilsSweepers.hpp"
-#include "utils/utils.hpp"
 
 using namespace std;
+using namespace various;
 using namespace webss;
 
 const char* ERROR_EXPECTED_HEX = "expected hexadecimal digit";
