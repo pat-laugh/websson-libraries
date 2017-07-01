@@ -136,11 +136,6 @@
     <ClCompile Include="conType.cpp" />
     <ClCompile Include="utilsWebss.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\various-cpp\various\various.vcxproj">
-      <Project>{d0c1a91a-fd04-4dc1-b8d6-5fa8efe5d08d}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

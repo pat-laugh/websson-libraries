@@ -19,9 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\various-cpp\various\various.vcxproj">
-      <Project>{d0c1a91a-fd04-4dc1-b8d6-5fa8efe5d08d}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\structures\structures.vcxproj">
       <Project>{94954003-9d13-4891-985b-d28e7acc6825}</Project>
     </ProjectReference>
