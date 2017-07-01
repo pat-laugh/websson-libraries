@@ -12,7 +12,7 @@ ImportedDocument::ImportedDocument(Webss data) : data(move(data))
 {
 	assert(this->data.isTuple() && "import must reference a tuple");
 	assert(this->data.getTuple().size() == 3);
-#ifdef assert
+#ifndef NDEBUG
 	for (const auto& item : this->data.getTuple())
 		assert(item.isString());
 #endif	

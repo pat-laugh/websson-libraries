@@ -23,11 +23,8 @@ int BinIterator::getBitmask(int num)
 	case 6: return 0b00111111;
 	case 7: return 0b01111111;
 	case 8: return 0b11111111;
-#ifdef assert
 	default:
-		assert(false);
-		throw domain_error("");
-#endif
+		assert(false); throw domain_error("");
 	}
 }
 

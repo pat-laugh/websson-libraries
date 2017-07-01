@@ -370,8 +370,12 @@ void Serializer::putDouble(StringBuilder& out, double d)
 {
 	assert(std::isfinite(d));
 	char buffer[32];
+#ifndef NDEBUG
 	int num = snprintf(buffer, 32, "%.17g", d);
 	assert(num > 0 && num < 32);
+#else
+	snprintf(buffer, 32, "%.17g", d);
+#endif
 	out += buffer;
 }
 
@@ -788,10 +792,14 @@ void Serializer::putTemplateStdTupleText(StringBuilder& out, const TheadStd::Par
 	assert(tuple.size() <= params.size() && "too many elements in template tuple");
 
 	out += ASSIGN_CONTAINER_STRING;
+#ifndef NDEBUG
 	decltype(params.size()) i = 0;
+#endif
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
 	{
+#ifndef NDEBUG
 		const auto& param = params[i++];
+#endif
 		assert(!param.hasThead());
 		switch (it->getTypeRaw())
 		{
@@ -805,7 +813,7 @@ void Serializer::putTemplateStdTupleText(StringBuilder& out, const TheadStd::Par
 			assert(false);
 		}
 	});
-#ifdef assert
+#ifndef NDEBUG
 	while (i < params.size())
 		assert(params[i++].hasDefaultValue());
 #endif
@@ -815,11 +823,15 @@ void Serializer::putTemplateTextTuple(StringBuilder& out, const TheadStd::Params
 {
 	static const auto CON = ConType::TUPLE;
 	assert(tuple.size() <= params.size() && "too many elements in template tuple");
-
+	
+#ifndef NDEBUG
 	decltype(params.size()) i = 0;
+#endif
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
 	{
+#ifndef NDEBUG
 		const auto& param = params[i++];
+#endif
 		switch (it->getTypeRaw())
 		{
 		case WebssType::NONE: case WebssType::DEFAULT:

@@ -125,8 +125,12 @@ void SerializerHtml::putDouble(StringBuilder& out, double d)
 {
 	assert(std::isfinite(d));
 	char buffer[32];
+#ifndef NDEBUG
 	int num = snprintf(buffer, 32, "%.17g", d);
 	assert(num > 0 && num < 32);
+#else
+	snprintf(buffer, 32, "%.17g", d);
+#endif
 	out += buffer;
 }
 

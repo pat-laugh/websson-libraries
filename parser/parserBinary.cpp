@@ -265,11 +265,8 @@ Webss parseBinElement(BinIterator& it, const ParamBin::SizeHead& bhead)
 		return Webss(string(1, (char)it.readBits(bhead.size())));
 	case Type::NUMBER: case Type::ENTITY_NUMBER:
 		return Webss(it.readString(bhead.size()));
-#ifdef assert
 	default:
-		assert(false);
-		throw domain_error("");
-#endif
+		assert(false); throw domain_error("");
 	}
 }
 

@@ -195,7 +195,7 @@ void putBinElement(StringBuilder& out, const ParamBin::SizeHead& bhead, const We
 		const auto& s = webss.getStringRaw();
 		if (bhead.isEmpty())
 			writeBinSize(out, s.length());
-#ifdef assert
+#ifndef NDEBUG
 		else
 			assert(bhead.size() == s.length());
 #endif
