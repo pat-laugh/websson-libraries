@@ -2,8 +2,8 @@
 //Copyright 2017 Patrick Laughrea
 #pragma once
 
-#include <various/smartIterator.hpp>
-#include <various/stringBuilder.hpp>
+#include "various/smartIterator.hpp"
+#include "various/stringBuilder.hpp"
 
 namespace webss
 {

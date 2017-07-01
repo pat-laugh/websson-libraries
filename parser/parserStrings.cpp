@@ -2,8 +2,6 @@
 //Copyright 2017 Patrick Laughrea
 #include "parserStrings.hpp"
 
-#include <various/utils.hpp>
-
 #include "containerSwitcher.hpp"
 #include "errors.hpp"
 #include "iteratorSwitcher.hpp"
@@ -11,6 +9,7 @@
 #include "utilsOptions.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
+#include "various/utils.hpp"
 
 using namespace std;
 using namespace various;

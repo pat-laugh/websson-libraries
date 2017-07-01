@@ -2,10 +2,9 @@
 //Copyright 2017 Patrick Laughrea
 #pragma once
 
-#include <various/stringBuilder.hpp>
-
 #include "structures/base.hpp"
 #include "structures/document.hpp"
+#include "various/stringBuilder.hpp"
 
 namespace webss
 {

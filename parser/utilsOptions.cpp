@@ -2,14 +2,13 @@
 //Copyright 2017 Patrick Laughrea
 #include "utilsOptions.hpp"
 
-#include <various/stringBuilder.hpp>
-
 #include "errors.hpp"
 #include "iteratorSwitcher.hpp"
 #include "parserStrings.hpp"
 #include "utilsSweepers.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
+#include "various/stringBuilder.hpp"
 
 using namespace std;
 using namespace various;

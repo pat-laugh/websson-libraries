@@ -5,7 +5,6 @@
 #include <functional>
 #include <memory>
 #include <set>
-#include <various/stringBuilder.hpp>
 
 #include "structures/webss.hpp"
 #include "structures/documentHead.hpp"
@@ -16,6 +15,7 @@
 #include "structures/dictionary.hpp"
 #include "structures/paramStandard.hpp"
 #include "utils/conType.hpp"
+#include "various/stringBuilder.hpp"
 
 namespace webss
 {

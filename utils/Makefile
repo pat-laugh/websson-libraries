@@ -1,7 +1,7 @@
 # MIT License
 # Copyright 2017 Patrick Laughrea
 
-OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers
+OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers -iquote ..
 LIBRARY = libutils.a
 CPP_FILES = $(wildcard *.cpp)
 OBJ_FILES = $(notdir $(CPP_FILES:.cpp=.o))

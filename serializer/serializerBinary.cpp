@@ -2,9 +2,8 @@
 //Copyright 2017 Patrick Laughrea
 #include "serializer.hpp"
 
-#include <various/utils.hpp>
-
 #include "utils/constants.hpp"
+#include "various/utils.hpp"
 
 using namespace std;
 using namespace various;

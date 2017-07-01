@@ -4,10 +4,10 @@
 
 #include <functional>
 #include <set>
-#include <various/smartIterator.hpp>
 
 #include "utils/conType.hpp"
 #include "tagIterator.hpp"
+#include "various/smartIterator.hpp"
 
 namespace webss
 {

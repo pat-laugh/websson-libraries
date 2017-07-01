@@ -6,6 +6,7 @@ DIR_STRUCTURES = ../structures
 DIR_PARSER = ../parser
 DIR_SERIALIZER = ../serializer
 DIR_SERIALIZER_HTML = ../serializerHtml
+DIR_VARIOUS = ../various
 
 OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers -iquote ..
 CPP_FILES = $(wildcard *.cpp)
@@ -20,11 +21,12 @@ COMPILE_LIBS:
 	cd $(DIR_PARSER); make -s
 	cd $(DIR_SERIALIZER); make -s
 	cd $(DIR_SERIALIZER_HTML); make -s
+	cd $(DIR_VARIOUS); make -s
 
 $(EXEC): $(OBJ_FILES)
 	$(CXX) -o $@ $^ -L$(DIR_PARSER) -lparser -lcurl \
 	-L$(DIR_SERIALIZER) -lserializer -L$(DIR_SERIALIZER_HTML) -lserializerHtml \
-	-L$(DIR_STRUCTURES) -lstructures -L$(DIR_UTILS) -lutils
+	-L$(DIR_STRUCTURES) -lstructures -L$(DIR_UTILS) -lutils -L$(DIR_VARIOUS) -lvarious
 
 %.o: %.cpp
 	$(CXX) $(OPTIONS) -o $@ -c $<
@@ -35,6 +37,7 @@ clean:
 	cd $(DIR_PARSER); make clean -s
 	cd $(DIR_SERIALIZER); make clean -s
 	cd $(DIR_SERIALIZER_HTML); make clean -s
+	cd $(DIR_VARIOUS); make clean -s
 	rm -rf $(EXEC) *.o
 
 debug: OPTIONS += -DNDEBUG -g3
@@ -46,3 +49,4 @@ COMPILE_LIBS_DEBUG:
 	cd $(DIR_PARSER); make debug -s
 	cd $(DIR_SERIALIZER); make debug -s
 	cd $(DIR_SERIALIZER_HTML); make debug -s
+	cd $(DIR_VARIOUS); make debug -s

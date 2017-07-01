@@ -3,10 +3,10 @@
 
 #include <iostream>
 #include <fstream>
-#include <various/smartIterator.hpp>
 
 #include "parser/parser.hpp"
 #include "serializerHtml/serializerHtml.hpp"
+#include "various/smartIterator.hpp"
 
 using namespace std;
 using namespace various;
