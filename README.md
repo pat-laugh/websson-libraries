@@ -46,17 +46,22 @@ clone the project, then open the solution file websson-libraries.
 
 For each project that requires files from another project, go in their
 properties, and then in the tab Configuration Properties -> C/C++ -> General.
-For "Additional Include Directories", add the value "$(SolutionDir)" (values are
+For "Additional Include Directories", add the value `$(SolutionDir)` (values are
 separated by semi-colons). The parser also requires the directory of the curl
 library's header files if imports are not disabled. The location of the library
 various also needs to be added like this.
 
-The project for tests is the only one that produces an executable, so the only
-one that needs to be linked. If the curl library is used, in the properties of
+Cloning the library's repository in the same directory as this Solution can be useful:
+you can then add the value `$(SolutionDir)\..\various-cpp` to the include directories.
+
+The projects that produce an executable must be linked. If the curl library is used, in the properties of
 the tests project, go to the tab Configuration Properties -> Linker -> General,
 and for "Additional Library Directories", add the directory of the curl library.
 Then go to the tab Configuration Properties -> Linker -> Input, and for
-"Additional Dependencies", add the name of the curl library (possibly "libcurl_a.lib").
+"Additional Dependencies", add the name of the curl library (possibly `libcurl_a.lib`).
+
+For the library various, its path can be something like
+`$(SolutionDir)\..\various-cpp\Debug`. Its name is `various.lib`.
 
 If you have linker errors, make sure that the solution build targets the same
 platform as the library (for instance, 32-bit with 32-bit).
