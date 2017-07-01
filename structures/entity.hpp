@@ -23,7 +23,7 @@ namespace webss
 		bool operator!=(const Entity& o) const;
 
 		bool hasNamespace() const;
-		const Namespace& getNamespace() const;
+		const Namespace getNamespace() const;
 		void setNamespace(const Namespace& nspace);
 		void removeNamespace();
 
@@ -31,6 +31,6 @@ namespace webss
 		struct EntityBody;
 
 		std::shared_ptr<EntityBody> ptr;
-		Namespace nspace;
+		std::weak_ptr<Namespace::NamespaceBody> nspacePtr;
 	};
 }

@@ -34,8 +34,11 @@ int main()
 {
 	do
 	{
-	//	vector<string> filenames { "strings", "namespace", "enum", "names-keywords", "multiline-string-options", "assignAbstractEntity" };
-		vector<string> filenames { "expandTuple", "templatePlus", "list", "tuple", "option", "expandThead" };
+		vector<string> filenames
+		{
+			"strings", "namespace", "enum", "names-keywords", "multiline-string-options", "assignAbstractEntity",
+			"expandTuple", "templatePlus", "list", "tuple", "option", "expandThead",
+		};
 		for (const auto& filename : filenames)
 		{
 			test(filename, [](const Document&) {});

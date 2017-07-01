@@ -19,7 +19,7 @@ struct Namespace::NamespaceBody
 	NamespaceBody(string&& name) : name(move(name)) {}
 	NamespaceBody(string&& name, const Namespace& previousNspace) : name(move(name)), nspaces(previousNspace.getNamespaces())
 	{
-		nspaces.push_back(previousNspace);
+		nspaces.push_back(previousNspace.getBodyPointerWeak());
 	}
 
 	bool operator==(const NamespaceBody& o) const
@@ -43,9 +43,11 @@ struct Namespace::NamespaceBody
 	bool operator!=(const NamespaceBody& o) const { return !(*this == o); }
 };
 
-Namespace::Namespace() {}
+const string& webss::getNameNamespaceBody(const Namespace::NamespaceBody& nbody) { return nbody.name; }
+
 Namespace::Namespace(string name) : ptrBody(new NamespaceBody(move(name))) {}
 Namespace::Namespace(string name, const Namespace& previousNspace) : ptrBody(new NamespaceBody(move(name), previousNspace)) {}
+Namespace::Namespace(shared_ptr<NamespaceBody> ptrBody) : ptrBody(move(ptrBody)) {}
 
 bool Namespace::empty() const { return getData().empty(); }
 Namespace::size_type Namespace::size() const { return getData().size(); }
@@ -78,6 +80,8 @@ const Entity& Namespace::at(const string& key) const { return getData()[accessKe
 
 const string& Namespace::getName() const { assert(hasBody()); return getBody().name; }
 const Namespace::Namespaces& Namespace::getNamespaces() const { assert(hasBody()); return getBody().nspaces; }
+const shared_ptr<Namespace::NamespaceBody>& Namespace::getBodyPointerShared() const { return ptrBody; }
+weak_ptr<Namespace::NamespaceBody> Namespace::getBodyPointerWeak() const { return ptrBody; }
 
 Namespace::iterator Namespace::begin() { return getData().begin(); }
 Namespace::iterator Namespace::end() { return getData().end(); }

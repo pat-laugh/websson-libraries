@@ -26,7 +26,7 @@ namespace webss
 		{
 			Serializer().putDocument(out, doc);
 		}
-		
+
 		static std::string serialize(const Document& doc)
 		{
 			StringBuilder out;
@@ -55,7 +55,7 @@ namespace webss
 		void putDocument(StringBuilder& out, const Document& doc);
 
 		void putPreviousNamespaceNames(StringBuilder& out, const Namespace& nspace);
-		bool namespaceCurrentScope(const Namespace& nspace);
+		bool namespaceCurrentScope(const std::weak_ptr<Namespace::NamespaceBody>& nspace);
 		void putEntityNameWithoutNamespace(StringBuilder & out, const Entity & ent);
 		void putEntityName(StringBuilder& out, const Entity& ent);
 
@@ -107,7 +107,7 @@ namespace webss
 		void putParamStd(StringBuilder& out, const std::string& key, const ParamStd& param);
 
 		void putTheadBin(StringBuilder& out, const TheadBin& thead);
-		
+
 		class NamespaceIncluder
 		{
 		private:
@@ -122,7 +122,7 @@ namespace webss
 		public:
 			NamespaceIncluder(std::set<void*>& currentNamespaces, const Namespace& nspace) : currentNamespaces(currentNamespaces)
 			{
-				include(nspace.getPointerBody());
+				include(nspace.getBodyPointerShared().get());
 			}
 
 			~NamespaceIncluder()

@@ -39,20 +39,7 @@ const Webss& Entity::getContent() const
 bool Entity::operator==(const Entity& o) const { return (this == &o) || equalPtrs(ptr, o.ptr); }
 bool Entity::operator!=(const Entity& o) const { return !(*this == o); }
 
-bool Entity::hasNamespace() const
-{
-	return nspace.hasBody();
-}
-const Namespace& Entity::getNamespace() const
-{
-	assert(hasNamespace());
-	return nspace;
-}
-void Entity::setNamespace(const Namespace& nspace)
-{
-	this->nspace = nspace;
-}
-void Entity::removeNamespace()
-{
-	nspace = Namespace();
-}
+bool Entity::hasNamespace() const { return !nspacePtr.expired(); }
+const Namespace Entity::getNamespace() const { assert(hasNamespace()); return nspacePtr.lock(); }
+void Entity::setNamespace(const Namespace& nspace) { nspacePtr = nspace.getBodyPointerWeak(); }
+void Entity::removeNamespace() { nspacePtr.reset(); }

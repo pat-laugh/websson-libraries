@@ -235,14 +235,13 @@ void Serializer::putPreviousNamespaceNames(StringBuilder& out, const Namespace& 
 			--i;
 
 		while (i < nspaces.size())
-			out += nspaces[i++].getName() + CHAR_SCOPE;
+			out += getNameNamespaceBody(*nspaces[i++].lock()) + CHAR_SCOPE;
 	}
 }
 
-bool Serializer::namespaceCurrentScope(const Namespace& nspace)
+bool Serializer::namespaceCurrentScope(const weak_ptr<Namespace::NamespaceBody>& nspacePtr)
 {
-	return currentNamespaces.find(nspace.getPointerBody()) != currentNamespaces.end();
-	return true;
+	return currentNamespaces.find(nspacePtr.lock().get()) != currentNamespaces.end();
 }
 
 void Serializer::putEntityNameWithoutNamespace(StringBuilder& out, const Entity& ent)
@@ -255,7 +254,7 @@ void Serializer::putEntityName(StringBuilder& out, const Entity& ent)
 	if (ent.hasNamespace())
 	{
 		const auto& nspace = ent.getNamespace();
-		if (!namespaceCurrentScope(nspace))
+		if (!namespaceCurrentScope(nspace.getBodyPointerWeak()))
 		{
 			putPreviousNamespaceNames(out, nspace);
 			out += nspace.getName() + CHAR_SCOPE;
