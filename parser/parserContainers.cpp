@@ -201,6 +201,20 @@ Enum Parser::parseEnum(const string& name)
 	});
 }
 
+
+Document Parser::parseDocument(various::SmartIterator it)
+{
+	setIterator(move(it));
+	return parseDocument();
+}
+
+Document Parser::parseDocument(const std::istream& in)
+{
+	stringstream ss;
+	ss << in.rdbuf();
+	return parseDocument(SmartIterator(move(ss)));
+}
+
 Document Parser::parseDocument()
 {
 	try

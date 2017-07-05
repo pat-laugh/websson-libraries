@@ -55,12 +55,13 @@ void initAliases(map<string, vector<string>>& aliases)
 	aliases.insert({ "alias", { "-", "a" } });
 }
 
+Parser::Parser() : tagit(SmartIterator("")) {}
 Parser::Parser(SmartIterator it) : tagit(move(it)) { initEnts(ents); initAliases(aliases); }
 Parser::Parser(const istream& in) : tagit(SmartIterator(""))
 {
 	stringstream ss;
 	ss << in.rdbuf();
-	tagit.setIterator(SmartIterator(move(ss)));
+	setIterator(SmartIterator(move(ss)));
 	initEnts(ents);
 	initAliases(aliases);
 }

@@ -22,12 +22,15 @@ namespace webss
 	class Parser
 	{
 	public:
+		Parser();
 		Parser(various::SmartIterator it);
 		Parser(const std::istream& in);
 		Parser& setIterator(various::SmartIterator it);
 		Parser& addEntity(std::string name, Webss value);
 
 		Document parseDocument();
+		Document parseDocument(various::SmartIterator it);
+		Document parseDocument(const std::istream& in);
 
 		TagIterator tagit;
 		ConType con = ConType::DOCUMENT;
