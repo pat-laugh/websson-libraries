@@ -28,30 +28,24 @@ ErrorType testSerializerHtml();
 template <class Element>
 bool hasKeys(const Element& elem, set<string> keys);
 
-char inChar;
-
 int main()
 {
-	do
+	vector<string> filenames
 	{
-		vector<string> filenames
-		{
-			"strings", "namespace", "enum", "names-keywords", "multiline-string-options", "assignAbstractEntity",
-			"expandTuple", "templatePlus", "list", "tuple", "option", "expandThead",
-		};
-		for (const auto& filename : filenames)
-		{
-			test(filename, [](const Document&) {});
-			cout << endl;
-		}
+		"strings", "namespace", "enum", "names-keywords", "multiline-string-options", "assignAbstractEntity",
+		"expandTuple", "templatePlus", "list", "tuple", "option", "expandThead",
+	};
+	for (const auto& filename : filenames)
+	{
+		test(filename, [](const Document&) {});
+		cout << endl;
+	}
 
-		testDictionary();
-		cout << endl;
-		testTemplateStd();
-		cout << endl;
-		testSerializerHtml();
-		cin >> inChar;
-	} while (inChar != 'q');
+	testDictionary();
+	cout << endl;
+	testTemplateStd();
+	cout << endl;
+	testSerializerHtml();
 
     return 0;
 }
