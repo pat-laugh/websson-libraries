@@ -14,14 +14,15 @@ using namespace std;
 using namespace various;
 using namespace webss;
 
-const char ERROR_OPTION[] = "expected option";
+const std::string webss::OPTION_NAME = "-", webss::OPTION_SCOPE = ".", webss::OPTION_VALUE = ":";
+static const char* ERROR_OPTION = "expected option";
 
-bool isOptionStringChar(char c)
+static bool isOptionStringChar(char c)
 {
 	return c == CHAR_COLON || c == CHAR_EQUAL || c == CHAR_CSTRING;
 }
 
-string parseOptionString(Parser& parser)
+static string parseOptionString(Parser& parser)
 {
 	auto& it = parser.getIt();
 	assert(it && isOptionStringChar(*it));
@@ -32,7 +33,7 @@ string parseOptionString(Parser& parser)
 	return c == CHAR_COLON ? parseLineString(parser) : parseStickyLineString(parser);
 }
 
-void parseOptionScope(Parser& parser, vector<string>& output)
+static void parseOptionScope(Parser& parser, vector<string>& output)
 {
 	auto& it = parser.getIt();
 	output.push_back(OPTION_SCOPE);
@@ -46,7 +47,7 @@ void parseOptionScope(Parser& parser, vector<string>& output)
 }
 
 //returns true if the end of it is reached, else false
-bool parseOptionValue(Parser& parser, vector<string>& output)
+static bool parseOptionValue(Parser& parser, vector<string>& output)
 {
 	auto& it = parser.getIt();
 	if (!it)

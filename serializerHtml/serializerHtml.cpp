@@ -16,7 +16,7 @@ using namespace std;
 using namespace webss;
 using namespace various;
 
-bool equalAny(const string& name, set<string> names)
+static bool equalAny(const string& name, set<string> names)
 {
 	return names.find(name) != names.end();
 }
@@ -162,12 +162,12 @@ void SerializerHtml::putDocumentString(StringBuilder& out, const string& str)
 	out += str;
 }
 
-bool isDefaultValue(const Webss& value)
+static bool isDefaultValue(const Webss& value)
 {
 	return value.getTypeRaw() == WebssType::NONE || value.getTypeRaw() == WebssType::DEFAULT;
 }
 
-const string& getTheadRootName(const Thead* thead)
+static const string& getTheadRootName(const Thead* thead)
 {
 	const string* name = nullptr;
 	while (true)

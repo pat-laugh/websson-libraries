@@ -9,7 +9,7 @@
 using namespace std;
 using namespace webss;
 
-const char ERROR_NO_DEFAULT[] = "no default value, so value must be implemented";
+static const char* ERROR_NO_DEFAULT = "no default value, so value must be implemented";
 
 Tuple webss::makeDefaultTuple(const Thead& thead)
 {

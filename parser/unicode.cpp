@@ -14,11 +14,11 @@ using namespace std;
 using namespace various;
 using namespace webss;
 
-const char* ERROR_EXPECTED_HEX = "expected hexadecimal digit";
+static const char* ERROR_EXPECTED_HEX = "expected hexadecimal digit";
 
 //adds a unicode char to the StringBuilder
 //REQUIREMENT: num must be a valid unicode character
-void putUnicode(StringBuilder& str, unsigned int num)
+static void putUnicode(StringBuilder& str, unsigned int num)
 {
 	if (num < power2<7>::value)
 	{
@@ -58,7 +58,7 @@ void putUnicode(StringBuilder& str, unsigned int num)
 }
 
 //reads a hex number with numDigits digits
-unsigned int readHex(SmartIterator& it, int numDigits)
+static unsigned int readHex(SmartIterator& it, int numDigits)
 {
 	if (!it || !isDigitHex(*it))
 		throw runtime_error(ERROR_EXPECTED_HEX);

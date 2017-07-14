@@ -136,12 +136,12 @@ TypeThead Thead::getType() const
 	return getTheadLast().getTypeRaw();
 }
 
-#define PATTERN_GET_CONST_SAFE(Type, Func, ErrorMessage) \
+#define PATTERN_GET_CONST_SAFE(Type, Func, ErrorMessage) { \
 const auto& thead = getTheadLast(); \
 if (thead.getTypeRaw() == Type) \
 	return thead.Func(); \
 else \
-	throw runtime_error(ErrorMessage);
+	throw runtime_error(ErrorMessage); }
 
 const TheadBin& Thead::getTheadBin() const { PATTERN_GET_CONST_SAFE(TypeThead::BIN, getTheadBinRaw, "expected template head binary"); }
 const TheadStd& Thead::getTheadStd() const { PATTERN_GET_CONST_SAFE(TypeThead::STD, getTheadStdRaw, "expected template head standard"); }

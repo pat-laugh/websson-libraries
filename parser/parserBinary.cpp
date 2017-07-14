@@ -18,16 +18,16 @@
 using namespace std;
 using namespace webss;
 
-WebssBinSize checkBinSize(WebssInt sizeInt);
-WebssBinSize checkBinSizeBits(WebssInt sizeInt);
-Tuple parseBinTemplate(BinIterator& it, const TheadBin::Params& params);
-Webss parseBin(BinIterator& it, const ParamBin& bhead);
-Webss parseBin(BinIterator& it, const ParamBin& bhead, function<Webss()> func);
-Webss parseBinElement(BinIterator& it, const ParamBin::SizeHead& bhead);
-Webss parseBinKeyword(BinIterator& it, Keyword keyword);
-const Entity& checkEntTypeBinSize(const Entity& ent);
-const Entity& checkEntTypeBinSizeBits(const Entity& ent);
-ParamBin::SizeList parseBinSizeList(Parser& parser);
+static WebssBinSize checkBinSize(WebssInt sizeInt);
+static WebssBinSize checkBinSizeBits(WebssInt sizeInt);
+static Tuple parseBinTemplate(BinIterator& it, const TheadBin::Params& params);
+static Webss parseBin(BinIterator& it, const ParamBin& bhead);
+static Webss parseBin(BinIterator& it, const ParamBin& bhead, function<Webss()> func);
+static Webss parseBinElement(BinIterator& it, const ParamBin::SizeHead& bhead);
+static Webss parseBinKeyword(BinIterator& it, Keyword keyword);
+static const Entity& checkEntTypeBinSize(const Entity& ent);
+static const Entity& checkEntTypeBinSizeBits(const Entity& ent);
+static ParamBin::SizeList parseBinSizeList(Parser& parser);
 
 void Parser::parseBinHead(TheadBin& thead)
 {
@@ -134,7 +134,18 @@ void Parser::parseBinHead(TheadBin& thead)
 		});
 }
 
-ParamBin::SizeList parseBinSizeList(Parser& parser)
+//entry point from parserTemplates
+Tuple Parser::parseTemplateTupleBin(const TheadBin::Params& params)
+{
+	BinIterator itBin(getItSafe());
+	auto tuple = parseBinTemplate(itBin, params);
+	if (++getIt() != CHAR_END_TUPLE)
+		throw runtime_error("binary tuple is not closed");
+	tagit.incSafe();
+	return tuple;
+}
+
+static ParamBin::SizeList parseBinSizeList(Parser& parser)
 {
 	using Blist = ParamBin::SizeList;
 	Parser::ContainerSwitcher switcher(parser, ConType::LIST, false);
@@ -166,14 +177,14 @@ ParamBin::SizeList parseBinSizeList(Parser& parser)
 	return blist;
 }
 
-const Entity& checkEntTypeBinSize(const Entity& ent)
+static const Entity& checkEntTypeBinSize(const Entity& ent)
 {
 	try { checkBinSize(ent.getContent().getInt()); }
 	catch (const exception& e) { throw runtime_error(e.what()); }
 	return ent;
 }
 
-WebssBinSize checkBinSize(WebssInt sizeInt)
+static WebssBinSize checkBinSize(WebssInt sizeInt)
 {
 	if (static_cast<WebssBinSize>(sizeInt) > numeric_limits<WebssBinSize>::max())
 		throw runtime_error("binary size is too big");
@@ -182,37 +193,26 @@ WebssBinSize checkBinSize(WebssInt sizeInt)
 	return static_cast<WebssBinSize>(sizeInt);
 }
 
-const Entity& checkEntTypeBinSizeBits(const Entity& ent)
+static const Entity& checkEntTypeBinSizeBits(const Entity& ent)
 {
 	try { checkBinSizeBits(ent.getContent().getInt()); }
 	catch (const exception& e) { throw runtime_error(e.what()); }
 	return ent;
 }
 
-WebssBinSize checkBinSizeBits(WebssInt sizeInt)
+static WebssBinSize checkBinSizeBits(WebssInt sizeInt)
 {
 	if (sizeInt < 1 || sizeInt > 8)
 		throw runtime_error("the number of bits must be between 1 and 8");
 	return static_cast<WebssBinSize>(sizeInt);
 }
 
-//entry point from parserTemplates
-Tuple Parser::parseTemplateTupleBin(const TheadBin::Params& params)
-{
-	BinIterator itBin(getItSafe());
-	auto tuple = parseBinTemplate(itBin, params);
-	if (++getIt() != CHAR_END_TUPLE)
-		throw runtime_error("binary tuple is not closed");
-	tagit.incSafe();
-	return tuple;
-}
-
-inline void setDefaultValueBin(Webss& value, const ParamBin& param)
+static inline void setDefaultValueBin(Webss& value, const ParamBin& param)
 {
 	value = Webss(param.getSizeHead().getDefaultPointer());
 }
 
-Tuple parseBinTemplate(BinIterator& it, const TheadBin::Params& params)
+static Tuple parseBinTemplate(BinIterator& it, const TheadBin::Params& params)
 {
 	Tuple tuple(params.getSharedKeys());
 	for (decltype(tuple.size()) i = 0; i < tuple.size(); ++i)
@@ -228,7 +228,7 @@ Tuple parseBinTemplate(BinIterator& it, const TheadBin::Params& params)
 	return tuple;
 }
 
-Webss parseBin(BinIterator& it, const ParamBin& param)
+static Webss parseBin(BinIterator& it, const ParamBin& param)
 {
 	if (!param.getSizeHead().isTheadBin())
 		return parseBin(it, param, [&]() { return parseBinElement(it, param.getSizeHead()); });
@@ -237,7 +237,7 @@ Webss parseBin(BinIterator& it, const ParamBin& param)
 	return parseBin(it, param, [&]() { return parseBinTemplate(it, params); });
 }
 
-Webss parseBin(BinIterator& it, const ParamBin& param, function<Webss()> func)
+static Webss parseBin(BinIterator& it, const ParamBin& param, function<Webss()> func)
 {
 	const auto& blist = param.getSizeList();
 	if (blist.isOne())
@@ -251,7 +251,7 @@ Webss parseBin(BinIterator& it, const ParamBin& param, function<Webss()> func)
 	return list;
 }
 
-Webss parseBinElement(BinIterator& it, const ParamBin::SizeHead& bhead)
+static Webss parseBinElement(BinIterator& it, const ParamBin::SizeHead& bhead)
 {
 	using Type = ParamBin::SizeHead::Type;
 
@@ -270,7 +270,7 @@ Webss parseBinElement(BinIterator& it, const ParamBin::SizeHead& bhead)
 	}
 }
 
-Webss parseBinKeyword(BinIterator& it, Keyword keyword)
+static Webss parseBinKeyword(BinIterator& it, Keyword keyword)
 {
 	union
 	{

@@ -5,7 +5,7 @@
 using namespace std;
 using namespace webss;
 
-const char* ERROR_ENTITY_EXISTS = "entity already exists: ";
+static const char* ERROR_ENTITY_EXISTS = "entity already exists: ";
 
 EntityManager::EntityManager() {}
 EntityManager::~EntityManager() { clearAll(); }

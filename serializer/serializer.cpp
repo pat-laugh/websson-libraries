@@ -12,7 +12,7 @@
 #include "utils/utilsWebss.hpp"
 #include "various/utils.hpp"
 
-const char ASSIGN_CONTAINER_STRING[] = "::";
+static const char* ASSIGN_CONTAINER_STRING = "::";
 
 using namespace std;
 using namespace various;
@@ -379,7 +379,7 @@ void Serializer::putDouble(StringBuilder& out, double d)
 	out += buffer;
 }
 
-void addCharEscape(StringBuilder& out, char c)
+static void addCharEscape(StringBuilder& out, char c)
 {
 	out += '\\';
 	switch (c)
@@ -412,13 +412,13 @@ void addCharEscape(StringBuilder& out, char c)
 	}
 }
 
-bool isLineEnd(char c, ConType con)
+static bool isLineEnd(char c, ConType con)
 {
 	return c == '\n' || c == CHAR_SEPARATOR || con.isEnd(c);
 }
 
 //whether or not the char should always be escaped in a char
-bool isMustEscapeChar(char c)
+static bool isMustEscapeChar(char c)
 {
 	return c == CHAR_EXPAND || c == CHAR_ESCAPE || isControlAscii(c);
 }
@@ -606,7 +606,7 @@ void Serializer::putTupleText(StringBuilder& out, const Tuple& tuple)
 	});
 }
 
-void putTheadOptions(StringBuilder& out, TheadOptions options)
+static void putTheadOptions(StringBuilder& out, TheadOptions options)
 {
 	ContainerIncluder<ConType::LIST> includer(out);
 	if (options.isText)

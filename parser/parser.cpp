@@ -11,18 +11,18 @@ using namespace std;
 using namespace various;
 using namespace webss;
 
-void addPrivateEntities(EntityManager& ents, vector<string> names, Entity ent)
+static void addPrivateEntities(EntityManager& ents, vector<string> names, Entity ent)
 {
 	for (const auto& name : names)
 		ents.addPrivateEntity(name, ent);
 }
 
-void addEntityKeywords(EntityManager& ents)
+static void addEntityKeywords(EntityManager& ents)
 {
 	addPrivateEntities(ents, { "N", "Nil", "None", "Null", "nil", "none", "null", "F", "False", "false", "T", "True", "true" }, Entity("", Webss()));
 }
 
-TheadBin makeTheadBinKeyword(Keyword keyword)
+static TheadBin makeTheadBinKeyword(Keyword keyword)
 {
 	using Bhead = ParamBin::SizeHead;
 	using Blist = ParamBin::SizeList;
@@ -31,13 +31,13 @@ TheadBin makeTheadBinKeyword(Keyword keyword)
 	return thead;
 }
 
-void addTheadBinEntityKeywords(EntityManager& ents, vector<string> names, Keyword keyword)
+static void addTheadBinEntityKeywords(EntityManager& ents, vector<string> names, Keyword keyword)
 {
 	string entName(names[0]);
 	addPrivateEntities(ents, move(names), Entity(move(entName), Thead(makeTheadBinKeyword(keyword))));
 }
 
-void initEnts(EntityManager& ents)
+static void initEnts(EntityManager& ents)
 {
 	addEntityKeywords(ents);
 	addTheadBinEntityKeywords(ents, { "B", "Bool", "bool" }, Keyword::BOOL);
@@ -50,7 +50,7 @@ void initEnts(EntityManager& ents)
 	addTheadBinEntityKeywords(ents, { "S", "String", "string" }, Keyword::STRING);
 }
 
-void initAliases(map<string, vector<string>>& aliases)
+static void initAliases(map<string, vector<string>>& aliases)
 {
 	aliases.insert({ "alias", { "-", "a" } });
 }

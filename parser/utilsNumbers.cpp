@@ -17,7 +17,7 @@ using namespace std;
 using namespace various;
 using namespace webss;
 
-bool checkDigit(SmartIterator& it, const function<bool(char c)>& isDigit)
+static bool checkDigit(SmartIterator& it, const function<bool(char c)>& isDigit)
 {
 	if (!it)
 		return false;
@@ -28,7 +28,7 @@ bool checkDigit(SmartIterator& it, const function<bool(char c)>& isDigit)
 	return false;
 }
 
-WebssInt getNumber(SmartIterator& it, NumberBase base, const function<bool(char c)>& isDigit)
+static WebssInt getNumber(SmartIterator& it, NumberBase base, const function<bool(char c)>& isDigit)
 {
 	StringBuilder sb;
 	do
@@ -46,7 +46,7 @@ WebssInt getNumber(SmartIterator& it, NumberBase base, const function<bool(char 
 	}
 }
 
-double checkDecimals(SmartIterator& it, NumberBase base, int maxDigits, const function<bool(char c)>& isDigit, const function<int(char c)>& charToInt)
+static double checkDecimals(SmartIterator& it, NumberBase base, int maxDigits, const function<bool(char c)>& isDigit, const function<int(char c)>& charToInt)
 {
 	static const int MAX_LEADING_ZEROS = 23; //1 yocto smallest unit
 	static const function<bool(char c)> isZero = [](char c) { return c == '0'; };
@@ -136,7 +136,7 @@ bool webss::checkNumberNegative(SmartIterator& it)
 	return negative;
 }
 
-NumberBase checkDigitWrapper(SmartIterator& it, const function<bool(char c)>& isDigit, NumberBase base)
+static NumberBase checkDigitWrapper(SmartIterator& it, const function<bool(char c)>& isDigit, NumberBase base)
 {
 	if (!checkDigit(it.incTwo(), isDigit))
 		throw runtime_error(ERROR_EXPECTED_NUMBER);

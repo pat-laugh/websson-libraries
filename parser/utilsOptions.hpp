@@ -17,7 +17,7 @@ namespace webss
 	":" means a value follows
 	*/
 
-	const std::string OPTION_NAME = "-", OPTION_SCOPE = ".", OPTION_VALUE = ":";
+	extern const std::string OPTION_NAME, OPTION_SCOPE, OPTION_VALUE;
 
 	std::vector<std::string> parseOptionLine(Parser& parser, std::function<bool(char c)> endCondition);
 

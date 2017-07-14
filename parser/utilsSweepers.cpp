@@ -12,9 +12,9 @@ using namespace std;
 using namespace various;
 using namespace webss;
 
-void skipLineComment(SmartIterator& it);
-void skipMultilineComment(SmartIterator& it);
-void skipLineEscape(SmartIterator& it);
+static void skipLineComment(SmartIterator& it);
+static void skipMultilineComment(SmartIterator& it);
+static void skipLineEscape(SmartIterator& it);
 
 SmartIterator& webss::skipJunk(SmartIterator& it)
 {
@@ -39,13 +39,13 @@ SmartIterator& webss::skipLineJunk(SmartIterator& it)
 	return it;
 }
 
-void skipLineComment(SmartIterator& it)
+static void skipLineComment(SmartIterator& it)
 {
 	while (it && *it != '\n')
 		++it;
 }
 
-void skipMultilineComment(SmartIterator& it)
+static void skipMultilineComment(SmartIterator& it)
 {
 	if (!it)
 		throw runtime_error("multiline comment is not closed");
@@ -74,7 +74,7 @@ void skipMultilineComment(SmartIterator& it)
 	throw runtime_error("multiline comment is not closed");
 }
 
-void skipLineEscape(SmartIterator& it)
+static void skipLineEscape(SmartIterator& it)
 {
 loopStart:
 	if (!it)
@@ -128,7 +128,7 @@ bool webss::isLineEnd(char c, ConType con)
 	return c == '\n' || c == CHAR_SEPARATOR || con.isEnd(c);
 }
 
-bool checkEndOfLine(SmartIterator& it)
+static bool checkEndOfLine(SmartIterator& it)
 {
 	if (!it)
 		return true;

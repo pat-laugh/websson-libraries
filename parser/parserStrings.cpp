@@ -15,14 +15,14 @@ using namespace std;
 using namespace various;
 using namespace webss;
 
-const char ERROR_MULTILINE_STRING[] = "multiline-string is not closed";
+static const char* ERROR_MULTILINE_STRING = "multiline-string is not closed";
 
-void checkEscapedChar(SmartIterator& it, StringBuilder& sb);
-inline void putChar(SmartIterator& it, StringBuilder& sb);
-bool isEnd(SmartIterator& it, function<bool()> endCondition);
-bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondition = []() { return false; });
-bool checkStringExpand(Parser& parser, StringBuilder& sb);
-const string& expandString(Parser& parser);
+static void checkEscapedChar(SmartIterator& it, StringBuilder& sb);
+static inline void putChar(SmartIterator& it, StringBuilder& sb);
+static bool isEnd(SmartIterator& it, function<bool()> endCondition);
+static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondition = []() { return false; });
+static bool checkStringExpand(Parser& parser, StringBuilder& sb);
+static const string& expandString(Parser& parser);
 
 string webss::parseStickyLineString(Parser& parser)
 {
@@ -82,12 +82,9 @@ string webss::parseLineString(Parser& parser)
 	return sb;
 }
 
-struct MultilineStringOptions
-{
-	bool junkOperator, entity, indent, line, raw;
-};
+namespace { struct MultilineStringOptions { bool junkOperator, entity, indent, line, raw; }; }
 
-MultilineStringOptions checkMultilineStringOptions(Parser& parser)
+static MultilineStringOptions checkMultilineStringOptions(Parser& parser)
 {
 	auto& it = parser.getIt();
 	MultilineStringOptions options{ false, false, false, false, false };
@@ -118,7 +115,7 @@ MultilineStringOptions checkMultilineStringOptions(Parser& parser)
 	return options;
 }
 
-bool checkCRNL(SmartIterator& it)
+static bool checkCRNL(SmartIterator& it)
 {
 	if (*it == '\r' && it.peekGood() && it.peek() == '\n')
 	{
@@ -128,7 +125,7 @@ bool checkCRNL(SmartIterator& it)
 	return false;
 }
 
-int countIndent(SmartIterator& it)
+static int countIndent(SmartIterator& it)
 {
 	int numIndent = 0;
 	for (; it && isLineJunk(*it) && !checkCRNL(it); ++it)
@@ -137,7 +134,7 @@ int countIndent(SmartIterator& it)
 }
 
 //returns true if all junk skipped properly, else false
-bool skipIndent(SmartIterator& it, int num)
+static bool skipIndent(SmartIterator& it, int num)
 {
 	while (num-- > 0)
 	{
@@ -150,7 +147,7 @@ bool skipIndent(SmartIterator& it, int num)
 
 //parses all the chars on the line, including the newline
 //returns false if the end of it is reached, else true if a newline is reached
-bool parseLine(SmartIterator& it, StringBuilder& sb)
+static bool parseLine(SmartIterator& it, StringBuilder& sb)
 {
 	for (; it; ++it)
 	{
@@ -162,7 +159,7 @@ bool parseLine(SmartIterator& it, StringBuilder& sb)
 	return false;
 }
 
-int countIndentReal(SmartIterator& it)
+static int countIndentReal(SmartIterator& it)
 {
 	for (int numIndent = 0; it; ++it)
 		if (*it == '\n' || checkCRNL(it))
@@ -174,7 +171,7 @@ int countIndentReal(SmartIterator& it)
 	return 0;
 }
 
-bool skipIndentReal(SmartIterator& it, int numIndent)
+static bool skipIndentReal(SmartIterator& it, int numIndent)
 {
 	for (int numCopy = numIndent; it; ++it)
 		if (numCopy-- == 0)
@@ -203,7 +200,7 @@ string webss::parseTabContainer(Parser& parser)
 	return sb;
 }
 
-string parseMultilineStringIndent(SmartIterator& it, bool opJunkOperators)
+static string parseMultilineStringIndent(SmartIterator& it, bool opJunkOperators)
 {
 	StringBuilder sb;
 	if (!it)
@@ -270,8 +267,7 @@ string parseMultilineStringIndent(SmartIterator& it, bool opJunkOperators)
 	return sb;
 }
 
-
-string parseMultilineStringLineIndent(SmartIterator& it, bool opJunkOperators)
+static string parseMultilineStringLineIndent(SmartIterator& it, bool opJunkOperators)
 {
 	if (!it)
 		throw runtime_error(ERROR_MULTILINE_STRING);
@@ -354,7 +350,7 @@ string parseMultilineStringLineIndent(SmartIterator& it, bool opJunkOperators)
 	throw runtime_error(ERROR_MULTILINE_STRING);
 }
 
-string parseMultilineStringNoIndent(SmartIterator& it, bool opJunkOperators)
+static string parseMultilineStringNoIndent(SmartIterator& it, bool opJunkOperators)
 {
 	StringBuilder sb;
 	while (true)
@@ -395,7 +391,7 @@ string parseMultilineStringNoIndent(SmartIterator& it, bool opJunkOperators)
 	}
 }
 
-string parseMultilineStringLineNoIndent(SmartIterator& it, bool opJunkOperators)
+static string parseMultilineStringLineNoIndent(SmartIterator& it, bool opJunkOperators)
 {
 	int countStartEnd = 1;
 	StringBuilder sb;
@@ -425,7 +421,7 @@ string parseMultilineStringLineNoIndent(SmartIterator& it, bool opJunkOperators)
 	}
 }
 
-string parseMultilineStringRegular(Parser& parser)
+static string parseMultilineStringRegular(Parser& parser)
 {
 	auto& it = parser.getIt();
 	Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, true);
@@ -481,12 +477,12 @@ loopStart:
 	goto loopStart;
 }
 
-bool isEndSpecial(SmartIterator& it)
+static bool isEndSpecial(SmartIterator& it)
 {
 	return !it || *it == '\n';
 }
 
-bool hasNextCharSpecial(SmartIterator& it, StringBuilder& sb)
+static bool hasNextCharSpecial(SmartIterator& it, StringBuilder& sb)
 {
 	if (isEndSpecial(it))
 		return false;
@@ -623,7 +619,7 @@ string webss::parseCString(Parser& parser)
 	throw runtime_error("cstring is not closed");
 }
 
-void checkEscapedChar(SmartIterator& it, StringBuilder& sb)
+static void checkEscapedChar(SmartIterator& it, StringBuilder& sb)
 {
 	if (!++it)
 		throw runtime_error(ERROR_EXPECTED);
@@ -654,18 +650,18 @@ void checkEscapedChar(SmartIterator& it, StringBuilder& sb)
 	++it;
 }
 
-inline void putChar(SmartIterator& it, StringBuilder& sb)
+static inline void putChar(SmartIterator& it, StringBuilder& sb)
 {
 	sb += *it;
 	++it;
 }
 
-bool isEnd(SmartIterator& it, function<bool()> endCondition)
+static bool isEnd(SmartIterator& it, function<bool()> endCondition)
 {
 	return !it || *it == '\n' || endCondition();
 }
 
-bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondition)
+static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondition)
 {
 	if (isEnd(it, endCondition))
 		return false;
@@ -689,7 +685,7 @@ bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondi
 	return true;
 }
 
-bool checkStringExpand(Parser& parser, StringBuilder& sb)
+static bool checkStringExpand(Parser& parser, StringBuilder& sb)
 {
 	auto& it = parser.getIt();
 	if (it.peekEnd() || !isNameStart(it.peek()))
@@ -700,7 +696,7 @@ bool checkStringExpand(Parser& parser, StringBuilder& sb)
 	return true;
 }
 
-const string& expandString(Parser& parser)
+static const string& expandString(Parser& parser)
 {
 	auto& it = parser.getIt();
 	try

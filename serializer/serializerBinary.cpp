@@ -11,12 +11,38 @@ using namespace webss;
 
 //#define REVERSE_ENDIANNESS_WRITE
 
-void putBin(StringBuilder& out, const ParamBin& param, const Webss& data);
-void putBin(StringBuilder& out, const ParamBin& param, const Webss& data, function<void(const Webss& webss)> func);
-void putBinElement(StringBuilder& out, const ParamBin::SizeHead& bhead, const Webss& webss);
+extern void putTemplateBodyBin(StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple);
+static void putBin(StringBuilder& out, const ParamBin& param, const Webss& data);
+static void putBin(StringBuilder& out, const ParamBin& param, const Webss& data, function<void(const Webss& webss)> func);
+static void putBinElement(StringBuilder& out, const ParamBin::SizeHead& bhead, const Webss& webss);
+
+void putTemplateBodyBin(StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple)
+{
+	assert(tuple.size() == params.size() && "size of binary tuple must match params");
+	decltype(params.size()) i = 0;
+	for (const auto& webss : tuple)
+	{
+		const auto& binary = params[i++];
+		if (!binary.getSizeHead().hasDefaultValue())
+		{
+			assert(!binary.getSizeHead().isTheadSelf());
+			putBin(out, binary, webss);
+		}
+		else if (webss.getTypeRaw() == WebssType::DEFAULT || webss.getTypeRaw() == WebssType::NONE)
+			out += CHAR_BIN_DEFAULT_TRUE;
+		else
+		{
+			out += CHAR_BIN_DEFAULT_FALSE;
+			if (binary.getSizeHead().isTheadSelf())
+				putTemplateBodyBin(out, params, webss.getTuple());
+			else
+				putBin(out, binary, webss);
+		}
+	}
+}
 
 //returns a string containing a number encoded in UTF-7 encoding thing
-void writeBinSize(StringBuilder& out, WebssBinSize num)
+static void writeBinSize(StringBuilder& out, WebssBinSize num)
 {
 	if (num < power2<7>::value)
 	{
@@ -53,7 +79,7 @@ void writeBinSize(StringBuilder& out, WebssBinSize num)
 #undef POWER
 }
 
-void writeBytes(StringBuilder& out, WebssBinSize num, char* value)
+static void writeBytes(StringBuilder& out, WebssBinSize num, char* value)
 {
 #ifdef REVERSE_ENDIANNESS_WRITE
 	value += num;
@@ -65,32 +91,7 @@ void writeBytes(StringBuilder& out, WebssBinSize num, char* value)
 #endif
 }
 
-void putTemplateBodyBin(StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple)
-{
-	assert(tuple.size() == params.size() && "size of binary tuple must match params");
-	decltype(params.size()) i = 0;
-	for (const auto& webss : tuple)
-	{
-		const auto& binary = params[i++];
-		if (!binary.getSizeHead().hasDefaultValue())
-		{
-			assert(!binary.getSizeHead().isTheadSelf());
-			putBin(out, binary, webss);
-		}
-		else if (webss.getTypeRaw() == WebssType::DEFAULT || webss.getTypeRaw() == WebssType::NONE)
-			out += CHAR_BIN_DEFAULT_TRUE;
-		else
-		{
-			out += CHAR_BIN_DEFAULT_FALSE;
-			if (binary.getSizeHead().isTheadSelf())
-				putTemplateBodyBin(out, params, webss.getTuple());
-			else
-				putBin(out, binary, webss);
-		}
-	}
-}
-
-void putBin(StringBuilder& out, const ParamBin& param, const Webss& data)
+static void putBin(StringBuilder& out, const ParamBin& param, const Webss& data)
 {
 	const auto& sizeHead = param.getSizeHead();
 	if (!sizeHead.isTheadBin())
@@ -102,7 +103,7 @@ void putBin(StringBuilder& out, const ParamBin& param, const Webss& data)
 	}
 }
 
-void serializeBitList(StringBuilder& out, const List& list)
+static void serializeBitList(StringBuilder& out, const List& list)
 {
 	char c = 0;
 	int shift = 0;
@@ -120,7 +121,7 @@ void serializeBitList(StringBuilder& out, const List& list)
 	out += c;
 }
 
-void putBin(StringBuilder& out, const ParamBin& param, const Webss& data, function<void(const Webss& webss)> func)
+static void putBin(StringBuilder& out, const ParamBin& param, const Webss& data, function<void(const Webss& webss)> func)
 {
 	if (param.getSizeList().isOne())
 	{
@@ -139,7 +140,7 @@ void putBin(StringBuilder& out, const ParamBin& param, const Webss& data, functi
 			func(webss);
 }
 
-void putBinElement(StringBuilder& out, const ParamBin::SizeHead& bhead, const Webss& webss)
+static void putBinElement(StringBuilder& out, const ParamBin::SizeHead& bhead, const Webss& webss)
 {
 	if (bhead.isKeyword())
 	{

@@ -233,7 +233,6 @@ void Webss::copyUnion(const Webss& o)
 	type = o.type;
 }
 
-
 bool Webss::operator==(const Webss& o) const
 {
 	if (this == &o)
@@ -275,9 +274,9 @@ bool Webss::operator==(const Webss& o) const
 }
 bool Webss::operator!=(const Webss& o) const { return !(*this == o); }
 
-const char ERROR_ACCESS[] = "can't access ";
-const char ERROR_ACCESS_INDEX[] = " with an index";
-const char ERROR_ACCESS_KEY[] = " with a key";
+static const char* ERROR_ACCESS = "can't access ";
+static const char* ERROR_ACCESS_INDEX = " with an index";
+static const char* ERROR_ACCESS_KEY = " with a key";
 
 const Webss& Webss::operator[](int index) const
 {
@@ -366,17 +365,17 @@ WebssType Webss::getType() const
 	return getWebssLast().getTypeRaw();
 }
 
-string errorMessageGet(WebssType expected, WebssType actual)
+static string errorMessageGet(WebssType expected, WebssType actual)
 {
 	return "could not get " + expected.toString() + "; instead webss type was " + actual.toString();
 }
 
-#define PATTERN_GET_CONST_SAFE(Type, Func) \
+#define PATTERN_GET_CONST_SAFE(Type, Func) { \
 const auto& webss = getWebssLast(); \
 if (webss.getTypeRaw() == Type) \
 	return webss.Func(); \
 else \
-	throw runtime_error(errorMessageGet(Type, webss.getTypeRaw()));
+	throw runtime_error(errorMessageGet(Type, webss.getTypeRaw())); }
 
 bool Webss::getBool() const { PATTERN_GET_CONST_SAFE(WebssType::PRIMITIVE_BOOL, getBoolRaw); }
 WebssInt Webss::getInt() const { PATTERN_GET_CONST_SAFE(WebssType::PRIMITIVE_INT, getIntRaw); }

@@ -19,13 +19,13 @@ using namespace std;
 using namespace various;
 using namespace webss;
 
-const char ERROR_INPUT_DICTIONARY[] = "dictionary can only have key-values";
-const char ERROR_INPUT_TUPLE[] = "tuple can only have concrete value-onlys or key-values";
-const char ERROR_INPUT_NAMESPACE[] = "namespace can only have entity definitions";
-const char ERROR_INPUT_DOCUMENT[] = "document can only have concrete value-onlys or key-values";
-const char ERROR_OPTION[] = "expected option";
+static const char* ERROR_INPUT_DICTIONARY = "dictionary can only have key-values";
+static const char* ERROR_INPUT_TUPLE = "tuple can only have concrete value-onlys or key-values";
+static const char* ERROR_INPUT_NAMESPACE = "namespace can only have entity definitions";
+static const char* ERROR_INPUT_DOCUMENT = "document can only have concrete value-onlys or key-values";
+static const char* ERROR_OPTION = "expected option";
 
-void useNamespace(EntityManager& ents, const Namespace& nspace)
+static void useNamespace(EntityManager& ents, const Namespace& nspace)
 {
 	for (auto ent : nspace)
 	{
@@ -34,12 +34,12 @@ void useNamespace(EntityManager& ents, const Namespace& nspace)
 	}
 }
 
-string getItPosition(const SmartIterator& it)
+static string getItPosition(const SmartIterator& it)
 {
 	return "[ln " + to_string(it.getLine()) + ", ch " + to_string(it.getCharCount()) + "]";
 }
 
-string getItCurrentChar(const SmartIterator& it)
+static string getItCurrentChar(const SmartIterator& it)
 {
 	if (!it)
 		return string("");
@@ -313,7 +313,7 @@ bool Parser::parseDocumentHead(Document& doc, const Namespace& nspace)
 	return true;
 }
 
-vector<string> parseScopedImportNames(TagIterator& tagit)
+static vector<string> parseScopedImportNames(TagIterator& tagit)
 {
 	assert(*tagit == Tag::NAME_START);
 	vector<string> names;
@@ -326,7 +326,7 @@ vector<string> parseScopedImportNames(TagIterator& tagit)
 	return names;
 }
 
-Entity getScopedImportEntity(const unordered_map<string, Entity>& importedDoc, vector<string> names)
+static Entity getScopedImportEntity(const unordered_map<string, Entity>& importedDoc, vector<string> names)
 {
 	const Entity* ent = &importedDoc.at(names[0]);
 	for (decltype(names.size()) i = 1; i < names.size(); ++i)

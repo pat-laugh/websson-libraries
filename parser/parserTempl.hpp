@@ -14,8 +14,6 @@
 
 namespace webss
 {
-	const char ERROR_EXPAND_BIN_TEMPLATE[] = "can't expand for a binary template";
-
 	class Parser::ParserTempl
 	{
 	public:
@@ -176,7 +174,7 @@ namespace webss
 			case TypeThead::SELF:
 				return buildTemplate(self, params, tupleItem);
 			case TypeThead::BIN:
-				throw std::runtime_error(ERROR_EXPAND_BIN_TEMPLATE);
+				throw std::runtime_error("can't expand for a binary template");
 			case TypeThead::STD:
 				return buildTemplate(self, param.getTheadStd().getParams(), tupleItem);
 			default:
