@@ -2,13 +2,15 @@
 //Copyright 2017 Patrick Laughrea
 #include "curl.hpp"
 
+namespace
+{
 #define CURL_STATICLIB
-
 #include <curl/curl.h>
+}
 
 using namespace std;
 
-size_t functionCurl(char* ptr, size_t size, size_t nmemb, stringstream* ss)
+static size_t functionCurl(char* ptr, size_t size, size_t nmemb, stringstream* ss)
 {
 	auto length = size * nmemb;
 	auto end = (char*)ptr + length;
