@@ -19,3 +19,6 @@ clean:
 
 debug: OPTIONS += -DNDEBUG -g3
 debug: all
+
+reverse_endianness: OPTIONS += -DWEBSSON_REVERSE_ENDIANNESS
+reverse_endianness: all

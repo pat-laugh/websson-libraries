@@ -9,8 +9,6 @@ using namespace std;
 using namespace various;
 using namespace webss;
 
-//#define REVERSE_ENDIANNESS_WRITE
-
 extern void putTemplateBodyBin(StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple);
 static void putBin(StringBuilder& out, const ParamBin& param, const Webss& data);
 static void putBin(StringBuilder& out, const ParamBin& param, const Webss& data, function<void(const Webss& webss)> func);
@@ -81,7 +79,7 @@ static void writeBinSize(StringBuilder& out, WebssBinSize num)
 
 static void writeBytes(StringBuilder& out, WebssBinSize num, char* value)
 {
-#ifdef REVERSE_ENDIANNESS_WRITE
+#ifdef WEBSSON_REVERSE_ENDIANNESS
 	value += num;
 	while (num-- > 0)
 		out += *--value;
