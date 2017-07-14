@@ -22,3 +22,6 @@ debug: all
 
 disable_import: OPTIONS += -DWEBSSON_PARSER_DISABLE_IMPORT
 disable_import: all
+
+reverse_endianness: OPTIONS += -DWEBSSON_REVERSE_ENDIANNESS
+reverse_endianness: all

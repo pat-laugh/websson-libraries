@@ -94,8 +94,14 @@ readLoop:
 
 void BinIterator::readBytes(string::size_type num, char* value)
 {
+#ifdef WEBSSON_REVERSE_ENDIANNESS
+	value += num;
+	while (num-- > 0)
+		*--value = readByte();
+#else
 	while (num-- > 0)
 		*value++ = readByte();
+#endif
 }
 
 char BinIterator::readByte()
