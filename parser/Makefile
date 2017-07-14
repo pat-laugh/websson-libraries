@@ -19,3 +19,6 @@ clean:
 
 debug: OPTIONS += -DNDEBUG -g3
 debug: all
+
+disable_import: OPTIONS += -DWEBSSON_PARSER_DISABLE_IMPORT
+disable_import: all

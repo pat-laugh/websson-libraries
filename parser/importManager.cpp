@@ -10,8 +10,7 @@
 
 #include "parser.hpp"
 
-//#define DISABLE_IMPORT
-#ifndef DISABLE_IMPORT
+#ifndef WEBSSON_PARSER_DISABLE_IMPORT
 #include "curl.hpp"
 #endif
 
@@ -22,7 +21,7 @@ ImportManager::ImportManager() {}
 
 const unordered_map<string, Entity>& ImportManager::importDocument(const string& link)
 {
-#ifdef DISABLE_IMPORT
+#ifdef WEBSSON_PARSER_DISABLE_IMPORT
 	throw runtime_error("this parser cannot import documents");
 #else
 	{

@@ -5,6 +5,6 @@
 To import documents, the parser currently uses a static
 [curl](https://curl.haxx.se/) library.
 
-To prevent that, you can disable its use &mdash; which will also disable imports
-&mdash; by uncommenting the `#define DISABLE_IMPORT` in the file
-"importManager.cpp".
+To prevent that, you can disable its use. This will disable imports. To do this
+you have to define `WEBSSON_PARSER_DISABLE_IMPORT` before compiling. You can
+also just call `make disable_import`.
