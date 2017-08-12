@@ -4,6 +4,7 @@
 
 #include "containerSwitcher.hpp"
 #include "utilsExpand.hpp"
+#include "parserTempl.hpp"
 
 using namespace std;
 using namespace webss;
@@ -54,7 +55,21 @@ switchStart:
 		return{ move(ent), options };
 	assert(thead.isTheadBin() || thead.isTheadStd());
 	if (thead.isTheadBin())
-		return{ ParserThead::parseTheadBin(*this, TheadBin(thead.getTheadBin().makeCompleteCopy())), move(ent), options };
-	else
-		return{ ParserThead::parseTheadStd(*this, TheadStd(thead.getTheadStd().makeCompleteCopy())), move(ent), options };
+		return{ ParserThead::parseTheadBin(*this, thead.getTheadBin().makeCompleteCopy()), move(ent), options };
+	if (*tagit != Tag::START_TUPLE)
+		return{ ParserThead::parseTheadStd(*this, thead.getTheadStd().makeCompleteCopy()), move(ent), options };
+
+	Tuple modifierTuple;
+	auto theadCopy = thead.getTheadStd().makeCompleteCopy();
+	auto& params = const_cast<BasicParams<ParamStd>&>(theadCopy.getParams());
+	auto tuple = Parser::ParserTempl::parseTemplateTuple<false, false>(*this, theadCopy);
+	for (const auto& item : tuple.getOrderedKeyValues())
+		if (!item.second->isNone())
+		{
+			params[*item.first] = *item.second;
+			modifierTuple.add(*item.first, move(*item.second));
+		}
+	if (!checkNextElement())
+		return{ move(theadCopy), move(ent), options, move(modifierTuple) };
+	return{ ParserThead::parseTheadStd(*this, move(theadCopy)), move(ent), options, move(modifierTuple) };
 }

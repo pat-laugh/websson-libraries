@@ -40,6 +40,7 @@ namespace webss
 		Thead(TheadStd theadStd, TheadOptions options = TheadOptions());
 		Thead(TheadBin theadBin, Entity base, TheadOptions options = TheadOptions());
 		Thead(TheadStd theadStd, Entity base, TheadOptions options = TheadOptions());
+		Thead(TheadStd theadStd, Entity base, TheadOptions options, Tuple modifierTuple);
 
 		bool operator==(const Thead& o) const;
 		bool operator!=(const Thead& o) const;
@@ -80,6 +81,9 @@ namespace webss
 		bool hasBase() const;
 		const Entity& getBase() const;
 
+		bool hasModifierTuple() const;
+		const Tuple& getModifierTuple() const;
+
 	private:
 		TypeThead type = TypeThead::NONE;
 		TheadOptions options;
@@ -90,6 +94,7 @@ namespace webss
 			Entity ent;
 		};
 		Entity base;
+		Tuple* modifierTuple = nullptr;
 
 		void destroyUnion();
 		void copyUnion(Thead&& o);

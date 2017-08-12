@@ -664,6 +664,8 @@ void Serializer::putThead(StringBuilder& out, const Thead& thead)
 				putTheadOptions(out, thead.getOptions());
 			out += CHAR_EXPAND;
 			putEntityName(out, baseEnt);
+			if (thead.hasModifierTuple())
+				putTuple(out, thead.getModifierTuple());
 			auto&& keyValues = theadStd.getParams().getOrderedKeyValues();
 			for (auto i = baseThead.getTheadStd().size(); i < theadStd.size(); ++i)
 			{

@@ -58,7 +58,7 @@ namespace webss
 				return Template(std::move(thead), std::move(body), typeTuple);
 		}
 
-		template <bool isText>
+		template <bool isText, bool checkDefault = true>
 		static Tuple parseTemplateTuple(Parser& self, const Thead& thead)
 		{
 			const auto params = thead.getTheadStd().getParams();
@@ -90,7 +90,8 @@ namespace webss
 				}
 				++index;
 			});
-			checkDefaultValues(tuple, params);
+			if (checkDefault)
+				checkDefaultValues(tuple, params);
 			return tuple;
 		}
 

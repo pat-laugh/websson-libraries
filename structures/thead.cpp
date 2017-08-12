@@ -5,6 +5,7 @@
 #include <cassert>
 
 #include "paramStandard.hpp"
+#include "tuple.hpp"
 
 using namespace std;
 using namespace webss;
@@ -33,6 +34,11 @@ Thead::Thead(TheadBin theadBin, Entity base, TheadOptions options)
 Thead::Thead(TheadStd theadStd, Entity base, TheadOptions options)
 	: type(TypeThead::STD), options(move(options)), theadStd(new TheadStd(move(theadStd))), base(move(base))
 	{ assert(this->base.getContent().isThead() && this->base.getContent().getThead().isTheadStd()); }
+Thead::Thead(TheadStd theadStd, Entity base, TheadOptions options, Tuple modifierTuple)
+	: type(TypeThead::STD), options(move(options)), theadStd(new TheadStd(move(theadStd))), base(move(base)), modifierTuple(new Tuple(move(modifierTuple)))
+{
+	assert(this->base.getContent().isThead() && this->base.getContent().getThead().isTheadStd());
+}
 
 void Thead::destroyUnion()
 {
@@ -53,6 +59,8 @@ void Thead::destroyUnion()
 		assert(false);
 	}
 	type = TypeThead::NONE;
+	if (modifierTuple != nullptr)
+		delete modifierTuple;
 }
 
 void Thead::copyUnion(Thead&& o)
@@ -78,6 +86,8 @@ void Thead::copyUnion(Thead&& o)
 	o.type = TypeThead::NONE;
 	options = o.options;
 	base = move(o.base);
+	modifierTuple = o.modifierTuple;
+	o.modifierTuple = nullptr;
 }
 
 void Thead::copyUnion(const Thead& o)
@@ -101,6 +111,8 @@ void Thead::copyUnion(const Thead& o)
 	type = o.type;
 	options = o.options;
 	base = o.base;
+	if (o.modifierTuple != nullptr)
+		modifierTuple = new Tuple(*o.modifierTuple);
 }
 
 
@@ -108,7 +120,7 @@ bool Thead::operator==(const Thead& o) const
 {
 	if (this == &o)
 		return true;
-	if (getType() != o.getType() || options.isText != o.options.isText || options.isPlus != o.options.isPlus)
+	if (getType() != o.getType() || options.isText != o.options.isText || options.isPlus != o.options.isPlus || !equalPtrs(modifierTuple, o.modifierTuple))
 		return false;
 	switch (getType())
 	{
@@ -169,3 +181,6 @@ bool Thead::isPlus() const { return options.isPlus; }
 
 bool Thead::hasBase() const { return base.hasBody(); }
 const Entity& Thead::getBase() const { return base; }
+
+bool Thead::hasModifierTuple() const { return modifierTuple != nullptr; }
+const Tuple& Thead::getModifierTuple() const { assert(hasModifierTuple()); return *modifierTuple; }

@@ -7,6 +7,7 @@
 	required=N, size=N, src=N, step=N, type=N, value=N, width=N>
 !br<>
 !customInput<^input, more-stuff=N>
+!customA<^a(href:common-link.html)>
 
 p:This is some text.
 
@@ -30,3 +31,6 @@ input(type:text, name:theName, required=true)br()
 input(type:button, value:Submit)
 
 customInput()
+
+customA:check link
+customA:check this same link
