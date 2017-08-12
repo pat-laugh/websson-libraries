@@ -155,6 +155,7 @@
     <ClCompile Include="containerSwitcher.cpp" />
     <ClCompile Include="curl.cpp" />
     <ClCompile Include="entityManager.cpp" />
+    <ClCompile Include="errors.cpp" />
     <ClCompile Include="importManager.cpp" />
     <ClCompile Include="iteratorSwitcher.cpp" />
     <ClCompile Include="nameType.cpp" />

@@ -608,7 +608,7 @@ void Serializer::putTupleText(StringBuilder& out, const Tuple& tuple)
 
 static void putTheadOptions(StringBuilder& out, TheadOptions options)
 {
-	ContainerIncluder<ConType::LIST> includer(out);
+	ContainerIncluder<ConType::DICTIONARY> includer(out);
 	if (options.isText)
 		out += ASSIGN_CONTAINER_STRING;
 	if (options.isPlus)
