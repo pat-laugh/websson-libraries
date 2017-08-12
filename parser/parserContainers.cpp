@@ -431,7 +431,7 @@ ImportedDocument Parser::parseImport()
 
 void Parser::parseOption()
 {
-	++getItSafe();
+	getItSafe().incTwo();
 	auto items = parseOptionLine(*this, [](char c) { return c == '\n'; });
 
 	for (decltype(items.size()) i = 0; i < items.size(); ++i)

@@ -96,7 +96,10 @@ Tag TagIterator::getTag()
 	case CHAR_EXPLICIT_NAME: return Tag::EXPLICIT_NAME;
 	case CHAR_FOREACH: return Tag::FOREACH;
 	case CHAR_IMPORT: return Tag::IMPORT;
-	case CHAR_OPTION: return Tag::OPTION;
+	case CHAR_OPTION:
+		if (it.peekEnd() || it.peek() != CHAR_OPTION)
+			return Tag::UNKNOWN;
+		return Tag::OPTION;
 	case CHAR_SCOPE: return Tag::SCOPE;
 	case CHAR_SCOPED_IMPORT: return Tag::SCOPED_IMPORT;
 	case CHAR_SELF: return Tag::SELF;
