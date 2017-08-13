@@ -101,7 +101,6 @@ Tag TagIterator::getTag()
 			return Tag::UNKNOWN;
 		return Tag::OPTION;
 	case CHAR_SCOPE: return Tag::SCOPE;
-	case CHAR_SCOPED_IMPORT: return Tag::SCOPED_IMPORT;
 	case CHAR_SELF: return Tag::SELF;
 	case CHAR_SEPARATOR: return Tag::SEPARATOR;
 

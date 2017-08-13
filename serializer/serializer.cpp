@@ -191,12 +191,6 @@ void Serializer::putDocumentHead(StringBuilder& out, const DocumentHead& docHead
 		case Type::IMPORT:
 			putImport(out, it->getImport());
 			break;
-		case Type::SCOPED_IMPORT:
-			putScopedImport(out, it->getEntity(), it->getImport());
-			break;
-		case Type::SCOPED_IMPORT_LIST:
-			putScopedImportList(out, it->getEntityList(), it->getImport());
-			break;
 		default:
 			assert(false);
 		}
@@ -522,23 +516,6 @@ void Serializer::putImport(StringBuilder& out, const ImportedDocument& import)
 		putTemplateStdTupleText(out, thead.getParams(), data.getTuple());
 	else
 		putTemplateStdTuple(out, thead.getParams(), data.getTuple());
-}
-
-void Serializer::putScopedImport(StringBuilder& out, const Entity& ent, const ImportedDocument& import)
-{
-	out += CHAR_SCOPED_IMPORT;
-	putEntityName(out, ent);
-	putImport(out, import);
-}
-
-void Serializer::putScopedImportList(StringBuilder& out, const vector<Entity>& entList, const ImportedDocument& import)
-{
-	out += CHAR_SCOPED_IMPORT;
-	putSeparatedValues<vector<Entity>, ConType::LIST>(out, entList, [&](vector<Entity>::const_iterator it)
-	{
-		putEntityName(out, *it);
-	});
-	putImport(out, import);
 }
 
 void Serializer::putNamespace(StringBuilder& out, const Namespace& nspace)

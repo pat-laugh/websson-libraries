@@ -48,10 +48,8 @@ bool ParamDocument::operator==(const ParamDocument& o) const
 	{
 	case Type::NONE: case Type::IMPORT:
 		return true;
-	case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::EXPAND: case Type::SCOPED_IMPORT:
+	case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::EXPAND:
 		return ent == o.ent;
-	case Type::SCOPED_IMPORT_LIST:
-		return *entList == *o.entList;
 	default:
 		assert(false); throw domain_error("");
 	}
@@ -60,48 +58,22 @@ bool ParamDocument::operator!=(const ParamDocument& o) const { return !(*this ==
 
 ParamDocument::Type ParamDocument::getType() const { return type; }
 bool ParamDocument::hasNamespace() const { return type == Type::EXPAND; }
-const Entity& ParamDocument::getEntity() const { assert(type != Type::SCOPED_IMPORT_LIST); return ent; }
-const std::vector<Entity>& ParamDocument::getEntityList() const { assert(type == Type::SCOPED_IMPORT_LIST); return *entList; }
+const Entity& ParamDocument::getEntity() const { return ent; }
 const Namespace& ParamDocument::getNamespace() const { assert(hasNamespace()); return ent.getContent().getNamespace(); }
 const ImportedDocument& ParamDocument::getImport() const { assert(import != nullptr); return *import; }
 
 ParamDocument::ParamDocument(Entity ent, Type type) : type(type), ent(move(ent)) {}
 ParamDocument::ParamDocument(Entity ent, Type type, ImportedDocument import) : type(type), ent(move(ent)), import(new ImportedDocument(move(import))) {}
-ParamDocument::ParamDocument(vector<Entity> entList, ImportedDocument import) : type(Type::SCOPED_IMPORT_LIST), entList(new vector<Entity>(move(entList))), import(new ImportedDocument(move(import))) {}
 
 void ParamDocument::destroyUnion()
 {
-	switch (type)
-	{
-	case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::EXPAND: case Type::SCOPED_IMPORT:
-		ent.~Entity();
-		break;
-	case Type::SCOPED_IMPORT_LIST:
-		delete entList;
-		break;
-	default:
-		break;
-	}
-
 	type = Type::NONE;
 	import.reset();
 }
 
 void ParamDocument::copyUnion(ParamDocument&& o)
 {
-	switch (o.type)
-	{
-	case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::EXPAND: case Type::SCOPED_IMPORT:
-		new (&ent) Entity(move(o.ent));
-		o.ent.~Entity();
-		break;
-	case Type::SCOPED_IMPORT_LIST:
-		entList = o.entList;
-		break;
-	default:
-		break;
-	}
-
+	ent = move(o.ent);
 	type = o.type;
 	import = move(o.import);
 	o.type = Type::NONE;
@@ -109,18 +81,7 @@ void ParamDocument::copyUnion(ParamDocument&& o)
 
 void ParamDocument::copyUnion(const ParamDocument& o)
 {
-	switch (o.type)
-	{
-	case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::EXPAND: case Type::SCOPED_IMPORT:
-		new (&ent) Entity(o.ent);
-		break;
-	case Type::SCOPED_IMPORT_LIST:
-		entList = new vector<Entity>(*o.entList);
-		break;
-	default:
-		break;
-	}
-
+	ent = o.ent;
 	type = o.type;
 	if (o.import != nullptr)
 		import.reset(new ImportedDocument(*o.import));

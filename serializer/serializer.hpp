@@ -82,9 +82,6 @@ namespace webss
 
 		void putImport(various::StringBuilder& out, const ImportedDocument& import);
 
-		void putScopedImport(various::StringBuilder& out, const Entity& ent, const ImportedDocument& import);
-		void putScopedImportList(various::StringBuilder & out, const std::vector<Entity>& entList, const ImportedDocument & import);
-
 		void putExpandDocumentHead(various::StringBuilder& out, const Namespace& nspace);
 
 		void putNamespace(various::StringBuilder& out, const Namespace& nspace);

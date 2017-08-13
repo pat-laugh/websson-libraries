@@ -41,8 +41,6 @@ namespace webss
 		static ParamDocument makeEntityAbstract(Entity ent) { return ParamDocument(ent, Type::ENTITY_ABSTRACT); }
 		static ParamDocument makeEntityConcrete(Entity ent) { return ParamDocument(ent, Type::ENTITY_CONCRETE); }
 		static ParamDocument makeExpand(Entity ent) { assert(ent.getContent().isNamespace()); return ParamDocument(ent, Type::EXPAND); }
-		static ParamDocument makeScopedImport(Entity ent, ImportedDocument import) { return ParamDocument(ent, Type::SCOPED_IMPORT, std::move(import)); }
-		static ParamDocument makeScopedImport(std::vector<Entity> entList, ImportedDocument import) { return ParamDocument(std::move(entList), std::move(import)); }
 		ParamDocument(ImportedDocument import);
 		~ParamDocument();
 
@@ -63,16 +61,11 @@ namespace webss
 
 	private:
 		Type type = Type::NONE;
-		union
-		{
-			Entity ent;
-			std::vector<Entity>* entList;
-		};
+		Entity ent;
 		std::unique_ptr<ImportedDocument> import;
 
 		ParamDocument(Entity ent, Type type);
 		ParamDocument(Entity ent, Type type, ImportedDocument import);
-		ParamDocument(std::vector<Entity> entList, ImportedDocument import);
 
 		void destroyUnion();
 		void copyUnion(ParamDocument&& o);

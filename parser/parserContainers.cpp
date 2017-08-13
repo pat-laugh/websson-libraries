@@ -282,9 +282,6 @@ bool Parser::parseDocumentHead(Document& doc, const Namespace& nspace)
 			docHead.push_back(move(import));
 			break;
 		}
-		case Tag::SCOPED_IMPORT:
-			docHead.push_back(parseScopedImport());
-			break;
 		case Tag::EXPAND:
 		{
 			auto ent = parseExpandEntity(tagit, ents);
@@ -311,68 +308,6 @@ bool Parser::parseDocumentHead(Document& doc, const Namespace& nspace)
 		}
 	} while (checkNextElement());
 	return true;
-}
-
-static vector<string> parseScopedImportNames(TagIterator& tagit)
-{
-	assert(*tagit == Tag::NAME_START);
-	vector<string> names;
-	names.push_back(parseName(tagit.getIt()));
-	while (tagit.update() == Tag::SCOPE)
-	{
-		(++tagit).sofertTag(Tag::NAME_START);
-		names.push_back(parseName(tagit.getIt()));
-	}
-	return names;
-}
-
-static Entity getScopedImportEntity(const unordered_map<string, Entity>& importedDoc, vector<string> names)
-{
-	const Entity* ent = &importedDoc.at(names[0]);
-	for (decltype(names.size()) i = 1; i < names.size(); ++i)
-		ent = &ent->getContent().getNamespace().at(names[i]);
-	return *ent;
-}
-
-ParamDocument Parser::parseScopedImport()
-{
-	if (++tagit == Tag::NAME_START)
-	{
-		auto names = parseScopedImportNames(tagit);
-
-		tagit.sofertTag(Tag::IMPORT);
-		auto import = parseImport();
-		const auto& importedDoc = ImportManager::getInstance().importDocument(import.getLink());
-
-		auto ent = getScopedImportEntity(importedDoc, names);
-		ents.addPublicSafe(ent);
-
-		return ParamDocument::makeScopedImport(move(ent), move(import));
-	}
-	else if (*tagit == Tag::START_LIST)
-	{
-		auto namesList = parseContainer<vector<vector<string>>, ConType::LIST>(vector<vector<string>>(), false, [&](vector<vector<string>>& namesList)
-		{
-			tagit.sofertTag(Tag::NAME_START);
-			namesList.push_back(parseScopedImportNames(tagit));
-		});
-
-		tagit.sofertTag(Tag::IMPORT);
-		auto import = parseImport();
-		const auto& importedDoc = ImportManager::getInstance().importDocument(import.getLink());
-
-		vector<Entity> entList;
-		for (const auto& names : namesList)
-		{
-			auto ent = getScopedImportEntity(importedDoc, names);
-			ents.addPublicSafe(ent);
-			entList.push_back(move(ent));
-		}
-
-		return ParamDocument::makeScopedImport(move(entList), move(import));
-	}
-	else
-		throw runtime_error(ERROR_UNEXPECTED);
 }
 
 static Thead makeTheadImport()
