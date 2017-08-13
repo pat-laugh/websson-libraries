@@ -157,3 +157,5 @@ void TagIterator::setIterator(SmartIterator it)
 	this->it = move(it);
 	update();
 }
+
+void TagIterator::setTag(Tag tag) { this->tag = tag; }

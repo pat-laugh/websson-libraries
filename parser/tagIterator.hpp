@@ -49,6 +49,8 @@ namespace webss
 		//sets tag to what the iterator currently points to
 		Tag update();
 
+		void setTag(Tag tag);
+
 	private:
 		various::SmartIterator it;
 		Tag tag;

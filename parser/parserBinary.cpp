@@ -90,7 +90,11 @@ void Parser::parseBinHead(TheadBin& thead)
 			break;
 		}
 		case Tag::EXPLICIT_NAME:
-			if (++tagit == Tag::NAME_START)
+		{
+			auto& it = ++tagit.getItSafe();
+			if (!it)
+				throw runtime_error(ERROR_EXPECTED);
+			if (isNameStart(*it))
 			{
 				auto nameType = parseNameType(tagit, ents);
 				switch (nameType.type)
@@ -104,10 +108,11 @@ void Parser::parseBinHead(TheadBin& thead)
 					throw runtime_error("undefined entity: " + nameType.name);
 				}
 			}
-			else if (*tagit == Tag::DIGIT || *tagit == Tag::PLUS || *tagit == Tag::MINUS)
+			else if (isNumberStart(*it))
 				bhead = Bhead::makeSizeBits(checkBinSizeBits(parseNumber(*this).getInt()));
 			else
 				throw runtime_error(ERROR_UNEXPECTED);
+		}
 		default:
 			break;
 		}

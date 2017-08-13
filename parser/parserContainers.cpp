@@ -388,19 +388,24 @@ ImportedDocument Parser::parseImport()
 {
 	static const auto thead = makeTheadImport();
 	const auto& params = thead.getTheadStd().getParams();
-	switch (++tagit)
-	{
+	Tuple tuple(params.getSharedKeys());
+	++tagit.getIt();
+	tuple[0] = parseStickyLineString(*this);
+	checkDefaultValues(tuple, params);
+	return ImportedDocument(move(tuple));
+//	switch (++tagit)
+//	{
 //	case Tag::START_TUPLE:
 //		return ImportedDocument(parseTemplateTupleStd(thead));
 //	case Tag::TEXT_TUPLE:
 //		return ImportedDocument(Webss(parseTemplateTupleText(thead), WebssType::TUPLE_TEXT));
-	case Tag::NAME_START: case Tag::SCOPE: case Tag::SLASH:
-	{
-		Tuple tuple(params.getSharedKeys());
-		tuple[0] = parseStickyLineString(*this);
-		checkDefaultValues(tuple, params);
-		return ImportedDocument(move(tuple));
-	}
+//	case Tag::NAME_START: case Tag::SCOPE: case Tag::SLASH:
+//	{
+//		Tuple tuple(params.getSharedKeys());
+//		tuple[0] = parseStickyLineString(*this);
+//		checkDefaultValues(tuple, params);
+//		return ImportedDocument(move(tuple));
+//	}
 /*	case Tag::EXPAND:
 	{
 		auto content = parseExpandEntity(tagit, ents).getContent();
@@ -424,9 +429,9 @@ ImportedDocument Parser::parseImport()
 		else
 			throw runtime_error(ERROR_UNEXPECTED);
 	} */
-	default:
-		throw runtime_error(ERROR_UNEXPECTED);
-	}
+//	default:
+//		throw runtime_error(ERROR_UNEXPECTED);
+//	}
 }
 
 void Parser::parseOption()

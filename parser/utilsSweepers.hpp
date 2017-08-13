@@ -34,6 +34,10 @@ namespace webss
 	//returns a name; it must point to a name-start char
 	std::string parseName(various::SmartIterator& it);
 
+	//makes sure that the next char is a name start without skipping through junk
+	//does not invalidate the tag iterator
+	void checkNameExplicit(TagIterator& tagit);
+
 	//skips the char currently pointed by it, skips junk, then parses a name
 	std::string parseNameExplicit(TagIterator& tagit);
 }

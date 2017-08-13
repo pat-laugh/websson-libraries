@@ -162,8 +162,16 @@ string webss::parseName(SmartIterator& it)
 	return name;
 }
 
+void webss::checkNameExplicit(TagIterator& tagit)
+{
+	auto& it = ++tagit.getIt();
+	if (!it || !isNameStart(*it))
+		throw runtime_error("expected name");
+	tagit.setTag(Tag::NAME_START);
+}
+
 string webss::parseNameExplicit(TagIterator& tagit)
 {
-	(++tagit).sofertTag(Tag::NAME_START);
+	checkNameExplicit(tagit);
 	return parseName(tagit.getItSafe());
 }
