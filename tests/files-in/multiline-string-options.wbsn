@@ -1,7 +1,5 @@
 ?name: First Last
 !Nspace { ?name: John, !MoreNspace { ?name: Doe } }
-##alias.code:-cilr
-##alias.md=code
 
 no-options ::
 {
@@ -96,9 +94,9 @@ allow-only-entities :: -c -i -l -r //all but entity
 
 allow-only-entities2 :: -cilr /* short version */ {text}
 
-allow-only-entities3 :: code /*alias for -cilr*/ {text }
+allow-only-entities3 :: -cilr {text }
 
-allow-only-entities4 :: md /* alias for code */ { text }
+allow-only-entities4 :: -cilr { text }
 
 line-indent::-ic{text here
 	/* stuff */

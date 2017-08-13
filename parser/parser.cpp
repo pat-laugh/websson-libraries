@@ -50,20 +50,14 @@ static void initEnts(EntityManager& ents)
 	addTheadBinEntityKeywords(ents, { "S", "String", "string" }, Keyword::STRING);
 }
 
-static void initAliases(map<string, vector<string>>& aliases)
-{
-	aliases.insert({ "alias", { "-", "a" } });
-}
-
 Parser::Parser() : tagit(SmartIterator("")) {}
-Parser::Parser(SmartIterator it) : tagit(move(it)) { initEnts(ents); initAliases(aliases); }
+Parser::Parser(SmartIterator it) : tagit(move(it)) { initEnts(ents); }
 Parser::Parser(const istream& in) : tagit(SmartIterator(""))
 {
 	stringstream ss;
 	ss << in.rdbuf();
 	setIterator(SmartIterator(move(ss)));
 	initEnts(ents);
-	initAliases(aliases);
 }
 
 Parser& Parser::setIterator(SmartIterator it)
@@ -151,5 +145,3 @@ bool Parser::checkNextElement()
 	}
 	return true;
 }
-
-bool Parser::hasAlias(const std::string& name) { return aliases.find(name) != aliases.end(); }

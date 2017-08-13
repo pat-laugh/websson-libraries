@@ -10,7 +10,6 @@
 #include "parserStrings.hpp"
 #include "patternsContainers.hpp"
 #include "utilsExpand.hpp"
-#include "utilsOptions.hpp"
 #include "utilsTemplateDefaultValues.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
@@ -23,7 +22,7 @@ static const char* ERROR_INPUT_DICTIONARY = "dictionary can only have key-values
 static const char* ERROR_INPUT_TUPLE = "tuple can only have concrete value-onlys or key-values";
 static const char* ERROR_INPUT_NAMESPACE = "namespace can only have entity definitions";
 static const char* ERROR_INPUT_DOCUMENT = "document can only have concrete value-onlys or key-values";
-static const char* ERROR_OPTION = "expected option";
+static const char* ERROR_OPTION = "expected option -v or --version";
 
 static void useNamespace(EntityManager& ents, const Namespace& nspace)
 {
@@ -371,39 +370,33 @@ ImportedDocument Parser::parseImport()
 
 void Parser::parseOption()
 {
-	getItSafe().incTwo();
-	auto items = parseOptionLine(*this, [](char c) { return c == '\n'; });
-
-	for (decltype(items.size()) i = 0; i < items.size(); ++i)
+	auto& it = getItSafe().incTwo();
+loopStart:
+	if (!skipLineJunk(it))
+		return;
+	if (*it == '\n')
 	{
-		if (items[i] != OPTION_NAME)
-			throw runtime_error(ERROR_OPTION);
-		const auto& op = items[++i];
-		if (op == "a" || op == "alias")
-			parseOptionAlias(items, i);
-		else if (op == "v" || op == "version")
-			parseOptionVersion(items, i);
-		else
-			throw runtime_error(ERROR_OPTION);
+		++it;
+		return;
 	}
-}
 
-void Parser::parseOptionVersion(const std::vector<std::string>& items, std::vector<std::string>::size_type& index)
-{
-	if (++index >= items.size() || items[index] != OPTION_VALUE)
-		throw runtime_error("expected version");
-	if (items[++index] != "1.0.0")
+	if (*it != '-' || !++it)
+		throw runtime_error(ERROR_OPTION);
+	if (*it != 'v' && (*it != '-' || ++it != 'v' || ++it != 'e' || ++it != 'r' || ++it != 's' || ++it != 'i' || ++it != 'o' || ++it != 'n'))
+		throw runtime_error(ERROR_OPTION);
+	if (!++it)
+		throw runtime_error(ERROR_EXPECTED);
+	string value;
+	if (*it == CHAR_COLON || *it == CHAR_EQUAL)
+	{
+		++it;
+		value = parseStickyLineString(*this);
+	}
+	else if (*it == CHAR_CSTRING)
+		value = parseCString(*this);
+	else
+		throw runtime_error(ERROR_UNEXPECTED);
+	if (value != "1.0.0")
 		throw runtime_error("this parser can only parse version 1.0.0");
-}
-
-void Parser::parseOptionAlias(const std::vector<std::string>& items, std::vector<std::string>::size_type& index)
-{
-	if (++index >= items.size() || items[index] != OPTION_SCOPE)
-		throw runtime_error("expected alias");
-	auto name = items[++index];
-	if (hasAlias(name))
-		throw runtime_error("alias already exists");
-	if (++index >= items.size() || items[index] != OPTION_VALUE)
-		throw runtime_error("expected alias value");
-	aliases.insert({ move(name), expandOptionString(*this, items[++index]) });
+	goto loopStart;
 }

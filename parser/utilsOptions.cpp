@@ -99,7 +99,6 @@ vector<string> webss::expandOptionString(Parser& parser, string s)
 {
 	auto& it = parser.getIt();
 	IteratorSwitcher itSwitcher(it, SmartIterator(move(s)));
-	const auto& aliases = parser.aliases;
 	vector<string> output;
 	while (it)
 	{
@@ -125,14 +124,6 @@ vector<string> webss::expandOptionString(Parser& parser, string s)
 				continue;
 			}
 			throw runtime_error(ERROR_OPTION);
-		}
-		else if (isNameStart(*it))
-		{
-			for (const auto& item : aliases.at(parseName(it)))
-				output.push_back(item);
-			if (parseOptionValue(parser, output))
-				break;
-			continue;
 		}
 		else if (isJunk(*it))
 		{
