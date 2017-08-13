@@ -1,6 +1,6 @@
 ?entDict = {
 	key1 = 2
-	$key2:text
+	%key2:text
 	other-dict
 	{
 		key = true

@@ -3,23 +3,23 @@ value = nspace.true
 
 //the rest tests keywords
 
-$null[N null Null nil Nil none None]
-$false[F false False]
-$true[T true True]
+%null[N null Null nil Nil none None]
+%false[F false False]
+%true[T true True]
 
 //the rest are binary template heads, so
 //must be given a proper number of bytes
-$bool[B(1) bool(1) Bool(1)]
-$byte[byte(1) Byte(1)]
-$short[short(12) Short(12)]
-$int[I(1234) int(1234) Int(1234)]
-$long[L(12345678) long(12345678) Long(12345678)]
-$float[F(1234) float(1234) Float(1234)]
-$double[D(12345678) double(12345678) Double(12345678)]
+%bool[B(1) bool(1) Bool(1)]
+%byte[byte(1) Byte(1)]
+%short[short(12) Short(12)]
+%int[I(1234) int(1234) Int(1234)]
+%long[L(12345678) long(12345678) Long(12345678)]
+%float[F(1234) float(1234) Float(1234)]
+%double[D(12345678) double(12345678) Double(12345678)]
 
 //string is equivalent to a size of 0 and thus first reads the length
 //of the input; in this case, a space is put, which has a value  of 32
-$string
+%string
 [
 	//template head keywords really are predefined entities, so
 	//they behave like entities
