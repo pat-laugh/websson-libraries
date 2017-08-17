@@ -27,10 +27,12 @@ NameType webss::parseNameType(TagIterator& tagit, const EntityManager& ents)
 scopeLoop:
 	if (tagit.update() != Tag::SCOPE)
 		return{ *ent };
+	const auto& content = ent->getContent();
+	if (!content.isNamespace() && !content.isEnum())
+		return{ *ent };
 	try
 	{
-		(++tagit).sofertTag(Tag::NAME_START);
-		const auto& content = ent->getContent();
+		(++tagit).sofertTag(Tag::NAME_START);	
 		if (content.isEnum())
 			return content.getEnum().at(parseName(tagit.getItSafe()));
 		ent = &content.getNamespace().at(parseName(tagit.getIt()));
