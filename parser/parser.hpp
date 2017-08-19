@@ -82,9 +82,6 @@ namespace webss
 		//returns true if has next element, else false
 		bool checkNextElement();
 
-		//returns true if end of container is met, else false
-		bool parseDocumentHead(Document& doc, const Namespace& nspace);
-
 		Dictionary parseDictionary();
 		List parseListCommon(std::function<void(List&)> defaultFunc);
 		List parseList();

@@ -18,5 +18,4 @@ namespace webss
 	void expandTuple(Tuple& tuple, TagIterator& tagit, const EntityManager& ents);
 	void expandNamespace(Namespace& nspace, TagIterator& tagit, const EntityManager& ents);
 	void expandEnum(Enum& tEnum, TagIterator& tagit, const EntityManager& ents);
-	void expandDocumentBody(Document& doc, TagIterator& tagit, const EntityManager& ents);
 }

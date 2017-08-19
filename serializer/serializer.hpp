@@ -7,7 +7,6 @@
 #include <set>
 
 #include "structures/webss.hpp"
-#include "structures/documentHead.hpp"
 #include "structures/paramBinary.hpp"
 #include "structures/tuple.hpp"
 #include "structures/list.hpp"
@@ -34,24 +33,11 @@ namespace webss
 			return out;
 		}
 
-		static void serialize(various::StringBuilder& out, const DocumentHead& docHead)
-		{
-			Serializer().putDocumentHead(out, docHead);
-		}
-
-		static std::string serialize(const DocumentHead& docHead)
-		{
-			various::StringBuilder out;
-			serialize(out, docHead);
-			return out;
-		}
-
 	protected:
 		std::set<void*> currentNamespaces;
 
 		Serializer();
 
-		void putDocumentHead(various::StringBuilder& out, const DocumentHead& docHead);
 		void putDocument(various::StringBuilder& out, const Document& doc);
 
 		void putPreviousNamespaceNames(various::StringBuilder& out, const Namespace& nspace);

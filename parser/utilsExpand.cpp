@@ -81,12 +81,3 @@ void webss::expandEnum(Enum& tEnum, TagIterator& tagit, const EntityManager& ent
 	for (const auto& item : ent.getContent().getEnum())
 		tEnum.addSafe(item.getName());
 }
-
-void webss::expandDocumentBody(Document& doc, TagIterator& tagit, const EntityManager& ents)
-{
-	auto ent = parseExpandEntity(tagit, ents);
-	if (ent.getContent().getType() != WebssType::TUPLE && ent.getContent().getType() != WebssType::TUPLE_TEXT)
-		throw runtime_error("expand entity within document body must be a tuple");
-	for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
-		item.first == nullptr ? doc.add(*item.second) : doc.addSafe(*item.first, *item.second);
-}

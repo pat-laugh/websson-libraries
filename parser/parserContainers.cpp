@@ -219,94 +219,77 @@ Document Parser::parseDocument()
 	try
 	{
 		Document doc;
-		if (!containerEmpty() && !parseDocumentHead(doc, Namespace::getEmptyInstance()))
+		if (containerEmpty())
+			return doc;
+		
+		do
 		{
-			do
+			switch (*tagit)
 			{
-				switch (*tagit)
+			case Tag::ENTITY_ABSTRACT:
+			{
+				auto ent = parseAbstractEntity(Namespace::getEmptyInstance());
+				doc.addHead(ParamDocument::makeEntityAbstract(ent));
+				ents.addPublicSafe(move(ent));
+				break;
+			}
+			case Tag::ENTITY_CONCRETE:
+			{
+				auto ent = parseConcreteEntity();
+				doc.addHead(ParamDocument::makeEntityConcrete(ent));
+				ents.addPublicSafe(move(ent));
+				break;
+			}
+			case Tag::IMPORT:
+			{
+				auto import = parseImport();
+				const auto& link = import.getLink();
+				for (const auto& entPair : ImportManager::getInstance().importDocument(link))
+					ents.addPublicSafe(entPair.second);
+				doc.addHead(move(import));
+				break;
+			}
+			case Tag::EXPAND:
+			{
+				auto ent = parseExpandEntity(tagit, ents);
+				auto contentType = ent.getContent().getType();
+				if (contentType == WebssType::NAMESPACE)
 				{
-				case Tag::EXPAND:
-					expandDocumentBody(doc, tagit, ents);
-					break;
-				case Tag::EXPLICIT_NAME:
-					parseExplicitKeyValue(
-						CaseKeyValue{ doc.addSafe(move(key), move(value)); },
-						ErrorKeyOnly(ERROR_INPUT_DOCUMENT));
-					break;
-				default:
-					parseOtherValue(
-						CaseKeyValue{ doc.addSafe(move(key), move(value)); },
-						ErrorKeyOnly(ERROR_INPUT_DOCUMENT),
-						CaseValueOnly{ doc.add(move(value)); },
-						ErrorAbstractEntity(ERROR_INPUT_DOCUMENT));
-					break;
+					auto param = ParamDocument::makeExpand(ent);
+					const auto& nspace = param.getNamespace();
+					useNamespace(ents, nspace);
+					doc.addHead(move(param));
 				}
-			} while (checkNextElement());
-		}
+				else if (contentType == WebssType::TUPLE || contentType == WebssType::TUPLE_TEXT)
+					for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
+						item.first == nullptr ? doc.addBody(*item.second) : doc.addBodySafe(*item.first, *item.second);
+				else
+					throw runtime_error("expand entity in document must be a namespace or tuple");
+				break;
+			}
+			case Tag::OPTION:
+				parseOption();
+				break;
+			case Tag::EXPLICIT_NAME:
+				parseExplicitKeyValue(
+					CaseKeyValue{ doc.addBodySafe(move(key), move(value)); },
+					ErrorKeyOnly(ERROR_INPUT_DOCUMENT));
+				break;
+			default:
+				parseOtherValue(
+					CaseKeyValue{ doc.addBodySafe(move(key), move(value)); },
+					ErrorKeyOnly(ERROR_INPUT_DOCUMENT),
+					CaseValueOnly{ doc.addBody(move(value)); },
+					ErrorAbstractEntity(ERROR_INPUT_DOCUMENT));
+				break;
+			}
+		} while (checkNextElement());
 		return doc;
 	}
 	catch (const exception& e)
 	{
 		throw runtime_error(string(getItPosition(getIt()) + ' ' + e.what() + getItCurrentChar(getIt())).c_str());
 	}
-}
-
-bool Parser::parseDocumentHead(Document& doc, const Namespace& nspace)
-{
-	auto& docHead = doc.getHead();
-	do
-	{
-		switch (*tagit)
-		{
-		case Tag::ENTITY_ABSTRACT:
-		{
-			auto ent = parseAbstractEntity(nspace);
-			docHead.push_back(ParamDocument::makeEntityAbstract(ent));
-			ents.addPublicSafe(move(ent));
-			break;
-		}
-		case Tag::ENTITY_CONCRETE:
-		{
-			auto ent = parseConcreteEntity();
-			docHead.push_back(ParamDocument::makeEntityConcrete(ent));
-			ents.addPublicSafe(move(ent));
-			break;
-		}
-		case Tag::IMPORT:
-		{
-			auto import = parseImport();
-			const auto& link = import.getLink();
-			for (const auto& entPair : ImportManager::getInstance().importDocument(link))
-				ents.addPublicSafe(entPair.second);
-			docHead.push_back(move(import));
-			break;
-		}
-		case Tag::EXPAND:
-		{
-			auto ent = parseExpandEntity(tagit, ents);
-			if (ent.getContent().getType() != WebssType::NAMESPACE)
-			{
-				if (ent.getContent().getType() != WebssType::TUPLE && ent.getContent().getType() != WebssType::TUPLE_TEXT)
-					throw runtime_error("expand entity in document body must be a tuple");
-				for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
-					item.first == nullptr ? doc.add(*item.second) : doc.addSafe(*item.first, *item.second);
-				tagit.getSafe();
-				return false;
-			}
-			auto param = ParamDocument::makeExpand(ent);
-			const auto& nspace = param.getNamespace();
-			useNamespace(ents, nspace);
-			docHead.push_back(move(param));
-			break;
-		}
-		case Tag::OPTION:
-			parseOption();
-			break;
-		default:
-			return false;
-		}
-	} while (checkNextElement());
-	return true;
 }
 
 static Thead makeTheadImport()

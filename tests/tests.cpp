@@ -27,6 +27,8 @@ void testTemplateStd();
 ErrorType testSerializerHtml();
 template <class Element>
 bool hasKeys(const Element& elem, set<string> keys);
+template <>
+bool hasKeys<Document>(const Document& doc, set<string> keys);
 
 int main()
 {
@@ -268,7 +270,7 @@ void testDictionary()
 {
 	test("dictionary", [](const Document& doc)
 	{
-		const auto& webssDict = doc.getData()[0];
+		const auto& webssDict = doc.getBody()[0];
 		sofert(webssDict.isDictionary());
 		const auto& dict = webssDict.getDictionary();
 		sofert(dict.size() == 4);
@@ -285,11 +287,11 @@ void testTemplateStd()
 {
 	test("templateStandard", [](const Document& doc)
 	{
-		sofert(doc.size() == 5);
+		sofert(doc.getBody().size() == 5);
 		sofert(hasKeys(doc, { "template1", "template2" }));
-		const auto& templ1 = doc["template1"];
-		const auto& templ2 = doc["template2"];
-		sofert(templ1 == doc[0] && templ2 == doc[1]);
+		const auto& templ1 = doc.getBody()["template1"];
+		const auto& templ2 = doc.getBody()["template2"];
+		sofert(templ1 == doc.getBody()[0] && templ2 == doc.getBody()[1]);
 		sofert(templ1 == templ2);
 		{
 			sofert(templ1.isList());
@@ -322,7 +324,7 @@ void testTemplateStd()
 		}
 
 		Tuple tupleTempl3;
-		const auto& templ3 = doc[2];
+		const auto& templ3 = doc.getBody()[2];
 		{
 			sofert(templ3.isTemplate());
 			const auto& tuple = templ3.getTemplate().body.getTuple();
@@ -335,10 +337,10 @@ void testTemplateStd()
 			tupleTempl3 = tuple;
 		}
 
-		const auto& templ4 = doc[3];
+		const auto& templ4 = doc.getBody()[3];
 		sofert(templ4.isList() && templ4.getList().empty());
 
-		const auto& templ5 = doc[4];
+		const auto& templ5 = doc.getBody()[4];
 		{
 			sofert(templ5.isList());
 			const auto& list = templ5.getList();
@@ -382,6 +384,15 @@ bool hasKeys(const Element& elem, set<string> keys)
 {
 	for (const auto& key : keys)
 		if (!elem.has(key))
+			return false;
+	return true;
+}
+
+template <>
+bool hasKeys<Document>(const Document& doc, set<string> keys)
+{
+	for (const auto& key : keys)
+		if (!doc.getBody().has(key))
 			return false;
 	return true;
 }

@@ -171,50 +171,51 @@ private:
 
 Serializer::Serializer() {}
 
-void Serializer::putDocumentHead(StringBuilder& out, const DocumentHead& docHead)
-{
-	static const auto CON = ConType::DOCUMENT;
-	putSeparatedValues<DocumentHead, CON>(out, docHead, [&](DocumentHead::const_iterator it)
-	{
-		using Type = decltype(it->getType());
-		switch (it->getType())
-		{
-		case Type::ENTITY_ABSTRACT:
-			putEntityAbstract(out, it->getEntity());
-			break;
-		case Type::ENTITY_CONCRETE:
-			putEntityConcrete(out, it->getEntity(), CON);
-			break;
-		case Type::EXPAND:
-			putExpandDocumentHead(out, it->getNamespace());
-			break;
-		case Type::IMPORT:
-			putImport(out, it->getImport());
-			break;
-		default:
-			assert(false);
-		}
-	});
-}
-
 void Serializer::putDocument(StringBuilder& out, const Document& doc)
 {
 	static const auto CON = ConType::DOCUMENT;
-
-	if (doc.getHead().size() > 0)
+	const auto& alt = doc.getAlternate();
+	if (alt.empty())
+		return;
+	auto itHead = doc.getHead().begin();
+	auto bodyKeyValues = doc.getBody().getOrderedKeyValues();
+	auto itBody = bodyKeyValues.begin();
+	for (auto itAlt = alt.begin(); itAlt != alt.end(); ++itAlt)
 	{
-		putDocumentHead(out, doc.getHead());
-		out += "\n\n";
-	}
-
-	using Type = decltype(doc.getOrderedKeyValues());
-	putSeparatedValues<Type, CON>(out, doc.getOrderedKeyValues(), [&](Type::const_iterator it)
-	{
-		if (it->first == nullptr)
-			putConcreteValue(out, *it->second, CON);
+		if (*itAlt == Document::ALTERNATE_HEAD)
+		{
+			assert(itHead != doc.getHead().end());
+			using Type = decltype(itHead->getType());
+			switch (itHead->getType())
+			{
+			case Type::ENTITY_ABSTRACT:
+				putEntityAbstract(out, itHead->getEntity());
+				break;
+			case Type::ENTITY_CONCRETE:
+				putEntityConcrete(out, itHead->getEntity(), CON);
+				break;
+			case Type::EXPAND:
+				putExpandDocumentHead(out, itHead->getNamespace());
+				break;
+			case Type::IMPORT:
+				putImport(out, itHead->getImport());
+				break;
+			default:
+				assert(false);
+			}
+			++itHead;
+		}
 		else
-			putExplicitKeyValue(out, *it->first, *it->second, CON);
-	});
+		{
+			assert(itBody != bodyKeyValues.end());
+			if (itBody->first == nullptr)
+				putConcreteValue(out, *itBody->second, CON);
+			else
+				putExplicitKeyValue(out, *itBody->first, *itBody->second, CON);
+			++itBody;
+		}
+		out += '\n';
+	}
 }
 
 void Serializer::putPreviousNamespaceNames(StringBuilder& out, const Namespace& nspace)
