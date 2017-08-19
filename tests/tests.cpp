@@ -35,7 +35,7 @@ int main()
 	vector<string> filenames
 	{
 		"strings", "namespace", "enum", "names-keywords", "multiline-string-options", "assignAbstractEntity",
-		"expandTuple", "templatePlus", "list", "tuple", "option", "expandThead",
+		"expandTuple", "templatePlus", "list", "tuple", "option", "expandThead", "import",
 	};
 	for (const auto& filename : filenames)
 	{
@@ -159,7 +159,7 @@ ErrorType tryParse(string filenameIn, Document& doc)
 
 	try
 	{
-		doc = Parser(fileIn).parseDocument();
+		doc = Parser(fileIn, filenameIn).parseDocument();
 	}
 	catch (const exception& e)
 	{
@@ -206,12 +206,13 @@ ErrorType trySerialize(string filenameOut, string& output, const Document& doc)
 //equals the first parse
 ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 {
-	string filenameOut(makeCompleteFilenameOut(filename));
+	auto filenameIn = makeCompleteFilenameIn(filename);
+	auto filenameOut = makeCompleteFilenameOut(filename);
 
 	cout << "Input: " << filename;
 
 	Document doc;
-	ErrorType errorParse = tryParse(makeCompleteFilenameIn(filename), doc);
+	ErrorType errorParse = tryParse(filenameIn, doc);
 	if (errorParse != ErrorType::NONE)
 		return errorParse;
 
@@ -219,7 +220,7 @@ ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 	putGreen("parsing");
 
 	string output;
-	ErrorType errorSerialize = trySerialize<Serializer>(makeCompleteFilenameOut(filename), output, doc);
+	ErrorType errorSerialize = trySerialize<Serializer>(filenameOut, output, doc);
 	if (errorSerialize != ErrorType::NONE)
 		return errorSerialize;
 
@@ -229,7 +230,7 @@ ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 	Document newDoc;
 	try
 	{
-		newDoc = Parser(output).parseDocument();
+		newDoc = Parser(output, filenameIn).parseDocument();
 	}
 	catch (const exception& e)
 	{

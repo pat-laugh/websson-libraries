@@ -22,9 +22,10 @@ compile_libs:
 	cd $(DIR_UTILS); make -s
 	cd $(DIR_STRUCTURES); make -s
 	cd $(DIR_PARSER); \
-	if [ $(DISABLE_IMPORT) ]; \
-		then make disable_import -s; \
-		else make -s; \
+	if [ $(DISABLE_IMPORT) ]; then \
+		make disable_import -s; \
+	else \
+		make -s; \
 	fi
 	cd $(DIR_SERIALIZER); make -s
 	cd $(DIR_SERIALIZER_HTML); make -s
@@ -33,9 +34,17 @@ compile_libs:
 $(EXEC): $(OBJ_FILES)
 	$(CXX) -o $@ $^ -L$(DIR_PARSER) -lparser \
 	$$( \
-		if [ $(DISABLE_IMPORT) ]; \
-			then echo ''; \
-			else echo '-lcurl'; \
+		if [ $(DISABLE_IMPORT) ]; then \
+			echo ''; \
+		else \
+			echo ' -lcurl'; \
+			if [ "$$(uname -s)" == "Darwin" ]; then \
+				echo '# Mac OS' > /dev/null; \
+				echo ' -L/opt/local/lib -lboost_filesystem-mt -lboost_system-mt'; \
+			else \
+				echo '# Linux' > /dev/null; \
+				echo ' -lboost_filesystem -lboost_system'; \
+			fi \
 		fi \
 	) \
 	-L$(DIR_SERIALIZER) -lserializer -L$(DIR_SERIALIZER_HTML) -lserializerHtml \

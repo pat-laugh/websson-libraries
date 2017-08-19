@@ -22,20 +22,22 @@ namespace webss
 	class Parser
 	{
 	public:
-		Parser();
-		Parser(various::SmartIterator it);
-		Parser(const std::istream& in);
+		Parser(std::string filename = "");
+		Parser(various::SmartIterator it, std::string filename = "");
+		Parser(const std::istream& in, std::string filename = "");
 		Parser& setIterator(various::SmartIterator it);
+		Parser& setFilename(std::string filename);
 		Parser& addEntity(std::string name, Webss value);
 
 		Document parseDocument();
-		Document parseDocument(various::SmartIterator it);
-		Document parseDocument(const std::istream& in);
+		Document parseDocument(various::SmartIterator it, std::string filename = "");
+		Document parseDocument(const std::istream& in, std::string filename = "");
 
 		TagIterator tagit;
 		ConType con = ConType::DOCUMENT;
 		bool multilineContainer = true;
 		bool allowVoid = false;
+		std::string filename;
 
 		class ContainerSwitcher;
 

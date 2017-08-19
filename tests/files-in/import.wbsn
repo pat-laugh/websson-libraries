@@ -1,0 +1,12 @@
+@enum.wbsn
+@dictionary.wbsn
+
+?dictCopy = entDict
+
+expandDict = { ^dictCopy }
+
+?red = Color.Red
+?green = Color.Green
+?blue = Color.Blue
+
+colors = [red, green, blue]

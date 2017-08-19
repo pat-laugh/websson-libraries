@@ -204,16 +204,18 @@ Enum Parser::parseEnum(const string& name)
 }
 
 
-Document Parser::parseDocument(various::SmartIterator it)
+Document Parser::parseDocument(various::SmartIterator it, string filename)
 {
 	setIterator(move(it));
+	setFilename(move(filename));
 	return parseDocument();
 }
 
-Document Parser::parseDocument(const std::istream& in)
+Document Parser::parseDocument(const std::istream& in, string filename)
 {
 	stringstream ss;
 	ss << in.rdbuf();
+	setFilename(move(filename));
 	return parseDocument(SmartIterator(move(ss)));
 }
 
@@ -250,7 +252,7 @@ Document Parser::parseDocument()
 			{
 				auto import = parseImport();
 				const auto& link = import.getLink();
-				const auto& headBody = ImportManager::getInstance().importDocument(link);
+				const auto& headBody = ImportManager::getInstance().importDocument(link, filename);
 				for (const auto& entPair : headBody.first)
 					ents.addPublicSafe(entPair.second);
 				for (const auto& keyValue : headBody.second)

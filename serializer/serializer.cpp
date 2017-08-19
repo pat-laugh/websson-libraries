@@ -204,6 +204,7 @@ void Serializer::putDocument(StringBuilder& out, const Document& doc)
 				assert(false);
 			}
 			++itHead;
+			out += '\n';
 		}
 		else if (*itAlt == Document::Alternate::BODY)
 		{
@@ -213,10 +214,10 @@ void Serializer::putDocument(StringBuilder& out, const Document& doc)
 			else
 				putExplicitKeyValue(out, *itBody->first, *itBody->second, CON);
 			++itBody;
+			out += '\n';
 		}
 		else //Document::Alternate::IMPORT
 			++itBody;
-		out += '\n';
 	}
 }
 
