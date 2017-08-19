@@ -182,7 +182,7 @@ void Serializer::putDocument(StringBuilder& out, const Document& doc)
 	auto itBody = bodyKeyValues.begin();
 	for (auto itAlt = alt.begin(); itAlt != alt.end(); ++itAlt)
 	{
-		if (*itAlt == Document::ALTERNATE_HEAD)
+		if (*itAlt == Document::Alternate::HEAD)
 		{
 			assert(itHead != doc.getHead().end());
 			using Type = decltype(itHead->getType());
@@ -205,7 +205,7 @@ void Serializer::putDocument(StringBuilder& out, const Document& doc)
 			}
 			++itHead;
 		}
-		else
+		else if (*itAlt == Document::Alternate::BODY)
 		{
 			assert(itBody != bodyKeyValues.end());
 			if (itBody->first == nullptr)
@@ -214,6 +214,8 @@ void Serializer::putDocument(StringBuilder& out, const Document& doc)
 				putExplicitKeyValue(out, *itBody->first, *itBody->second, CON);
 			++itBody;
 		}
+		else //Document::Alternate::IMPORT
+			++itBody;
 		out += '\n';
 	}
 }

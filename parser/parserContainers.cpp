@@ -244,8 +244,14 @@ Document Parser::parseDocument()
 			{
 				auto import = parseImport();
 				const auto& link = import.getLink();
-				for (const auto& entPair : ImportManager::getInstance().importDocument(link))
+				const auto& headBody = ImportManager::getInstance().importDocument(link);
+				for (const auto& entPair : headBody.first)
 					ents.addPublicSafe(entPair.second);
+				for (const auto& keyValue : headBody.second)
+					if (keyValue.first == "")
+						doc.addImport(keyValue.second);
+					else
+						doc.addImportSafe(keyValue.first, keyValue.second);
 				doc.addHead(move(import));
 				break;
 			}

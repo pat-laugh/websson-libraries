@@ -9,6 +9,7 @@
 #include <unordered_map>
 
 #include "parser.hpp"
+#include "structures/document.hpp"
 
 #ifndef WEBSSON_PARSER_DISABLE_IMPORT
 #include "curl.hpp"
@@ -19,7 +20,7 @@ using namespace webss;
 
 ImportManager::ImportManager() {}
 
-const unordered_map<string, Entity>& ImportManager::importDocument(const string& link)
+const pair<unordered_map<string, Entity>, vector<pair<string, Webss>>>& ImportManager::importDocument(const string& link)
 {
 #ifdef WEBSSON_PARSER_DISABLE_IMPORT
 	throw runtime_error("this parser cannot import documents");
@@ -47,14 +48,20 @@ const unordered_map<string, Entity>& ImportManager::importDocument(const string&
 	try
 	{
 		Parser parser(Curl().readWebDocument(link));
-		parser.parseDocument();
+		auto doc = parser.parseDocument();
 		lock_guard<mutex> lockDocs(mDocs);
 		lock_guard<mutex> lockParsing(mParsing);
 		parsing.erase(link);
 		unordered_map<string, Entity> ents;
 		for (const auto& ent : parser.getEnts().getPublicEnts())
 			ents.insert({ ent.getName(), ent });
-		return docs.insert({ link, move(ents) }).first->second;
+		vector<pair<string, Webss>> keyValuesCopy;
+		for (const auto& keyValue : doc.getBody().getOrderedKeyValues())
+			if (keyValue.first == nullptr)
+				keyValuesCopy.push_back({ "", *keyValue.second });
+			else
+				keyValuesCopy.push_back({ *keyValue.first, *keyValue.second });
+		return docs.insert({ link, { move(ents), move(keyValuesCopy) } }).first->second; //insert returns pair<iterator to added pair, bool for insert success>
 	}
 	catch (const exception& e)
 	{

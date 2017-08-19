@@ -13,8 +13,8 @@ namespace webss
 	class Document
 	{
 	public:
-		using AlternateVector = std::vector<int>;
-		static const int ALTERNATE_HEAD, ALTERNATE_BODY;
+		enum class Alternate { HEAD, BODY, IMPORT };
+		using AlternateVector = std::vector<Alternate>;
 		
 		DocumentHead& getHead();
 		const DocumentHead& getHead() const;
@@ -30,9 +30,11 @@ namespace webss
 		void addHead(ParamDocument param);
 		
 		void addBody(Webss value);
-
 		void addBody(std::string key, Webss value);
 		void addBodySafe(std::string key, Webss value);
+		
+		void addImport(Webss value);
+		void addImportSafe(std::string key, Webss value);
 
 	private:
 		DocumentHead head;

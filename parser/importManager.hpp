@@ -14,7 +14,7 @@ namespace webss
 	class ImportManager
 	{
 	private:
-		std::unordered_map<std::string, std::unordered_map<std::string, Entity>> docs;
+		std::unordered_map<std::string, std::pair<std::unordered_map<std::string, Entity>, std::vector<std::pair<std::string, Webss>>>> docs;
 		std::unordered_map<std::string, std::thread::id> parsing;
 		std::mutex mDocs, mParsing;
 
@@ -26,6 +26,6 @@ namespace webss
 			return instance;
 		}
 
-		const std::unordered_map<std::string, Entity>& importDocument(const std::string& link);
+		const std::pair<std::unordered_map<std::string, Entity>, std::vector<std::pair<std::string, Webss>>>& importDocument(const std::string& link);
 	};
 }
