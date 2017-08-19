@@ -38,7 +38,7 @@ $(EXEC): $(OBJ_FILES)
 			echo ''; \
 		else \
 			echo ' -lcurl'; \
-			if [ "$$(uname -s)" == "Darwin" ]; then \
+			if [ "$$(uname -s)" = "Darwin" ]; then \
 				echo '# Mac OS' > /dev/null; \
 				echo ' -L/opt/local/lib -lboost_filesystem-mt -lboost_system-mt'; \
 			else \
