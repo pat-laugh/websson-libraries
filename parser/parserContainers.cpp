@@ -4,7 +4,6 @@
 
 #include "containerSwitcher.hpp"
 #include "errors.hpp"
-#include "importManager.hpp"
 #include "iteratorSwitcher.hpp"
 #include "nameType.hpp"
 #include "parserStrings.hpp"
@@ -13,6 +12,10 @@
 #include "utilsTemplateDefaultValues.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
+
+#ifndef WEBSSON_PARSER_DISABLE_IMPORT
+#include "importManager.hpp"
+#endif
 
 using namespace std;
 using namespace various;
@@ -241,6 +244,9 @@ Document Parser::parseDocument()
 				break;
 			}
 			case Tag::IMPORT:
+#ifdef WEBSSON_PARSER_DISABLE_IMPORT
+			throw runtime_error("this parser cannot import documents");
+#else
 			{
 				auto import = parseImport();
 				const auto& link = import.getLink();
@@ -255,6 +261,7 @@ Document Parser::parseDocument()
 				doc.addHead(move(import));
 				break;
 			}
+#endif
 			case Tag::EXPAND:
 			{
 				auto ent = parseExpandEntity(tagit, ents);
@@ -298,12 +305,14 @@ Document Parser::parseDocument()
 	}
 }
 
+#ifndef WEBSSON_PARSER_DISABLE_IMPORT
 ImportedDocument Parser::parseImport()
 {
 	++tagit.getIt();
 	auto link = parseStickyLineString(*this);
 	return ImportedDocument(move(link));
 }
+#endif
 
 void Parser::parseOption()
 {

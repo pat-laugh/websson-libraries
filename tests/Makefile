@@ -13,18 +13,31 @@ CPP_FILES = $(wildcard *.cpp)
 OBJ_FILES = $(notdir $(CPP_FILES:.cpp=.o))
 EXEC = tests.out
 
-all: COMPILE_LIBS $(EXEC)
+all: compile_libs $(EXEC)
 
-COMPILE_LIBS:
+disable_import: DISABLE_IMPORT = 1
+disable_import: compile_libs $(EXEC)
+
+compile_libs:
 	cd $(DIR_UTILS); make -s
 	cd $(DIR_STRUCTURES); make -s
-	cd $(DIR_PARSER); make -s
+	cd $(DIR_PARSER); \
+	if [ $(DISABLE_IMPORT) ]; \
+		then make disable_import -s; \
+		else make -s; \
+	fi
 	cd $(DIR_SERIALIZER); make -s
 	cd $(DIR_SERIALIZER_HTML); make -s
 	cd $(DIR_VARIOUS); make -s
 
 $(EXEC): $(OBJ_FILES)
-	$(CXX) -o $@ $^ -L$(DIR_PARSER) -lparser -lcurl \
+	$(CXX) -o $@ $^ -L$(DIR_PARSER) -lparser \
+	$$( \
+		if [ $(DISABLE_IMPORT) ]; \
+			then echo ''; \
+			else echo '-lcurl'; \
+		fi \
+	) \
 	-L$(DIR_SERIALIZER) -lserializer -L$(DIR_SERIALIZER_HTML) -lserializerHtml \
 	-L$(DIR_STRUCTURES) -lstructures -L$(DIR_UTILS) -lutils -L$(DIR_VARIOUS) -lvarious
 
@@ -41,9 +54,9 @@ clean:
 	rm -rf $(EXEC) *.o
 
 debug: OPTIONS += -DNDEBUG -g3
-debug: COMPILE_LIBS_DEBUG $(EXEC)
+debug: compile_libs_debug $(EXEC)
 
-COMPILE_LIBS_DEBUG:
+compile_libs_debug:
 	cd $(DIR_UTILS); make debug -s
 	cd $(DIR_STRUCTURES); make debug -s
 	cd $(DIR_PARSER); make debug -s

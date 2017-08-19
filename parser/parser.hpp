@@ -74,7 +74,9 @@ namespace webss
 		Entity parseConcreteEntity();
 		Entity parseAbstractEntity(const Namespace& currentNamespace);
 
+#ifndef WEBSSON_PARSER_DISABLE_IMPORT
 		ImportedDocument parseImport();
+#endif
 
 	protected:
 		EntityManager ents;

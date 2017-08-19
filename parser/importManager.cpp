@@ -8,12 +8,9 @@
 #include <string>
 #include <unordered_map>
 
+#include "curl.hpp"
 #include "parser.hpp"
 #include "structures/document.hpp"
-
-#ifndef WEBSSON_PARSER_DISABLE_IMPORT
-#include "curl.hpp"
-#endif
 
 using namespace std;
 using namespace webss;
@@ -22,10 +19,7 @@ ImportManager::ImportManager() {}
 
 const pair<unordered_map<string, Entity>, vector<pair<string, Webss>>>& ImportManager::importDocument(const string& link)
 {
-#ifdef WEBSSON_PARSER_DISABLE_IMPORT
-	throw runtime_error("this parser cannot import documents");
-#else
-	{
+	{ //to scope the locks
 		//check if doc was already parsed
 		lock_guard<mutex> lockDocs(mDocs); //unlocks when out of scope
 		auto itDocs = docs.find(link);
@@ -70,5 +64,4 @@ const pair<unordered_map<string, Entity>, vector<pair<string, Webss>>>& ImportMa
 checkAgainLater:
 	this_thread::yield();
 	return importDocument(link);
-#endif
 }
