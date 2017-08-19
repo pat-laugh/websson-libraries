@@ -16,16 +16,15 @@ namespace webss
 	class ImportedDocument
 	{
 	public:
-		ImportedDocument(Webss data);
+		ImportedDocument(std::string link);
 
 		bool operator==(const ImportedDocument& o) const;
 		bool operator!=(const ImportedDocument& o) const;
 
-		const Webss& getData() const;
 		const std::string& getLink() const;
 
 	private:
-		Webss data;
+		std::string link;
 	};
 	
 	class ParamDocument

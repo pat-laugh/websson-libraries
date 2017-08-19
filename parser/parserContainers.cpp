@@ -292,63 +292,11 @@ Document Parser::parseDocument()
 	}
 }
 
-static Thead makeTheadImport()
-{
-	TheadStd thead;
-	thead.attachEmpty("name");
-	thead.attach("location", ParamStd("Std"));
-	thead.attach("version", ParamStd("1"));
-	return Thead(move(thead));
-}
-
 ImportedDocument Parser::parseImport()
 {
-	static const auto thead = makeTheadImport();
-	const auto& params = thead.getTheadStd().getParams();
-	Tuple tuple(params.getSharedKeys());
 	++tagit.getIt();
-	tuple[0] = parseStickyLineString(*this);
-	checkDefaultValues(tuple, params);
-	return ImportedDocument(move(tuple));
-//	switch (++tagit)
-//	{
-//	case Tag::START_TUPLE:
-//		return ImportedDocument(parseTemplateTupleStd(thead));
-//	case Tag::TEXT_TUPLE:
-//		return ImportedDocument(Webss(parseTemplateTupleText(thead), WebssType::TUPLE_TEXT));
-//	case Tag::NAME_START: case Tag::SCOPE: case Tag::SLASH:
-//	{
-//		Tuple tuple(params.getSharedKeys());
-//		tuple[0] = parseStickyLineString(*this);
-//		checkDefaultValues(tuple, params);
-//		return ImportedDocument(move(tuple));
-//	}
-/*	case Tag::EXPAND:
-	{
-		auto content = parseExpandEntity(tagit, ents).getContent();
-		if (content.isString())
-		{
-			Tuple tuple(params.getSharedKeys());
-			tuple[0] = content.getString();
-			checkDefaultValues(tuple, params);
-			return ImportedDocument(move(tuple));
-		}
-		else if (content.isTuple())
-		{
-			Tuple tuple;
-			fillTemplateBodyTuple(params, content.getTuple(), tuple);
-			checkDefaultValues(tuple, params);
-			for (const auto& item : tuple)
-				if (!item.isString())
-					throw runtime_error(ERROR_UNEXPECTED);
-			return ImportedDocument(move(tuple));
-		}
-		else
-			throw runtime_error(ERROR_UNEXPECTED);
-	} */
-//	default:
-//		throw runtime_error(ERROR_UNEXPECTED);
-//	}
+	auto link = parseStickyLineString(*this);
+	return ImportedDocument(move(link));
 }
 
 void Parser::parseOption()

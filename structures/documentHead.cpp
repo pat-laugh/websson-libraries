@@ -8,21 +8,12 @@
 using namespace std;
 using namespace webss;
 
-ImportedDocument::ImportedDocument(Webss data) : data(move(data))
-{
-	assert(this->data.isTuple() && "import must reference a tuple");
-	assert(this->data.getTuple().size() == 3);
-#ifndef NDEBUG
-	for (const auto& item : this->data.getTuple())
-		assert(item.isString());
-#endif	
-}
+ImportedDocument::ImportedDocument(string link) : link(move(link)) {}
 
-bool ImportedDocument::operator==(const ImportedDocument& o) const { return data == o.data; }
+bool ImportedDocument::operator==(const ImportedDocument& o) const { return link == o.link; }
 bool ImportedDocument::operator!=(const ImportedDocument& o) const { return !(*this == o); }
 
-const Webss& ImportedDocument::getData() const { return data; }
-const string& ImportedDocument::getLink() const { return data.getTuple()[0].getString(); }
+const string& ImportedDocument::getLink() const { return link; }
 
 ParamDocument::ParamDocument() {}
 ParamDocument::ParamDocument(ImportedDocument import) : type(Type::IMPORT), import(new ImportedDocument(move(import))) {}

@@ -198,7 +198,7 @@ void Serializer::putDocument(StringBuilder& out, const Document& doc)
 				putExpandDocumentHead(out, itHead->getNamespace());
 				break;
 			case Type::IMPORT:
-				putImport(out, itHead->getImport());
+				putImport(out, itHead->getImport(), CON);
 				break;
 			default:
 				assert(false);
@@ -499,24 +499,10 @@ void Serializer::putExpandDocumentHead(StringBuilder& out, const Namespace& nspa
 	out += nspace.getName();
 }
 
-static TheadStd makeTheadImport()
+void Serializer::putImport(StringBuilder& out, const ImportedDocument& import, ConType con)
 {
-	TheadStd thead;
-	thead.attachEmpty("name");
-	thead.attach("location", ParamStd("Std"));
-	thead.attach("version", ParamStd("1"));
-	return thead;
-}
-
-void Serializer::putImport(StringBuilder& out, const ImportedDocument& import)
-{
-	static const auto thead = makeTheadImport();
 	out += CHAR_IMPORT;
-	const auto& data = import.getData();
-	if (data.isTupleText())
-		putTemplateStdTupleText(out, thead.getParams(), data.getTuple());
-	else
-		putTemplateStdTuple(out, thead.getParams(), data.getTuple());
+	putLineString(out, import.getLink(), con);
 }
 
 void Serializer::putNamespace(StringBuilder& out, const Namespace& nspace)

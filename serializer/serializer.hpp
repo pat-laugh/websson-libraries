@@ -66,7 +66,7 @@ namespace webss
 
 		void putThead(various::StringBuilder & out, const Thead& thead);
 
-		void putImport(various::StringBuilder& out, const ImportedDocument& import);
+		void putImport(various::StringBuilder& out, const ImportedDocument& import, ConType con);
 
 		void putExpandDocumentHead(various::StringBuilder& out, const Namespace& nspace);
 
