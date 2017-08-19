@@ -119,5 +119,8 @@
     <ClCompile Include="thead.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="document.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

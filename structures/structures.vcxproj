@@ -151,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dictionary.cpp" />
+    <ClCompile Include="document.cpp" />
     <ClCompile Include="documentHead.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="enum.cpp" />
