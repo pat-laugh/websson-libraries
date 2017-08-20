@@ -1,5 +1,8 @@
-@enum.wbsn
-@dictionary.wbsn
+@../files-in/list.wbsn
+@file://enum.wbsn
+@http://pat-laugh.ca/test-dir/
+
+list = [^entList]
 
 ?dictCopy = entDict
 
