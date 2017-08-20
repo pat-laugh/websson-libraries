@@ -34,7 +34,7 @@ int main(int argc, char** argv)
 	}
 	try
 	{
-		auto doc = Parser(move(it)).parseDocument();
+		auto doc = Parser(move(it), argv[1]).parseDocument();
 		if (argc <= 2)
 			cout << SerializerHtml::serialize(doc);
 		else
