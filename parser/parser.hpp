@@ -30,8 +30,10 @@ namespace webss
 		Parser& addEntity(std::string name, Webss value);
 
 		Document parseDocument();
-		Document parseDocument(various::SmartIterator it, std::string filename = "");
-		Document parseDocument(const std::istream& in, std::string filename = "");
+		Document parseDocument(various::SmartIterator it);
+		Document parseDocument(const std::istream& in);
+		Document parseDocument(various::SmartIterator it, std::string filename);
+		Document parseDocument(const std::istream& in, std::string filename);
 
 		TagIterator tagit;
 		ConType con = ConType::DOCUMENT;

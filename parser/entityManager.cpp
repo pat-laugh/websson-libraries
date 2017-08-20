@@ -78,10 +78,10 @@ void EntityManager::addPublic(Entity ent)
 
 void EntityManager::addPublicSafe(Entity ent)
 {
-	if (hasEntity(ent.getName()))
+	if (!hasEntity(ent.getName()))
+		addPublic(move(ent));
+	else if (ent != operator[](ent.getName())) //else do nothing
 		throw runtime_error(ERROR_ENTITY_EXISTS + ent.getName());
-
-	addPublic(move(ent));
 }
 
 bool EntityManager::hasEntity(const string& s) const { return privates.find(s) != privates.end(); }
