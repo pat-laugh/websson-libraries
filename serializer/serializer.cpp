@@ -575,7 +575,7 @@ void Serializer::putTupleText(StringBuilder& out, const Tuple& tuple)
 
 static void putTheadOptions(StringBuilder& out, TheadOptions options)
 {
-	ContainerIncluder<ConType::DICTIONARY> includer(out);
+	ContainerIncluder<ConType::TEMPLATE_OPTIONS> includer(out);
 	if (options.isText)
 		out += ASSIGN_CONTAINER_STRING;
 	if (options.isPlus)
@@ -819,7 +819,7 @@ void Serializer::putParamBin(StringBuilder& out, const string& key, const ParamB
 {
 	const auto& bhead = param.getSizeHead();
 	{
-		ContainerIncluder<ConType::TUPLE> includer(out);
+		ContainerIncluder<ConType::TEMPLATE_BIN> includer(out);
 		using Type = ParamBin::SizeHead::Type;
 		switch (bhead.getType())
 		{
@@ -862,7 +862,7 @@ void Serializer::putBinSizeList(StringBuilder& out, const ParamBin::SizeList& bl
 	if (blist.isOne())
 		return;
 
-	ContainerIncluder<ConType::LIST> includer(out);
+	ContainerIncluder<ConType::TEMPLATE_BIN_ARRAY> includer(out);
 	switch (blist.getType())
 	{
 	case Type::EMPTY:

@@ -23,7 +23,7 @@ switchStart:
 	case Tag::START_TEMPLATE:
 	default:
 		return{ ParserThead::parseTheadStd(*this), options };
-	case Tag::START_TUPLE:
+	case Tag::START_TEMPLATE_BIN:
 		return{ ParserThead::parseTheadBin(*this), options };
 	case Tag::SELF:
 		if (!allowSelf)
@@ -33,7 +33,7 @@ switchStart:
 		(++tagit).sofertTag(Tag::END_TEMPLATE);
 		++tagit;
 		return TheadSelf();
-	case Tag::START_DICTIONARY: //set options
+	case Tag::START_TEMPLATE_OPTIONS:
 		if (optionsSet)
 			throw runtime_error("template head options must be at the start only");
 		options = ParserThead::parseTheadOptions(*this);

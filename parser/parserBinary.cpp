@@ -36,12 +36,12 @@ void Parser::parseBinHead(TheadBin& thead)
 
 	Bhead bhead;
 	Blist blist;
-	if (++tagit == Tag::END_TUPLE)
+	if (++tagit == Tag::END_TEMPLATE_BIN)
 	{
 		bhead = Bhead(Bhead::Type::EMPTY);
 		blist = Blist(Blist::Type::ONE);
 	}
-	else if (*tagit == Tag::START_LIST)
+	else if (*tagit == Tag::END_TEMPLATE_BIN_ARRAY)
 	{
 		bhead = Bhead(Bhead::Type::EMPTY);
 		blist = Blist(parseBinSizeList(*this));
@@ -117,13 +117,13 @@ void Parser::parseBinHead(TheadBin& thead)
 			break;
 		}
 
-		if (tagit.getSafe() == Tag::START_LIST)
+		if (tagit.getSafe() == Tag::START_TEMPLATE_BIN_ARRAY)
 			blist = Blist(parseBinSizeList(*this));
 		else
 			blist = Blist(Blist::Type::ONE);
 	}
 
-	tagit.sofertTag(Tag::END_TUPLE);
+	tagit.sofertTag(Tag::END_TEMPLATE_BIN);
 	++tagit;
 	parseExplicitKeyValue(
 		CaseKeyValue
@@ -153,7 +153,7 @@ Tuple Parser::parseTemplateTupleBin(const TheadBin::Params& params)
 static ParamBin::SizeList parseBinSizeList(Parser& parser)
 {
 	using Blist = ParamBin::SizeList;
-	Parser::ContainerSwitcher switcher(parser, ConType::LIST, false);
+	Parser::ContainerSwitcher switcher(parser, ConType::TEMPLATE_BIN_ARRAY, false);
 	if (parser.containerEmpty())
 		return Blist(Blist::Type::EMPTY);
 
@@ -172,7 +172,7 @@ static ParamBin::SizeList parseBinSizeList(Parser& parser)
 		else
 			throw;
 
-		parser.tagit.sofertTag(Tag::END_LIST);
+		parser.tagit.sofertTag(Tag::END_TEMPLATE_BIN_ARRAY);
 		++parser.tagit;
 	}
 	catch (const exception&)

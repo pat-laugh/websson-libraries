@@ -16,7 +16,7 @@ namespace webss
 		{
 			auto& it = self.getIt();
 			TheadOptions options;
-			while (*skipJunkToValid(++it) != CHAR_END_DICTIONARY)
+			while (*skipJunkToValid(++it) != CHAR_END_TEMPLATE_OPTIONS)
 			{
 				if (*it == CHAR_THEAD_PLUS)
 					options.isPlus = true;
@@ -33,7 +33,7 @@ namespace webss
 		{
 			do
 			{
-				if (*self.tagit == Tag::START_TUPLE)
+				if (*self.tagit == Tag::START_TEMPLATE_BIN)
 					self.parseBinHead(thead);
 				else if (*self.tagit == Tag::EXPAND)
 				{

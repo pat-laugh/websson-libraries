@@ -9,8 +9,16 @@ namespace webss
 	class ConType
 	{
 	public:
-		enum class Enum { DOCUMENT, DICTIONARY, LIST, TUPLE, THEAD };
-		static const Enum DOCUMENT = Enum::DOCUMENT, DICTIONARY = Enum::DICTIONARY, LIST = Enum::LIST, TUPLE = Enum::TUPLE, THEAD = Enum::THEAD;
+		enum class Enum {
+			DOCUMENT, DICTIONARY, LIST, TUPLE, THEAD,
+			
+			TEMPLATE_BIN = LIST, TEMPLATE_BIN_ARRAY = LIST,
+			TEMPLATE_FUNCTION = TUPLE, TEMPLATE_OPTIONS = DICTIONARY,
+		};
+		static const Enum DOCUMENT = Enum::DOCUMENT, DICTIONARY = Enum::DICTIONARY,
+				LIST = Enum::LIST, TUPLE = Enum::TUPLE, THEAD = Enum::THEAD,
+				TEMPLATE_BIN = Enum::TEMPLATE_BIN, TEMPLATE_BIN_ARRAY = Enum::TEMPLATE_BIN_ARRAY,
+				TEMPLATE_FUNCTION = Enum::TEMPLATE_FUNCTION, TEMPLATE_OPTIONS = Enum::TEMPLATE_OPTIONS;
 
 		constexpr ConType() : e(Enum::DOCUMENT) {}
 		constexpr ConType(Enum e) : e(e) {}
