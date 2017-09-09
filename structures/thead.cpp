@@ -5,6 +5,7 @@
 #include <cassert>
 
 #include "paramStandard.hpp"
+#include "theadFun.hpp"
 #include "tuple.hpp"
 
 using namespace std;
@@ -27,17 +28,26 @@ Thead::Thead(Entity ent) : type(TypeThead::ENTITY), options(ent.getContent().get
 Thead::Thead(Entity ent, TheadOptions options) : type(TypeThead::ENTITY), options(move(options)), ent(move(ent)) { assert(this->ent.getContent().isThead()); }
 Thead::Thead(TheadSelf) : type(TypeThead::SELF) {}
 Thead::Thead(TheadBin theadBin, TheadOptions options) : type(TypeThead::BIN), options(move(options)), theadBin(new TheadBin(move(theadBin))) {}
+Thead::Thead(TheadFun theadFun, TheadOptions options) : type(TypeThead::FUN), options(move(options)), theadFun(new TheadFun(move(theadFun))) {}
 Thead::Thead(TheadStd theadStd, TheadOptions options) : type(TypeThead::STD), options(move(options)), theadStd(new TheadStd(move(theadStd))) {}
 Thead::Thead(TheadBin theadBin, Entity base, TheadOptions options)
 	: type(TypeThead::BIN), options(move(options)), theadBin(new TheadBin(move(theadBin))), base(move(base))
 	{ assert(this->base.getContent().isThead() && this->base.getContent().getThead().isTheadBin()); }
+Thead::Thead(TheadFun theadFun, Entity base, TheadOptions options)
+	: type(TypeThead::FUN), options(move(options)), theadFun(new TheadFun(move(theadFun))), base(move(base))
+	{ assert(this->base.getContent().isThead() && this->base.getContent().getThead().isTheadFun()); }
 Thead::Thead(TheadStd theadStd, Entity base, TheadOptions options)
 	: type(TypeThead::STD), options(move(options)), theadStd(new TheadStd(move(theadStd))), base(move(base))
 	{ assert(this->base.getContent().isThead() && this->base.getContent().getThead().isTheadStd()); }
-Thead::Thead(TheadStd theadStd, Entity base, TheadOptions options, Tuple modifierTuple)
-	: type(TypeThead::STD), options(move(options)), theadStd(new TheadStd(move(theadStd))), base(move(base)), modifierTuple(new Tuple(move(modifierTuple)))
+Thead::Thead(TheadFun theadFun, Entity base, TheadOptions options, Tuple modifierTuple)
+	: type(TypeThead::FUN), options(move(options)), theadFun(new TheadFun(move(theadFun))), base(move(base)), modifierTuple(new Tuple(move(modifierTuple)))
 {
 	assert(this->base.getContent().isThead() && this->base.getContent().getThead().isTheadStd());
+}
+Thead::Thead(TheadStd theadStd, Entity base, TheadOptions options, Tuple modifierTuple)
+: type(TypeThead::STD), options(move(options)), theadStd(new TheadStd(move(theadStd))), base(move(base)), modifierTuple(new Tuple(move(modifierTuple)))
+{
+assert(this->base.getContent().isThead() && this->base.getContent().getThead().isTheadStd());
 }
 
 void Thead::destroyUnion()
@@ -51,6 +61,9 @@ void Thead::destroyUnion()
 		break;
 	case TypeThead::BIN:
 		delete theadBin;
+		break;
+	case TypeThead::FUN:
+		delete theadFun;
 		break;
 	case TypeThead::STD:
 		delete theadStd;
@@ -75,6 +88,9 @@ void Thead::copyUnion(Thead&& o)
 		break;
 	case TypeThead::BIN:
 		theadBin = o.theadBin;
+		break;
+	case TypeThead::FUN:
+		theadFun = o.theadFun;
 		break;
 	case TypeThead::STD:
 		theadStd = o.theadStd;
@@ -102,6 +118,9 @@ void Thead::copyUnion(const Thead& o)
 	case TypeThead::BIN:
 		theadBin = new TheadBin(*o.theadBin);
 		break;
+	case TypeThead::FUN:
+		theadFun = new TheadFun(*o.theadFun);
+		break;
 	case TypeThead::STD:
 		theadStd = new TheadStd(*o.theadStd);
 		break;
@@ -128,6 +147,8 @@ bool Thead::operator==(const Thead& o) const
 		return true;
 	case TypeThead::BIN:
 		return getTheadBin() == o.getTheadBin();
+	case TypeThead::FUN:
+		return getTheadFun() == o.getTheadFun();
 	case TypeThead::STD:
 		return getTheadStd() == o.getTheadStd();
 	default:
@@ -156,10 +177,12 @@ else \
 	throw runtime_error(ErrorMessage); }
 
 const TheadBin& Thead::getTheadBin() const { PATTERN_GET_CONST_SAFE(TypeThead::BIN, getTheadBinRaw, "expected template head binary"); }
+const TheadFun& Thead::getTheadFun() const { PATTERN_GET_CONST_SAFE(TypeThead::FUN, getTheadFunRaw, "expected template head function"); }
 const TheadStd& Thead::getTheadStd() const { PATTERN_GET_CONST_SAFE(TypeThead::STD, getTheadStdRaw, "expected template head standard"); }
 
 bool Thead::isNone() const { return getType() == TypeThead::NONE; }
 bool Thead::isTheadBin() const { return getType() == TypeThead::BIN; }
+bool Thead::isTheadFun() const { return getType() == TypeThead::FUN; }
 bool Thead::isTheadStd() const { return getType() == TypeThead::STD; }
 
 TypeThead Thead::getTypeRaw() const { return type; }
@@ -168,10 +191,12 @@ bool Thead::hasEntity() const { return getTypeRaw() == TypeThead::ENTITY; }
 
 const Entity& Thead::getEntityRaw() const { assert(getTypeRaw() == TypeThead::ENTITY); return ent; }
 const TheadBin& Thead::getTheadBinRaw() const { assert(getTypeRaw() == TypeThead::BIN); return *theadBin; }
+const TheadFun& Thead::getTheadFunRaw() const { assert(getTypeRaw() == TypeThead::FUN); return *theadFun; }
 const TheadStd& Thead::getTheadStdRaw() const { assert(getTypeRaw() == TypeThead::STD); return *theadStd; }
 
 Entity& Thead::getEntityRaw() { assert(getTypeRaw() == TypeThead::ENTITY); return ent; }
 TheadBin& Thead::getTheadBinRaw() { assert(getTypeRaw() == TypeThead::BIN); return *theadBin; }
+TheadFun& Thead::getTheadFunRaw() { assert(getTypeRaw() == TypeThead::FUN); return *theadFun; }
 TheadStd& Thead::getTheadStdRaw() { assert(getTypeRaw() == TypeThead::STD); return *theadStd; }
 
 TheadOptions Thead::getOptions() const { return options; }

@@ -14,7 +14,7 @@
 
 namespace webss
 {
-	enum class TypeThead { NONE, ENTITY, SELF, BIN, STD };
+	enum class TypeThead { NONE, ENTITY, SELF, BIN, STD, FUN };
 
 	struct TheadOptions
 	{
@@ -37,9 +37,12 @@ namespace webss
 		Thead(Entity ent, TheadOptions options);
 		Thead(TheadSelf);
 		Thead(TheadBin theadBin, TheadOptions options = TheadOptions());
+		Thead(TheadFun theadFun, TheadOptions options = TheadOptions());
 		Thead(TheadStd theadStd, TheadOptions options = TheadOptions());
 		Thead(TheadBin theadBin, Entity base, TheadOptions options = TheadOptions());
+		Thead(TheadFun theadFun, Entity base, TheadOptions options = TheadOptions());
 		Thead(TheadStd theadStd, Entity base, TheadOptions options = TheadOptions());
+		Thead(TheadFun theadFun, Entity base, TheadOptions options, Tuple modifierTuple);
 		Thead(TheadStd theadStd, Entity base, TheadOptions options, Tuple modifierTuple);
 
 		bool operator==(const Thead& o) const;
@@ -49,6 +52,7 @@ namespace webss
 
 		TypeThead getType() const;
 		const TheadBin& getTheadBin() const;
+		const TheadFun& getTheadFun() const;
 		const TheadStd& getTheadStd() const;
 
 		TypeThead getTypeRaw() const;
@@ -57,13 +61,16 @@ namespace webss
 
 		const Entity& getEntityRaw() const;
 		const TheadBin& getTheadBinRaw() const;
+		const TheadFun& getTheadFunRaw() const;
 		const TheadStd& getTheadStdRaw() const;
 
 		Entity& getEntityRaw();
 		TheadBin& getTheadBinRaw();
+		TheadFun& getTheadFunRaw();
 		TheadStd& getTheadStdRaw();
 
 		explicit operator const TheadBin&() const { return getTheadBin(); }
+		explicit operator const TheadFun&() const { return getTheadFun(); }
 		explicit operator const TheadStd&() const { return getTheadStd(); }
 
 		template <class Element>
@@ -71,6 +78,7 @@ namespace webss
 
 		bool isNone() const;
 		bool isTheadBin() const;
+		bool isTheadFun() const;
 		bool isTheadStd() const;
 
 		TheadOptions getOptions() const;
@@ -90,6 +98,7 @@ namespace webss
 		union
 		{
 			TheadBin* theadBin;
+			TheadFun* theadFun;
 			TheadStd* theadStd;
 			Entity ent;
 		};
