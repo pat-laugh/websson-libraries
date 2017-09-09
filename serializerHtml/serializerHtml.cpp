@@ -7,6 +7,7 @@
 
 #include "structures/list.hpp"
 #include "structures/paramStandard.hpp"
+#include "structures/placeholder.hpp"
 #include "structures/template.hpp"
 #include "structures/theadFun.hpp"
 #include "structures/tuple.hpp"
@@ -110,6 +111,9 @@ void SerializerHtml::putConcreteValue(StringBuilder& out, const Webss& value)
 		break;
 	case WebssType::LIST: case WebssType::LIST_TEXT:
 		putList(out, value.getListRaw());
+		break;
+	case WebssType::PLACEHOLDER:
+		putConcreteValue(out, value.getPlaceholderRaw().getValue());
 		break;
 	default:
 		assert(false && "type is not a concrete value or is not serializable in html");

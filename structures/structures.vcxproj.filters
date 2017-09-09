@@ -78,6 +78,12 @@
     <ClInclude Include="thead.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="placeholder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="theadFun.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="keywords.cpp">
@@ -120,6 +126,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="document.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="placeholder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="theadFun.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

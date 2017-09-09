@@ -139,10 +139,12 @@
     <ClInclude Include="paramBinary.hpp" />
     <ClInclude Include="parameters.hpp" />
     <ClInclude Include="paramStandard.hpp" />
+    <ClInclude Include="placeholder.hpp" />
     <ClInclude Include="sharedMap.hpp" />
     <ClInclude Include="template.hpp" />
     <ClInclude Include="templateHead.hpp" />
     <ClInclude Include="thead.hpp" />
+    <ClInclude Include="theadFun.hpp" />
     <ClInclude Include="tuple.hpp" />
     <ClInclude Include="types.hpp" />
     <ClInclude Include="typeWebss.hpp" />
@@ -160,7 +162,9 @@
     <ClCompile Include="namespace.cpp" />
     <ClCompile Include="paramBinary.cpp" />
     <ClCompile Include="paramStandard.cpp" />
+    <ClCompile Include="placeholder.cpp" />
     <ClCompile Include="thead.cpp" />
+    <ClCompile Include="theadFun.cpp" />
     <ClCompile Include="tuple.cpp" />
     <ClCompile Include="typeWebss.cpp" />
     <ClCompile Include="webss.cpp" />

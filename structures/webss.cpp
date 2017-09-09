@@ -252,7 +252,7 @@ bool Webss::operator==(const Webss& o) const
 	if (getType() != o.getType())
 		return false;
 	const auto& w1 = getWebssLast(), w2 = o.getWebssLast();
-	switch (getType())
+	switch (w1.getTypeRaw())
 	{
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
 		return true;
@@ -269,7 +269,7 @@ bool Webss::operator==(const Webss& o) const
 	case WebssType::DICTIONARY:
 		return *w1.dict == *w2.dict;
 	case WebssType::LIST: case WebssType::LIST_TEXT:
-		return *w1.list == *w2.list;
+		return (*w1.list) == *w2.list;
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return *w1.tuple == *w2.tuple;
 	case WebssType::THEAD:
@@ -290,8 +290,6 @@ static const char* ERROR_ACCESS = "can't access ";
 static const char* ERROR_ACCESS_INDEX = " with an index";
 static const char* ERROR_ACCESS_KEY = " with a key";
 
-#define ACCESS_PLACEHOLDER ((**placeholder->ptr)[placeholder->index])
-
 const Webss& Webss::operator[](int index) const
 {
 	assert(isConcrete());
@@ -306,7 +304,7 @@ const Webss& Webss::operator[](int index) const
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return (*tuple)[index];
 	case WebssType::PLACEHOLDER:
-		return ACCESS_PLACEHOLDER[index];
+		return placeholder->getValue()[index];
 	default:
 		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_INDEX);
 	}
@@ -326,7 +324,7 @@ const Webss& Webss::operator[](const std::string& key) const
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return (*tuple)[key];
 	case WebssType::PLACEHOLDER:
-		return ACCESS_PLACEHOLDER[key];
+		return placeholder->getValue()[key];
 	default:
 		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_KEY);
 	}
@@ -346,7 +344,7 @@ const Webss& Webss::at(int index) const
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return tuple->at(index);
 	case WebssType::PLACEHOLDER:
-		return ACCESS_PLACEHOLDER.at(index);
+		return placeholder->getValue().at(index);
 	default:
 		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_INDEX);
 	}
@@ -366,7 +364,7 @@ const Webss& Webss::at(const std::string& key) const
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return tuple->at(key);
 	case WebssType::PLACEHOLDER:
-		return ACCESS_PLACEHOLDER.at(key);
+		return placeholder->getValue().at(key);
 	default:
 		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_KEY);
 	}
@@ -379,7 +377,7 @@ const Webss& Webss::getWebssLast() const
 	else if (type == WebssType::DEFAULT)
 		return tDefault->getWebssLast();
 	else if (type == WebssType::PLACEHOLDER)
-		return ACCESS_PLACEHOLDER;
+		return placeholder->getValue();
 	else
 		return *this;
 }

@@ -66,11 +66,11 @@ namespace webss
 	template <class T>
 	bool equalPtrs(const T* ptr1, const T* ptr2)
 	{
-		return (ptr1 == nullptr && ptr2 == nullptr) || (ptr1 != nullptr && ptr2 != nullptr && *ptr1 == *ptr2);
+		return ptr1 == nullptr ? ptr2 == nullptr : ptr2 != nullptr && *ptr1 == *ptr2;
 	}
 	template <class T>
 	bool equalPtrs(const T& ptr1, const T& ptr2)
 	{
-		return (ptr1 == nullptr && ptr2 == nullptr) || (ptr1 != nullptr && ptr2 != nullptr && *ptr1 == *ptr2);
+		return ptr1 == nullptr ? ptr2 == nullptr : ptr2 != nullptr && *ptr1 == *ptr2;
 	}
 }
