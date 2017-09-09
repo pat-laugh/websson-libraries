@@ -318,6 +318,26 @@ Document Parser::parseDocument()
 	}
 }
 
+Webss Parser::parseConcreteValueOnly(various::SmartIterator it)
+{
+	setIterator(move(it));
+	return parseConcreteValueOnly();
+}
+
+Webss Parser::parseConcreteValueOnly()
+{
+	try
+	{
+		if (containerEmpty())
+			throw runtime_error("no concret value-only to parse");
+		return parseValueOnly();
+	}
+	catch (const exception& e)
+	{
+		throw runtime_error(string(getItPosition(getIt()) + ' ' + e.what() + getItCurrentChar(getIt())).c_str());
+	}
+}
+
 #ifndef WEBSSON_PARSER_DISABLE_IMPORT
 ImportedDocument Parser::parseImport()
 {

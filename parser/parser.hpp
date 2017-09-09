@@ -34,6 +34,9 @@ namespace webss
 		Document parseDocument(const std::istream& in);
 		Document parseDocument(various::SmartIterator it, std::string filename);
 		Document parseDocument(const std::istream& in, std::string filename);
+		
+		Webss parseConcreteValueOnly();
+		Webss parseConcreteValueOnly(various::SmartIterator it);
 
 		TagIterator tagit;
 		ConType con = ConType::DOCUMENT;
