@@ -97,6 +97,7 @@ Parser::OtherValue Parser::parseOtherValueName(string&& name)
 	}
 }
 
+//parse template body if template was only an entity
 Parser::OtherValue Parser::checkAbstractEntity(const Entity& ent)
 {
 	const auto& content = ent.getContent();

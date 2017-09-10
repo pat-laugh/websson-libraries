@@ -8,6 +8,7 @@
 #include <type_traits>
 
 #include "structures/template.hpp"
+#include "structures/theadFun.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
 #include "various/utils.hpp"
@@ -585,11 +586,11 @@ static void putTheadOptions(StringBuilder& out, TheadOptions options)
 void Serializer::putThead(StringBuilder& out, const Thead& thead)
 {
 	static const auto CON = ConType::THEAD;
-	ContainerIncluder<CON> includer(out);
 	switch (thead.getTypeRaw())
 	{
 	case TypeThead::BIN:
 	{
+		ContainerIncluder<CON> includer(out);
 		const auto& theadBin = thead.getTheadBinRaw();
 		if (thead.hasBase())
 		{
@@ -622,6 +623,7 @@ void Serializer::putThead(StringBuilder& out, const Thead& thead)
 	}
 	case TypeThead::STD:
 	{
+		ContainerIncluder<CON> includer(out);
 		const auto& theadStd = thead.getTheadStdRaw();
 		if (thead.hasBase())
 		{
@@ -654,8 +656,31 @@ void Serializer::putThead(StringBuilder& out, const Thead& thead)
 		}
 		break;
 	}
+	case TypeThead::FUN:
+	{
+		{
+			ContainerIncluder<ConType::TEMPLATE_FUNCTION> includer(out);
+			for (const auto& keyValue : thead.getTheadFun().thead.getParams().getOrderedKeyValues())
+			{
+				assert(keyValue.first != nullptr && "can't have anonymous key in dictionary, template head or enum");
+				putParamStd(out, *keyValue.first, *keyValue.second);
+				out += CHAR_SEPARATOR;
+			}
+		}
+		//maybe template function should always have a container delimited by braces instead of
+		//being free to have any value
+		assert(thead.getTheadFun().structure != nullptr);
+		putConcreteValue(out, *thead.getTheadFun().structure, ConType::DOCUMENT);
+		break;
+	}
 	case TypeThead::ENTITY:
 	{
+		if (thead.isTheadFun())
+		{
+			putEntityName(out, thead.getEntityRaw());
+			break;
+		}
+		ContainerIncluder<CON> includer(out);
 		const auto& ent = thead.getEntityRaw();
 		const auto& entThead = ent.getContent().getThead();
 		if (thead.isPlus() != entThead.isPlus() || thead.isText() != entThead.isText())
@@ -666,6 +691,7 @@ void Serializer::putThead(StringBuilder& out, const Thead& thead)
 	}
 	case TypeThead::SELF:
 	{
+		ContainerIncluder<CON> includer(out);
 		if (thead.isPlus() || thead.isText())
 			putTheadOptions(out, thead.getOptions());
 		out += CHAR_SELF;
@@ -697,6 +723,14 @@ void Serializer::putTemplate(StringBuilder& out, const Template& templ, ConType 
 			putTemplateStdTupleText(out, templ.getTheadStd().getParams(), templ.body.getTuple());
 		else
 			putTemplateStdTuple(out, templ.getTheadStd().getParams(), templ.body.getTuple());
+		break;
+	case TypeThead::FUN: //theadFun body is serialized exactly like theadStd body
+		if (templ.isText())
+			putTemplateTextTuple(out, templ.getTheadFun().thead.getParams(), templ.body.getTuple());
+		else if (templ.body.isTupleText())
+			putTemplateStdTupleText(out, templ.getTheadFun().thead.getParams(), templ.body.getTuple());
+		else
+			putTemplateStdTuple(out, templ.getTheadFun().thead.getParams(), templ.body.getTuple());
 		break;
 	default:
 		assert(false);

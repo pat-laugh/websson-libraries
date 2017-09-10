@@ -10,6 +10,7 @@
 #include "patternsContainers.hpp"
 #include "utilsExpand.hpp"
 #include "utilsTemplateDefaultValues.hpp"
+#include "structures/theadFun.hpp"
 #include "utils/utilsWebss.hpp"
 
 namespace webss
@@ -61,7 +62,16 @@ namespace webss
 		template <bool isText, bool checkDefault = true>
 		static Tuple parseTemplateTuple(Parser& self, const Thead& thead)
 		{
-			const auto params = thead.getTheadStd().getParams();
+			const BasicParams<ParamStd>* paramsPtr;
+			if (thead.isTheadStd())
+				paramsPtr = &thead.getTheadStd().getParams();
+			else
+			{
+				assert(thead.isTheadFun());
+				paramsPtr = &thead.getTheadFun().thead.getParams();
+			}
+			const auto& params = *paramsPtr;
+			
 			Tuple::size_type index = 0;
 			Tuple tuple = self.parseContainer<Tuple, ConType::TUPLE>(Tuple(params.getSharedKeys()), true, [&self, &params, &thead, &index](Tuple& tuple)
 			{
@@ -98,7 +108,16 @@ namespace webss
 	private:
 		static void parseTemplateTupleName(Parser& self, const Thead& thead, Tuple& tuple, Tuple::size_type& index)
 		{
-			const auto params = thead.getTheadStd().getParams();
+			const BasicParams<ParamStd>* paramsPtr;
+			if (thead.isTheadStd())
+				paramsPtr = &thead.getTheadStd().getParams();
+			else
+			{
+				assert(thead.isTheadFun());
+				paramsPtr = &thead.getTheadFun().thead.getParams();
+			}
+			const auto& params = *paramsPtr;
+			
 			auto nameType = parseNameType(self.tagit, self.ents);
 			if (nameType.type != NameType::NAME && params.at(index).hasThead())
 				throw std::runtime_error(ERROR_UNEXPECTED);

@@ -64,7 +64,7 @@ namespace webss
 		void putTuple(various::StringBuilder& out, const Tuple& tuple);
 		void putTupleText(various::StringBuilder& out, const Tuple& tuple);
 
-		void putThead(various::StringBuilder & out, const Thead& thead);
+		void putThead(various::StringBuilder& out, const Thead& thead);
 
 		void putImport(various::StringBuilder& out, const ImportedDocument& import, ConType con);
 

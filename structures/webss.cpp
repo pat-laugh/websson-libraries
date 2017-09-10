@@ -74,7 +74,7 @@ Webss::Webss(Tuple tuple, WebssType type) : type(type), tuple(new Tuple(move(tup
 	assert(type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT);
 }
 
-Webss::Webss(Placeholder placeholder) : placeholder(new Placeholder(move(placeholder))) {}
+Webss::Webss(Placeholder placeholder) : type(WebssType::PLACEHOLDER), placeholder(new Placeholder(move(placeholder))) {}
 
 void Webss::destroyUnion()
 {

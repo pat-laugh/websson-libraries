@@ -9,6 +9,21 @@
 !customInput<^input, more-stuff=N>
 !customA<^a(href:common-link.html)>
 
+!muchStuff(data1, data2)
+	table
+	[
+		tr
+		[
+			th: One
+			th: Two
+		]
+		tr
+		[
+			td = data1
+			td = data2
+		]
+	]
+
 p:This is some text.
 
 table
@@ -34,3 +49,5 @@ customInput()
 
 customA:check link
 customA:check this same link
+
+muchStuff::(a lot of text, and more here!)

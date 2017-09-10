@@ -5,6 +5,8 @@
 #include "containerSwitcher.hpp"
 #include "utilsExpand.hpp"
 #include "parserTempl.hpp"
+#include "structures/theadFun.hpp"
+#include "structures/placeholder.hpp"
 
 using namespace std;
 using namespace webss;
@@ -72,4 +74,24 @@ switchStart:
 	if (!checkNextElement())
 		return{ move(theadCopy), move(ent), options, move(modifierTuple) };
 	return{ ParserThead::parseTheadStd(*this, move(theadCopy)), move(ent), options, move(modifierTuple) };
+}
+
+Thead Parser::parseTheadFunction()
+{
+	ContainerSwitcher switcher(*this, ConType::TEMPLATE_FUNCTION, false);
+	TheadFun theadFun;
+	
+	if (!containerEmpty())
+		theadFun.thead = ParserThead::parseTheadStd(*this);
+	
+	int index = 0;
+	for (string* name : theadFun.thead.getParams().getOrderedKeys())
+		ents.addPublicSafe(*name, Placeholder(index++, theadFun.getPointerRaw()));
+	
+	theadFun.setStructure(parseValueOnly());
+	
+	for (string* name : theadFun.thead.getParams().getOrderedKeys())
+		ents.removePublic(*name);
+	
+	return{ move(theadFun) };
 }

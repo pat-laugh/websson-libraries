@@ -22,7 +22,8 @@ Webss Parser::parseTemplate()
 
 Webss Parser::parseTemplateBody(Thead thead)
 {
-	assert(thead.isTheadBin() || thead.isTheadStd());
+	//theadFun body is parsed exactly like theadStd body
+	assert(thead.isTheadBin() || thead.isTheadStd() || thead.isTheadFun());
 	const function<Webss(Parser&, Thead)>& funcTempl = thead.isTheadBin() ? ParserTempl::parseTemplateBin : ParserTempl::parseTemplateStd;
 	if (tagit.getSafe() != Tag::FOREACH)
 		return funcTempl(*this, move(thead));

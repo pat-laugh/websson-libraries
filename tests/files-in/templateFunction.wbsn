@@ -1,0 +1,10 @@
+!func(param1, param2)
+[
+	{ value1 = param1, value2 = param2 }
+	( value1 = param1, value2 = param2 )
+	( param1, param2 )
+	[ param1, param2 ]
+]
+
+func(10, 20)
+func::(text, here)

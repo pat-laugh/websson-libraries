@@ -8,6 +8,7 @@
 #include "structures/list.hpp"
 #include "structures/paramStandard.hpp"
 #include "structures/template.hpp"
+#include "structures/theadFun.hpp"
 #include "structures/tuple.hpp"
 #include "structures/webss.hpp"
 #include "various/utils.hpp"
@@ -189,6 +190,11 @@ static const string& getTheadRootName(const Thead* thead)
 
 void SerializerHtml::putTemplate(StringBuilder& out, const Template& templ)
 {
+	if (templ.getType() == TypeThead::FUN)
+	{
+		putTemplateFun(out, templ);
+		return;
+	}
 	assert(templ.body.isTuple() && templ.getType() == TypeThead::STD);
 	const auto& name = getTheadRootName(&templ);
 	const auto& tuple = templ.body.getTuple();
@@ -218,4 +224,13 @@ void SerializerHtml::putList(StringBuilder& out, const List& list)
 {
 	for (const auto& item : list)
 		putConcreteValue(out, item);
+}
+
+void SerializerHtml::putTemplateFun(StringBuilder& out, const Template& templ)
+{
+	const auto& theadFun = templ.getTheadFun();
+	const auto& tuple = templ.body.getTuple();
+	theadFun.setPointer(&tuple);
+	assert(theadFun.structure != nullptr);
+	putConcreteValue(out, *theadFun.structure);
 }

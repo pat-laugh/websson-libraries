@@ -38,5 +38,6 @@ namespace webss
 		void putDocumentString(various::StringBuilder& out, const std::string& str);
 		void putList(various::StringBuilder& out, const List& list);
 		void putTemplate(various::StringBuilder& out, const Template& templ);
+		void putTemplateFun(various::StringBuilder& out, const Template& templ);
 	};
 }

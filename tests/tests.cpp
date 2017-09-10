@@ -35,7 +35,7 @@ int main()
 	vector<string> filenames
 	{
 		"strings", "namespace", "enum", "names-keywords", "multiline-string-options", "assignAbstractEntity",
-		"expandTuple", "templatePlus", "list", "tuple", "option", "expandThead", "import",
+		"expandTuple", "templatePlus", "list", "tuple", "option", "expandThead", "import", "templateFunction"
 	};
 	for (const auto& filename : filenames)
 	{
