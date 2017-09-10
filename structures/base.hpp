@@ -30,4 +30,5 @@ namespace webss
 	using TheadBin = BasicThead<ParamBin>;
 	using TheadStd = BasicThead<ParamStd>;
 	class TheadFun;
+	class Placeholder;
 }

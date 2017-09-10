@@ -49,6 +49,7 @@ namespace webss
 		Webss(Tuple tuple, WebssType type = WebssType::TUPLE);
 		Webss(Thead thead);
 		Webss(Template templ);
+		Webss(Placeholder placeholder);
 
 		bool operator==(const Webss& o) const;
 		bool operator!=(const Webss& o) const;
@@ -80,6 +81,7 @@ namespace webss
 		const Default& getDefaultRaw() const;
 		const Namespace& getNamespaceRaw() const;
 		const Enum& getEnumRaw() const;
+		const Placeholder& getPlaceholderRaw() const;
 
 		bool getBoolRaw() const;
 		WebssInt getIntRaw() const;
@@ -96,6 +98,7 @@ namespace webss
 		Default& getDefaultRaw();
 		Namespace& getNamespaceRaw();
 		Enum& getEnumRaw();
+		Placeholder& getPlaceholderRaw();
 
 		std::string& getStringRaw();
 		Document& getDocumentRaw();
@@ -160,6 +163,7 @@ namespace webss
 			Enum tEnum;
 			Entity ent;
 			Default tDefault;
+			Placeholder* placeholder;
 		};
 
 		void destroyUnion();

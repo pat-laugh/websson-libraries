@@ -48,6 +48,8 @@ string WebssType::toString() const
 		return "namespace";
 	case WebssType::ENUM:
 		return "enum";
+	case WebssType::PLACEHOLDER:
+		return "placeholder";
 	default:
 		return "unknown";
 	}

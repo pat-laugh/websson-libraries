@@ -5,11 +5,12 @@
 #include <cassert>
 
 #include "dictionary.hpp"
-#include "list.hpp"
-#include "tuple.hpp"
-#include "template.hpp"
 #include "document.hpp"
+#include "list.hpp"
 #include "paramStandard.hpp"
+#include "placeholder.hpp"
+#include "template.hpp"
+#include "tuple.hpp"
 
 using namespace std;
 using namespace webss;
@@ -73,6 +74,8 @@ Webss::Webss(Tuple tuple, WebssType type) : type(type), tuple(new Tuple(move(tup
 	assert(type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT);
 }
 
+Webss::Webss(Placeholder placeholder) : placeholder(new Placeholder(move(placeholder))) {}
+
 void Webss::destroyUnion()
 {
 	switch (type)
@@ -111,6 +114,9 @@ void Webss::destroyUnion()
 		break;
 	case WebssType::ENUM:
 		tEnum.~Enum();
+		break;
+	case WebssType::PLACEHOLDER:
+		delete placeholder;
 		break;
 	default:
 		assert(false);
@@ -171,6 +177,9 @@ void Webss::copyUnion(Webss&& o)
 		new (&tEnum) Enum(move(o.tEnum));
 		o.tEnum.~Enum();
 		break;
+	case WebssType::PLACEHOLDER:
+		placeholder = o.placeholder;
+		break;
 	default:
 		assert(false);
 	}
@@ -227,6 +236,9 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::ENUM:
 		new (&tEnum) Enum(o.tEnum);
 		break;
+	case WebssType::PLACEHOLDER:
+		placeholder = new Placeholder(*o.placeholder);
+		break;
 	default:
 		assert(false);
 	}
@@ -278,6 +290,8 @@ static const char* ERROR_ACCESS = "can't access ";
 static const char* ERROR_ACCESS_INDEX = " with an index";
 static const char* ERROR_ACCESS_KEY = " with a key";
 
+#define ACCESS_PLACEHOLDER ((**placeholder->ptr)[placeholder->index])
+
 const Webss& Webss::operator[](int index) const
 {
 	assert(isConcrete());
@@ -291,6 +305,8 @@ const Webss& Webss::operator[](int index) const
 		return (*list)[index];
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return (*tuple)[index];
+	case WebssType::PLACEHOLDER:
+		return ACCESS_PLACEHOLDER[index];
 	default:
 		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_INDEX);
 	}
@@ -309,6 +325,8 @@ const Webss& Webss::operator[](const std::string& key) const
 		return (*dict)[key];
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return (*tuple)[key];
+	case WebssType::PLACEHOLDER:
+		return ACCESS_PLACEHOLDER[key];
 	default:
 		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_KEY);
 	}
@@ -327,6 +345,8 @@ const Webss& Webss::at(int index) const
 		return list->at(index);
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return tuple->at(index);
+	case WebssType::PLACEHOLDER:
+		return ACCESS_PLACEHOLDER.at(index);
 	default:
 		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_INDEX);
 	}
@@ -345,6 +365,8 @@ const Webss& Webss::at(const std::string& key) const
 		return dict->at(key);
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return tuple->at(key);
+	case WebssType::PLACEHOLDER:
+		return ACCESS_PLACEHOLDER.at(key);
 	default:
 		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_KEY);
 	}
@@ -356,6 +378,8 @@ const Webss& Webss::getWebssLast() const
 		return ent.getContent().getWebssLast();
 	else if (type == WebssType::DEFAULT)
 		return tDefault->getWebssLast();
+	else if (type == WebssType::PLACEHOLDER)
+		return ACCESS_PLACEHOLDER;
 	else
 		return *this;
 }
@@ -462,6 +486,7 @@ const Entity& Webss::getEntityRaw() const { assert(getTypeRaw() == WebssType::EN
 const Default& Webss::getDefaultRaw() const { assert(getTypeRaw() == WebssType::DEFAULT); return tDefault; }
 const Namespace& Webss::getNamespaceRaw() const { assert(getTypeRaw() == WebssType::NAMESPACE); return nspace; }
 const Enum& Webss::getEnumRaw() const { assert(getTypeRaw() == WebssType::ENUM); return tEnum; }
+const Placeholder& Webss::getPlaceholderRaw() const { assert(getTypeRaw() == WebssType::PLACEHOLDER); return *placeholder; }
 
 bool Webss::getBoolRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_BOOL); return tBool; }
 WebssInt Webss::getIntRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_INT); return tInt; }
@@ -478,6 +503,7 @@ Entity& Webss::getEntityRaw() { assert(getTypeRaw() == WebssType::ENTITY); retur
 Default& Webss::getDefaultRaw() { assert(getTypeRaw() == WebssType::DEFAULT); return tDefault; }
 Namespace& Webss::getNamespaceRaw() { assert(getTypeRaw() == WebssType::NAMESPACE); return nspace; }
 Enum& Webss::getEnumRaw() { assert(getTypeRaw() == WebssType::ENUM); return tEnum; }
+Placeholder& Webss::getPlaceholderRaw() { assert(getTypeRaw() == WebssType::PLACEHOLDER); return *placeholder; }
 
 std::string& Webss::getStringRaw() { assert(getTypeRaw() == WebssType::PRIMITIVE_STRING); return *tString; }
 Document& Webss::getDocumentRaw() { assert(getTypeRaw() == WebssType::DOCUMENT); return *document; }
