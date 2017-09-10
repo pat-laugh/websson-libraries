@@ -11,8 +11,11 @@ namespace webss
 	class Placeholder
 	{
 	public:
-		string name;
+		std::string name;
 		int index;
 		Tuple** ptr;
+		
+		bool operator==(const Placeholder& o) const { return name == o.name && index == o.index; }
+		bool operator!=(const Placeholder& o) const { return !(*this == o); }
 	};
 }

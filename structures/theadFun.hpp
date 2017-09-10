@@ -4,10 +4,16 @@
 
 #include "base.hpp"
 
-class TheadFun
+namespace webss
 {
-public:
-	TheadStd thead;
-	std::shared_ptr<Webss> structure;
-	std::shared_ptr<Tuple*> ptr(new Tuple*);
+	class TheadFun
+	{
+	public:
+		TheadStd thead;
+		std::shared_ptr<Webss> structure;
+		std::shared_ptr<Tuple*> ptr = std::shared_ptr<Tuple*>(new Tuple*);
+		
+		bool operator==(const TheadFun& o) const { return thead == o.thead && structure == o.structure; }
+		bool operator!=(const TheadFun& o) const { return !(*this == o); }
+	};
 }
