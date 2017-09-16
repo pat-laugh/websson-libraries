@@ -22,12 +22,22 @@ Webss Parser::parseTemplate()
 
 Webss Parser::parseTemplateBody(Thead thead)
 {
-	//theadFun body is parsed exactly like theadStd body
-	assert(thead.isTheadBin() || thead.isTheadStd() || thead.isTheadFun());
-	const function<Webss(Parser&, Thead)>& funcTempl = thead.isTheadBin() ? ParserTempl::parseTemplateBin : ParserTempl::parseTemplateStd;
+	decltype(ParserTempl::parseTemplateStd)* funcTempl;
+	switch (thead.getType())
+	{
+	case TypeThead::BIN:
+		funcTempl = &ParserTempl::parseTemplateBin;
+		break;
+	case TypeThead::STD: case TypeThead::FUN:
+		funcTempl = &ParserTempl::parseTemplateStd;
+		break;
+	default:
+		assert(false); throw std::domain_error("");
+	}
+
 	if (tagit.getSafe() != Tag::FOREACH)
-		return funcTempl(*this, move(thead));
-	return parseTemplateForeach(thead, funcTempl);
+		return (*funcTempl)(*this, move(thead));
+	return parseTemplateForeach(thead, *funcTempl);
 }
 
 List Parser::parseTemplateForeach(const Thead& thead, const function<Webss(Parser&, Thead)>& funcTempl)

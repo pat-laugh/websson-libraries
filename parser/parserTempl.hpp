@@ -200,11 +200,9 @@ namespace webss
 			switch (param.getTypeThead())
 			{
 			case TypeThead::SELF:
-				return parseTemplateStd(self, thead);
-			case TypeThead::BIN:
-				return parseTemplateBin(self, param.getThead());
-			case TypeThead::STD:
-				return parseTemplateStd(self, param.getThead());
+				return self.parseTemplateBody(thead);
+			case TypeThead::BIN: case TypeThead::FUN: case TypeThead::STD:
+				return self.parseTemplateBody(param.getThead());
 			default:
 				assert(false); throw std::domain_error("");
 			}

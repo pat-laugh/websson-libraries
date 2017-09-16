@@ -71,15 +71,19 @@ public:
 	void putTemplateList(StringBuilder& out, const Params& params, const List& list, function<void(StringBuilder& out, const Params& params, const Tuple& tuple)>&& putTupleRegular, function<void(StringBuilder& out, const Params& params, const Tuple& tuple)>&& putTupleText)
 	{
 		static const auto CON = ConType::LIST;
+		out += CHAR_FOREACH;
 		putSeparatedValues<List, CON>(out, list, [&](typename List::const_iterator it)
 		{
-			const auto type = it->getTypeRaw();
+			assert(it->getTypeRaw() == WebssType::TEMPLATE);
+			const auto& body = it->getTemplateRaw().body;
+			const auto type = body.getTypeRaw();
+
 			if (type == WebssType::TUPLE)
-				putTupleRegular(out, params, it->getTupleRaw());
+				putTupleRegular(out, params, body.getTupleRaw());
 			else
 			{
 				assert(type == WebssType::TUPLE_TEXT);
-				putTupleText(out, params, it->getTupleRaw());
+				putTupleText(out, params, body.getTupleRaw());
 			}
 		});
 	}

@@ -12,3 +12,6 @@ p | p | list
 
 p | [ list ] //equivalent to [p list], which is not like p | list
 p | [ | list ] //equivalent to [p | list], which would be equivalent to [ [ p:text1, p:text2 ] ]
+
+!thead-in-thead<<val1, val2>thead>
+thead-in-thead(|[(0,1)(2,3)::(text1, text2)])
