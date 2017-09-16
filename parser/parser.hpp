@@ -123,6 +123,9 @@ namespace webss
 		Webss parseTemplate();
 		Webss parseTemplateBody(Thead thead);
 
+		//tag iterator must be on the foreach tag
+		List parseTemplateForeach(const Thead& thead, const std::function<Webss(Parser&, Thead)>& funcTempl);
+
 		//parserBinary.cpp
 		void parseBinHead(TheadBin& thead);
 		Tuple parseTemplateTupleBin(const TheadBin::Params& params);

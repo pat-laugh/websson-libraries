@@ -1,0 +1,14 @@
+!p<{+}>
+?list::[text1, text2]
+
+/* equivalent to "p | ::[text1, text2]",
+which is equivalent to "[p:text1, p:text2]" */
+p | list
+
+/* this would be equivalent (if parentheses were allowed for grouping) to "p | (p | list)",
+which would be equivalent to "p | [p:text1, p:text2]",
+which is equivalent to "[p p:text1, p p:text2]" */
+p | p | list
+
+p | [ list ] //equivalent to [p list], which is not like p | list
+p | [ | list ] //equivalent to [p | list], which would be equivalent to [ [ p:text1, p:text2 ] ]

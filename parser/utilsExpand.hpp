@@ -8,6 +8,7 @@
 
 namespace webss
 {
+	//for all these functions, the tag iterator must be on the expand tag
 	Entity parseExpandEntity(TagIterator& tagit, const EntityManager& ents);
 	const Dictionary& parseExpandDictionary(TagIterator& tagit, const EntityManager& ents);
 	const List& parseExpandList(TagIterator& tagit, const EntityManager& ents);

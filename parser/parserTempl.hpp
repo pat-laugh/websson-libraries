@@ -105,6 +105,56 @@ namespace webss
 			return tuple;
 		}
 
+		static void foreachList(Parser& self, const Thead& thead, const List& from, List& list)
+		{
+			for (decltype(from.size()) i = 0; i < from.size(); ++i)
+			{
+				const auto& item = from[i];
+				auto type = item.getTypeRaw();
+				if (type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT)
+				{
+					//associate tuple to template head
+					Tuple tuple;
+					const auto& params = thead.isTheadStd() ? thead.getTheadStd().getParams() : thead.getTheadFun().thead.getParams();
+					fillTemplateTuple(self, params, item.getTupleRaw(), tuple);
+
+					if (!thead.isPlus())
+						list.add(Template(thead, std::move(tuple), type));
+					else
+					{
+						//get next item as body
+						if (++i == from.size())
+							throw std::runtime_error(ERROR_VOID);
+						list.add(Template(thead, std::move(tuple), from[i], type));
+					}
+				}
+				else if (!thead.isPlus())
+					throw std::runtime_error("regular template must be implemented");
+				else
+					list.add(Template(thead, Tuple(), item));
+			}
+		}
+
+		static void foreachValue(Parser& self, const Thead& thead, Webss&& value, List& list)
+		{
+			switch (value.getType())
+			{
+			case WebssType::LIST: case WebssType::LIST_TEXT:
+				foreachList(self, thead, value.getList(), list);
+				break;
+			case WebssType::TEMPLATE:
+			{
+				const auto& templ = value.getTemplate();
+				if (!templ.isPlus() || !templ.body.isList())
+					throw std::runtime_error("expected list");
+				foreachList(self, thead, templ.body.getList(), list);
+				break;
+			}
+			default:
+				throw std::runtime_error("expected list");
+			}
+		}
+
 	private:
 		static void parseTemplateTupleName(Parser& self, const Thead& thead, Tuple& tuple, Tuple::size_type& index)
 		{

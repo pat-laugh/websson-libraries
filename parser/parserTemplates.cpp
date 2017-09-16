@@ -27,8 +27,19 @@ Webss Parser::parseTemplateBody(Thead thead)
 	const function<Webss(Parser&, Thead)>& funcTempl = thead.isTheadBin() ? ParserTempl::parseTemplateBin : ParserTempl::parseTemplateStd;
 	if (tagit.getSafe() != Tag::FOREACH)
 		return funcTempl(*this, move(thead));
+	return parseTemplateForeach(thead, funcTempl);
+}
+
+List Parser::parseTemplateForeach(const Thead& thead, const function<Webss(Parser&, Thead)>& funcTempl)
+{
+	if (*++tagit != Tag::START_LIST)
+	{
+		List list;
+		ParserTempl::foreachValue(*this, thead, parseValueOnly(), list);
+		return list;
+	}
 	
-	(++tagit).sofertTag(Tag::START_LIST);
+	//optimization
 	return parseContainer<List, ConType::LIST>(List(), true, [&](List& list)
 	{
 		switch (*tagit)
@@ -39,10 +50,15 @@ Webss Parser::parseTemplateBody(Thead thead)
 			list.add(Template(thead, makeDefaultTuple(thead)));
 			break;
 		case Tag::EXPAND:
-			expandList(list, tagit, ents);
+			if (thead.isTheadBin())
+				throw runtime_error("can't use expand with binary template");
+			ParserTempl::foreachList(*this, thead, parseExpandList(tagit, ents), list);
 			break;
 		case Tag::EXPLICIT_NAME:
 			throw runtime_error("list can only contain values");
+		case Tag::FOREACH:
+			list.add(parseTemplateForeach(thead, funcTempl));
+			break;
 		default:
 			list.add(funcTempl(*this, thead));
 			break;
