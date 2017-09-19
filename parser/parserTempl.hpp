@@ -68,7 +68,7 @@ namespace webss
 			else
 			{
 				assert(thead.isTheadFun());
-				paramsPtr = &thead.getTheadFun().thead.getParams();
+				paramsPtr = &thead.getTheadFun().getThead().getParams();
 			}
 			const auto& params = *paramsPtr;
 			
@@ -115,7 +115,7 @@ namespace webss
 				{
 					//associate tuple to template head
 					Tuple tuple;
-					const auto& params = thead.isTheadStd() ? thead.getTheadStd().getParams() : thead.getTheadFun().thead.getParams();
+					const auto& params = thead.isTheadStd() ? thead.getTheadStd().getParams() : thead.getTheadFun().getThead().getParams();
 					fillTemplateTuple(self, params, item.getTupleRaw(), tuple);
 
 					if (!thead.isPlus())
@@ -145,9 +145,31 @@ namespace webss
 			case WebssType::TEMPLATE:
 			{
 				const auto& templ = value.getTemplate();
-				if (!templ.isPlus() || !templ.body.isList())
+				if (templ.isPlus())
+				{
+					if (!templ.content.isList())
+						throw std::runtime_error("expected list");
+					foreachList(self, thead, templ.content.getList(), list);
+				}
+				else if (templ.isTheadFun())
+				{
+					const auto& theadFun = templ.getTheadFun();
+					if (!theadFun.getStructure().isList())
+						throw std::runtime_error("expected list");
+					const auto& from = theadFun.getStructure().getList();
+					const auto& tuple = templ.body.getTuple();
+					for (decltype(from.size()) i = 0; i < from.size(); ++i)
+					{
+					//	const auto& item = from[i];
+					//	auto type = item.getTypeRaw();
+						if (!thead.isPlus())
+							throw std::runtime_error("template head with foreach template function be plus");
+						else
+							list.add(Template(thead, Tuple(), Template(TheadFun(theadFun, i), tuple)));
+					}
+				}
+				else
 					throw std::runtime_error("expected list");
-				foreachList(self, thead, templ.body.getList(), list);
 				break;
 			}
 			default:
@@ -164,7 +186,7 @@ namespace webss
 			else
 			{
 				assert(thead.isTheadFun());
-				paramsPtr = &thead.getTheadFun().thead.getParams();
+				paramsPtr = &thead.getTheadFun().getThead().getParams();
 			}
 			const auto& params = *paramsPtr;
 			

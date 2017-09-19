@@ -664,7 +664,7 @@ void Serializer::putThead(StringBuilder& out, const Thead& thead)
 	{
 		{
 			ContainerIncluder<ConType::TEMPLATE_FUNCTION> includer(out);
-			for (const auto& keyValue : thead.getTheadFun().thead.getParams().getOrderedKeyValues())
+			for (const auto& keyValue : thead.getTheadFun().getThead().getParams().getOrderedKeyValues())
 			{
 				assert(keyValue.first != nullptr && "can't have anonymous key in dictionary, template head or enum");
 				putParamStd(out, *keyValue.first, *keyValue.second);
@@ -673,8 +673,7 @@ void Serializer::putThead(StringBuilder& out, const Thead& thead)
 		}
 		//maybe template function should always have a container delimited by braces instead of
 		//being free to have any value
-		assert(thead.getTheadFun().structure != nullptr);
-		putConcreteValue(out, *thead.getTheadFun().structure, ConType::DOCUMENT);
+		putConcreteValue(out, thead.getTheadFun().getStructure(), ConType::DOCUMENT);
 		break;
 	}
 	case TypeThead::ENTITY:
@@ -730,11 +729,11 @@ void Serializer::putTemplate(StringBuilder& out, const Template& templ, ConType 
 		break;
 	case TypeThead::FUN: //theadFun body is serialized exactly like theadStd body
 		if (templ.isText())
-			putTemplateTextTuple(out, templ.getTheadFun().thead.getParams(), templ.body.getTuple());
+			putTemplateTextTuple(out, templ.getTheadFun().getThead().getParams(), templ.body.getTuple());
 		else if (templ.body.isTupleText())
-			putTemplateStdTupleText(out, templ.getTheadFun().thead.getParams(), templ.body.getTuple());
+			putTemplateStdTupleText(out, templ.getTheadFun().getThead().getParams(), templ.body.getTuple());
 		else
-			putTemplateStdTuple(out, templ.getTheadFun().thead.getParams(), templ.body.getTuple());
+			putTemplateStdTuple(out, templ.getTheadFun().getThead().getParams(), templ.body.getTuple());
 		break;
 	default:
 		assert(false);

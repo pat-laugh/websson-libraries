@@ -82,15 +82,15 @@ Thead Parser::parseTheadFunction()
 	TheadFun theadFun;
 	
 	if (!containerEmpty())
-		theadFun.thead = ParserThead::parseTheadStd(*this);
+		theadFun.setThead(ParserThead::parseTheadStd(*this));
 	
 	int index = 0;
-	for (string* name : theadFun.thead.getParams().getOrderedKeys())
+	for (string* name : theadFun.getThead().getParams().getOrderedKeys())
 		ents.addPublicSafe(*name, Placeholder(index++, theadFun.getPointerRaw()));
 	
 	theadFun.setStructure(parseValueOnly());
 	
-	for (string* name : theadFun.thead.getParams().getOrderedKeys())
+	for (string* name : theadFun.getThead().getParams().getOrderedKeys())
 		ents.removePublic(*name);
 	
 	return{ move(theadFun) };

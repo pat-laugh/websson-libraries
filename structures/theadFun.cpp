@@ -4,11 +4,14 @@
 
 #include "utils.hpp"
 #include "webss.hpp"
+#include "list.hpp"
 
 using namespace std;
 using namespace webss;
 
 TheadFun::TheadFun() : ptr(shared_ptr<const Tuple*>(new const Tuple*)) {}
+TheadFun::TheadFun(const TheadFun& o, int foreachIndex) : thead(o.thead), structure(o.structure),
+		ptr(o.ptr), isForeachList(true), foreachIndex(foreachIndex) {}
 
 bool TheadFun::operator==(const TheadFun& o) const
 {
@@ -21,10 +24,18 @@ bool TheadFun::operator==(const TheadFun& o) const
 }
 bool TheadFun::operator!=(const TheadFun& o) const { return !(*this == o); }
 
-void TheadFun::setStructure(Webss webss)
+const TheadStd& TheadFun::getThead() const { assert(thead != nullptr); return *thead; }
+void TheadFun::setThead(TheadStd thead) { this->thead = shared_ptr<TheadStd>(new TheadStd(move(thead))); }
+
+const Webss& TheadFun::getStructure() const
 {
-	structure = shared_ptr<Webss>(new Webss(move(webss)));
+	assert(structure != nullptr);
+	if (!isForeachList)
+		return *structure;
+	return structure->getList()[foreachIndex];
 }
+
+void TheadFun::setStructure(Webss webss) { structure = shared_ptr<Webss>(new Webss(move(webss))); }
 
 const Tuple** TheadFun::getPointerRaw() const { return ptr.get(); }
 
