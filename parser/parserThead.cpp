@@ -43,6 +43,13 @@ switchStart:
 			return{ TheadStd(), options };
 		optionsSet = true;
 		goto switchStart;
+	case Tag::START_TEMPLATE_FUNCTION:
+	{
+		Thead thead = parseTheadFunction();
+		if (checkNextElement())
+			throw runtime_error(ERROR_UNEXPECTED);
+		return thead;
+	}
 	case Tag::EXPAND:
 		break;
 	}
