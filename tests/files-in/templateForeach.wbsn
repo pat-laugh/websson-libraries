@@ -1,4 +1,4 @@
-!p<{+}>
+!p<[+]>
 ?list::[text1, text2]
 
 /* equivalent to "p | ::[text1, text2]",
