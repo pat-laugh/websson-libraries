@@ -133,7 +133,6 @@
     <ClInclude Include="curl.hpp" />
     <ClInclude Include="entityManager.hpp" />
     <ClInclude Include="errors.hpp" />
-    <ClInclude Include="iteratorSwitcher.hpp" />
     <ClInclude Include="parserNumbers.hpp" />
     <ClInclude Include="parserStrings.hpp" />
     <ClInclude Include="parserTempl.hpp" />
@@ -146,7 +145,6 @@
     <ClInclude Include="patternsContainers.hpp" />
     <ClInclude Include="unicode.hpp" />
     <ClInclude Include="utilsNumbers.hpp" />
-    <ClInclude Include="utilsOptions.hpp" />
     <ClInclude Include="utilsSweepers.hpp" />
     <ClInclude Include="utilsTemplateDefaultValues.hpp" />
   </ItemGroup>
@@ -157,7 +155,6 @@
     <ClCompile Include="entityManager.cpp" />
     <ClCompile Include="errors.cpp" />
     <ClCompile Include="importManager.cpp" />
-    <ClCompile Include="iteratorSwitcher.cpp" />
     <ClCompile Include="nameType.cpp" />
     <ClCompile Include="parser.cpp" />
     <ClCompile Include="parserBinary.cpp" />
@@ -172,7 +169,6 @@
     <ClCompile Include="unicode.cpp" />
     <ClCompile Include="utilsExpand.cpp" />
     <ClCompile Include="utilsNumbers.cpp" />
-    <ClCompile Include="utilsOptions.cpp" />
     <ClCompile Include="utilsSweepers.cpp" />
     <ClCompile Include="utilsTemplateDefaultValues.cpp" />
   </ItemGroup>

@@ -4,7 +4,6 @@
 
 #include "containerSwitcher.hpp"
 #include "errors.hpp"
-#include "iteratorSwitcher.hpp"
 #include "nameType.hpp"
 #include "parserStrings.hpp"
 #include "patternsContainers.hpp"

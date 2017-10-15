@@ -2,5 +2,3 @@
 ##--version"1.0.0" --version=1.0.0 --version:1.0.0
 
 ?entText:some text
-?mls1::-cilr{^entText}
-?mls2::-cilr -e{^entText}

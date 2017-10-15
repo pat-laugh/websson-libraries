@@ -63,9 +63,6 @@
     <ClInclude Include="utilsTemplateDefaultValues.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="iteratorSwitcher.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tagIterator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -73,9 +70,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="parserTempl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="utilsOptions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -137,9 +131,6 @@
     <ClCompile Include="utilsTemplateDefaultValues.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="iteratorSwitcher.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="tagIterator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -147,9 +138,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="errors.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="utilsOptions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
