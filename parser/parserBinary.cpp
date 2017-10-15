@@ -6,14 +6,15 @@
 #include <cstdint>
 #include <cmath>
 
+#include "binaryIterator.hpp"
 #include "containerSwitcher.hpp"
 #include "errors.hpp"
 #include "nameType.hpp"
 #include "parserNumbers.hpp"
 #include "patternsContainers.hpp"
+#include "utilsExpand.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
-#include "binaryIterator.hpp"
 
 using namespace std;
 using namespace webss;
@@ -36,94 +37,100 @@ void Parser::parseBinHead(TheadBin& thead)
 
 	Bhead bhead;
 	Blist blist;
-	if (++tagit == Tag::END_TEMPLATE_BIN)
+	switch (*tagit)
 	{
+	case Tag::EXPAND:
+	{
+		const auto& content = parseExpandEntity(tagit, ents).getContent();
+		if (!content.isThead() || !content.getThead().isTheadBin())
+			throw std::runtime_error("expand entity within binary template head must be a binary template head");
+		thead.attach(content.getThead().getTheadBin());
+		return;
+	}
+	case Tag::TEMPLATE_BIN_SEPARATOR:
 		bhead = Bhead(Bhead::Type::EMPTY);
 		blist = Blist(Blist::Type::ONE);
-	}
-	else if (*tagit == Tag::END_TEMPLATE_BIN_ARRAY)
-	{
+		goto goPastSeparatorCheck;
+	case Tag::START_TEMPLATE_BIN_ARRAY:
 		bhead = Bhead(Bhead::Type::EMPTY);
 		blist = Blist(parseBinSizeList(*this));
-	}
-	else
+		goto goPastArrayCheck;
+	case Tag::NAME_START:
 	{
-		switch (*tagit)
+		auto nameType = parseNameType(tagit, ents);
+		switch (nameType.type)
 		{
-		case Tag::NAME_START:
+		case NameType::KEYWORD:
+			throw runtime_error("invalid binary type: " + nameType.keyword.toString());
+		case NameType::ENTITY_ABSTRACT:
+			if (!nameType.entity.getContent().isThead() || !nameType.entity.getContent().getThead().isTheadBin())
+				throw runtime_error(ERROR_UNEXPECTED);
+			bhead = Bhead::makeEntityThead(nameType.entity);
+			break;
+		case NameType::ENTITY_CONCRETE:
+			bhead = Bhead::makeEntityNumber(checkEntTypeBinSize(nameType.entity));
+			break;
+		default:
+			throw runtime_error("undefined entity: " + nameType.name);
+		}
+		break;
+	}
+	case Tag::DIGIT: case Tag::PLUS: case Tag::MINUS:
+		bhead = Bhead(checkBinSize(parseNumber(*this).getInt()));
+		break;
+	case Tag::START_TEMPLATE:
+	{
+		auto headWebss = parseThead(true);
+		switch (headWebss.getTypeRaw())
+		{
+		case TypeThead::BIN:
+			bhead = Bhead(move(headWebss.getTheadBinRaw()));
+			break;
+		case TypeThead::SELF:
+			bhead = Bhead(TheadSelf());
+			break;
+		default:
+			throw runtime_error(ERROR_BIN_SIZE_HEAD);
+		}
+		break;
+	}
+	case Tag::EXPLICIT_NAME:
+	{
+		auto& it = ++tagit.getItSafe();
+		if (!it)
+			throw runtime_error(ERROR_EXPECTED);
+		if (isNameStart(*it))
 		{
 			auto nameType = parseNameType(tagit, ents);
 			switch (nameType.type)
 			{
-			case NameType::KEYWORD:
+			case NameType::KEYWORD: case NameType::ENTITY_ABSTRACT:
 				throw runtime_error("invalid binary type: " + nameType.keyword.toString());
-			case NameType::ENTITY_ABSTRACT:
-				if (!nameType.entity.getContent().isThead() || !nameType.entity.getContent().getThead().isTheadBin())
-					throw runtime_error(ERROR_UNEXPECTED);
-				bhead = Bhead::makeEntityThead(nameType.entity);
-				break;
 			case NameType::ENTITY_CONCRETE:
-				bhead = Bhead::makeEntityNumber(checkEntTypeBinSize(nameType.entity));
+				bhead = Bhead::makeEntityBits(checkEntTypeBinSizeBits(nameType.entity));
 				break;
 			default:
 				throw runtime_error("undefined entity: " + nameType.name);
 			}
-			break;
 		}
-		case Tag::DIGIT: case Tag::PLUS: case Tag::MINUS:
-			bhead = Bhead(checkBinSize(parseNumber(*this).getInt()));
-			break;
-		case Tag::START_TEMPLATE:
-		{
-			auto headWebss = parseThead(true);
-			switch (headWebss.getTypeRaw())
-			{
-			case TypeThead::BIN:
-				bhead = Bhead(move(headWebss.getTheadBinRaw()));
-				break;
-			case TypeThead::SELF:
-				bhead = Bhead(TheadSelf());
-				break;
-			default:
-				throw runtime_error(ERROR_BIN_SIZE_HEAD);
-			}
-			break;
-		}
-		case Tag::EXPLICIT_NAME:
-		{
-			auto& it = ++tagit.getItSafe();
-			if (!it)
-				throw runtime_error(ERROR_EXPECTED);
-			if (isNameStart(*it))
-			{
-				auto nameType = parseNameType(tagit, ents);
-				switch (nameType.type)
-				{
-				case NameType::KEYWORD: case NameType::ENTITY_ABSTRACT:
-					throw runtime_error("invalid binary type: " + nameType.keyword.toString());
-				case NameType::ENTITY_CONCRETE:
-					bhead = Bhead::makeEntityBits(checkEntTypeBinSizeBits(nameType.entity));
-					break;
-				default:
-					throw runtime_error("undefined entity: " + nameType.name);
-				}
-			}
-			else if (isNumberStart(*it))
-				bhead = Bhead::makeSizeBits(checkBinSizeBits(parseNumber(*this).getInt()));
-			else
-				throw runtime_error(ERROR_UNEXPECTED);
-		}
-		default:
-			break;
-		}
-
-		if (tagit.getSafe() == Tag::START_TEMPLATE_BIN_ARRAY)
-			blist = Blist(parseBinSizeList(*this));
+		else if (isNumberStart(*it))
+			bhead = Bhead::makeSizeBits(checkBinSizeBits(parseNumber(*this).getInt()));
 		else
-			blist = Blist(Blist::Type::ONE);
+			throw runtime_error(ERROR_UNEXPECTED);
+		break;
+	}
+	default:
+		throw std::runtime_error("all values in a binary template must be binary");
 	}
 
-	tagit.sofertTag(Tag::END_TEMPLATE_BIN);
+	if (tagit.getSafe() == Tag::START_TEMPLATE_BIN_ARRAY)
+		blist = Blist(parseBinSizeList(*this));
+	else
+		blist = Blist(Blist::Type::ONE);
+	
+goPastArrayCheck:
+	tagit.sofertTag(Tag::TEMPLATE_BIN_SEPARATOR);
+goPastSeparatorCheck:
 	++tagit;
 	parseExplicitKeyValue(
 		CaseKeyValue

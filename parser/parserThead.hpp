@@ -12,25 +12,6 @@ namespace webss
 	class Parser::ParserThead
 	{
 	public:
-		static TheadBin parseTheadBin(Parser& self, TheadBin&& thead = TheadBin())
-		{
-			do
-			{
-				if (*self.tagit == Tag::START_TEMPLATE_BIN)
-					self.parseBinHead(thead);
-				else if (*self.tagit == Tag::EXPAND)
-				{
-					const auto& content = parseExpandEntity(self.tagit, self.ents).getContent();
-					if (!content.isThead() || !content.getThead().isTheadBin())
-						throw std::runtime_error("expand entity within binary template head must be a binary template head");
-					thead.attach(content.getThead().getTheadBin());
-				}
-				else
-					throw std::runtime_error("all values in a binary template must be binary");
-			} while (self.checkNextElement());
-			return std::move(thead);
-		}
-
 		static TheadStd parseTheadStd(Parser& self, TheadStd&& thead = TheadStd())
 		{
 			do

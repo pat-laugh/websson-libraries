@@ -623,6 +623,7 @@ void Serializer::putThead(StringBuilder& out, const Thead& thead)
 		{
 			if (thead.isPlus() || thead.isText())
 				putTheadOptions(out, thead.getOptions());
+			ContainerIncluder<ConType::TEMPLATE_BIN> includerBin(out);
 			for (const auto& keyValue : theadBin.getParams().getOrderedKeyValues())
 			{
 				assert(keyValue.first != nullptr && "can't have anonymous key in dictionary, template head or enum");
@@ -862,37 +863,34 @@ void Serializer::putTemplateTextTuple(StringBuilder& out, const TheadStd::Params
 void Serializer::putParamBin(StringBuilder& out, const string& key, const ParamBin& param)
 {
 	const auto& bhead = param.getSizeHead();
+	using Type = ParamBin::SizeHead::Type;
+	switch (bhead.getType())
 	{
-		ContainerIncluder<ConType::TEMPLATE_BIN> includer(out);
-		using Type = ParamBin::SizeHead::Type;
-		switch (bhead.getType())
-		{
-		case Type::EMPTY:
-			break;
-		case Type::KEYWORD:
-			out += bhead.getKeyword().toString();
-			break;
-		case Type::NUMBER:
-			out += to_string(bhead.size());
-			break;
-		case Type::THEAD:
-			putTheadBin(out, bhead.getThead());
-			break;
-		case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_THEAD:
-			putEntityName(out, bhead.getEntity());
-			break;
-		case Type::SELF:
-		{
-			ContainerIncluder<ConType::THEAD> includer(out);
-			out += CHAR_SELF;
-			break;
-		}
-		default:
-			assert(false);
-		}
-		putBinSizeList(out, param.getSizeList());
+	case Type::EMPTY:
+		break;
+	case Type::KEYWORD:
+		out += bhead.getKeyword().toString();
+		break;
+	case Type::NUMBER:
+		out += to_string(bhead.size());
+		break;
+	case Type::THEAD:
+		putTheadBin(out, bhead.getThead());
+		break;
+	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_THEAD:
+		putEntityName(out, bhead.getEntity());
+		break;
+	case Type::SELF:
+	{
+		ContainerIncluder<ConType::THEAD> includer(out);
+		out += CHAR_SELF;
+		break;
 	}
-
+	default:
+		assert(false);
+	}
+	putBinSizeList(out, param.getSizeList());
+	out += CHAR_TEMPLATE_BIN_SEPARATOR;
 	out += key;
 	if (bhead.hasDefaultValue())
 		putCharValue(out, bhead.getDefaultValue(), ConType::THEAD);

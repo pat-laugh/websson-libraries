@@ -1,6 +1,6 @@
 !TheadStandard<val1, val2, <&>stuff=N>
 !TheadText<::val1, val2>
-!TheadBinary<{int}i, {bool}b=true>
+!TheadBinary<{int?i, bool?b=true}>
 !TheadPlusStandard<+^TheadStandard>
 !TheadPlusText<+^TheadText>
 !TheadPlusBinary<+^TheadBinary>

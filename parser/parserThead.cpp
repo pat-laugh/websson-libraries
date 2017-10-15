@@ -28,7 +28,16 @@ switchStart:
 		return{ ParserThead::parseTheadStd(*this), options };
 	case Tag::START_TEMPLATE_BIN:
 	startTemplateBin:
-		return{ ParserThead::parseTheadBin(*this), options };
+	{
+		TheadBin thead;
+		{
+			ContainerSwitcher switcherBin(*this, ConType::TEMPLATE_BIN, false);
+			thead = containerEmpty() ? TheadBin() : parseTheadBin();
+		}
+		if (checkNextElement())
+			throw runtime_error(ERROR_UNEXPECTED);
+		return{ move(thead), options };
+	}
 	case Tag::SELF:
 		if (!allowSelf)
 			throw runtime_error("self in a template head must be within a non-empty template head");
@@ -85,7 +94,7 @@ switchStart:
 		return{ move(ent), options };
 	assert(thead.isTheadBin() || thead.isTheadStd());
 	if (thead.isTheadBin())
-		return{ ParserThead::parseTheadBin(*this, thead.getTheadBin().makeCompleteCopy()), move(ent), options };
+		return{ parseTheadBin(thead.getTheadBin().makeCompleteCopy()), move(ent), options };
 	if (*tagit != Tag::START_TUPLE)
 		return{ ParserThead::parseTheadStd(*this, thead.getTheadStd().makeCompleteCopy()), move(ent), options };
 
@@ -102,6 +111,14 @@ switchStart:
 	if (!checkNextElement())
 		return{ move(theadCopy), move(ent), options, move(modifierTuple) };
 	return{ ParserThead::parseTheadStd(*this, move(theadCopy)), move(ent), options, move(modifierTuple) };
+}
+
+TheadBin Parser::parseTheadBin(TheadBin&& thead)
+{
+	do
+		parseBinHead(thead);
+	while (checkNextElement());
+	return thead;
 }
 
 TheadFun Parser::parseTheadFun()
