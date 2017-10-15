@@ -168,7 +168,7 @@ string webss::parseCString(Parser& parser)
 		default:
 			break;
 		}
-		if (!isControlAscii(*it))
+		if (!isControlAscii(*it) || *it == '\t')
 			sb += *it;
 		++it;
 	}
@@ -224,18 +224,17 @@ static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> e
 
 	if (isLineJunk(*it))
 	{
-		int spaces = 0;
+		StringBuilder spacesAndTabs;
 		do
 		{
-			if (*it == ' ')
-				++spaces;
+			if (*it == ' ' || *it == '\t')
+				spacesAndTabs += *it;
 			if (isEnd(++it, endCondition))
 				return false;
 		} while (isLineJunk(*it));
 		if (checkJunkOperators(it) && isEnd(it, endCondition))
 			return false;
-		while (spaces-- > 0)
-			sb += ' ';
+		sb += spacesAndTabs;
 	}
 	
 	return true;

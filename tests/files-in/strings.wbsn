@@ -18,3 +18,5 @@ junk-operators: /*
 	*/    should output  "should output" /~
 	2 times ... /~
 		junk//operator/*must be preceded*/ by a space //confusing line-string
+
+:This	 	is 	 a	 	string 	 with	 	tabs 	 and	 	spaces!	
