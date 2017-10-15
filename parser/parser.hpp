@@ -119,7 +119,7 @@ namespace webss
 		class ParserTempl;
 
 		Thead parseThead(bool allowSelf = false);
-		TheadFun parseTheadFunction();
+		TheadFun parseTheadFun();
 		Webss parseTemplate();
 		Webss parseTemplateBody(Thead thead);
 

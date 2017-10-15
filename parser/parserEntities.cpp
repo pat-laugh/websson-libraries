@@ -37,8 +37,8 @@ Webss Parser::parseAbstractCharValue(const string& name, const Namespace& curren
 		return parseEnum(name);
 	case Tag::START_TEMPLATE:
 		return parseThead();
-	case Tag::START_TEMPLATE_FUNCTION:
-		return Thead(parseTheadFunction());
+	case Tag::START_TEMPLATE_FUN:
+		return Thead(parseTheadFun());
 	case Tag::EQUAL:
 		++tagit;
 		return parseAbstractValueEqual(name, currentNamespace);

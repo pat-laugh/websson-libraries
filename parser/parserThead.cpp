@@ -37,10 +37,10 @@ switchStart:
 		(++tagit).sofertTag(Tag::END_TEMPLATE);
 		++tagit;
 		return TheadSelf();
-	case Tag::START_TEMPLATE_FUNCTION:
+	case Tag::START_TEMPLATE_FUN:
 	startTemplateFunction:
 	{
-		Thead thead(parseTheadFunction(), options);
+		Thead thead(parseTheadFun(), options);
 		if (checkNextElement())
 			throw runtime_error(ERROR_UNEXPECTED);
 		return thead;
@@ -100,9 +100,9 @@ switchStart:
 	return{ ParserThead::parseTheadStd(*this, move(theadCopy)), move(ent), options, move(modifierTuple) };
 }
 
-TheadFun Parser::parseTheadFunction()
+TheadFun Parser::parseTheadFun()
 {
-	ContainerSwitcher switcher(*this, ConType::TEMPLATE_FUNCTION, false);
+	ContainerSwitcher switcher(*this, ConType::TEMPLATE_FUN, false);
 	TheadFun theadFun;
 	
 	if (!containerEmpty())

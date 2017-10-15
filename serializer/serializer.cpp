@@ -662,7 +662,7 @@ void Serializer::putThead(StringBuilder& out, const Thead& thead)
 	case TypeThead::FUN:
 	{
 		{
-			ContainerIncluder<ConType::TEMPLATE_FUNCTION> includer(out);
+			ContainerIncluder<ConType::TEMPLATE_FUN> includer(out);
 			for (const auto& keyValue : thead.getTheadFun().getThead().getParams().getOrderedKeyValues())
 			{
 				assert(keyValue.first != nullptr && "can't have anonymous key in dictionary, template head or enum");
