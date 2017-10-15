@@ -23,8 +23,8 @@ namespace webss
 	const char CHAR_THEAD_CLEAR = '-';
 	const char CHAR_THEAD_PLUS = '+';
 
-	const char CHAR_BIN_DEFAULT_FALSE = 0;
-	const char CHAR_BIN_DEFAULT_TRUE = 1;
+	const char CHAR_BIN_DEFAULT_FALSE = 1;
+	const char CHAR_BIN_DEFAULT_TRUE = 0;
 
 	const char CHAR_START_DICTIONARY = '{';
 	const char CHAR_START_LIST = '[';
