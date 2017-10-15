@@ -13,6 +13,7 @@ using namespace webss;
 
 Thead Parser::parseThead(bool allowSelf)
 {
+	assert(CHAR_START_TEMPLATE_BIN == CHAR_START_DICTIONARY); //required to parse correctly template option text with binary template
 	ContainerSwitcher switcher(*this, ConType::THEAD, false);
 	if (containerEmpty())
 		return TheadStd();
@@ -26,6 +27,7 @@ switchStart:
 	default:
 		return{ ParserThead::parseTheadStd(*this), options };
 	case Tag::START_TEMPLATE_BIN:
+	startTemplateBin:
 		return{ ParserThead::parseTheadBin(*this), options };
 	case Tag::SELF:
 		if (!allowSelf)
@@ -35,21 +37,36 @@ switchStart:
 		(++tagit).sofertTag(Tag::END_TEMPLATE);
 		++tagit;
 		return TheadSelf();
-	case Tag::START_TEMPLATE_OPTIONS:
-		if (optionsSet)
-			throw runtime_error("template head options must be at the start only");
-		options = ParserThead::parseTheadOptions(*this);
-		if (!checkNextElement())
-			return{ TheadStd(), options };
-		optionsSet = true;
-		goto switchStart;
 	case Tag::START_TEMPLATE_FUNCTION:
+	startTemplateFunction:
 	{
-		Thead thead = parseTheadFunction();
+		Thead thead(parseTheadFunction(), options);
 		if (checkNextElement())
 			throw runtime_error(ERROR_UNEXPECTED);
 		return thead;
 	}
+	//options
+	case Tag::PLUS:
+		options.isPlus = true;
+		++tagit;
+		if (!checkNextElement())
+			return{ TheadStd(), options };
+		optionsSet = true;
+		goto switchStart;
+	//for tag text, the parser reads as if :: was going to lead to a container
+	case Tag::TEXT_TUPLE: //as if <::(...)> for text template function
+		options.isText = true;
+		tagit.update();
+		goto startTemplateFunction;
+	case Tag::TEXT_DICTIONARY: //this can be <::{...}> (binary template) or anything else (just the option)
+		options.isText = true;
+		tagit.update();
+		if (*tagit.getIt() == CHAR_START_DICTIONARY)
+			goto startTemplateBin;
+		if (!checkNextElement())
+			return{ TheadStd(), options };
+		optionsSet = true;
+		goto switchStart;
 	case Tag::EXPAND:
 		break;
 	}
@@ -83,7 +100,7 @@ switchStart:
 	return{ ParserThead::parseTheadStd(*this, move(theadCopy)), move(ent), options, move(modifierTuple) };
 }
 
-Thead Parser::parseTheadFunction()
+TheadFun Parser::parseTheadFunction()
 {
 	ContainerSwitcher switcher(*this, ConType::TEMPLATE_FUNCTION, false);
 	TheadFun theadFun;
@@ -100,5 +117,5 @@ Thead Parser::parseTheadFunction()
 	for (string* name : theadFun.getThead().getParams().getOrderedKeys())
 		ents.removePublic(*name);
 	
-	return{ move(theadFun) };
+	return theadFun;
 }

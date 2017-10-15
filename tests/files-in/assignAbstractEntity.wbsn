@@ -14,7 +14,7 @@ elem2 = Enum2.Elem2
 
 Thead2::(val1, val2)
 
-!TheadValue = <[+]^Thead>
+!TheadValue = <+^Thead>
 !TheadValue2 = TheadValue
 
 TheadValue2::(val1, val2):more stuff

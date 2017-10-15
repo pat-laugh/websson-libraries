@@ -5,6 +5,7 @@
 #include "errors.hpp"
 #include "nameType.hpp"
 #include "patternsContainers.hpp"
+#include "structures/theadFun.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
 
@@ -37,7 +38,7 @@ Webss Parser::parseAbstractCharValue(const string& name, const Namespace& curren
 	case Tag::START_TEMPLATE:
 		return parseThead();
 	case Tag::START_TEMPLATE_FUNCTION:
-		return parseTheadFunction();
+		return Thead(parseTheadFunction());
 	case Tag::EQUAL:
 		++tagit;
 		return parseAbstractValueEqual(name, currentNamespace);

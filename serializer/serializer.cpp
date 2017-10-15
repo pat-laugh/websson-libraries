@@ -580,7 +580,6 @@ void Serializer::putTupleText(StringBuilder& out, const Tuple& tuple)
 
 static void putTheadOptions(StringBuilder& out, TheadOptions options)
 {
-	ContainerIncluder<ConType::TEMPLATE_OPTIONS> includer(out);
 	if (options.isText)
 		out += ASSIGN_CONTAINER_STRING;
 	if (options.isPlus)

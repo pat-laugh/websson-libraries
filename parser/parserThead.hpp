@@ -12,23 +12,6 @@ namespace webss
 	class Parser::ParserThead
 	{
 	public:
-		static TheadOptions parseTheadOptions(Parser& self)
-		{
-			auto& it = self.getIt();
-			TheadOptions options;
-			while (*skipJunkToValid(++it) != CHAR_END_TEMPLATE_OPTIONS)
-			{
-				if (*it == CHAR_THEAD_PLUS)
-					options.isPlus = true;
-				else if (*it == CHAR_COLON && ++it == CHAR_COLON)
-					options.isText = true;
-				else
-					throw std::runtime_error(ERROR_UNEXPECTED);
-			}
-			++self.tagit;
-			return options;
-		}
-
 		static TheadBin parseTheadBin(Parser& self, TheadBin&& thead = TheadBin())
 		{
 			do
