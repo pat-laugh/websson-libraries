@@ -20,7 +20,8 @@ SizeHead::SizeHead(Keyword keyword) : type(Type::KEYWORD)
 {
 	switch (keyword)
 	{
-	case Keyword::BOOL: case Keyword::INT8: case Keyword::INT16: case Keyword::INT32: case Keyword::INT64: case Keyword::FLOAT: case Keyword::DOUBLE:
+	case Keyword::BOOL: case Keyword::INT8: case Keyword::INT16: case Keyword::INT32: case Keyword::INT64:
+	case Keyword::FLOAT: case Keyword::DOUBLE: case Keyword::VARINT:
 		this->keyword = keyword;
 		break;
 	case Keyword::STRING:

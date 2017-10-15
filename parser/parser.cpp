@@ -48,6 +48,7 @@ static void initEnts(EntityManager& ents)
 	addTheadBinEntityKeywords(ents, { "float", "Float" }, Keyword::FLOAT);
 	addTheadBinEntityKeywords(ents, { "D", "Double", "double" }, Keyword::DOUBLE);
 	addTheadBinEntityKeywords(ents, { "S", "String", "string" }, Keyword::STRING);
+	addTheadBinEntityKeywords(ents, { "Varint", "varint" }, Keyword::VARINT);
 }
 
 Parser::Parser(string filename) : tagit(SmartIterator("")), filename(move(filename)) {}

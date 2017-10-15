@@ -13,11 +13,11 @@ namespace webss
 		{
 			KEY_NULL, KEY_FALSE, KEY_TRUE,
 			BOOL, INT8, INT16, INT32, INT64, FLOAT, DOUBLE,
-			STRING
+			STRING, VARINT,
 		};
 		static const Enum KEY_NULL = Enum::KEY_NULL, KEY_FALSE = Enum::KEY_FALSE, KEY_TRUE = Keyword::Enum::KEY_TRUE,
 			BOOL = Enum::BOOL, INT8 = Enum::INT8, INT16 = Enum::INT16, INT32 = Enum::INT32, INT64 = Enum::INT64, FLOAT = Enum::FLOAT, DOUBLE = Enum::DOUBLE,
-			STRING = Enum::STRING;
+			STRING = Enum::STRING, VARINT = Enum::VARINT;
 
 		constexpr Keyword() : e(Enum::KEY_NULL) {}
 		constexpr Keyword(Enum e) : e(e) {}

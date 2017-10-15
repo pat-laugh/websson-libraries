@@ -62,6 +62,8 @@ string Keyword::toString() const
 		return "D";
 	case Keyword::STRING:
 		return "S";
+	case Keyword::VARINT:
+		return "varint";
 	default:
 		return "unknown";
 	}

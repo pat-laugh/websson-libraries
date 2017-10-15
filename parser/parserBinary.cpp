@@ -314,6 +314,8 @@ static Webss parseBinKeyword(BinIterator& it, Keyword keyword)
 	case Keyword::DOUBLE:
 		it.readBytes(8, reinterpret_cast<char*>(&tDouble));
 		return Webss(tDouble);
+	case Keyword::VARINT:
+		return Webss(it.readNumber());
 	default:
 		assert(false && "other keywords should've been parsed before"); throw domain_error("");
 	}

@@ -184,6 +184,10 @@ static void putBinElement(StringBuilder& out, const ParamBin::SizeHead& bhead, c
 			tDouble = webss.getDoubleRaw();
 			writeBytes(out, 8, reinterpret_cast<char*>(&tDouble));
 			break;
+		case Keyword::VARINT:
+			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_INT);
+			writeBinSize(out, webss.getIntRaw());
+			break;
 		default:
 			assert(false);
 		}
