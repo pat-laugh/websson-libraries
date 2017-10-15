@@ -33,7 +33,7 @@ namespace webss
 		enum class Type
 		{
 			NONE, ENTITY_ABSTRACT, ENTITY_CONCRETE,
-			EXPAND, SCOPED_IMPORT, SCOPED_IMPORT_LIST, IMPORT
+			EXPAND, IMPORT
 		};
 
 		ParamDocument();
