@@ -92,14 +92,25 @@ switchStart:
 		options = thead.getOptions();
 	if (!checkNextElement())
 		return{ move(ent), options };
-	assert(thead.isTheadBin() || thead.isTheadStd());
+	assert(thead.isTheadBin() || thead.isTheadStd() || thead.isTheadFun());
 	if (thead.isTheadBin())
 		return{ parseTheadBin(thead.getTheadBin().makeCompleteCopy()), move(ent), options };
+	auto theadCopy = (thead.isTheadStd() ? thead.getTheadStd() : thead.getTheadFun().getThead()).makeCompleteCopy();
 	if (*tagit != Tag::START_TUPLE)
-		return{ ParserThead::parseTheadStd(*this, thead.getTheadStd().makeCompleteCopy()), move(ent), options };
+	{
+		theadCopy = ParserThead::parseTheadStd(*this, move(theadCopy));
+		if (thead.isTheadStd())
+			return{ move(theadCopy), move(ent), options };
+		else
+		{
+			TheadFun theadFun;
+			theadFun.setThead(move(theadCopy));
+			parseTheadFunStructure(theadFun);
+			return{ move(theadFun), move(ent), options };
+		}
+	}
 
 	Tuple modifierTuple;
-	auto theadCopy = thead.getTheadStd().makeCompleteCopy();
 	auto& params = const_cast<BasicParams<ParamStd>&>(theadCopy.getParams());
 	auto tuple = Parser::ParserTempl::parseTemplateTuple<false, false>(*this, theadCopy);
 	for (const auto& item : tuple.getOrderedKeyValues())
@@ -108,9 +119,19 @@ switchStart:
 			params[*item.first] = *item.second;
 			modifierTuple.add(*item.first, move(*item.second));
 		}
-	if (!checkNextElement())
-		return{ move(theadCopy), move(ent), options, move(modifierTuple) };
-	return{ ParserThead::parseTheadStd(*this, move(theadCopy)), move(ent), options, move(modifierTuple) };
+	if (thead.isTheadStd())
+	{
+		if (!checkNextElement())
+			return{ move(theadCopy), move(ent), options, move(modifierTuple) };
+		return{ ParserThead::parseTheadStd(*this, move(theadCopy)), move(ent), options, move(modifierTuple) };
+	}
+	else
+	{
+		TheadFun theadFun;
+		theadFun.setThead(!checkNextElement() ? move(theadCopy) : ParserThead::parseTheadStd(*this, move(theadCopy)));
+		parseTheadFunStructure(theadFun);
+		return{ move(theadFun), move(ent), options, move(modifierTuple) };
+	}
 }
 
 TheadBin Parser::parseTheadBin(TheadBin&& thead)
@@ -125,10 +146,13 @@ TheadFun Parser::parseTheadFun()
 {
 	ContainerSwitcher switcher(*this, ConType::TEMPLATE_FUN, false);
 	TheadFun theadFun;
-	
-	if (!containerEmpty())
-		theadFun.setThead(ParserThead::parseTheadStd(*this));
-	
+	theadFun.setThead(containerEmpty() ? TheadStd() : ParserThead::parseTheadStd(*this));
+	parseTheadFunStructure(theadFun);
+	return theadFun;
+}
+
+void Parser::parseTheadFunStructure(TheadFun& theadFun)
+{
 	int index = 0;
 	for (string* name : theadFun.getThead().getParams().getOrderedKeys())
 		ents.addPublicSafe(*name, Placeholder(index++, theadFun.getPointerRaw()));
@@ -137,6 +161,4 @@ TheadFun Parser::parseTheadFun()
 	
 	for (string* name : theadFun.getThead().getParams().getOrderedKeys())
 		ents.removePublic(*name);
-	
-	return theadFun;
 }

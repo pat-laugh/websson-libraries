@@ -121,6 +121,7 @@ namespace webss
 		Thead parseThead(bool allowSelf = false);
 		TheadBin parseTheadBin(TheadBin&& thead = TheadBin());
 		TheadFun parseTheadFun();
+		void parseTheadFunStructure(TheadFun& theadFun);
 		Webss parseTemplate();
 		Webss parseTemplateBody(Thead thead);
 
