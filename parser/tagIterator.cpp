@@ -99,6 +99,7 @@ Tag TagIterator::getTag()
 	case CHAR_OPTION:
 		if (it.peekEnd() || it.peek() != CHAR_OPTION)
 			return Tag::UNKNOWN;
+		++it;
 		return Tag::OPTION;
 	case CHAR_SCOPE: return Tag::SCOPE;
 	case CHAR_SELF: return Tag::SELF;

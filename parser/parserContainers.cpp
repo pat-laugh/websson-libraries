@@ -349,7 +349,7 @@ ImportedDocument Parser::parseImport()
 
 void Parser::parseOption()
 {
-	auto& it = getItSafe().incTwo();
+	auto& it = ++getItSafe();
 loopStart:
 	if (!skipLineJunk(it))
 		return;
