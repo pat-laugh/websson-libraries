@@ -28,15 +28,15 @@ static Webss parseBinElement(BinIterator& it, const ParamBin::SizeHead& bhead);
 static Webss parseBinKeyword(BinIterator& it, Keyword keyword);
 static const Entity& checkEntTypeBinSize(const Entity& ent);
 static const Entity& checkEntTypeBinSizeBits(const Entity& ent);
-static ParamBin::SizeList parseBinSizeList(Parser& parser);
+static ParamBin::SizeArray parseBinSizeArray(Parser& parser);
 
 void Parser::parseBinHead(TheadBin& thead)
 {
 	using Bhead = ParamBin::SizeHead;
-	using Blist = ParamBin::SizeList;
+	using Barray = ParamBin::SizeArray;
 
 	Bhead bhead;
-	Blist blist;
+	Barray barray;
 	switch (*tagit)
 	{
 	case Tag::EXPAND:
@@ -49,11 +49,11 @@ void Parser::parseBinHead(TheadBin& thead)
 	}
 	case Tag::TEMPLATE_BIN_SEPARATOR:
 		bhead = Bhead(Bhead::Type::EMPTY);
-		blist = Blist(Blist::Type::ONE);
+		barray = Barray(Barray::Type::ONE);
 		goto goPastSeparatorCheck;
 	case Tag::START_TEMPLATE_BIN_ARRAY:
 		bhead = Bhead(Bhead::Type::EMPTY);
-		blist = Blist(parseBinSizeList(*this));
+		barray = Barray(parseBinSizeArray(*this));
 		goto goPastArrayCheck;
 	case Tag::NAME_START:
 	{
@@ -124,9 +124,9 @@ void Parser::parseBinHead(TheadBin& thead)
 	}
 
 	if (tagit.getSafe() == Tag::START_TEMPLATE_BIN_ARRAY)
-		blist = Blist(parseBinSizeList(*this));
+		barray = Barray(parseBinSizeArray(*this));
 	else
-		blist = Blist(Blist::Type::ONE);
+		barray = Barray(Barray::Type::ONE);
 	
 goPastArrayCheck:
 	tagit.sofertTag(Tag::TEMPLATE_BIN_SEPARATOR);
@@ -136,13 +136,13 @@ goPastSeparatorCheck:
 		CaseKeyValue
 		{
 			bhead.setDefaultValue(move(value));
-			thead.attach(move(key), ParamBin(move(bhead), move(blist)));
+			thead.attach(move(key), ParamBin(move(bhead), move(barray)));
 		},
 		CaseKeyOnly
 		{
 			if (bhead.isTheadSelf())
 				throw runtime_error("binary param declared with self must have a default value");
-			thead.attach(move(key), ParamBin(move(bhead), move(blist)));
+			thead.attach(move(key), ParamBin(move(bhead), move(barray)));
 		});
 }
 
@@ -157,14 +157,14 @@ Tuple Parser::parseTemplateTupleBin(const TheadBin::Params& params)
 	return tuple;
 }
 
-static ParamBin::SizeList parseBinSizeList(Parser& parser)
+static ParamBin::SizeArray parseBinSizeArray(Parser& parser)
 {
-	using Blist = ParamBin::SizeList;
+	using Barray = ParamBin::SizeArray;
 	Parser::ContainerSwitcher switcher(parser, ConType::TEMPLATE_BIN_ARRAY, false);
 	if (parser.containerEmpty())
-		return Blist(Blist::Type::EMPTY);
+		return Barray(Barray::Type::EMPTY);
 
-	Blist blist;
+	Barray barray;
 	try
 	{
 		if (*parser.tagit == Tag::NAME_START)
@@ -172,10 +172,10 @@ static ParamBin::SizeList parseBinSizeList(Parser& parser)
 			auto nameType = parseNameType(parser.tagit, parser.getEnts());
 			if (nameType.type != NameType::ENTITY_CONCRETE)
 				throw;
-			blist = Blist(checkEntTypeBinSize(nameType.entity));
+			barray = Barray(checkEntTypeBinSize(nameType.entity));
 		}
 		else if (*parser.tagit == Tag::DIGIT || *parser.tagit == Tag::PLUS || *parser.tagit == Tag::MINUS)
-			blist = Blist(checkBinSize(parseNumber(parser).getInt()));
+			barray = Barray(checkBinSize(parseNumber(parser).getInt()));
 		else
 			throw;
 
@@ -184,9 +184,9 @@ static ParamBin::SizeList parseBinSizeList(Parser& parser)
 	}
 	catch (const exception&)
 	{
-		throw runtime_error("value in binary list must be void or a positive integer");
+		throw runtime_error("value in binary array must be void or a positive integer");
 	}
-	return blist;
+	return barray;
 }
 
 static const Entity& checkEntTypeBinSize(const Entity& ent)
@@ -251,12 +251,12 @@ static Webss parseBin(BinIterator& it, const ParamBin& param)
 
 static Webss parseBin(BinIterator& it, const ParamBin& param, function<Webss()> func)
 {
-	const auto& blist = param.getSizeList();
-	if (blist.isOne())
+	const auto& barray = param.getSizeArray();
+	if (barray.isOne())
 		return func();
 
 	List list;
-	auto length = blist.isEmpty() ? it.readNumber() : blist.size();
+	auto length = barray.isEmpty() ? it.readNumber() : barray.size();
 	while (length-- > 0)
 		list.add(func());
 

@@ -25,9 +25,9 @@ static void addEntityKeywords(EntityManager& ents)
 static TheadBin makeTheadBinKeyword(Keyword keyword)
 {
 	using Bhead = ParamBin::SizeHead;
-	using Blist = ParamBin::SizeList;
+	using Barray = ParamBin::SizeArray;
 	TheadBin thead;
-	thead.attach("", ParamBin(Bhead(keyword), Blist(Blist::Type::ONE)));
+	thead.attach("", ParamBin(Bhead(keyword), Barray(Barray::Type::ONE)));
 	return thead;
 }
 

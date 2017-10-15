@@ -101,7 +101,7 @@ static void putBin(StringBuilder& out, const ParamBin& param, const Webss& data)
 	}
 }
 
-static void serializeBitList(StringBuilder& out, const List& list)
+static void serializeBitArray(StringBuilder& out, const List& list)
 {
 	char c = 0;
 	int shift = 0;
@@ -121,18 +121,18 @@ static void serializeBitList(StringBuilder& out, const List& list)
 
 static void putBin(StringBuilder& out, const ParamBin& param, const Webss& data, function<void(const Webss& webss)> func)
 {
-	if (param.getSizeList().isOne())
+	if (param.getSizeArray().isOne())
 	{
 		func(data);
 		return;
 	}
 
 	const auto& list = data.getList();
-	if (param.getSizeList().isEmpty())
+	if (param.getSizeArray().isEmpty())
 		writeBinSize(out, list.size());
 
 	if (param.getSizeHead().isBool())
-		serializeBitList(out, list);
+		serializeBitArray(out, list);
 	else
 		for (const auto& webss : list)
 			func(webss);

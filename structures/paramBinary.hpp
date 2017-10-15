@@ -91,26 +91,26 @@ namespace webss
 			void copyUnion(const SizeHead& o);
 		};
 
-		class SizeList
+		class SizeArray
 		{
 		public:
 			enum class Type { NONE, EMPTY, EMPTY_ENTITY_NUMBER, ONE, NUMBER, ENTITY_NUMBER };
 
-			SizeList();
-			SizeList(Type type);
-			SizeList(const Entity& entNumber);
-			SizeList(WebssBinSize num);
+			SizeArray();
+			SizeArray(Type type);
+			SizeArray(const Entity& entNumber);
+			SizeArray(WebssBinSize num);
 
-			~SizeList();
+			~SizeArray();
 
-			SizeList(SizeList&& o);
-			SizeList(const SizeList& o);
+			SizeArray(SizeArray&& o);
+			SizeArray(const SizeArray& o);
 
-			SizeList& operator=(SizeList&& o);
-			SizeList& operator=(const SizeList& o);
+			SizeArray& operator=(SizeArray&& o);
+			SizeArray& operator=(const SizeArray& o);
 
-			bool operator==(const SizeList& o) const;
-			bool operator!=(const SizeList& o) const;
+			bool operator==(const SizeArray& o) const;
+			bool operator!=(const SizeArray& o) const;
 
 			bool isEmpty() const;
 			bool isOne() const;
@@ -131,13 +131,13 @@ namespace webss
 			};
 
 			void destroyUnion();
-			void copyUnion(SizeList&& o);
-			void copyUnion(const SizeList& o);
+			void copyUnion(SizeArray&& o);
+			void copyUnion(const SizeArray& o);
 		};
 
 		ParamBin();
-		ParamBin(SizeHead&& sizeHead, SizeList&& sizeList);
-		ParamBin(const SizeHead& sizeHead, const SizeList& sizeList);
+		ParamBin(SizeHead&& sizeHead, SizeArray&& sizeArray);
+		ParamBin(const SizeHead& sizeHead, const SizeArray& sizeArray);
 		~ParamBin();
 
 		ParamBin(ParamBin&& o);
@@ -150,7 +150,7 @@ namespace webss
 		bool operator!=(const ParamBin& o) const;
 
 		const SizeHead& getSizeHead() const;
-		const SizeList& getSizeList() const;
+		const SizeArray& getSizeArray() const;
 
 		//functions for sizeHead
 		bool hasDefaultValue() const;
@@ -161,6 +161,6 @@ namespace webss
 
 	private:
 		SizeHead sizeHead;
-		SizeList sizeList;
+		SizeArray sizeArray;
 	};
 }

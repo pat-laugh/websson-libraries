@@ -141,7 +141,7 @@ private:
 			default:
 				assert(false);
 			}
-			putBinSizeList(out, param.getSizeList());
+			putBinSizeArray(out, param.getSizeArray());
 		}
 
 		out += key;
@@ -151,22 +151,22 @@ private:
 			assert(!bhead.isTheadSelf());
 	}
 
-	void putBinSizeList(StringBuilder& out, const ParamBin::SizeList& blist)
+	void putBinSizeArray(StringBuilder& out, const ParamBin::SizeArray& barray)
 	{
-		using Type = ParamBin::SizeList::Type;
-		if (blist.isOne())
+		using Type = ParamBin::SizeArray::Type;
+		if (barray.isOne())
 			return;
 
 		ContainerIncluder<ConType::LIST> includer(out);
-		switch (blist.getType())
+		switch (barray.getType())
 		{
 		case Type::EMPTY:
 			break;
 		case Type::NUMBER:
-			out += to_string(blist.size());
+			out += to_string(barray.size());
 			break;
 		case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
-			putEntityName(out, blist.getEntity());
+			putEntityName(out, barray.getEntity());
 			break;
 		default:
 			assert(false);
@@ -889,7 +889,7 @@ void Serializer::putParamBin(StringBuilder& out, const string& key, const ParamB
 	default:
 		assert(false);
 	}
-	putBinSizeList(out, param.getSizeList());
+	putBinSizeArray(out, param.getSizeArray());
 	out += CHAR_TEMPLATE_BIN_SEPARATOR;
 	out += key;
 	if (bhead.hasDefaultValue())
@@ -898,22 +898,22 @@ void Serializer::putParamBin(StringBuilder& out, const string& key, const ParamB
 		assert(!bhead.isTheadSelf());
 }
 
-void Serializer::putBinSizeList(StringBuilder& out, const ParamBin::SizeList& blist)
+void Serializer::putBinSizeArray(StringBuilder& out, const ParamBin::SizeArray& barray)
 {
-	using Type = ParamBin::SizeList::Type;
-	if (blist.isOne())
+	using Type = ParamBin::SizeArray::Type;
+	if (barray.isOne())
 		return;
 
 	ContainerIncluder<ConType::TEMPLATE_BIN_ARRAY> includer(out);
-	switch (blist.getType())
+	switch (barray.getType())
 	{
 	case Type::EMPTY:
 		break;
 	case Type::NUMBER:
-		out += to_string(blist.size());
+		out += to_string(barray.size());
 		break;
 	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
-		putEntityName(out, blist.getEntity());
+		putEntityName(out, barray.getEntity());
 		break;
 	default:
 		assert(false);

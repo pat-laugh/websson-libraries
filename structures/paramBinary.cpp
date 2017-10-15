@@ -229,34 +229,34 @@ void SizeHead::copyUnion(const SizeHead& o)
 		defaultValue = o.defaultValue;
 }
 
-//ParamBin::SizeList
+//ParamBin::SizeArray
 
-using SizeList = ParamBin::SizeList;
+using SizeArray = ParamBin::SizeArray;
 
-SizeList::SizeList() {}
-SizeList::SizeList(Type type) : type(type)
+SizeArray::SizeArray() {}
+SizeArray::SizeArray(Type type) : type(type)
 {
 	assert(type == Type::NONE || type == Type::EMPTY || type == Type::ONE);
 }
-SizeList::SizeList(const Entity& entNumber)
+SizeArray::SizeArray(const Entity& entNumber)
 	: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
 {
 	assert(entNumInt >= 0 && static_cast<WebssBinSize>(entNumInt) <= numeric_limits<WebssBinSize>::max());
 }
-SizeList::SizeList(WebssBinSize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
+SizeArray::SizeArray(WebssBinSize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
 
-SizeList::~SizeList() { destroyUnion(); }
+SizeArray::~SizeArray() { destroyUnion(); }
 
-SizeList::SizeList(SizeList&& o) { copyUnion(move(o)); }
-SizeList::SizeList(const SizeList& o) { copyUnion(o); }
+SizeArray::SizeArray(SizeArray&& o) { copyUnion(move(o)); }
+SizeArray::SizeArray(const SizeArray& o) { copyUnion(o); }
 
-SizeList& SizeList::operator=(SizeList&& o)
+SizeArray& SizeArray::operator=(SizeArray&& o)
 {
 	destroyUnion();
 	copyUnion(move(o));
 	return *this;
 }
-SizeList& SizeList::operator=(const SizeList& o)
+SizeArray& SizeArray::operator=(const SizeArray& o)
 {
 	if (this != &o)
 	{
@@ -266,7 +266,7 @@ SizeList& SizeList::operator=(const SizeList& o)
 	return *this;
 }
 
-bool SizeList::operator==(const SizeList& o) const
+bool SizeArray::operator==(const SizeArray& o) const
 {
 	if (this == &o)
 		return true;
@@ -284,15 +284,15 @@ bool SizeList::operator==(const SizeList& o) const
 		assert(false); throw domain_error("");
 	}
 }
-bool SizeList::operator!=(const SizeList& o) const { return !(*this == o); }
+bool SizeArray::operator!=(const SizeArray& o) const { return !(*this == o); }
 
-bool SizeList::isEmpty() const { return type == Type::EMPTY || type == Type::EMPTY_ENTITY_NUMBER; }
-bool SizeList::isOne() const { return type == Type::ONE; }
-bool SizeList::hasEntity() const { return type == Type::ENTITY_NUMBER || type == Type::EMPTY_ENTITY_NUMBER; }
+bool SizeArray::isEmpty() const { return type == Type::EMPTY || type == Type::EMPTY_ENTITY_NUMBER; }
+bool SizeArray::isOne() const { return type == Type::ONE; }
+bool SizeArray::hasEntity() const { return type == Type::ENTITY_NUMBER || type == Type::EMPTY_ENTITY_NUMBER; }
 
-SizeList::Type SizeList::getType() const { return type; }
+SizeArray::Type SizeArray::getType() const { return type; }
 
-WebssBinSize SizeList::size() const
+WebssBinSize SizeArray::size() const
 {
 	assert(type == Type::NUMBER || type == Type::ENTITY_NUMBER);
 	if (type == Type::NUMBER)
@@ -301,20 +301,20 @@ WebssBinSize SizeList::size() const
 		return static_cast<WebssBinSize>(ent.getContent().getInt());
 }
 
-const Entity& SizeList::getEntity() const
+const Entity& SizeArray::getEntity() const
 {
 	assert(hasEntity());
 	return ent;
 }
 
-void SizeList::destroyUnion()
+void SizeArray::destroyUnion()
 {
 	if (hasEntity())
 		ent.~Entity();
 	type = Type::NONE;
 }
 
-void SizeList::copyUnion(SizeList&& o)
+void SizeArray::copyUnion(SizeArray&& o)
 {
 	switch (o.type)
 	{
@@ -333,7 +333,7 @@ void SizeList::copyUnion(SizeList&& o)
 	type = o.type;
 	o.type = Type::NONE;
 }
-void SizeList::copyUnion(const SizeList& o)
+void SizeArray::copyUnion(const SizeArray& o)
 {
 	switch (o.type)
 	{
@@ -354,17 +354,17 @@ void SizeList::copyUnion(const SizeList& o)
 //ParamBin
 
 ParamBin::ParamBin() {}
-ParamBin::ParamBin(SizeHead&& sizeHead, SizeList&& sizeList) : sizeHead(move(sizeHead)), sizeList(move(sizeList)) {}
-ParamBin::ParamBin(const SizeHead& sizeHead, const SizeList& sizeList) : sizeHead(sizeHead), sizeList(sizeList) {}
+ParamBin::ParamBin(SizeHead&& sizeHead, SizeArray&& sizeArray) : sizeHead(move(sizeHead)), sizeArray(move(sizeArray)) {}
+ParamBin::ParamBin(const SizeHead& sizeHead, const SizeArray& sizeArray) : sizeHead(sizeHead), sizeArray(sizeArray) {}
 ParamBin::~ParamBin() {}
 
-ParamBin::ParamBin(ParamBin&& o) : sizeHead(move(o.sizeHead)), sizeList(move(o.sizeList)) {}
-ParamBin::ParamBin(const ParamBin& o) : sizeHead(o.sizeHead), sizeList(o.sizeList) {}
+ParamBin::ParamBin(ParamBin&& o) : sizeHead(move(o.sizeHead)), sizeArray(move(o.sizeArray)) {}
+ParamBin::ParamBin(const ParamBin& o) : sizeHead(o.sizeHead), sizeArray(o.sizeArray) {}
 
 ParamBin& ParamBin::operator=(ParamBin&& o)
 {
 	sizeHead = move(o.sizeHead);
-	sizeList = move(o.sizeList);
+	sizeArray = move(o.sizeArray);
 	return *this;
 }
 ParamBin& ParamBin::operator=(const ParamBin& o)
@@ -372,16 +372,16 @@ ParamBin& ParamBin::operator=(const ParamBin& o)
 	if (this != &o)
 	{
 		sizeHead = o.sizeHead;
-		sizeList = o.sizeList;
+		sizeArray = o.sizeArray;
 	}
 	return *this;
 }
 
-bool ParamBin::operator==(const ParamBin& o) const { return (this == &o) || (sizeHead == o.sizeHead && sizeList == o.sizeList); }
+bool ParamBin::operator==(const ParamBin& o) const { return (this == &o) || (sizeHead == o.sizeHead && sizeArray == o.sizeArray); }
 bool ParamBin::operator!=(const ParamBin& o) const { return !(*this == o); }
 
 const SizeHead& ParamBin::getSizeHead() const { return sizeHead; }
-const SizeList& ParamBin::getSizeList() const { return sizeList; }
+const SizeArray& ParamBin::getSizeArray() const { return sizeArray; }
 bool ParamBin::hasDefaultValue() const { return getSizeHead().hasDefaultValue(); }
 const shared_ptr<Webss>& ParamBin::getDefaultPointer() const { return getSizeHead().getDefaultPointer(); }
 bool ParamBin::isTheadBin() const { return getSizeHead().isTheadBin(); }

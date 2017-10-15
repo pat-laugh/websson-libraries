@@ -85,7 +85,7 @@ namespace webss
 		void putTemplateStdTupleText(various::StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
 		void putTemplateTextTuple(various::StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
 
-		void putBinSizeList(various::StringBuilder& out, const ParamBin::SizeList& blist);
+		void putBinSizeArray(various::StringBuilder& out, const ParamBin::SizeArray& barray);
 		void putParamBin(various::StringBuilder& out, const std::string& key, const ParamBin& param);
 		void putParamStd(various::StringBuilder& out, const std::string& key, const ParamStd& param);
 
