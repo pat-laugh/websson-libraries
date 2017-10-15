@@ -20,6 +20,7 @@ namespace webss
 	const char CHAR_SCOPE = '.';
 	const char CHAR_SELF = '&';
 	const char CHAR_SEPARATOR = ',';
+	const char CHAR_THEAD_CLEAR = '-';
 	const char CHAR_THEAD_PLUS = '+';
 
 	const char CHAR_BIN_DEFAULT_FALSE = 0;

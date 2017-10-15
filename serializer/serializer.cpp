@@ -580,10 +580,18 @@ void Serializer::putTupleText(StringBuilder& out, const Tuple& tuple)
 
 static void putTheadOptions(StringBuilder& out, TheadOptions options)
 {
-	if (options.isText)
-		out += ASSIGN_CONTAINER_STRING;
+	//this function is called when a thead has a base (was expanded) and its options are
+	//not equal to its parent's; if both options are false, then an option clear was put
 	if (options.isPlus)
+	{
 		out += CHAR_THEAD_PLUS;
+		if (options.isText)
+			out += ASSIGN_CONTAINER_STRING;
+	}
+	else if (options.isText)
+		out += ASSIGN_CONTAINER_STRING;
+	else
+		out += CHAR_THEAD_CLEAR;
 }
 
 void Serializer::putThead(StringBuilder& out, const Thead& thead)

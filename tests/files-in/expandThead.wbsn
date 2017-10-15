@@ -5,6 +5,7 @@
 !TheadPlusText<+^TheadText>
 !TheadPlusBinary<+^TheadBinary>
 !TheadStandardOverridenValues<^TheadStandard(val1=1, val2=2)>
+!TheadClear<-^TheadPlusStandard>
 
 !TheadStandardExpand<^TheadStandard, param=null>
 !TheadTextExpand<^TheadText>
@@ -13,3 +14,4 @@
 !TheadPlusTextExpand<^TheadPlusText>
 !TheadPlusBinaryExpand<^TheadPlusBinary>
 !TheadStandardOverridenValuesExpand<^TheadStandardOverridenValues>
+!TheadClearExpand<^TheadClear>

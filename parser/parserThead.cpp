@@ -46,13 +46,20 @@ switchStart:
 		return thead;
 	}
 	//options
-	case Tag::PLUS:
-		options.isPlus = true;
-		++tagit;
+	optionSwitchStart:
 		if (!checkNextElement())
 			return{ TheadStd(), options };
 		optionsSet = true;
 		goto switchStart;
+	case Tag::MINUS:
+		options.isText = false;
+		options.isPlus = false;
+		++tagit;
+		goto optionSwitchStart;
+	case Tag::PLUS:
+		options.isPlus = true;
+		++tagit;
+		goto optionSwitchStart;
 	//for tag text, the parser reads as if :: was going to lead to a container
 	case Tag::TEXT_TUPLE: //as if <::(...)> for text template function
 		options.isText = true;
@@ -63,10 +70,7 @@ switchStart:
 		tagit.update();
 		if (*tagit.getIt() == CHAR_START_DICTIONARY)
 			goto startTemplateBin;
-		if (!checkNextElement())
-			return{ TheadStd(), options };
-		optionsSet = true;
-		goto switchStart;
+		goto optionSwitchStart;
 	case Tag::EXPAND:
 		break;
 	}
