@@ -2,6 +2,8 @@
 //Copyright 2017 Patrick Laughrea
 #include "entityManager.hpp"
 
+#include "structures/utils.hpp"
+
 using namespace std;
 using namespace webss;
 
@@ -80,7 +82,7 @@ void EntityManager::addPublicSafe(Entity ent)
 {
 	if (!hasEntity(ent.getName()))
 		addPublic(move(ent));
-	else if (ent != operator[](ent.getName())) //else do nothing
+	else if (!equalPtrs(ent.getDocIdPtr(), operator[](ent.getName()).getDocIdPtr())) //else do nothing
 		throw runtime_error(ERROR_ENTITY_EXISTS + ent.getName());
 }
 

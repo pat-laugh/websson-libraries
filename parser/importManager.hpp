@@ -26,6 +26,7 @@ namespace webss
 			return instance;
 		}
 
+		void getReadLocallyFullLink(const std::string& link, const std::string& filename, bool& readLocally, std::string& fullLink);
 		const std::pair<std::unordered_map<std::string, Entity>, std::vector<std::pair<std::string, Webss>>>& importDocument(const std::string& link, const std::string& filename);
 	};
 }

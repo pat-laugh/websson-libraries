@@ -51,9 +51,9 @@ static void initEnts(EntityManager& ents)
 	addTheadBinEntityKeywords(ents, { "Varint", "varint" }, Keyword::VARINT);
 }
 
-Parser::Parser(string filename) : tagit(SmartIterator("")), filename(move(filename)) {}
-Parser::Parser(SmartIterator it, string filename) : tagit(move(it)), filename(move(filename)) { initEnts(ents); }
-Parser::Parser(const istream& in, string filename) : tagit(SmartIterator("")), filename(move(filename))
+Parser::Parser(string filename) : tagit(SmartIterator("")), filename(filename), docId(move(filename)) {}
+Parser::Parser(SmartIterator it, string filename) : tagit(move(it)), filename(filename), docId(move(filename)) { initEnts(ents); }
+Parser::Parser(const istream& in, string filename) : tagit(SmartIterator("")), filename(filename), docId(move(filename))
 {
 	stringstream ss;
 	ss << in.rdbuf();
@@ -69,7 +69,8 @@ Parser& Parser::setIterator(SmartIterator it)
 
 Parser& Parser::setFilename(string filename)
 {
-	this->filename = move(filename);
+	this->filename = filename;
+	docId = move(filename);
 	return *this;
 }
 

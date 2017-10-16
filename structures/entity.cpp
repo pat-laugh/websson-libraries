@@ -43,3 +43,6 @@ bool Entity::hasNamespace() const { return !nspacePtr.expired(); }
 const Namespace Entity::getNamespace() const { assert(hasNamespace()); return nspacePtr.lock(); }
 void Entity::setNamespace(const Namespace& nspace) { nspacePtr = nspace.getBodyPointerWeak(); }
 void Entity::removeNamespace() { nspacePtr.reset(); }
+void Entity::setDocId(shared_ptr<string> docId) { this->docId = move(docId); }
+const std::string& Entity::getDocId() const { return *docId; }
+const std::string* Entity::getDocIdPtr() const { return docId.get(); };

@@ -250,6 +250,7 @@ Document Parser::parseDocument()
 		if (containerEmpty())
 			return doc;
 		
+		shared_ptr<string> docIdEnt;
 		do
 		{
 			switch (*tagit)
@@ -257,6 +258,7 @@ Document Parser::parseDocument()
 			case Tag::ENTITY_ABSTRACT:
 			{
 				auto ent = parseAbstractEntity(Namespace::getEmptyInstance());
+				ent.setDocId(docIdEnt);
 				doc.addHead(ParamDocument::makeEntityAbstract(ent));
 				ents.addPublicSafe(move(ent));
 				break;
@@ -264,6 +266,7 @@ Document Parser::parseDocument()
 			case Tag::ENTITY_CONCRETE:
 			{
 				auto ent = parseConcreteEntity();
+				ent.setDocId(docIdEnt);
 				doc.addHead(ParamDocument::makeEntityConcrete(ent));
 				ents.addPublicSafe(move(ent));
 				break;
@@ -322,6 +325,7 @@ Document Parser::parseDocument()
 				break;
 			}
 		} while (checkNextElement());
+		docIdEnt.reset(new string(move(docId)));
 		return doc;
 	}
 	catch (const exception& e)

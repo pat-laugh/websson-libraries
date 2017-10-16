@@ -26,11 +26,15 @@ namespace webss
 		const Namespace getNamespace() const;
 		void setNamespace(const Namespace& nspace);
 		void removeNamespace();
+		void setDocId(std::shared_ptr<std::string> docId);
+		const std::string& getDocId() const;
+		const std::string* getDocIdPtr() const;
 
 	private:
 		struct EntityBody;
 
 		std::shared_ptr<EntityBody> ptr;
 		std::weak_ptr<Namespace::NamespaceBody> nspacePtr;
+		std::shared_ptr<std::string> docId;
 	};
 }

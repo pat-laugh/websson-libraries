@@ -78,7 +78,7 @@ TypeFile getFileType(const string& filename)
 		return sm.str(3).empty() ? TypeFile::PROTOCOL_NO_SLASHES : TypeFile::PROTOCOL;
 }
 
-const pair<unordered_map<string, Entity>, vector<pair<string, Webss>>>& ImportManager::importDocument(const string& link, const string& filename)
+void ImportManager::getReadLocallyFullLink(const string& link, const string& filename, bool& readLocally, string& fullLink)
 {
 	bool isFileFilename;
 	auto fileTypeFilename = getFileType(filename);
@@ -110,9 +110,6 @@ const pair<unordered_map<string, Entity>, vector<pair<string, Webss>>>& ImportMa
 		isFileLink = false;
 		break;
 	}
-	
-	bool readLocally;
-	string fullLink;
 	
 	if (isFileFilename && isFileLink)
 	{
@@ -146,6 +143,13 @@ const pair<unordered_map<string, Entity>, vector<pair<string, Webss>>>& ImportMa
 		readLocally = false;
 		fullLink = link;
 	}
+}
+
+const pair<unordered_map<string, Entity>, vector<pair<string, Webss>>>& ImportManager::importDocument(const string& link, const string& filename)
+{
+	bool readLocally;
+	string fullLink;
+	getReadLocallyFullLink(link, filename, readLocally, fullLink);
 	
 	{ //to scope the locks
 		//check if doc was already parsed

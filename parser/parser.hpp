@@ -42,7 +42,7 @@ namespace webss
 		ConType con = ConType::DOCUMENT;
 		bool multilineContainer = true;
 		bool allowVoid = false;
-		std::string filename;
+		std::string filename, docId;
 
 		class ContainerSwitcher;
 
