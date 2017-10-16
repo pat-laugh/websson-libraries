@@ -363,6 +363,26 @@ ImportedDocument Parser::parseImport()
 }
 #endif
 
+static bool isOptionString(SmartIterator& it, const char* s)
+{
+	for (; *s != '\0'; ++s)
+		if (++it != *s)
+			return false;
+	return true;
+}
+
+static string getOptionValue(Parser& self, SmartIterator& it)
+{
+	if (*it == CHAR_COLON || *it == CHAR_EQUAL)
+	{
+		++it;
+		return parseStickyLineString(self);
+	}
+	if (*it == CHAR_CSTRING)
+		return parseCString(self);
+	throw runtime_error(ERROR_UNEXPECTED);
+}
+
 void Parser::parseOption()
 {
 	auto& it = ++getItSafe();
@@ -374,24 +394,21 @@ loopStart:
 		++it;
 		return;
 	}
-
-	if (*it != '-' || !++it)
-		throw runtime_error(ERROR_OPTION);
-	if (*it != 'v' && (*it != '-' || ++it != 'v' || ++it != 'e' || ++it != 'r' || ++it != 's' || ++it != 'i' || ++it != 'o' || ++it != 'n'))
-		throw runtime_error(ERROR_OPTION);
-	if (!++it)
-		throw runtime_error(ERROR_EXPECTED);
-	string value;
-	if (*it == CHAR_COLON || *it == CHAR_EQUAL)
+	
+	if (*it == 'd')
 	{
-		++it;
-		value = parseStickyLineString(*this);
+		if (!++it || (*it == 'o' && (!isOptionString(it, "cument-id") || !++it)))
+			throw runtime_error(ERROR_OPTION);
+		docId = getOptionValue(*this, it);
 	}
-	else if (*it == CHAR_CSTRING)
-		value = parseCString(*this);
-	else
-		throw runtime_error(ERROR_UNEXPECTED);
-	if (value != "1.0.0")
-		throw runtime_error("this parser can only parse version 1.0.0");
+	else if (*it == 'w')
+	{
+		if (!++it || (*it == 'e' && (!isOptionString(it, "bsson-version") || !++it)))
+			throw runtime_error(ERROR_OPTION);
+		if (getOptionValue(*this, it) != "1.0.0")
+			throw runtime_error("this parser can only parse WebSSON version 1.0.0");
+	}
+	else	
+		throw runtime_error(ERROR_OPTION);
 	goto loopStart;
 }
