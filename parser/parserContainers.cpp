@@ -250,7 +250,7 @@ Document Parser::parseDocument()
 		if (containerEmpty())
 			return doc;
 		
-		shared_ptr<string> docIdEnt;
+		shared_ptr<string> docIdEnt(new string());
 		do
 		{
 			switch (*tagit)
@@ -325,7 +325,7 @@ Document Parser::parseDocument()
 				break;
 			}
 		} while (checkNextElement());
-		docIdEnt.reset(new string(move(docId)));
+		*docIdEnt = move(docId);
 		return doc;
 	}
 	catch (const exception& e)
