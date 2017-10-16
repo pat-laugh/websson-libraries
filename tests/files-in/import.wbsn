@@ -1,15 +1,18 @@
 @../files-in/list.wbsn
 @file://enum.wbsn
-@http://pat-laugh.ca/test-dir/
+//@http://pat-laugh.ca/test-dir/
+
+!TheColors { @file://enum.wbsn }
 
 list = [^entList]
 
-?dictCopy = entDict
+//?dictCopy = entDict
 
-expandDict = { ^dictCopy }
+//expandDict = { ^dictCopy }
 
 ?red = Color.Red
 ?green = Color.Green
 ?blue = Color.Blue
+?the-red = TheColors.Color.Red
 
-colors = [red, green, blue]
+//colors = [red, green, blue]

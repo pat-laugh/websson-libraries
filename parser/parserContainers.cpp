@@ -175,6 +175,19 @@ Namespace Parser::parseNamespace(const string& name, const Namespace& previousNa
 		case Tag::ENTITY_CONCRETE:
 			nspace.addSafe(parseConcreteEntity());
 			break;
+		case Tag::IMPORT:
+#ifdef WEBSSON_PARSER_DISABLE_IMPORT
+			throw runtime_error("this parser cannot import documents");
+#else
+			{
+				auto import = parseImport();
+				const auto& link = import.getLink();
+				const auto& headBody = ImportManager::getInstance().importDocument(link, filename);
+				for (const auto& entPair : headBody.first)
+					nspace.addSafe(entPair.second);
+				break;
+			}
+#endif
 		default:
 			throw runtime_error(ERROR_INPUT_NAMESPACE);
 		}
