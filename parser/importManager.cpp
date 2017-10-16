@@ -189,9 +189,7 @@ const pair<unordered_map<string, Entity>, vector<pair<string, Webss>>>& ImportMa
 		lock_guard<mutex> lockDocs(mDocs);
 		lock_guard<mutex> lockParsing(mParsing);
 		parsing.erase(fullLink);
-		unordered_map<string, Entity> ents;
-		for (const auto& ent : parser.getEnts().getPublicEnts())
-			ents.insert({ ent.getName(), ent });
+		auto ents = parser.getEntityManager().getEnts();
 		vector<pair<string, Webss>> keyValuesCopy;
 		for (const auto& keyValue : doc.getBody().getOrderedKeyValues())
 			if (keyValue.first == nullptr)

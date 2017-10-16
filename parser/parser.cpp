@@ -11,15 +11,15 @@ using namespace std;
 using namespace various;
 using namespace webss;
 
-static void addPrivateEntities(EntityManager& ents, vector<string> names, Entity ent)
+static void addEntities(EntityManager& ents, vector<string> names, Entity ent)
 {
 	for (const auto& name : names)
-		ents.addPrivateEntity(name, ent);
+		ents.addAlias(name, ent);
 }
 
 static void addEntityKeywords(EntityManager& ents)
 {
-	addPrivateEntities(ents, { "N", "Nil", "None", "Null", "nil", "none", "null", "F", "False", "false", "T", "True", "true" }, Entity("", Webss()));
+	addEntities(ents, { "N", "Nil", "None", "Null", "nil", "none", "null", "F", "False", "false", "T", "True", "true" }, Entity("", Webss()));
 }
 
 static TheadBin makeTheadBinKeyword(Keyword keyword)
@@ -34,7 +34,7 @@ static TheadBin makeTheadBinKeyword(Keyword keyword)
 static void addTheadBinEntityKeywords(EntityManager& ents, vector<string> names, Keyword keyword)
 {
 	string entName(names[0]);
-	addPrivateEntities(ents, move(names), Entity(move(entName), Thead(makeTheadBinKeyword(keyword))));
+	addEntities(ents, move(names), Entity(move(entName), Thead(makeTheadBinKeyword(keyword))));
 }
 
 static void initEnts(EntityManager& ents)
@@ -76,7 +76,7 @@ Parser& Parser::setFilename(string filename)
 
 Parser& Parser::addEntity(string name, Webss value)
 {
-	ents.addPrivate(move(name), move(value));
+	ents.add(move(name), move(value));
 	return *this;
 }
 

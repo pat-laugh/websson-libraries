@@ -51,7 +51,7 @@ namespace webss
 
 		various::SmartIterator& getIt() { return tagit.getIt(); }
 		various::SmartIterator& getItSafe() { return tagit.getItSafe(); }
-		const EntityManager& getEnts() { return ents; }
+		const EntityManager& getEntityManager() { return ents; }
 		ConType getCurrentContainer() { return con; }
 
 		//returns true if container is empty, else false

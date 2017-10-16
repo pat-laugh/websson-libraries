@@ -155,10 +155,10 @@ void Parser::parseTheadFunStructure(TheadFun& theadFun)
 {
 	int index = 0;
 	for (string* name : theadFun.getThead().getParams().getOrderedKeys())
-		ents.addPublicSafe(*name, Placeholder(index++, theadFun.getPointerRaw()));
+		ents.addSafe(*name, Placeholder(index++, theadFun.getPointerRaw()));
 	
 	theadFun.setStructure(parseValueOnly());
 	
 	for (string* name : theadFun.getThead().getParams().getOrderedKeys())
-		ents.removePublic(*name);
+		ents.remove(*name);
 }

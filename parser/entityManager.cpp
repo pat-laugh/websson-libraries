@@ -12,105 +12,60 @@ static const char* ERROR_ENTITY_EXISTS = "entity already exists: ";
 EntityManager::EntityManager() {}
 EntityManager::~EntityManager() { clearAll(); }
 
-vector<Entity> EntityManager::getPublicEnts() const
+const unordered_map<string, Entity>& EntityManager::getEnts() const
 {
-	vector<Entity> ents;
-	for (auto sPtr : publics)
-		ents.push_back(privates.find(*sPtr)->second);
 	return ents;
 }
 
 void EntityManager::clearAll()
 {
-	clearPublics();
-	for (auto it = privates.begin(); it != privates.end();)
-		it = privates.erase(it);
+	for (auto it = ents.begin(); it != ents.end();)
+		it = ents.erase(it);
 }
 
-void EntityManager::clearPublics()
+void EntityManager::addAlias(string name, Entity ent)
 {
-	for (auto it = publics.begin(); it != publics.end();)
-		it = publics.erase(it);
+	ents.insert({ move(name), move(ent) });
 }
 
-void EntityManager::addPrivateEntity(string name, Entity ent)
+void EntityManager::add(string name, Webss content)
 {
-	privates.insert({ move(name), move(ent) });
+	add(Entity(move(name), move(content)));
 }
 
-void EntityManager::addPrivate(string name, Webss content)
+void EntityManager::addSafe(string name, Webss content)
 {
-	addPrivate(Entity(move(name), move(content)));
+	addSafe(Entity(move(name), move(content)));
 }
 
-void EntityManager::addPrivateSafe(string name, Webss content)
+void EntityManager::add(Entity ent)
 {
-	addPrivateSafe(Entity(move(name), move(content)));
+	auto name = ent.getName();
+	ents.insert({ move(name), move(ent) });
 }
 
-void EntityManager::addPrivate(Entity ent)
-{
-	const auto& name = ent.getName();
-	privates.insert({ name, move(ent) });
-}
-
-void EntityManager::addPrivateSafe(Entity ent)
-{
-	if (hasEntity(ent.getName()))
-		throw runtime_error(ERROR_ENTITY_EXISTS + ent.getName());
-
-	addPrivate(move(ent));
-}
-
-void EntityManager::addPublic(string name, Webss content)
-{
-	addPublic(Entity(move(name), move(content)));
-}
-
-void EntityManager::addPublicSafe(string name, Webss content)
-{
-	addPublicSafe(Entity(move(name), move(content)));
-}
-
-void EntityManager::addPublic(Entity ent)
-{
-	publics.insert(const_cast<string*>(&ent.getName()));
-	addPrivate(move(ent));
-}
-
-void EntityManager::addPublicSafe(Entity ent)
+void EntityManager::addSafe(Entity ent)
 {
 	if (!hasEntity(ent.getName()))
-		addPublic(move(ent));
+		add(move(ent));
 	else if (!equalPtrs(ent.getDocIdPtr(), operator[](ent.getName()).getDocIdPtr())) //else do nothing
 		throw runtime_error(ERROR_ENTITY_EXISTS + ent.getName());
 }
 
-bool EntityManager::hasEntity(const string& s) const { return privates.find(s) != privates.end(); }
+bool EntityManager::hasEntity(const string& s) const { return ents.find(s) != ents.end(); }
 
-Entity& EntityManager::operator[](const string& name) { return privates.find(name)->second; }
-const Entity& EntityManager::operator[](const string& name) const { return privates.find(name)->second; }
+Entity& EntityManager::operator[](const string& name) { return ents.find(name)->second; }
+const Entity& EntityManager::operator[](const string& name) const { return ents.find(name)->second; }
 
-Entity& EntityManager::at(const string& name) { return privates.at(name); }
-const Entity& EntityManager::at(const string& name) const { return privates.at(name); }
+Entity& EntityManager::at(const string& name) { return ents.at(name); }
+const Entity& EntityManager::at(const string& name) const { return ents.at(name); }
 
-void EntityManager::removePrivate(const string& name)
+void EntityManager::remove(const string& name)
 {
-	privates.erase(name);
+	ents.erase(name);
 }
 
-void EntityManager::removePublic(const string& name)
+void EntityManager::remove(const Entity& ent)
 {
-	publics.erase(const_cast<string*>(&name));
-	removePrivate(name);
-}
-
-void EntityManager::removePrivate(const Entity& ent)
-{
-	removePrivate(ent.getName());
-}
-
-void EntityManager::removePublic(const Entity& ent)
-{
-	removePublic(ent.getName());
+	remove(ent.getName());
 }

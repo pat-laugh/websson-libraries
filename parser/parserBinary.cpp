@@ -169,7 +169,7 @@ static ParamBin::SizeArray parseBinSizeArray(Parser& parser)
 	{
 		if (*parser.tagit == Tag::NAME_START)
 		{
-			auto nameType = parseNameType(parser.tagit, parser.getEnts());
+			auto nameType = parseNameType(parser.tagit, parser.getEntityManager());
 			if (nameType.type != NameType::ENTITY_CONCRETE)
 				throw;
 			barray = Barray(checkEntTypeBinSize(nameType.entity));

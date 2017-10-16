@@ -256,7 +256,7 @@ static const string& expandString(Parser& parser)
 	auto& it = parser.getIt();
 	try
 	{
-		const Webss* value = &parser.getEnts().at(parseName(it)).getContent();
+		const Webss* value = &parser.getEntityManager().at(parseName(it)).getContent();
 		while (it == CHAR_SCOPE && value->isNamespace() && it.peekGood() && isNameStart(it.peek()))
 			value = &value->getNamespace().at(parseName(++it)).getContent();
 		return value->getString();

@@ -31,7 +31,7 @@ static void useNamespace(EntityManager& ents, const Namespace& nspace)
 	for (auto ent : nspace)
 	{
 		ent.removeNamespace();
-		ents.addPublicSafe(ent);
+		ents.addSafe(ent);
 	}
 }
 
@@ -260,7 +260,7 @@ Document Parser::parseDocument()
 				auto ent = parseAbstractEntity(Namespace::getEmptyInstance());
 				ent.setDocId(docIdEnt);
 				doc.addHead(ParamDocument::makeEntityAbstract(ent));
-				ents.addPublicSafe(move(ent));
+				ents.addSafe(move(ent));
 				break;
 			}
 			case Tag::ENTITY_CONCRETE:
@@ -268,7 +268,7 @@ Document Parser::parseDocument()
 				auto ent = parseConcreteEntity();
 				ent.setDocId(docIdEnt);
 				doc.addHead(ParamDocument::makeEntityConcrete(ent));
-				ents.addPublicSafe(move(ent));
+				ents.addSafe(move(ent));
 				break;
 			}
 			case Tag::IMPORT:
@@ -280,7 +280,7 @@ Document Parser::parseDocument()
 				const auto& link = import.getLink();
 				const auto& headBody = ImportManager::getInstance().importDocument(link, filename);
 				for (const auto& entPair : headBody.first)
-					ents.addPublicSafe(entPair.second);
+					ents.addSafe(entPair.second);
 				for (const auto& keyValue : headBody.second)
 					if (keyValue.first == "")
 						doc.addImport(keyValue.second);
