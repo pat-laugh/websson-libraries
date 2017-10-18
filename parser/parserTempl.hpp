@@ -23,7 +23,7 @@ namespace webss
 			Tuple body;
 			auto tag = self.tagit.getSafe();
 			if (tag == Tag::START_TUPLE || tag == Tag::TEXT_TUPLE)
-				body = self.parseTemplateTupleBin(thead.getTheadBin().getParams());
+				body = self.parseTemplateTupleBin(thead.getTheadBin().getParams(), thead.isText());
 			else if (thead.isPlus())
 				body = makeDefaultTuple(thead.getTheadBin().getParams());
 			else

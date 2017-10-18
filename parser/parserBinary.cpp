@@ -15,8 +15,10 @@
 #include "utilsExpand.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
+#include "various/StringBuilder.hpp"
 
 using namespace std;
+using namespace various;
 using namespace webss;
 
 static WebssBinSize checkBinSize(WebssInt sizeInt);
@@ -29,6 +31,8 @@ static Webss parseBinKeyword(BinIterator& it, Keyword keyword);
 static const Entity& checkEntTypeBinSize(const Entity& ent);
 static const Entity& checkEntTypeBinSizeBits(const Entity& ent);
 static ParamBin::SizeArray parseBinSizeArray(Parser& parser);
+static SmartIterator decodeBase64(SmartIterator& it);
+static void decodeBase64(SmartIterator& it, char bytes[4]);
 
 void Parser::parseBinHead(TheadBin& thead)
 {
@@ -147,13 +151,27 @@ goPastSeparatorCheck:
 }
 
 //entry point from parserTemplates
-Tuple Parser::parseTemplateTupleBin(const TheadBin::Params& params)
+Tuple Parser::parseTemplateTupleBin(const TheadBin::Params& params, bool isEncoded)
 {
-	BinIterator itBin(getItSafe());
-	auto tuple = parseBinTemplate(itBin, params);
-	if (++getIt() != CHAR_END_TUPLE)
-		throw runtime_error("binary tuple is not closed");
-	tagit.incSafe();
+	Tuple tuple;
+	if (isEncoded)
+	{
+		auto itDecodedBinary = decodeBase64(getIt()); //this advances it until ')' is met and returns iterator containing decoded bytes
+		BinIterator itBin(itDecodedBinary);
+		try { tuple = parseBinTemplate(itBin, params); }
+		catch (const runtime_error& e) { throw runtime_error(string("while parsing decoded binary, ") + e.what()); }
+	}
+	else
+	{
+		BinIterator itBin(getIt());
+		try { tuple = parseBinTemplate(itBin, params); }
+		catch (const runtime_error& e) { throw runtime_error(string("while parsing binary, ") + e.what()); }
+		do
+			if (!++getIt())
+				throw runtime_error("binary tuple is not closed");
+		while (*getIt() != CHAR_END_TUPLE);
+	}
+	++tagit;
 	return tuple;
 }
 
@@ -319,4 +337,94 @@ static Webss parseBinKeyword(BinIterator& it, Keyword keyword)
 	default:
 		assert(false && "other keywords should've been parsed before"); throw domain_error("");
 	}
+}
+
+#define BASE_64_ALL_0 '+'
+#define BASE_64_ALL_1 '-'
+#define BASE_64_BYTES_0 "\x00\x00\x00"
+#define BASE_64_BYTES_1 "\xff\xff\xff"
+#define BASE_64_NUMBER '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9'
+#define BASE_64_UPPER 'Q': case 'W': case 'F': case 'R': case 'K': case 'Y': case 'J': case 'I': case 'O': case 'P': \
+	case 'A': case 'S': case 'D': case 'T': case 'G': case 'H': case 'E': case 'U': case 'L': \
+	case 'Z': case 'X': case 'C': case 'V': case 'B': case 'N': case 'M'
+#define BASE_64_LOWER 'q': case 'w': case 'f': case 'r': case 'k': case 'y': case 'j': case 'i': case 'o': case 'p': \
+	case 'a': case 's': case 'd': case 't': case 'g': case 'h': case 'e': case 'u': case 'l': \
+	case 'z': case 'x': case 'c': case 'v': case 'b': case 'n': case 'm'
+#define BASE_64_CHAR_1 '_'
+#define BASE_64_CHAR_2 '='
+#define BASE_64_IGNORED ' ': case '\x7f': \
+	case '\x00': case '\x01': case '\x02': case '\x03': case '\x04': case '\x05': case '\x06': case '\x07': case '\x08': case '\x09': case '\x0a': case '\x0b': case '\x0c': case '\x0d': case '\x0e': case '\x0f': \
+	case '\x10': case '\x11': case '\x12': case '\x13': case '\x14': case '\x15': case '\x16': case '\x17': case '\x18': case '\x19': case '\x1a': case '\x1b': case '\x1c': case '\x1d': case '\x1e': case '\x1f'
+
+static SmartIterator decodeBase64(SmartIterator& it)
+{
+	StringBuilder sb;
+	union
+	{
+		char bytes[4];
+		int32_t bytesInt;
+	};
+decodeStart:
+	if (!it)
+		throw runtime_error(ERROR_EXPECTED);
+	switch (*it)
+	{
+	case CHAR_END_TUPLE:
+		return sb.str();
+	case BASE_64_ALL_0:
+		sb += BASE_64_BYTES_0;
+		goto decodeEnd;
+	case BASE_64_ALL_1:
+		sb += BASE_64_BYTES_1;
+		goto decodeEnd;
+	case BASE_64_IGNORED:
+		goto decodeEnd;
+	default:
+		break;
+	}
+	decodeBase64(it, bytes);
+	//the 4 bytes: 00111111|00222222|00333333|00112233
+	//will become: 11111111|22222222|33333333|00000000
+	bytesInt |= (bytesInt & 0x30) << 26;
+	bytesInt |= (bytesInt & 0x0c) << 20;
+	bytesInt |= (bytesInt & 0x03) << 14;
+	bytes[3] = 0;
+	sb += bytes;
+decodeEnd:
+	++it;
+	goto decodeStart;
+}
+
+static void decodeBase64(SmartIterator& it, char bytes[4])
+{
+	int i = 0;
+startSwitch:
+	switch (*it)
+	{
+	case BASE_64_IGNORED:
+		goto restart;
+	case BASE_64_NUMBER:
+		bytes[i] = *it - '0';
+		break;
+	case BASE_64_UPPER:
+		bytes[i] = *it - 'A' + 10;
+		break;
+	case BASE_64_LOWER:
+		bytes[i] = *it - 'a' + 36;
+		break;
+	case BASE_64_CHAR_1:
+		bytes[i] = 62;
+		break;
+	case BASE_64_CHAR_2:
+		bytes[i] = 63;
+		break;
+	default:
+		throw runtime_error("forbidden character in encoded binary");
+	}
+	if (++i == 4)
+		return;
+restart:
+	if (!++it)
+		throw runtime_error(ERROR_EXPECTED);
+	goto startSwitch;
 }

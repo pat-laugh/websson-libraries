@@ -130,6 +130,6 @@ namespace webss
 
 		//parserBinary.cpp
 		void parseBinHead(TheadBin& thead);
-		Tuple parseTemplateTupleBin(const TheadBin::Params& params);
+		Tuple parseTemplateTupleBin(const TheadBin::Params& params, bool isEncoded);
 	};
 }
