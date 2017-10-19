@@ -6,7 +6,7 @@
 
 namespace webss
 {
-	class BinIterator
+	class BinaryIterator
 	{
 	private:
 		various::SmartIterator& it;
@@ -17,7 +17,7 @@ namespace webss
 
 		void checkBitshift();
 	public:
-		BinIterator(various::SmartIterator& it);
+		BinaryIterator(various::SmartIterator& it);
 
 		int readBit();
 

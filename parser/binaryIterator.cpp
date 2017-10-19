@@ -11,7 +11,7 @@ using namespace std;
 using namespace various;
 using namespace webss;
 
-int BinIterator::getBitmask(int num)
+int BinaryIterator::getBitmask(int num)
 {
 	switch (num)
 	{
@@ -28,7 +28,7 @@ int BinIterator::getBitmask(int num)
 	}
 }
 
-void BinIterator::checkBitshift()
+void BinaryIterator::checkBitshift()
 {
 	if (bitshift == 8)
 	{
@@ -37,9 +37,9 @@ void BinIterator::checkBitshift()
 	}
 }
 	
-BinIterator::BinIterator(SmartIterator& it) : it(it) {}
+BinaryIterator::BinaryIterator(SmartIterator& it) : it(it) {}
 
-int BinIterator::readBit()
+int BinaryIterator::readBit()
 {
 	checkBitshift();
 	int bit = (byteBlock >> bitshift) & 1;
@@ -47,7 +47,7 @@ int BinIterator::readBit()
 	return bit;
 }
 
-int BinIterator::readBits(int numBits)
+int BinaryIterator::readBits(int numBits)
 {
 	checkBitshift();
 
@@ -68,7 +68,7 @@ int BinIterator::readBits(int numBits)
 	return bits;
 }
 
-string::size_type BinIterator::readNumber()
+string::size_type BinaryIterator::readNumber()
 {
 	const int fullShift = 7, maxFullShifts = sizeof(string::size_type) / fullShift;
 	string::size_type num = 0;
@@ -92,7 +92,7 @@ readLoop:
 	goto readLoop;
 }
 
-void BinIterator::readBytes(string::size_type num, char* value)
+void BinaryIterator::readBytes(string::size_type num, char* value)
 {
 #ifdef WEBSSON_REVERSE_ENDIANNESS
 	value += num;
@@ -104,14 +104,14 @@ void BinIterator::readBytes(string::size_type num, char* value)
 #endif
 }
 
-char BinIterator::readByte()
+char BinaryIterator::readByte()
 {
 	if (!++it)
 		throw runtime_error("expected character");
 	return *it;
 }
 
-string BinIterator::readString(string::size_type num)
+string BinaryIterator::readString(string::size_type num)
 {
 	StringBuilder sb;
 	while (num-- > 0)

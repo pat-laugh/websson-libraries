@@ -23,11 +23,11 @@ using namespace webss;
 
 static WebssBinSize checkBinSize(WebssInt sizeInt);
 static WebssBinSize checkBinSizeBits(WebssInt sizeInt);
-static Tuple parseBinTemplate(BinIterator& it, const TheadBin::Params& params);
-static Webss parseBin(BinIterator& it, const ParamBin& bhead);
-static Webss parseBin(BinIterator& it, const ParamBin& bhead, function<Webss()> func);
-static Webss parseBinElement(BinIterator& it, const ParamBin::SizeHead& bhead);
-static Webss parseBinKeyword(BinIterator& it, Keyword keyword);
+static Tuple parseBinTemplate(BinaryIterator& it, const TheadBin::Params& params);
+static Webss parseBin(BinaryIterator& it, const ParamBin& bhead);
+static Webss parseBin(BinaryIterator& it, const ParamBin& bhead, function<Webss()> func);
+static Webss parseBinElement(BinaryIterator& it, const ParamBin::SizeHead& bhead);
+static Webss parseBinKeyword(BinaryIterator& it, Keyword keyword);
 static const Entity& checkEntTypeBinSize(const Entity& ent);
 static const Entity& checkEntTypeBinSizeBits(const Entity& ent);
 static ParamBin::SizeArray parseBinSizeArray(Parser& parser);
@@ -157,13 +157,13 @@ Tuple Parser::parseTemplateTupleBin(const TheadBin::Params& params, bool isEncod
 	if (isEncoded)
 	{
 		auto itDecodedBinary = decodeBase64(getIt()); //this advances it until ')' is met and returns iterator containing decoded bytes
-		BinIterator itBin(itDecodedBinary);
+		BinaryIterator itBin(itDecodedBinary);
 		try { tuple = parseBinTemplate(itBin, params); }
 		catch (const runtime_error& e) { throw runtime_error(string("while parsing decoded binary, ") + e.what()); }
 	}
 	else
 	{
-		BinIterator itBin(getIt());
+		BinaryIterator itBin(getIt());
 		try { tuple = parseBinTemplate(itBin, params); }
 		catch (const runtime_error& e) { throw runtime_error(string("while parsing binary, ") + e.what()); }
 		do
@@ -242,7 +242,7 @@ static inline void setDefaultValueBin(Webss& value, const ParamBin& param)
 	value = Webss(param.getSizeHead().getDefaultPointer());
 }
 
-static Tuple parseBinTemplate(BinIterator& it, const TheadBin::Params& params)
+static Tuple parseBinTemplate(BinaryIterator& it, const TheadBin::Params& params)
 {
 	Tuple tuple(params.getSharedKeys());
 	for (decltype(tuple.size()) i = 0; i < tuple.size(); ++i)
@@ -258,7 +258,7 @@ static Tuple parseBinTemplate(BinIterator& it, const TheadBin::Params& params)
 	return tuple;
 }
 
-static Webss parseBin(BinIterator& it, const ParamBin& param)
+static Webss parseBin(BinaryIterator& it, const ParamBin& param)
 {
 	if (!param.getSizeHead().isTheadBin())
 		return parseBin(it, param, [&]() { return parseBinElement(it, param.getSizeHead()); });
@@ -267,7 +267,7 @@ static Webss parseBin(BinIterator& it, const ParamBin& param)
 	return parseBin(it, param, [&]() { return parseBinTemplate(it, params); });
 }
 
-static Webss parseBin(BinIterator& it, const ParamBin& param, function<Webss()> func)
+static Webss parseBin(BinaryIterator& it, const ParamBin& param, function<Webss()> func)
 {
 	const auto& barray = param.getSizeArray();
 	if (barray.isOne())
@@ -281,7 +281,7 @@ static Webss parseBin(BinIterator& it, const ParamBin& param, function<Webss()> 
 	return list;
 }
 
-static Webss parseBinElement(BinIterator& it, const ParamBin::SizeHead& bhead)
+static Webss parseBinElement(BinaryIterator& it, const ParamBin::SizeHead& bhead)
 {
 	using Type = ParamBin::SizeHead::Type;
 
@@ -300,7 +300,7 @@ static Webss parseBinElement(BinIterator& it, const ParamBin::SizeHead& bhead)
 	}
 }
 
-static Webss parseBinKeyword(BinIterator& it, Keyword keyword)
+static Webss parseBinKeyword(BinaryIterator& it, Keyword keyword)
 {
 	union
 	{
