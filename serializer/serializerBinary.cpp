@@ -3,23 +3,37 @@
 #include "serializer.hpp"
 
 #include "binarySerializer.hpp"
+#include "utils/base64.hpp"
 #include "utils/constants.hpp"
 
 using namespace std;
 using namespace various;
 using namespace webss;
 
-extern void putTemplateBodyBin(StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple);
+extern void putTemplateBodyBin(StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple, bool isEncoded);
 static void putTemplateBodyBin(BinarySerializer& out, const TheadBin::Params& params, const Tuple& tuple);
 static void putBin(BinarySerializer& out, const ParamBin& param, const Webss& data);
 static void putBin(BinarySerializer& out, const ParamBin& param, const Webss& data, function<void(const Webss& webss)> func);
 static void putBinElement(BinarySerializer& out, const ParamBin::SizeHead& bhead, const Webss& webss);
 
 //entry point from serializer.cpp
-void putTemplateBodyBin(StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple)
+void putTemplateBodyBin(StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple, bool isEncoded)
 {
-	BinarySerializer binSerializer(out);
-	putTemplateBodyBin(binSerializer, params, tuple);
+	if (isEncoded)
+	{
+		StringBuilder tempOut;
+		BinarySerializer binSerializer(tempOut);
+		putTemplateBodyBin(binSerializer, params, tuple);
+		binSerializer.flush();
+		SmartIterator it(tempOut.str());
+		out += encodeBase64(it);
+	}
+	else
+	{
+		BinarySerializer binSerializer(out);
+		putTemplateBodyBin(binSerializer, params, tuple);
+		binSerializer.flush();
+	}
 }
 
 static void putTemplateBodyBin(BinarySerializer& out, const TheadBin::Params& params, const Tuple& tuple)

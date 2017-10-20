@@ -725,7 +725,7 @@ void Serializer::putTemplate(StringBuilder& out, const Template& templ, ConType 
 	switch (templ.getType())
 	{
 	case TypeThead::BIN:
-		putTemplateBinTuple(out, templ.getTheadBin().getParams(), templ.body.getTuple());
+		putTemplateBinTuple(out, templ);
 		break;
 	case TypeThead::STD:
 		if (templ.isText())
@@ -751,12 +751,12 @@ void Serializer::putTemplate(StringBuilder& out, const Template& templ, ConType 
 		putConcreteValue(out, templ.content, con);
 }
 
-extern void putTemplateBodyBin(StringBuilder&, const TheadBin::Params&, const Tuple&);
+extern void putTemplateBodyBin(StringBuilder&, const TheadBin::Params&, const Tuple&, bool);
 
-void Serializer::putTemplateBinTuple(StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple)
+void Serializer::putTemplateBinTuple(StringBuilder& out, const Template& templ)
 {
 	ContainerIncluder<ConType::TUPLE> includer(out);
-	putTemplateBodyBin(out, params, tuple);
+	putTemplateBodyBin(out, templ.getTheadBin().getParams(), templ.body.getTuple(), templ.isText());
 }
 
 void Serializer::putTemplateStdBody(StringBuilder& out, const TheadStd::Params& params, const Webss& body)

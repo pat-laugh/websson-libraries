@@ -12,30 +12,17 @@ using namespace std;
 using namespace various;
 using namespace webss;
 
-void BinarySerializer::checkBitshift()
-{
-	if (bitshift == 8)
-	{
-		flushByteBlock();
-		byteBlock = 0;
-		bitshift = 0;
-	}
-}
+StringBuilder& BinarySerializer::getOutputStream() { return bitshift == 0 ? main : temp; }
 
-StringBuilder& BinarySerializer::getOutputStream()
-{
-	return bitshift == 0 ? main : temp;
-}
-
-void BinarySerializer::flushByteBlock()
+void BinarySerializer::flush()
 {
 	main += byteBlock;
 	main += temp;
 }
 
-void BinarySerializer::flushByteBlockAndReset()
+void BinarySerializer::flushAndReset()
 {
-	flushByteBlock();
+	flush();
 	byteBlock = 0;
 	bitshift = 0;
 }
@@ -46,7 +33,7 @@ void BinarySerializer::putBit(int bit)
 {
 	byteBlock |= bit << bitshift;
 	if (++bitshift == 8)
-		flushByteBlockAndReset();
+		flushAndReset();
 }
 
 void BinarySerializer::putBits(int numBits, int bits)
@@ -56,11 +43,11 @@ void BinarySerializer::putBits(int numBits, int bits)
 	if (totalShift < 8)
 		bitshift = totalShift;
 	else if (totalShift == 8)
-		flushByteBlockAndReset();
+		flushAndReset();
 	else
 	{
 		//put remaining bits on a second byte
-		flushByteBlock();
+		flush();
 		int bitshift2 = 8 - bitshift;
 		byteBlock = bits >> bitshift2;
 		bitshift = numBits - bitshift2;

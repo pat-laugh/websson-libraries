@@ -13,14 +13,8 @@ namespace webss
 		various::StringBuilder temp;
 		char bitshift = 0;
 		char byteBlock = 0;
-
-		void checkBitshift();
 		
 		various::StringBuilder& getOutputStream();
-		
-		void flushByteBlock();
-		void flushByteBlockAndReset();
-		
 	public:
 		BinarySerializer(various::StringBuilder& out);
 
@@ -41,5 +35,8 @@ namespace webss
 		void putByte(char byte);
 
 		void putString(const std::string& s);
+		
+		void flush();
+		void flushAndReset();
 	};
 }

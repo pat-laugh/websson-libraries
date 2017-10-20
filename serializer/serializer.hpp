@@ -79,7 +79,7 @@ namespace webss
 
 		void putTemplate(various::StringBuilder& out, const Template& templ, ConType con);
 
-		void putTemplateBinTuple(various::StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple);
+		void putTemplateBinTuple(various::StringBuilder& out, const Template& templ);
 		void putTemplateStdBody(various::StringBuilder & out, const TheadStd::Params & params, const Webss & body);
 		void putTemplateStdTuple(various::StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
 		void putTemplateStdTupleText(various::StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
