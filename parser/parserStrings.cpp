@@ -38,7 +38,22 @@ string webss::parseStickyLineString(Parser& parser)
 		putChar(it, sb);
 	}
 	return sb;
+}
 
+string webss::parseStickyLineStringOption(Parser& parser)
+{
+	auto& it = parser.getItSafe();
+	StringBuilder sb;
+	while (it && !isJunk(*it))
+	{
+		if (*it == CHAR_ESCAPE)
+		{
+			checkEscapedChar(it, sb);
+			continue;
+		}
+		putChar(it, sb);
+	}
+	return sb;
 }
 
 string webss::parseLineString(Parser& parser)

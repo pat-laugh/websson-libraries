@@ -373,14 +373,21 @@ static bool isOptionString(SmartIterator& it, const char* s)
 
 static string getOptionValue(Parser& self, SmartIterator& it)
 {
-	if (*it == CHAR_COLON || *it == CHAR_EQUAL)
-	{
-		++it;
-		return parseStickyLineString(self);
-	}
-	if (*it == CHAR_CSTRING)
-		return parseCString(self);
-	throw runtime_error(ERROR_UNEXPECTED);
+	if (*it != CHAR_OPTION_ASSIGN_LINE_STRING)
+		throw runtime_error(ERROR_UNEXPECTED);
+	++it;
+	return parseStickyLineStringOption(self);
+}
+
+static void checkMandatoryVersionValue(Parser& self, SmartIterator& it)
+{
+	if (!++it)
+		throw runtime_error(ERROR_OPTION);
+	auto value = getOptionValue(self, it);
+	if (value == "*")
+		throw runtime_error("invalid mandatory WebSSON version");
+	if (value != "1.0.0")
+		throw runtime_error("this parser can only parse WebSSON version 1.0.0");
 }
 
 static void skipOtherVersion(Parser& self, SmartIterator& it)
@@ -413,7 +420,7 @@ getToOption:
 		goto startSkipLine;
 	if (!++it)
 		throw runtime_error(ERROR_OPTION);
-	if (*it == ':' || *it == '=' || *it == '"') //option assign chars
+	if (*it == CHAR_OPTION_ASSIGN_LINE_STRING)
 		; //do nothing
 	else if (*it != 'e')
 		goto startSkipLine;
@@ -421,15 +428,19 @@ getToOption:
 		goto start;
 	else if (!++it)
 		throw runtime_error(ERROR_OPTION);
-	auto value = getOptionValue(self, it);
-	if (value != "*" && value != "1.0.0")
-		goto start;
+	else if (*it != CHAR_OPTION_ASSIGN_LINE_STRING)
+		goto startSkipLine;
+	else
+	{
+		auto value = getOptionValue(self, it);
+		if (value != "*" && value != "1.0.0")
+			goto start;
+	}
 }
 
 void Parser::parseOption()
 {
 	auto& it = ++getItSafe();
-loopStart:
 	if (!skipLineJunk(it))
 		return;
 	if (*it == '\n')
@@ -446,13 +457,32 @@ loopStart:
 	}
 	else if (*it == 'w')
 	{
-		if (!++it || (*it == 'e' && (!isOptionString(it, "bsson-version") || !++it)))
+		if (!++it)
 			throw runtime_error(ERROR_OPTION);
+		else if (*it == 'e')
+		{
+			if (!isOptionString(it, "bsson-version") || !++it)
+				throw runtime_error(ERROR_OPTION);
+			if (*it == '-')
+			{
+				if (!isOptionString(it, "mandatory"))
+	   				throw runtime_error(ERROR_OPTION);
+				checkMandatoryVersionValue(*this, it);
+				goto endParseOption;
+			}
+		}
 		auto value = getOptionValue(*this, it);
 		if (value != "*" && value != "1.0.0")
 			skipOtherVersion(*this, it);
 	}
+	else if (*it == 'W')
+		checkMandatoryVersionValue(*this, it);
 	else	
 		throw runtime_error(ERROR_OPTION);
-	goto loopStart;
+endParseOption:
+	if (!skipLineJunk(it))
+		return;
+	if (*it != '\n')
+		throw runtime_error(ERROR_UNEXPECTED);
+	++it;
 }

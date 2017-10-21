@@ -17,6 +17,7 @@ namespace webss
 	const char CHAR_FOREACH = '|';
 	const char CHAR_IMPORT = '@';
 	const char CHAR_OPTION = '#';
+	const char CHAR_OPTION_ASSIGN_LINE_STRING = CHAR_COLON;
 	const char CHAR_SCOPE = '.';
 	const char CHAR_SELF = '&';
 	const char CHAR_SEPARATOR = ',';
