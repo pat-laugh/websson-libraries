@@ -39,6 +39,17 @@ SmartIterator& webss::skipLineJunk(SmartIterator& it)
 	return it;
 }
 
+SmartIterator& webss::skipLine(SmartIterator& it)
+{
+	for (; it; ++it)
+		if (*it == '\n')
+		{
+			++it;
+			break;
+		}
+	return it;
+}
+
 static void skipLineComment(SmartIterator& it)
 {
 	while (it && *it != '\n')

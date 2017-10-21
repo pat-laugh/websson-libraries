@@ -383,6 +383,49 @@ static string getOptionValue(Parser& self, SmartIterator& it)
 	throw runtime_error(ERROR_UNEXPECTED);
 }
 
+static void skipOtherVersion(Parser& self, SmartIterator& it)
+{
+	//this function optimally seeks Tag::OPTION, so if the chars of that change, this must possibly be changed
+start:
+	if (!it)
+		return;
+startSkipLine:
+	skipLine(++it);
+getToOption:
+	if (!it)
+		return;
+	if (*it != CHAR_OPTION)
+		goto startSkipLine;
+	if (!++it)
+		return;
+	if (*it != CHAR_OPTION)
+		goto startSkipLine;
+	
+	//parse the option only if it corresponds to websson-version
+	if (!skipLineJunk(++it))
+		return;
+	if (*it == '\n')
+	{
+		++it;
+		goto getToOption;
+	}
+	if (*it != 'w')
+		goto startSkipLine;
+	if (!++it)
+		throw runtime_error(ERROR_OPTION);
+	if (*it == ':' || *it == '=' || *it == '"') //option assign chars
+		; //do nothing
+	else if (*it != 'e')
+		goto startSkipLine;
+	else if (!isOptionString(it, "bsson-version"))
+		goto start;
+	else if (!++it)
+		throw runtime_error(ERROR_OPTION);
+	auto value = getOptionValue(self, it);
+	if (value != "*" && value != "1.0.0")
+		goto start;
+}
+
 void Parser::parseOption()
 {
 	auto& it = ++getItSafe();
@@ -405,8 +448,9 @@ loopStart:
 	{
 		if (!++it || (*it == 'e' && (!isOptionString(it, "bsson-version") || !++it)))
 			throw runtime_error(ERROR_OPTION);
-		if (getOptionValue(*this, it) != "1.0.0")
-			throw runtime_error("this parser can only parse WebSSON version 1.0.0");
+		auto value = getOptionValue(*this, it);
+		if (value != "*" && value != "1.0.0")
+			skipOtherVersion(*this, it);
 	}
 	else	
 		throw runtime_error(ERROR_OPTION);

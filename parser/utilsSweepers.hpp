@@ -16,6 +16,9 @@ namespace webss
 
 	//skips line junk and valid junk operators (line escape and comments)
 	various::SmartIterator& skipLineJunk(various::SmartIterator& it);
+	
+	//skips all characters on a line and the next newline if there is one
+	various::SmartIterator& skipLine(various::SmartIterator& it);
 
 	//if it points to a valid junk operator, then skips it and returns true, else returns false
 	//throws an error if there is a junk operator, but its operand is invalid
