@@ -26,16 +26,47 @@ string webss::parseStickyLineString(Parser& parser)
 {
 	auto& it = parser.getItSafe();
 	StringBuilder sb;
-	while (it && !isJunk(*it))
+	if (parser.multilineContainer)
 	{
-		if (*it == CHAR_ESCAPE)
+		while (it && !isJunk(*it))
 		{
-			checkEscapedChar(it, sb);
-			continue;
+			if (*it == CHAR_ESCAPE)
+			{
+				checkEscapedChar(it, sb);
+				continue;
+			}
+			else if (*it == CHAR_EXPAND && checkStringExpand(parser, sb))
+				continue;
+			putChar(it, sb);
 		}
-		else if (*it == CHAR_EXPAND && checkStringExpand(parser, sb))
-			continue;
-		putChar(it, sb);
+	}
+	else
+	{
+		int countStartEnd = 1;
+		char startChar = parser.con.getStartChar(), endChar = parser.con.getEndChar();
+		while (it && !isJunk(*it))
+		{
+			if (*it == CHAR_ESCAPE)
+			{
+				checkEscapedChar(it, sb);
+				continue;
+			}
+			else if (*it == CHAR_EXPAND)
+			{
+				if (checkStringExpand(parser, sb))
+					continue;
+			}
+			else if (*it == CHAR_SEPARATOR)
+				break;
+			else if (*it == endChar)
+			{
+				if (--countStartEnd == 0)
+					break;
+			}
+			else if (*it == startChar)
+				++countStartEnd;
+			putChar(it, sb);
+		}
 	}
 	return sb;
 }

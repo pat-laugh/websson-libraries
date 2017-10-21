@@ -70,3 +70,37 @@ bool ConType::hasEndChar() const
 {
 	return e != ConType::DOCUMENT;
 }
+
+char ConType::getStartChar() const
+{
+	switch (e)
+	{
+	case ConType::DICTIONARY:
+		return CHAR_START_DICTIONARY;
+	case ConType::LIST:
+		return CHAR_START_LIST;
+	case ConType::TUPLE:
+		return CHAR_START_TUPLE;
+	case ConType::THEAD:
+		return CHAR_START_TEMPLATE;
+	default:
+		return 0;
+	}
+}
+
+char ConType::getEndChar() const
+{
+	switch (e)
+	{
+	case ConType::DICTIONARY:
+		return CHAR_END_DICTIONARY;
+	case ConType::LIST:
+		return CHAR_END_LIST;
+	case ConType::TUPLE:
+		return CHAR_END_TUPLE;
+	case ConType::THEAD:
+		return CHAR_END_TEMPLATE;
+	default:
+		return 0;
+	}
+}

@@ -2,7 +2,7 @@
 @file://enum.wbsn
 //@http://pat-laugh.ca/test-dir/
 
-!TheColors { @file://enum.wbsn }
+!TheColors {@file://enum.wbsn}
 
 list = [^entList]
 

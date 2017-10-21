@@ -42,6 +42,13 @@ namespace webss
 
 		//returns true if con has an end char, else false
 		bool hasEndChar() const;
+		
+		//returns the null char if con does not have a start char
+		char getStartChar() const;
+		
+		//returns the null char if con does not have an end char
+		char getEndChar() const;
+		
 	private:
 		const Enum e;
 	};

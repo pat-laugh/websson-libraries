@@ -1,4 +1,4 @@
-##w"1.0.0" w=1.0.0 w:1.0.0 //comment
-##websson-version"1.0.0" websson-version=1.0.0 websson-version:1.0.0
+##w:1.0.0 //comment
+##websson-version:1.0.0
 
 ?entText:some text
