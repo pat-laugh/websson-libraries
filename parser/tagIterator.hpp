@@ -61,8 +61,8 @@ namespace webss
 		Tag tag;
 		bool valid;
 
-		//only advances the iterator if it points to junk,
-		//then sets tag currently pointed to
+		//only advances the iterator if it points to junk, then gets tag pointed to
+		//this does not change the stored tag
 		Tag getTag();
 	};
 }
