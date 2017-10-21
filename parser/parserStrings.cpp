@@ -109,6 +109,7 @@ string webss::parseLineString(Parser& parser)
 	else
 	{
 		int countStartEnd = 1;
+		char startChar = parser.con.getStartChar();
 		while (hasNextChar(it, sb, [&]() { return *it == CHAR_SEPARATOR || (parser.con.isEnd(*it) && --countStartEnd == 0); }))
 		{
 			if (*it == CHAR_ESCAPE)
@@ -116,9 +117,12 @@ string webss::parseLineString(Parser& parser)
 				checkEscapedChar(it, sb);
 				continue;
 			}
-			else if (*it == CHAR_EXPAND && checkStringExpand(parser, sb))
-				continue;
-			else if (parser.con.isStart(*it))
+			else if (*it == CHAR_EXPAND)
+			{
+				if (checkStringExpand(parser, sb))
+					continue;
+			}
+			else if (*it == startChar)
 				++countStartEnd;
 			putChar(it, sb);
 		}
@@ -153,10 +157,13 @@ loopStart:
 			addSpace = false;
 			continue;
 		}
-		else if (*it == CHAR_EXPAND && checkStringExpand(parser, sb))
+		else if (*it == CHAR_EXPAND)
 		{
-			addSpace = true;
-			continue;
+			if (checkStringExpand(parser, sb))
+			{
+				addSpace = true;
+				continue;
+			}
 		}
 		else if (*it == CHAR_START_DICTIONARY && !parser.multilineContainer)
 			++countStartEnd;
@@ -165,15 +172,10 @@ loopStart:
 	}
 	if (!it)
 		throw runtime_error(ERROR_MULTILINE_STRING);
-	switch (countStartEnd)
-	{
-	default:
+	if (countStartEnd > 1)
 		skipJunkToValid(++it);
-		break;
-	case 1:
-		if (*skipJunkToValid(++it) != CHAR_END_DICTIONARY)
-			break;
-	case 0:
+	else if (countStartEnd == 0 || *skipJunkToValid(++it) == CHAR_END_DICTIONARY)
+	{
 		++it;
 		return sb;
 	}
