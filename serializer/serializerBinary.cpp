@@ -15,6 +15,8 @@ static void putTemplateBodyBin(BinarySerializer& out, const TheadBin::Params& pa
 static void putBin(BinarySerializer& out, const ParamBin& param, const Webss& data);
 static void putBin(BinarySerializer& out, const ParamBin& param, const Webss& data, function<void(const Webss& webss)> func);
 static void putBinElement(BinarySerializer& out, const ParamBin::SizeHead& bhead, const Webss& webss);
+static void putBinKeyword(BinarySerializer& out, Keyword keyword, const Webss& webss);
+template <bool putSize> static void putBinString(BinarySerializer& out, const string& s);
 
 //entry point from serializer.cpp
 void putTemplateBodyBin(StringBuilder& out, const TheadBin::Params& params, const Tuple& tuple, bool isEncoded)
@@ -42,21 +44,22 @@ static void putTemplateBodyBin(BinarySerializer& out, const TheadBin::Params& pa
 	decltype(params.size()) i = 0;
 	for (const auto& webss : tuple)
 	{
-		const auto& binary = params[i++];
-		if (!binary.getSizeHead().hasDefaultValue())
+		const auto& param = params[i++];
+		const auto& sizeHead = param.getSizeHead();
+		if (!sizeHead.hasDefaultValue())
 		{
-			assert(!binary.getSizeHead().isTheadSelf());
-			putBin(out, binary, webss);
+			assert(!sizeHead.isTheadSelf() && webss.getTypeRaw() != WebssType::DEFAULT && webss.getTypeRaw() != WebssType::NONE);
+			putBin(out, param, webss);
 		}
 		else if (webss.getTypeRaw() == WebssType::DEFAULT || webss.getTypeRaw() == WebssType::NONE)
 			out.putBit(CHAR_BIN_DEFAULT_TRUE);
 		else
 		{
 			out.putBit(CHAR_BIN_DEFAULT_FALSE);
-			if (binary.getSizeHead().isTheadSelf())
+			if (sizeHead.isTheadSelf())
 				putTemplateBodyBin(out, params, webss.getTuple());
 			else
-				putBin(out, binary, webss);
+				putBin(out, param, webss);
 		}
 	}
 }
@@ -64,116 +67,99 @@ static void putTemplateBodyBin(BinarySerializer& out, const TheadBin::Params& pa
 static void putBin(BinarySerializer& out, const ParamBin& param, const Webss& data)
 {
 	const auto& sizeHead = param.getSizeHead();
-	if (!sizeHead.isTheadBin())
-		putBin(out, param, data, [&](const Webss& webss) { putBinElement(out, sizeHead, webss); });
+	if (sizeHead.isTheadBin())
+		putBin(out, param, data, [&](const Webss& webss) { putTemplateBodyBin(out, sizeHead.getThead().getParams(), webss.getTuple()); });
 	else
-	{
-		const auto& params = sizeHead.getThead().getParams();
-		putBin(out, param, data, [&](const Webss& webss) { putTemplateBodyBin(out, params, webss.getTuple()); });
-	}
-}
-
-static void serializeBitArray(BinarySerializer& out, const List& list)
-{
-	char c = 0;
-	int shift = 0;
-	for (const auto& webss : list)
-	{
-		if (shift == 8)
-		{
-			out.putByte(c);
-			shift = c = 0;
-		}
-		if (webss.getBool())
-			c |= 1 << shift;
-		++shift;
-	}
-	out.putByte(c);
+		putBin(out, param, data, [&](const Webss& webss) { putBinElement(out, sizeHead, webss); });
 }
 
 static void putBin(BinarySerializer& out, const ParamBin& param, const Webss& data, function<void(const Webss& webss)> func)
 {
 	if (param.getSizeArray().isOne())
-	{
 		func(data);
-		return;
-	}
-
-	const auto& list = data.getList();
-	if (param.getSizeArray().isEmpty())
-		out.putNumber(list.size());
-
-	if (param.getSizeHead().isBool())
-		serializeBitArray(out, list);
 	else
+	{
+		const auto& list = data.getListRaw();
+		if (param.getSizeArray().isEmpty())
+			out.putNumber(list.size());
 		for (const auto& webss : list)
 			func(webss);
+	}
 }
 
 static void putBinElement(BinarySerializer& out, const ParamBin::SizeHead& bhead, const Webss& webss)
 {
-	if (bhead.isKeyword())
+	using Type = ParamBin::SizeHead::Type;
+	switch (bhead.getType())
 	{
-		union
-		{
-			WebssInt tInt;
-			float tFloat;
-			double tDouble;
-		};
+	case Type::KEYWORD:
+		putBinKeyword(out, bhead.getKeyword(), webss);
+		break;
+	case Type::EMPTY: case Type::EMPTY_ENTITY_NUMBER:
+		putBinString<true>(out, webss.getStringRaw());
+		break;
+	case Type::NUMBER: case Type::ENTITY_NUMBER:
+		putBinString<false>(out, webss.getStringRaw());
+		break;
+	case Type::BITS: case Type::ENTITY_BITS:
+	{
+		char c = webss.getStringRaw()[0];
+		out.putBits(bhead.size(), c);
+		break;
+	}
+	default:
+		assert(false); throw domain_error("");
+	}
+}
 
-		switch (bhead.getKeyword())
-		{
-		case Keyword::BOOL:
-			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_BOOL);
-			out.putBit(webss.getBoolRaw() ? 1 : 0);
-			break;
-		case Keyword::INT8:
-			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_INT);
-			out.putByte((char)webss.getIntRaw());
-			break;
-		case Keyword::INT16:
-			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_INT);
-			tInt = webss.getIntRaw();
-			out.putBytes(2, reinterpret_cast<char*>(&tInt));
-			break;
-		case Keyword::INT32:
-			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_INT);
-			tInt = webss.getIntRaw();
-			out.putBytes(4, reinterpret_cast<char*>(&tInt));
-			break;
-		case Keyword::INT64:
-			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_INT);
-			tInt = webss.getIntRaw();
-			out.putBytes(8, reinterpret_cast<char*>(&tInt));
-			break;
-		case Keyword::FLOAT:
-			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_DOUBLE);
-			tFloat = static_cast<float>(webss.getDoubleRaw());
-			out.putBytes(4, reinterpret_cast<char*>(&tFloat));
-			break;
-		case Keyword::DOUBLE:
-			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_DOUBLE);
-			tDouble = webss.getDoubleRaw();
-			out.putBytes(8, reinterpret_cast<char*>(&tDouble));
-			break;
-		case Keyword::VARINT:
-			assert(webss.getTypeRaw() == WebssType::PRIMITIVE_INT);
-			out.putNumber(webss.getIntRaw());
-			break;
-		default:
-			assert(false);
-		}
-	}
-	else
+static void putBinKeyword(BinarySerializer& out, Keyword keyword, const Webss& webss)
+{
+	union //this is put because rvalue cannot be taken for reinterpret_cast, so values are first stored here
 	{
-		assert(webss.getTypeRaw() == WebssType::PRIMITIVE_STRING);
-		const auto& s = webss.getStringRaw();
-		if (bhead.isEmpty())
-			out.putNumber(s.length());
-#ifndef NDEBUG
-		else
-			assert(bhead.size() == s.length());
-#endif
-		out.putString(s);
+		WebssInt tInt;
+		float tFloat;
+		double tDouble;
+	};
+	
+	switch (keyword)
+	{
+	case Keyword::BOOL:
+		out.putBit(webss.getBoolRaw() ? 1 : 0);
+		break;
+	case Keyword::INT8:
+		out.putByte((char)webss.getIntRaw());
+		break;
+	case Keyword::INT16:
+		tInt = webss.getIntRaw();
+		out.putBytes(2, reinterpret_cast<char*>(&tInt));
+		break;
+	case Keyword::INT32:
+		tInt = webss.getIntRaw();
+		out.putBytes(4, reinterpret_cast<char*>(&tInt));
+		break;
+	case Keyword::INT64:
+		tInt = webss.getIntRaw();
+		out.putBytes(8, reinterpret_cast<char*>(&tInt));
+		break;
+	case Keyword::FLOAT:
+		tFloat = static_cast<float>(webss.getDoubleRaw());
+		out.putBytes(4, reinterpret_cast<char*>(&tFloat));
+		break;
+	case Keyword::DOUBLE:
+		tDouble = webss.getDoubleRaw();
+		out.putBytes(8, reinterpret_cast<char*>(&tDouble));
+		break;
+	case Keyword::VARINT:
+		out.putNumber(webss.getIntRaw());
+		break;
+	default:
+		assert(false); throw domain_error("");
 	}
+}
+
+template <bool putSize> static void putBinString(BinarySerializer& out, const string& s)
+{
+	if (putSize)
+		out.putNumber(s.length());
+	out.putString(s);
 }
