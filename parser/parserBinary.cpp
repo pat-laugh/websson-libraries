@@ -291,7 +291,7 @@ static Webss parseBinElement(BinaryIterator& it, const ParamBin::SizeHead& bhead
 	case Type::EMPTY: case Type::EMPTY_ENTITY_NUMBER:
 		return Webss(it.readString(it.readNumber()));
 	case Type::BITS: case Type::ENTITY_BITS:
-		return Webss(string(1, (char)it.readBits(bhead.size())));
+		return Webss(it.readBits(bhead.size()));
 	case Type::NUMBER: case Type::ENTITY_NUMBER:
 		return Webss(it.readString(bhead.size()));
 	default:

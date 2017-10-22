@@ -102,11 +102,8 @@ static void putBinElement(BinarySerializer& out, const ParamBin::SizeHead& bhead
 		putBinString<false>(out, webss.getStringRaw());
 		break;
 	case Type::BITS: case Type::ENTITY_BITS:
-	{
-		char c = webss.getStringRaw()[0];
-		out.putBits(bhead.size(), c);
+		out.putBits(bhead.size(), webss.getIntRaw());
 		break;
-	}
 	default:
 		assert(false); throw domain_error("");
 	}
