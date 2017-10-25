@@ -2,9 +2,10 @@
 //Copyright 2017 Patrick Laughrea
 #include "theadFun.hpp"
 
+#include "list.hpp"
+#include "tuple.hpp"
 #include "utils.hpp"
 #include "webss.hpp"
-#include "list.hpp"
 
 using namespace std;
 using namespace webss;
@@ -15,12 +16,25 @@ TheadFun::TheadFun(const TheadFun& o, int foreachIndex) : thead(o.thead), struct
 
 bool TheadFun::operator==(const TheadFun& o) const
 {
-	if (thead != o.thead)
+	if (!equalPtrs(thead, o.thead))
 		return false;
-	return true;
-	//something makes it so the two structures faile to be properly compared together
-	//causes read access violation using Visual Studio
-	//return equalPtrs(structure, o.structure);
+	if (isForeachList)
+	{
+		if (!o.isForeachList || foreachIndex != o.foreachIndex)
+			return false;
+	}
+	else if (o.isForeachList)
+		return false;
+	if (thead == nullptr) //TODO: it should be checked if this is necessary
+		return true; //don't check structure since head isn't set up yet
+	
+	//make a dummy tuple that both thead functions will make placeholders point to
+	Tuple dummy;
+	for (decltype(thead->getParams().getData().size()) i = 0; i < thead->getParams().getData().size(); ++i)
+		dummy.add(Webss());
+	setPointer(&dummy);
+	o.setPointer(&dummy);
+	return equalPtrs(structure, o.structure);
 }
 bool TheadFun::operator!=(const TheadFun& o) const { return !(*this == o); }
 
