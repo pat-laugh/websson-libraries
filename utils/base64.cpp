@@ -17,8 +17,8 @@ static void writeBytes(char bytes[4]);
 
 static const char* ERROR_EXPECTED = "expected character";
 
-#define DECODE_ALL_0 '+'
-#define DECODE_ALL_1 '-'
+#define DECODE_ALL_0 '_'
+#define DECODE_ALL_1 '+'
 #define DECODE_NUMBER '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9'
 #define DECODE_UPPER 'Q': case 'W': case 'F': case 'R': case 'K': case 'Y': case 'J': case 'I': case 'O': case 'P': \
 	case 'A': case 'S': case 'D': case 'T': case 'G': case 'H': case 'E': case 'U': case 'L': \
@@ -26,7 +26,7 @@ static const char* ERROR_EXPECTED = "expected character";
 #define DECODE_LOWER 'q': case 'w': case 'f': case 'r': case 'k': case 'y': case 'j': case 'i': case 'o': case 'p': \
 	case 'a': case 's': case 'd': case 't': case 'g': case 'h': case 'e': case 'u': case 'l': \
 	case 'z': case 'x': case 'c': case 'v': case 'b': case 'n': case 'm'
-#define DECODE_CHAR_1 '_'
+#define DECODE_CHAR_1 '-'
 #define DECODE_CHAR_2 '='
 #define DECODE_IGNORED ' ': case '\x7f': \
 	case '\x00': case '\x01': case '\x02': case '\x03': case '\x04': case '\x05': case '\x06': case '\x07': case '\x08': case '\x09': case '\x0a': case '\x0b': case '\x0c': case '\x0d': case '\x0e': case '\x0f': \
