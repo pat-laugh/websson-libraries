@@ -141,7 +141,7 @@ string webss::encodeBase64(SmartIterator& it)
 	union
 	{
 		char bytes[5];
-		int32_t bytesInt;
+		uint32_t bytesInt;
 	};
 	bytes[4] = 0;
 encodeStart:
