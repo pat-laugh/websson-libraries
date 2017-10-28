@@ -117,8 +117,8 @@ restart:
 #define ENCODE_CHAR_1 62
 #define ENCODE_CHAR_2 63
 
-#ifdef BASE64_ENCODE_ALL_ZEROS
-#ifdef BASE64_ENCODE_ALL_ONES
+#ifndef BASE64_DISABLE_ENCODE_ALL_ZEROS
+#ifndef BASE64_DISABLE_ENCODE_ALL_ONES
 #define SpecialCheck(Ones, Cmd) { \
 	if (bytesInt == 0) { sb += DECODE_ALL_0; Cmd; } \
 	if (bytesInt == Ones) { sb += DECODE_ALL_1; Cmd; } }
@@ -126,14 +126,14 @@ restart:
 #define SpecialCheck(Ones, Cmd) { \
 	if (bytesInt == 0) { sb += DECODE_ALL_0; Cmd; } }
 #endif
-#else //BASE64_ENCODE_ALL_ZEROS
-#ifdef BASE64_ENCODE_ALL_ONES
+#else //BASE64_DISABLE_ENCODE_ALL_ZEROS
+#ifdef BASE64_DISABLE_ENCODE_ALL_ONES
 #define SpecialCheck(Ones, Cmd) { \
 	if (bytesInt == Ones) { sb += DECODE_ALL_1; Cmd; } }
 #else
 #define SpecialCheck(Ones, Cmd) ;
 #endif
-#endif //BASE64_ENCODE_ALL_ZEROS
+#endif //BASE64_DISABLE_ENCODE_ALL_ZEROS
 
 string webss::encodeBase64(SmartIterator& it)
 {
