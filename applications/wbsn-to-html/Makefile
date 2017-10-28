@@ -1,13 +1,14 @@
 # MIT License
 # Copyright 2017 Patrick Laughrea
 
-DIR_UTILS = ../../utils
-DIR_STRUCTURES = ../../structures
-DIR_PARSER = ../../parser
-DIR_SERIALIZER_HTML = ../../serializerHtml
-DIR_VARIOUS = ../../various
+DIR_PROJECT = ../..
+DIR_UTILS = $(DIR_PROJECT)/utils
+DIR_STRUCTURES = $(DIR_PROJECT)/structures
+DIR_PARSER = $(DIR_PROJECT)/parser
+DIR_SERIALIZER_HTML = $(DIR_PROJECT)/serializerHtml
+DIR_VARIOUS = $(DIR_PROJECT)/various
 
-OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers -iquote ../..
+OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers -I $(DIR_PROJECT)
 CPP_FILES = $(wildcard *.cpp)
 OBJ_FILES = $(notdir $(CPP_FILES:.cpp=.o))
 EXEC = wbsn-to-html.out
