@@ -1,6 +1,7 @@
 *.wbsnout
 various
 various/
+catch.hpp
 
 ##gitignore-start:Global/Linux
 *~

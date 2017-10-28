@@ -8,6 +8,6 @@
 
 namespace webss
 {
-	various::SmartIterator decodeBase64(various::SmartIterator& it);
+	std::string decodeBase64(various::SmartIterator& it);
 	std::string encodeBase64(various::SmartIterator& it);
 }

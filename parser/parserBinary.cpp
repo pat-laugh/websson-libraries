@@ -155,7 +155,7 @@ Tuple Parser::parseTemplateTupleBin(const TheadBin::Params& params, bool isEncod
 	Tuple tuple;
 	if (isEncoded)
 	{
-		auto itDecodedBinary = decodeBase64(getIt()); //this advances it until ')' is met and returns iterator containing decoded bytes
+		SmartIterator itDecodedBinary(decodeBase64(getIt())); //this advances it until ')' is met and returns iterator containing decoded bytes
 		BinaryIterator itBin(itDecodedBinary);
 		try { tuple = parseBinTemplate(itBin, params); }
 		catch (const runtime_error& e) { throw runtime_error(string("while parsing decoded binary, ") + e.what()); }

@@ -17,6 +17,12 @@ static void writeBytes(char bytes[4]);
 
 static const char* ERROR_EXPECTED = "expected character";
 
+static bool isLittleEndian()
+{
+	uint16_t i = 0xff00;
+	return reinterpret_cast<char*>(&i)[0] == 0;
+}
+
 #define DECODE_ALL_0 '_'
 #define DECODE_ALL_1 '+'
 #define DECODE_NUMBER '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9'
@@ -33,7 +39,7 @@ static const char* ERROR_EXPECTED = "expected character";
 	case '\x10': case '\x11': case '\x12': case '\x13': case '\x14': case '\x15': case '\x16': case '\x17': case '\x18': case '\x19': case '\x1a': case '\x1b': case '\x1c': case '\x1d': case '\x1e': case '\x1f'
 #define PutThreeBytes(byte) { sb += byte; sb += byte; sb += byte; }
 
-SmartIterator webss::decodeBase64(SmartIterator& it)
+string webss::decodeBase64(SmartIterator& it)
 {
 	StringBuilder sb;
 	union
@@ -41,6 +47,7 @@ SmartIterator webss::decodeBase64(SmartIterator& it)
 		char bytes[4];
 		int32_t bytesInt;
 	};
+	bool littleEndian = isLittleEndian();
 decodeStart:
 	if (!it)
 		throw runtime_error(ERROR_EXPECTED);
@@ -62,11 +69,21 @@ decodeStart:
 	readBytes(it, bytes);
 	//the 4 bytes: 00111111|00222222|00333333|00112233
 	//will become: 11111111|22222222|33333333|00000000
-	bytesInt |= (bytesInt & 0x30) << 26;
-	bytesInt |= (bytesInt & 0x0c) << 20;
-	bytesInt |= (bytesInt & 0x03) << 14;
-	bytes[3] = 0;
-	sb += bytes;
+	if (littleEndian)
+	{
+		bytesInt |= (bytesInt & 0x30000000) >> 22;
+		bytesInt |= (bytesInt & 0x0c000000) >> 12;
+		bytesInt |= (bytesInt & 0x03000000) >> 2;
+	}
+	else
+	{
+		bytesInt |= (bytesInt & 0x30) << 26;
+		bytesInt |= (bytesInt & 0x0c) << 20;
+		bytesInt |= (bytesInt & 0x03) << 14;
+	}
+	sb += bytes[0];
+	sb += bytes[1];
+	sb += bytes[2];
 decodeEnd:
 	++it;
 	goto decodeStart;
@@ -121,7 +138,7 @@ restart:
 #ifndef BASE64_DISABLE_ENCODE_ALL_ONES
 #define SpecialCheck(Ones, Cmd) { \
 	if (bytesInt == 0) { sb += DECODE_ALL_0; Cmd; } \
-	if (bytesInt == Ones) { sb += DECODE_ALL_1; Cmd; } }
+	if (bytesInt == (Ones)) { sb += DECODE_ALL_1; Cmd; } }
 #else
 #define SpecialCheck(Ones, Cmd) { \
 	if (bytesInt == 0) { sb += DECODE_ALL_0; Cmd; } }
@@ -129,7 +146,7 @@ restart:
 #else //BASE64_DISABLE_ENCODE_ALL_ZEROS
 #ifdef BASE64_DISABLE_ENCODE_ALL_ONES
 #define SpecialCheck(Ones, Cmd) { \
-	if (bytesInt == Ones) { sb += DECODE_ALL_1; Cmd; } }
+	if (bytesInt == (Ones)) { sb += DECODE_ALL_1; Cmd; } }
 #else
 #define SpecialCheck(Ones, Cmd) ;
 #endif
@@ -144,6 +161,7 @@ string webss::encodeBase64(SmartIterator& it)
 		uint32_t bytesInt;
 	};
 	bytes[4] = 0;
+	bool littleEndian = isLittleEndian();
 encodeStart:
 	if (!it)
 		return sb;
@@ -151,23 +169,33 @@ encodeStart:
 	bytes[0] = *it;
 	if (!++it)
 	{
-		SpecialCheck(0xff000000, return sb)
+		SpecialCheck(littleEndian ? 0x000000ff : 0xff000000, return sb)
 		goto encodeBytes;
 	}
 	bytes[1] = *it;
 	if (!++it)
 	{
-		SpecialCheck(0xffff0000, return sb)
+		SpecialCheck(littleEndian ? 0x0000ffff : 0xffff0000, return sb)
 		goto encodeBytes;
 	}
 	bytes[2] = *it;
-	SpecialCheck(0xffffff00, ++it; goto encodeStart)
+	SpecialCheck(littleEndian ? 0x00ffffff : 0xffffff00, ++it; goto encodeStart)
 encodeBytes:
 	//the 4 bytes: 11111111|22222222|33333333|00000000
 	//will become: 00111111|00222222|00333333|00112233
-	bytesInt |= (bytesInt & (0xc0 << 24)) >> 26;
-	bytesInt |= (bytesInt & (0xc0 << 16)) >> 20;
-	bytesInt |= (bytesInt & (0xc0 << 8)) >> 14;
+	if (littleEndian)
+	{
+		bytesInt |= (bytesInt & 0x000000c0) << 22;
+		bytesInt |= (bytesInt & 0x0000c000) << 12;
+		bytesInt |= (bytesInt & 0x00c00000) << 2;
+	}
+	else
+	{
+		bytesInt |= (bytesInt & 0xc0000000) >> 26;
+		bytesInt |= (bytesInt & 0x00c00000) >> 20;
+		bytesInt |= (bytesInt & 0x0000c000) >> 14;
+	}
+	bytesInt &= 0x3f3f3f3f;
 	writeBytes(bytes);
 	sb += bytes;
 	++it;
