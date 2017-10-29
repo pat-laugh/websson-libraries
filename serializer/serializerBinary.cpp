@@ -46,12 +46,13 @@ static void putTemplateBodyBin(BinarySerializer& out, const TheadBin::Params& pa
 	{
 		const auto& param = params[i++];
 		const auto& sizeHead = param.getSizeHead();
+		assert(webss.getTypeRaw() != WebssType::NONE);
 		if (!sizeHead.hasDefaultValue())
 		{
-			assert(!sizeHead.isTheadSelf() && webss.getTypeRaw() != WebssType::DEFAULT && webss.getTypeRaw() != WebssType::NONE);
+			assert(!sizeHead.isTheadSelf() && webss.getTypeRaw() != WebssType::DEFAULT);
 			putBin(out, param, webss);
 		}
-		else if (webss.getTypeRaw() == WebssType::DEFAULT || webss.getTypeRaw() == WebssType::NONE)
+		else if (webss.getTypeRaw() == WebssType::DEFAULT)
 			out.putBit(CHAR_BIN_DEFAULT_TRUE);
 		else
 		{

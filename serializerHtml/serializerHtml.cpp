@@ -169,7 +169,7 @@ void SerializerHtml::putDocumentString(StringBuilder& out, const string& str)
 
 static bool isDefaultValue(const Webss& value)
 {
-	return value.getTypeRaw() == WebssType::NONE || value.getTypeRaw() == WebssType::DEFAULT;
+	return value.getTypeRaw() == WebssType::DEFAULT;
 }
 
 static const string& getTheadRootName(const Thead* thead)

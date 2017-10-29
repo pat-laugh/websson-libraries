@@ -787,16 +787,14 @@ void Serializer::putTemplateStdTuple(StringBuilder& out, const TheadStd::Params&
 	decltype(params.size()) i = 0;
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
 	{
+		assert(it->getTypeRaw() != WebssType::NONE);
 		const auto& param = params[i++];
 		if (param.hasThead())
 			putTemplateStdBody(out, param.getTheadStd().getParams(), *it);
+		else if (it->getTypeRaw() != WebssType::DEFAULT)
+			putConcreteValue(out, *it, CON);
 		else
-		{
-			if (it->getTypeRaw() == WebssType::NONE || it->getTypeRaw() == WebssType::DEFAULT)
-				assert(param.hasDefaultValue());
-			else
-				putConcreteValue(out, *it, CON);
-		}
+			assert(param.hasDefaultValue());
 	});
 }
 
@@ -813,19 +811,16 @@ void Serializer::putTemplateStdTupleText(StringBuilder& out, const TheadStd::Par
 	{
 #ifndef NDEBUG
 		const auto& param = params[i++];
-#endif
 		assert(!param.hasThead());
-		switch (it->getTypeRaw())
-		{
-		case WebssType::NONE: case WebssType::DEFAULT:
-			assert(param.hasDefaultValue());
-			break;
-		case WebssType::PRIMITIVE_STRING:
+#endif
+		if (it->getTypeRaw() == WebssType::PRIMITIVE_STRING)
 			putLineString(out, it->getStringRaw(), CON);
-			break;
-		default:
+#ifndef NDEBUG
+		else if (it->getTypeRaw() == WebssType::DEFAULT)
+			assert(param.hasDefaultValue());
+		else
 			assert(false);
-		}
+#endif
 	});
 #ifndef NDEBUG
 	while (i < params.size())
@@ -843,20 +838,14 @@ void Serializer::putTemplateTextTuple(StringBuilder& out, const TheadStd::Params
 #endif
 	putSeparatedValues<Tuple, CON>(out, tuple, [&](Tuple::const_iterator it)
 	{
-#ifndef NDEBUG
-		const auto& param = params[i++];
-#endif
-		switch (it->getTypeRaw())
-		{
-		case WebssType::NONE: case WebssType::DEFAULT:
-			assert(param.hasDefaultValue());
-			break;
-		case WebssType::PRIMITIVE_STRING:
+		if (it->getTypeRaw() == WebssType::PRIMITIVE_STRING)
 			putLineString(out, it->getStringRaw(), CON);
-			break;
-		default:
+#ifndef NDEBUG
+		else if (it->getTypeRaw() == WebssType::DEFAULT)
+			assert(params[i++].hasDefaultValue());
+		else
 			assert(false);
-		}
+#endif
 	});
 }
 
