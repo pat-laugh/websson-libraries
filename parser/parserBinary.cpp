@@ -16,7 +16,7 @@
 #include "utils/base64.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
-#include "various/StringBuilder.hpp"
+#include "various/stringBuilder.hpp"
 
 using namespace std;
 using namespace various;

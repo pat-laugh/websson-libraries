@@ -2,7 +2,7 @@
 //Copyright 2017 Patrick Laughrea
 #pragma once
 
-#include "various/StringBuilder.hpp"
+#include "various/stringBuilder.hpp"
 
 namespace webss
 {
