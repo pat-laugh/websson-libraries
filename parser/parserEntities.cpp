@@ -24,7 +24,7 @@ Entity Parser::parseAbstractEntity(const Namespace& currentNamespace)
 	return Entity(name, parseAbstractCharValue(name, currentNamespace));
 }
 
-#define CASE_TAG_ABSTRACT_CHAR_VALUE Tag::START_DICTIONARY: case Tag::START_LIST: \
+#define CaseTagAbstractCharValue Tag::START_DICTIONARY: case Tag::START_LIST: \
 	case Tag::START_TEMPLATE: case Tag::EQUAL: case Tag::PLUS
 
 Webss Parser::parseAbstractCharValue(const string& name, const Namespace& currentNamespace)
@@ -58,7 +58,7 @@ Webss Parser::parseAbstractValueOnly(const string& name, const Namespace& curren
 {
 	switch (tagit.getSafe())
 	{
-	case CASE_TAG_ABSTRACT_CHAR_VALUE:
+	case CaseTagAbstractCharValue:
 		return parseAbstractCharValue(name, currentNamespace);
 	case Tag::NAME_START:
 	{

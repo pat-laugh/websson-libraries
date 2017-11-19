@@ -63,7 +63,7 @@ void BinarySerializer::putNumber(string::size_type number)
 		return;
 	}
 
-#define POWER 7
+	const int POWER = 7;
 	int utf7Bitshift;
 	if (number < power2<POWER * 2>::value)
 		utf7Bitshift = POWER;
@@ -89,7 +89,6 @@ void BinarySerializer::putNumber(string::size_type number)
 	while ((utf7Bitshift -= POWER) > 0);
 
 	out += (char)(0x7F & number);
-#undef POWER
 }
 
 void BinarySerializer::putBytes(string::size_type num, char* value)

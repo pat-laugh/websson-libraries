@@ -9,7 +9,7 @@
 using namespace std;
 using namespace webss;
 
-#define entNumInt entNumber.getContent().getInt()
+#define EntNumInt entNumber.getContent().getInt()
 
 //ParamBin::SizeHead
 
@@ -145,9 +145,9 @@ SizeHead::SizeHead(const Entity& entThead) : type(Type::ENTITY_THEAD), ent(entTh
 	assert(entThead.getContent().isThead() && entThead.getContent().getThead().isTheadBin());
 }
 SizeHead::SizeHead(const Entity& entNumber, bool)
-	: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
+	: type(EntNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
 {
-	assert(entNumInt >= 0 && static_cast<WebssBinSize>(entNumInt) <= std::numeric_limits<WebssBinSize>::max());
+	assert(EntNumInt >= 0 && static_cast<WebssBinSize>(EntNumInt) <= std::numeric_limits<WebssBinSize>::max());
 }
 SizeHead::SizeHead(WebssBinSize num, bool) : type(Type::BITS), number(num)
 {
@@ -155,7 +155,7 @@ SizeHead::SizeHead(WebssBinSize num, bool) : type(Type::BITS), number(num)
 }
 SizeHead::SizeHead(const Entity& entNumber, bool, bool) : type(Type::ENTITY_BITS), ent(entNumber)
 {
-	assert(entNumInt > 0 && entNumInt <= 8);
+	assert(EntNumInt > 0 && EntNumInt <= 8);
 }
 
 void SizeHead::destroyUnion()
@@ -239,9 +239,9 @@ SizeArray::SizeArray(Type type) : type(type)
 	assert(type == Type::NONE || type == Type::EMPTY || type == Type::ONE);
 }
 SizeArray::SizeArray(const Entity& entNumber)
-	: type(entNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
+	: type(EntNumInt == 0 ? Type::EMPTY_ENTITY_NUMBER : Type::ENTITY_NUMBER), ent(entNumber)
 {
-	assert(entNumInt >= 0 && static_cast<WebssBinSize>(entNumInt) <= numeric_limits<WebssBinSize>::max());
+	assert(EntNumInt >= 0 && static_cast<WebssBinSize>(EntNumInt) <= numeric_limits<WebssBinSize>::max());
 }
 SizeArray::SizeArray(WebssBinSize num) : type(num == 0 ? Type::EMPTY : Type::NUMBER), number(num) {}
 

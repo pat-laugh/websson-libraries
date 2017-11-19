@@ -169,16 +169,15 @@ TypeThead Thead::getType() const
 	return getTheadLast().getTypeRaw();
 }
 
-#define PATTERN_GET_CONST_SAFE(Type, Func, ErrorMessage) { \
+#define PatternGetConstSafe(Type, Func, ErrorMessage) do { \
 const auto& thead = getTheadLast(); \
 if (thead.getTypeRaw() == Type) \
 	return thead.Func(); \
-else \
-	throw runtime_error(ErrorMessage); }
+throw runtime_error(ErrorMessage); } while (false)
 
-const TheadBin& Thead::getTheadBin() const { PATTERN_GET_CONST_SAFE(TypeThead::BIN, getTheadBinRaw, "expected template head binary"); }
-const TheadFun& Thead::getTheadFun() const { PATTERN_GET_CONST_SAFE(TypeThead::FUN, getTheadFunRaw, "expected template head function"); }
-const TheadStd& Thead::getTheadStd() const { PATTERN_GET_CONST_SAFE(TypeThead::STD, getTheadStdRaw, "expected template head standard"); }
+const TheadBin& Thead::getTheadBin() const { PatternGetConstSafe(TypeThead::BIN, getTheadBinRaw, "expected template head binary"); }
+const TheadFun& Thead::getTheadFun() const { PatternGetConstSafe(TypeThead::FUN, getTheadFunRaw, "expected template head function"); }
+const TheadStd& Thead::getTheadStd() const { PatternGetConstSafe(TypeThead::STD, getTheadStdRaw, "expected template head standard"); }
 
 bool Thead::isNone() const { return getType() == TypeThead::NONE; }
 bool Thead::isTheadBin() const { return getType() == TypeThead::BIN; }

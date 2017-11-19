@@ -19,7 +19,7 @@ Webss Parser::parseValueEqual()
 	return parseValueOnly();
 }
 
-#define CASE_TAG_KEY_CHAR Tag::START_DICTIONARY: case Tag::START_LIST: case Tag::START_TUPLE: \
+#define CaseTagKeyChar Tag::START_DICTIONARY: case Tag::START_LIST: case Tag::START_TUPLE: \
 	case Tag::START_TEMPLATE: case Tag::LINE_STRING: case Tag::EQUAL: case Tag::C_STRING: \
 	case Tag::TEXT_DICTIONARY: case Tag::TEXT_LIST: case Tag::TEXT_TUPLE
 
@@ -46,7 +46,7 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 {
 	switch (tagit.getSafe())
 	{
-	case CASE_TAG_KEY_CHAR:
+	case CaseTagKeyChar:
 		return parseCharValue();
 	case Tag::NAME_START:
 		if (explicitName)
@@ -90,7 +90,7 @@ Parser::OtherValue Parser::parseOtherValueName(string&& name)
 {
 	switch (tagit.getSafe())
 	{
-	case CASE_TAG_KEY_CHAR:
+	case CaseTagKeyChar:
 		return{ move(name), parseCharValue() };
 	default:
 		return{ move(name) };

@@ -6,9 +6,8 @@
 
 namespace webss
 {
-#define This BasicParams
 	template <class Param>
-	class This : public BasicSharedMap<Param>
+	class BasicParams : public BasicSharedMap<Param>
 	{
 	private:
 		using base = BasicSharedMap<Param>;
@@ -16,17 +15,17 @@ namespace webss
 		using Keymap = typename base::Keymap;
 
 	public:
-		This() : base() {}
-		This(Data&& data) : base(std::move(data)) {}
-		This(const std::shared_ptr<Keymap>& keys) : base(keys) {}
+		BasicParams() : base() {}
+		BasicParams(Data&& data) : base(std::move(data)) {}
+		BasicParams(const std::shared_ptr<Keymap>& keys) : base(keys) {}
 
-		bool operator==(const This& o) const { return base::operator==(o); }
-		bool operator!=(const This& o) const { return !(*this == o); }
+		bool operator==(const BasicParams& o) const { return base::operator==(o); }
+		bool operator!=(const BasicParams& o) const { return !(*this == o); }
 
 		//instead of the keys being shared, this creates an indepedent copy of the keys and the data
-		This makeCompleteCopy() const { return This(*base::keys, base::data); }
+		BasicParams makeCompleteCopy() const { return BasicParams(*base::keys, base::data); }
 
-		void merge(const This& sender)
+		void merge(const BasicParams& sender)
 		{
 			auto orderedKeyValues = sender.getOrderedKeyValues();
 
@@ -40,7 +39,6 @@ namespace webss
 	private:
 		//there's a subtle, but important difference with the default copy constructor: default shares the keymap (through the shared pointer),
 		//whereas here the keymap itself is moved or copied
-		This(const Keymap& keymap, const Data& data) : base(keymap, data) {}
+		BasicParams(const Keymap& keymap, const Data& data) : base(keymap, data) {}
 	};
-#undef This
 }

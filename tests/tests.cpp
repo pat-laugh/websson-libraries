@@ -90,11 +90,11 @@ void softAssertString(const Webss& value, string s, unsigned int line)
 }
 
 //SOFt assERT
-#define sofert(condition) { softAssert(condition, __LINE__); }
-#define sofertBool(value, b) { softAssertBool(value, b, __LINE__); }
-#define sofertInt(value, i) { softAssertInt(value, i, __LINE__); }
-#define sofertDouble(value, d) { softAssertDouble(value, d, __LINE__); }
-#define sofertString(value, s) { softAssertString(value, s, __LINE__); }
+#define sofert(condition) softAssert(condition, __LINE__)
+#define sofertBool(value, b) softAssertBool(value, b, __LINE__)
+#define sofertInt(value, i) softAssertInt(value, i, __LINE__)
+#define sofertDouble(value, d) softAssertDouble(value, d, __LINE__)
+#define sofertString(value, s) softAssertString(value, s, __LINE__)
 
 #ifdef _WIN32
 int getConsoleColor() {

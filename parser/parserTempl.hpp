@@ -35,17 +35,16 @@ namespace webss
 				return Template(std::move(thead), std::move(body));
 		}
 
-#define ParseTemplateTuple(IsText) parseTemplateTuple<IsText>(self, thead)
 		static Webss parseTemplateStd(Parser& self, Thead thead)
 		{
 			Tuple body;
 			WebssType typeTuple = WebssType::TUPLE;
 			auto tag = self.tagit.getSafe();
 			if (tag == Tag::START_TUPLE)
-				body = thead.isText() ? ParseTemplateTuple(true) : ParseTemplateTuple(false);
+				body = thead.isText() ? parseTemplateTuple<true>(self, thead) : parseTemplateTuple<false>(self, thead);
 			else if (tag == Tag::TEXT_TUPLE)
 			{
-				body = ParseTemplateTuple(true);
+				body = parseTemplateTuple<true>(self, thead);
 				typeTuple = WebssType::TUPLE_TEXT;
 			}
 			else if (thead.isPlus())

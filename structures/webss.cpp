@@ -392,23 +392,22 @@ static string errorMessageGet(WebssType expected, WebssType actual)
 	return "could not get " + expected.toString() + "; instead webss type was " + actual.toString();
 }
 
-#define PATTERN_GET_CONST_SAFE(Type, Func) { \
+#define PatternGetConstSafe(Type, Func) do { \
 const auto& webss = getWebssLast(); \
 if (webss.getTypeRaw() == Type) \
 	return webss.Func(); \
-else \
-	throw runtime_error(errorMessageGet(Type, webss.getTypeRaw())); }
+throw runtime_error(errorMessageGet(Type, webss.getTypeRaw())); } while (false)
 
-bool Webss::getBool() const { PATTERN_GET_CONST_SAFE(WebssType::PRIMITIVE_BOOL, getBoolRaw); }
-WebssInt Webss::getInt() const { PATTERN_GET_CONST_SAFE(WebssType::PRIMITIVE_INT, getIntRaw); }
-double Webss::getDouble() const { PATTERN_GET_CONST_SAFE(WebssType::PRIMITIVE_DOUBLE, getDoubleRaw); }
-const std::string& Webss::getString() const { PATTERN_GET_CONST_SAFE(WebssType::PRIMITIVE_STRING, getStringRaw); }
-const Document& Webss::getDocument() const { PATTERN_GET_CONST_SAFE(WebssType::DOCUMENT, getDocumentRaw); }
-const Dictionary& Webss::getDictionary() const { PATTERN_GET_CONST_SAFE(WebssType::DICTIONARY, getDictionaryRaw); }
-const Thead& Webss::getThead() const { PATTERN_GET_CONST_SAFE(WebssType::THEAD, getTheadRaw); }
-const Template& Webss::getTemplate() const { PATTERN_GET_CONST_SAFE(WebssType::TEMPLATE, getTemplateRaw); }
-const Namespace& Webss::getNamespace() const { PATTERN_GET_CONST_SAFE(WebssType::NAMESPACE, getNamespaceRaw); }
-const Enum& Webss::getEnum() const { PATTERN_GET_CONST_SAFE(WebssType::ENUM, getEnumRaw); }
+bool Webss::getBool() const { PatternGetConstSafe(WebssType::PRIMITIVE_BOOL, getBoolRaw); }
+WebssInt Webss::getInt() const { PatternGetConstSafe(WebssType::PRIMITIVE_INT, getIntRaw); }
+double Webss::getDouble() const { PatternGetConstSafe(WebssType::PRIMITIVE_DOUBLE, getDoubleRaw); }
+const std::string& Webss::getString() const { PatternGetConstSafe(WebssType::PRIMITIVE_STRING, getStringRaw); }
+const Document& Webss::getDocument() const { PatternGetConstSafe(WebssType::DOCUMENT, getDocumentRaw); }
+const Dictionary& Webss::getDictionary() const { PatternGetConstSafe(WebssType::DICTIONARY, getDictionaryRaw); }
+const Thead& Webss::getThead() const { PatternGetConstSafe(WebssType::THEAD, getTheadRaw); }
+const Template& Webss::getTemplate() const { PatternGetConstSafe(WebssType::TEMPLATE, getTemplateRaw); }
+const Namespace& Webss::getNamespace() const { PatternGetConstSafe(WebssType::NAMESPACE, getNamespaceRaw); }
+const Enum& Webss::getEnum() const { PatternGetConstSafe(WebssType::ENUM, getEnumRaw); }
 
 const List& Webss::getList() const
 {
