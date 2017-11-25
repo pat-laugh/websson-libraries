@@ -4,6 +4,7 @@
 #include "catch.hpp"
 
 #include <cstdint>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -37,118 +38,81 @@ string readSmartIterator(SmartIterator it)
 	return sb;
 }
 
-//Decimal conversions:
-//0-9 -> '0'-'9'
-//10-35 -> 'A'-'Z'
-//36-61 -> 'a'-'z'
-//62 -> '-'
-//63 -> '='
-
-#define ALL_ZEROES '_'
-#define ALL_ONES '+'
-#define AN '0'
-#define AU 'A' - 10
-#define AL 'a' - 36
-
-TEST_CASE("Encode 1 char not 0 nor -1", "[base64-char1-not0or1]")
+static string stringToBits(const string& s)
 {
-	//11100001 -> 00100001 00000000 00000000 00110000 -> 33 00 00 48
-	SmartIterator it(makeString({0xe1})); 
-	REQUIRE(encodeBase64(it) == addSplit({33, 0, 0, 48}, {AU, AN, AN, AL}));
+	string bits;
+	for (char c : s)
+		for (unsigned char mask = 0x80; mask > 0; mask >>= 1)
+			bits += (c & mask) == 0 ? '0' : '1';
+	return bits;
 }
 
-TEST_CASE("Encode 2 chars not 0 nor -1", "[base64-chars2-not0or1]")
+static bool checkBits(const string& s1, const string& s2, int numBits)
 {
-	//11100001 00011110 -> 00100001 00011110 00000000 00110000 -> 33 30 00 48
-	SmartIterator it(makeString({0xe1, 0x1e})); 
-	REQUIRE(encodeBase64(it) == addSplit({33, 30, 0, 48}, {AU, AU, AN, AL}));
+	auto bits1 = stringToBits(s1), bits2 = stringToBits(s2);
+	for (int i = 0; i < numBits; ++i)
+		if (bits1[i] != bits2[i])
+			return false;
+	return true;
 }
 
-TEST_CASE("Encode 3 chars not 0 nor -1", "[base64-chars3-not0or1]")
+TEST_CASE("Encode 1 char", "[base64-char1]")
 {
-	//11100001 00011110 10110100 -> 00100001 00011110 00110100 00110010 -> 33 30 52 50
-	SmartIterator it(makeString({0xe1, 0x1e, 0xb4})); 
-	REQUIRE(encodeBase64(it) == addSplit({33, 30, 52, 50}, {AU, AU, AL, AL}));
+	//0xe1 => 11100001 -> 00111000 0001xxxx => 56 16 -> "4Q"
+	SmartIterator it(makeString({0xe1}));
+	auto out = encodeBase64(it);
+	REQUIRE(out.length() == 2);
+	REQUIRE(checkBits(out, "4Q", 12));
 }
 
-TEST_CASE("Encode 1 char 0", "[base64-char1-0]")
+TEST_CASE("Encode 2 chars", "[base64-chars2]")
 {
-	//00000000 -> '_'
-	SmartIterator it(makeString({0})); 
-	REQUIRE(encodeBase64(it) == makeString({ALL_ZEROES}));
+	//0xe1 0x1e => 11100001 00011110 -> 00111000 00010001 001110xx => 56 17 56 -> "4R4"
+	SmartIterator it(makeString({0xe1, 0x1e}));
+	auto out = encodeBase64(it);
+	REQUIRE(out.length() == 3);
+	REQUIRE(checkBits(out, "4R4", 22));
 }
 
-TEST_CASE("Encode 2 chars 0", "[base64-chars2-0]")
+TEST_CASE("Encode 3 chars", "[base64-chars3]")
 {
-	//00000000 00000000 -> '_'
-	SmartIterator it(makeString({0, 0})); 
-	REQUIRE(encodeBase64(it) == makeString({ALL_ZEROES}));
-}
-
-TEST_CASE("Encode 3 chars 0", "[base64-chars3-0]")
-{
-	//00000000 00000000 00000000 -> '_'
-	SmartIterator it(makeString({0, 0, 0})); 
-	REQUIRE(encodeBase64(it) == makeString({ALL_ZEROES}));
-}
-
-TEST_CASE("Encode 1 char -1", "[base64-char1-1]")
-{
-	//11111111 -> '+'
-	SmartIterator it(makeString({-1})); 
-	REQUIRE(encodeBase64(it) == makeString({ALL_ONES}));
-}
-
-TEST_CASE("Encode 2 chars -1", "[base64-chars2-1]")
-{
-	//11111111 11111111 -> '+'
-	SmartIterator it(makeString({-1, -1})); 
-	REQUIRE(encodeBase64(it) == makeString({ALL_ONES}));
-}
-
-TEST_CASE("Encode 3 chars -1", "[base64-chars3-1]")
-{
-	//11111111 11111111 11111111 -> '+'
-	SmartIterator it(makeString({-1, -1, -1})); 
-	REQUIRE(encodeBase64(it) == makeString({ALL_ONES}));
+	//0xe1 0x1e 0xb4 => 11100001 00011110 10110100 -> 00111000 00010001 00111010 00110100 => 56 17 58 52 -> "4R60"
+	SmartIterator it(makeString({0xe1, 0x1e, 0xb4}));
+	auto out = encodeBase64(it);
+	REQUIRE(out.length() == 4);
+	REQUIRE(checkBits(out, "4R60", 32));
 }
 
 
-TEST_CASE("Decode 1 char not 0 nor -1", "[base64-char1-not0or1]")
+TEST_CASE("Decode 1 char", "[base64-char1]")
 {
 	SmartIterator it(makeString({'m', ')'}));
 	REQUIRE_THROWS_AS(decodeBase64(it), runtime_error);
 }
 
-TEST_CASE("Decode 2 chars not 0 nor -1", "[base64-chars2-not0or1]")
+TEST_CASE("Decode 2 chars", "[base64-chars2]")
 {
+	//"mQ" -> 38 16 => 00100110 00010000 -> 10011001 => "\x99"
 	SmartIterator it(makeString({'m', 'Q', ')'}));
-	REQUIRE_THROWS_AS(decodeBase64(it), runtime_error);
+	auto out = decodeBase64(it);
+	REQUIRE(out.length() == 1);
+	REQUIRE(checkBits(out, "\x99", 8));
 }
 
-TEST_CASE("Decode 3 chars not 0 nor -1", "[base64-chars3-not0or1]")
+TEST_CASE("Decode 3 chars", "[base64-chars3]")
 {
+	//"mQ8" -> 38 16 60 => 00100110 00010000 00111100 -> 10011001 00001111 => "\x99\x0f"
 	SmartIterator it(makeString({'m', 'Q', '8', ')'}));
-	REQUIRE_THROWS_AS(decodeBase64(it), runtime_error);
+	auto out = decodeBase64(it);
+	REQUIRE(out.length() == 2);
+	REQUIRE(checkBits(out, "\x99\x0f", 16));
 }
 
-TEST_CASE("Decode 1 char 0", "[base64-char1-0]")
+TEST_CASE("Decode 4 chars", "[base64-chars4]")
 {
-	SmartIterator it(makeString({ALL_ZEROES, ')'})); 
-	REQUIRE(decodeBase64(it) == makeString({0, 0, 0}));
-}
-
-TEST_CASE("Decode 1 char -1", "[base64-char1-1]")
-{
-	SmartIterator it(makeString({ALL_ONES, ')'})); 
-	REQUIRE(decodeBase64(it) == makeString({-1, -1, -1}));
-}
-
-TEST_CASE("Decode 4 chars not 0 nor -1", "[base64-chars3-not0or1]")
-{
-	SmartIterator it(makeString({'m', 'Q', '8', '=', ')'}));
-	//109 81 56 61 -> (- 'a' + 36) (- 'A' + 10) (- '0') (63)
-	//48 26 8 63 -> 00110000 00011010 00001000 00111111
-	//11110000 11011010 11001000 -> 240 218 200
-	REQUIRE(decodeBase64(it) == makeString({240, 218, 200}));
+	//"mQ8/" -> 38 16 60 63 => 00100110 00010000 00111100 00111111 -> 10011001 00001111 00111111 => "\x99\x0f\x3f"
+	SmartIterator it(makeString({'m', 'Q', '8', '/', ')'}));
+	auto out = decodeBase64(it);
+	REQUIRE(out.length() == 3);
+	REQUIRE(checkBits(out, "\x99\x0f\x3f", 16));
 }

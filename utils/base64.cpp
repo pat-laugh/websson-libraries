@@ -13,9 +13,12 @@ using namespace various;
 using namespace webss;
 
 static int readBytes(SmartIterator& it, char bytes[4]);
-static inline parsePadding(SmartIterator& it, char bytes[4], int num);
+static inline void parsePadding(SmartIterator& it, int bytesRead);
 
 static const char* ERROR_EXPECTED = "expected character";
+static const char* ERROR_UNEXPECTED = "forbidden character";
+static const char* ERROR_PADDING = "forbidden character after padding";
+static const char* ERROR_ONE_BYTE = "only one character available";
 
 const static char CHAR_1 = '+', CHAR_2 = '/', PADDING = '=';
 #define CaseDecodeNumber '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9'
@@ -38,6 +41,7 @@ string webss::decodeBase64(SmartIterator& it)
 {
 	StringBuilder sb;
 	char bytes[4];
+	int bytesRead;
 decodeStart:
 	if (!it)
 		throw runtime_error(ERROR_EXPECTED);
@@ -48,11 +52,19 @@ decodeStart:
 	case CaseDecodeIgnored:
 		++it;
 		goto decodeStart;
+	case PADDING:
+		parsePadding(it, 0);
+		goto decodeStart;
 	default:
 		break;
 	}
-	int num = readBytes(it, bytes);
-	num == 4 ? ++it : parsePadding(it, bytes, num);		
+	bytesRead = readBytes(it, bytes);
+	if (bytesRead == 4)
+		++it;
+	else if (bytesRead == 1)
+		throw runtime_error(ERROR_ONE_BYTE);
+	else
+		parsePadding(it, bytesRead);
 	
 	//the 4 bytes: 00111111|00112222|00222233|00333333
 	//will become: 11111111|22222222|33333333|00000000
@@ -60,7 +72,7 @@ decodeStart:
 	bytes[1] = bytes[1] << 4 | bytes[2] >> 2;
 	bytes[2] = bytes[2] << 6 | bytes[3];
 	
-	for (int i = 0; i < num - 1; ++i)
+	for (int i = 0; i < bytesRead - 1; ++i)
 		sb += bytes[i];
 	goto decodeStart;
 }
@@ -91,7 +103,7 @@ startSwitch:
 	case CHAR_END_TUPLE: case PADDING:
 		return i;
 	default:
-		throw runtime_error("forbidden character in encoded binary");
+		throw runtime_error(ERROR_UNEXPECTED);
 	}
 	if (++i == 4)
 		return i;
@@ -101,11 +113,22 @@ restart:
 	goto startSwitch;
 }
 
-static inline parsePadding(SmartIterator& it, char bytes[4], int num)
+static inline void parsePadding(SmartIterator& it, int bytesRead)
 {
-	for (int i = num; i < 4; bytes[i++] = 0)
-		if (*it != CHAR_END_TUPLE && (*it != PADDING || !++it))
-			throw runtime_error(ERROR_EXPECTED);
+	assert(bytesRead != 1 && bytesRead < 4);
+	for (; bytesRead < 4 && it; ++it)
+		switch (*it)
+		{
+		case CHAR_END_TUPLE:
+			return;
+		case CaseDecodeIgnored:
+			break;
+		case PADDING:
+			++bytesRead;
+			break;
+		default:
+			throw runtime_error(ERROR_PADDING);
+		}
 }
 
 static char ENCODED_BYTES[] =
@@ -120,7 +143,7 @@ string webss::encodeBase64(SmartIterator& it)
 	StringBuilder sb;
 	union
 	{
-		char bytes[4];
+		unsigned char bytes[4];
 		uint32_t bytesInt;
 	};
 	int numBytesOut = 4;
