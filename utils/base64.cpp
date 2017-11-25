@@ -12,18 +12,12 @@ using namespace std;
 using namespace various;
 using namespace webss;
 
-static void readBytes(SmartIterator& it, char bytes[4]);
-static void writeBytes(char bytes[4]);
+static int readBytes(SmartIterator& it, char bytes[4]);
+static inline parsePadding(SmartIterator& it, char bytes[4], int num);
 
 static const char* ERROR_EXPECTED = "expected character";
 
-static bool isLittleEndian()
-{
-	uint16_t i = 0xff00;
-	return reinterpret_cast<char*>(&i)[0] == 0;
-}
-
-const char DECODE_ALL_0 = '_', DECODE_ALL_1 = '+', DECODE_CHAR_1 = '-', DECODE_CHAR_2 = '=';
+const static char CHAR_1 = '+', CHAR_2 = '/', PADDING = '=';
 #define CaseDecodeNumber '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9'
 #define CaseDecodeUpper 'Q': case 'W': case 'F': case 'R': case 'K': case 'Y': case 'J': case 'I': case 'O': case 'P': \
 	case 'A': case 'S': case 'D': case 'T': case 'G': case 'H': case 'E': case 'U': case 'L': \
@@ -34,17 +28,16 @@ const char DECODE_ALL_0 = '_', DECODE_ALL_1 = '+', DECODE_CHAR_1 = '-', DECODE_C
 #define CaseDecodeIgnored ' ': case '\x7f': \
 	case '\x00': case '\x01': case '\x02': case '\x03': case '\x04': case '\x05': case '\x06': case '\x07': case '\x08': case '\x09': case '\x0a': case '\x0b': case '\x0c': case '\x0d': case '\x0e': case '\x0f': \
 	case '\x10': case '\x11': case '\x12': case '\x13': case '\x14': case '\x15': case '\x16': case '\x17': case '\x18': case '\x19': case '\x1a': case '\x1b': case '\x1c': case '\x1d': case '\x1e': case '\x1f'
-#define PutThreeBytes(byte) do { sb += byte; sb += byte; sb += byte; } while (false)
+#define DecodeNumber(X) X - '0' + 52
+#define DecodeUpper(X) X - 'A'
+#define DecodeLower(X) X - 'a' + 26 
+#define DecodeChar1(X) 62
+#define DecodeChar2(X) 62
 
 string webss::decodeBase64(SmartIterator& it)
 {
 	StringBuilder sb;
-	union
-	{
-		char bytes[4];
-		int32_t bytesInt;
-	};
-	bool littleEndian = isLittleEndian();
+	char bytes[4];
 decodeStart:
 	if (!it)
 		throw runtime_error(ERROR_EXPECTED);
@@ -52,41 +45,27 @@ decodeStart:
 	{
 	case CHAR_END_TUPLE:
 		return sb.str();
-	case DECODE_ALL_0:
-		PutThreeBytes('\0');
-		goto decodeEnd;
-	case DECODE_ALL_1:
-		PutThreeBytes('\xff');
-		goto decodeEnd;
 	case CaseDecodeIgnored:
-		goto decodeEnd;
+		++it;
+		goto decodeStart;
 	default:
 		break;
 	}
-	readBytes(it, bytes);
-	//the 4 bytes: 00111111|00222222|00333333|00112233
+	int num = readBytes(it, bytes);
+	num == 4 ? ++it : parsePadding(it, bytes, num);		
+	
+	//the 4 bytes: 00111111|00112222|00222233|00333333
 	//will become: 11111111|22222222|33333333|00000000
-	if (littleEndian)
-	{
-		bytesInt |= (bytesInt & 0x30000000) >> 22;
-		bytesInt |= (bytesInt & 0x0c000000) >> 12;
-		bytesInt |= (bytesInt & 0x03000000) >> 2;
-	}
-	else
-	{
-		bytesInt |= (bytesInt & 0x30) << 26;
-		bytesInt |= (bytesInt & 0x0c) << 20;
-		bytesInt |= (bytesInt & 0x03) << 14;
-	}
-	sb += bytes[0];
-	sb += bytes[1];
-	sb += bytes[2];
-decodeEnd:
-	++it;
+	bytes[0] = bytes[0] << 2 | bytes[1] >> 4;
+	bytes[1] = bytes[1] << 4 | bytes[2] >> 2;
+	bytes[2] = bytes[2] << 6 | bytes[3];
+	
+	for (int i = 0; i < num - 1; ++i)
+		sb += bytes[i];
 	goto decodeStart;
 }
 
-static void readBytes(SmartIterator& it, char bytes[4])
+static int readBytes(SmartIterator& it, char bytes[4])
 {
 	int i = 0;
 startSwitch:
@@ -95,129 +74,93 @@ startSwitch:
 	case CaseDecodeIgnored:
 		goto restart;
 	case CaseDecodeNumber:
-		bytes[i] = *it - '0';
+		bytes[i] = DecodeNumber(*it);
 		break;
 	case CaseDecodeUpper:
-		bytes[i] = *it - 'A' + 10;
+		bytes[i] = DecodeUpper(*it);
 		break;
 	case CaseDecodeLower:
-		bytes[i] = *it - 'a' + 36;
+		bytes[i] = DecodeLower(*it);
 		break;
-	case DECODE_CHAR_1:
-		bytes[i] = 62;
+	case CHAR_1:
+		bytes[i] = DecodeChar1(*it);
 		break;
-	case DECODE_CHAR_2:
-		bytes[i] = 63;
+	case CHAR_2:
+		bytes[i] = DecodeChar2(*it);
 		break;
+	case CHAR_END_TUPLE: case PADDING:
+		return i;
 	default:
 		throw runtime_error("forbidden character in encoded binary");
 	}
 	if (++i == 4)
-		return;
+		return i;
 restart:
 	if (!++it)
 		throw runtime_error(ERROR_EXPECTED);
 	goto startSwitch;
 }
 
-const char ENCODE_CHAR_1 = 62, ENCODE_CHAR_2 = 63;
-#define CaseEncodeNumber 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9
-#define CaseEncodeUpper 10: case 11: case 12: case 13: case 14: case 15: case 16: case 17: case 18: case 19: \
-	case 20: case 21: case 22: case 23: case 24: case 25: case 26: case 27: case 28: case 29: \
-	case 30: case 31: case 32: case 33: case 34: case 35
-#define CaseEncodeLower 36: case 37: case 38: case 39: \
-	case 40: case 41: case 42: case 43: case 44: case 45: case 46: case 47: case 48: case 49: \
-	case 50: case 51: case 52: case 53: case 54: case 55: case 56: case 57: case 58: case 59: \
-	case 60: case 61
+static inline parsePadding(SmartIterator& it, char bytes[4], int num)
+{
+	for (int i = num; i < 4; bytes[i++] = 0)
+		if (*it != CHAR_END_TUPLE && (*it != PADDING || !++it))
+			throw runtime_error(ERROR_EXPECTED);
+}
 
-
-#define SpecialCheckZero(Cmd) if (bytesInt == 0) { sb += DECODE_ALL_0; Cmd; }
-#define SpecialCheckOnes(Ones, Cmd) if (bytesInt == (Ones)) { sb += DECODE_ALL_1; Cmd; }
-#ifndef BASE64_DISABLE_ENCODE_ALL_ZEROS
-#ifndef BASE64_DISABLE_ENCODE_ALL_ONES
-#define SpecialCheck(Ones, Cmd) do { SpecialCheckZero(Cmd) SpecialCheckOnes(Ones, Cmd) } while (false)
-#else
-#define SpecialCheck(Ones, Cmd) do { SpecialCheckZero(Cmd) } while (false)
-#endif
-#else //BASE64_DISABLE_ENCODE_ALL_ZEROS
-#ifdef BASE64_DISABLE_ENCODE_ALL_ONES
-#define SpecialCheck(Ones, Cmd) do { SpecialCheckOnes(Cmd) } while (false)
-#else
-#define SpecialCheck(Ones, Cmd) (void)0
-#endif
-#endif //BASE64_DISABLE_ENCODE_ALL_ZEROS
+static char ENCODED_BYTES[] =
+{
+	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+	'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
+};
 
 string webss::encodeBase64(SmartIterator& it)
 {
 	StringBuilder sb;
 	union
 	{
-		char bytes[5];
+		char bytes[4];
 		uint32_t bytesInt;
 	};
-	bytes[4] = 0;
-	bool littleEndian = isLittleEndian();
+	int numBytesOut = 4;
 encodeStart:
 	if (!it)
 		return sb;
-	bytesInt = 0;
+	
 	bytes[0] = *it;
 	if (!++it)
 	{
-		SpecialCheck(littleEndian ? 0x000000ff : 0xff000000, return sb);
+		numBytesOut = 2;
 		goto encodeBytes;
 	}
+	
 	bytes[1] = *it;
 	if (!++it)
 	{
-		SpecialCheck(littleEndian ? 0x0000ffff : 0xffff0000, return sb);
+		numBytesOut = 3;
 		goto encodeBytes;
 	}
-	bytes[2] = *it;
-	SpecialCheck(littleEndian ? 0x00ffffff : 0xffffff00, ++it; goto encodeStart);
+	
+	bytes[3] = *it;
 encodeBytes:
-	//the 4 bytes: 11111111|22222222|33333333|00000000
-	//will become: 00111111|00222222|00333333|00112233
-	if (littleEndian)
-	{
-		bytesInt |= (bytesInt & 0x000000c0) << 22;
-		bytesInt |= (bytesInt & 0x0000c000) << 12;
-		bytesInt |= (bytesInt & 0x00c00000) << 2;
-	}
-	else
-	{
-		bytesInt |= (bytesInt & 0xc0000000) >> 26;
-		bytesInt |= (bytesInt & 0x00c00000) >> 20;
-		bytesInt |= (bytesInt & 0x0000c000) >> 14;
-	}
+	//the 4 bytes: 11111111|22222222|xxxxxxxx|33333333
+	//will become: 00111111|00112222|00222233|00333333
+	bytes[2] = bytes[3] >> 6 | bytes[1] << 2;
+	bytes[1] = bytes[1] >> 4 | bytes[0] << 4;
+	bytes[0] = bytes[0] >> 2;
 	bytesInt &= 0x3f3f3f3f;
-	writeBytes(bytes);
-	sb += bytes;
+	
+	for (int i = 0; i < numBytesOut; ++i)
+		sb += ENCODED_BYTES[bytes[i]];
+	if (numBytesOut < 4)
+	{
+#ifdef WEBSSON_BASE64_PADDING
+		while (numBytesOut++ < 4)
+			sb += PADDING;
+#endif
+		return sb;
+	}
 	++it;
 	goto encodeStart;
-}
-
-static void writeBytes(char bytes[4])
-{
-	for (int i = 0; i < 4; ++i)
-		switch (bytes[i])
-		{
-		case CaseEncodeNumber:
-			bytes[i] += '0';
-			break;
-		case CaseEncodeUpper:
-			bytes[i] += 'A' - 10;
-			break;
-		case CaseEncodeLower:
-			bytes[i] += 'a' - 36;
-			break;
-		case ENCODE_CHAR_1:
-			bytes[i] = DECODE_CHAR_1;
-			break;
-		case ENCODE_CHAR_2:
-			bytes[i] = DECODE_CHAR_2;
-			break;
-		default:
-			assert(false); throw domain_error("");
-		}
 }
