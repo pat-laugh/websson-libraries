@@ -172,21 +172,22 @@ static bool isDefaultValue(const Webss& value)
 	return value.getTypeRaw() == WebssType::DEFAULT;
 }
 
-static const string& getTheadRootName(const Thead* thead)
+static const string& getTheadRootName(const Thead& thead)
 {
+	const Thead* ptrThead = &thead;
 	const string* name = nullptr;
 	while (true)
 	{
 		const Entity* ent;
-		if (thead->hasEntity())
-			ent = &thead->getEntityRaw();
-		else if (thead->hasBase())
-			ent = &thead->getBase();
+		if (ptrThead->hasEntity())
+			ent = &ptrThead->getEntityRaw();
+		else if (ptrThead->hasBase())
+			ent = &ptrThead->getBase();
 		else
 			break;
 
 		name = &ent->getName();
-		thead = &ent->getContent().getThead();
+		ptrThead = &ent->getContent().getThead();
 	}
 	assert(name != nullptr);
 	return *name;
@@ -200,7 +201,7 @@ void SerializerHtml::putTemplate(StringBuilder& out, const Template& templ)
 		return;
 	}
 	assert(templ.body.isTuple() && templ.getType() == TypeThead::STD);
-	const auto& name = getTheadRootName(&templ);
+	const auto& name = getTheadRootName(templ);
 	const auto& tuple = templ.body.getTuple();
 	const auto& params = templ.getTheadStd().getParams();
 	auto keys = tuple.getOrderedKeys();
