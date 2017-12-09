@@ -69,3 +69,8 @@ compile_libs_debug:
 	cd $(DIR_PARSER); make debug -s
 	cd $(DIR_SERIALIZER_HTML); make debug -s
 	cd $(DIR_VARIOUS); make debug -s
+
+bin:
+	make clean -s
+	make -s
+	cp $(EXEC) ~/bin/wbsn-to-html
