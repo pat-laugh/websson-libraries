@@ -28,7 +28,7 @@ SizeHead::SizeHead(Keyword keyword) : type(Type::KEYWORD)
 		type = Type::EMPTY;
 		break;
 	default:
-		assert(false); throw domain_error("invalid binary type: " + keyword.toString());
+		assert(false); throw domain_error("");
 	}
 }
 
