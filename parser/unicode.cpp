@@ -61,13 +61,13 @@ static void putUnicode(StringBuilder& str, unsigned int num)
 static unsigned int readHex(SmartIterator& it, int numDigits)
 {
 	if (!it || !isDigitHex(*it))
-		throw runtime_error(ERROR_EXPECTED_HEX);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED_HEX));
 
 	int hex = hexToInt(*it);
 	for (int i = 1; i < numDigits; ++i)
 	{
 		if (!(++it) || !isDigitHex(*it))
-			throw runtime_error(ERROR_EXPECTED_HEX);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED_HEX));
 		hex = hex * (int)NumberBase::HEX + hexToInt(*it);
 	}
 	++it;
@@ -83,9 +83,9 @@ void webss::putEscapedHex(SmartIterator& it, StringBuilder& str)
 	else
 	{
 		if (it.peekEnd() || !isDigitHex(it.peek()))
-			throw runtime_error(ERROR_EXPECTED_HEX);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED_HEX));
 		else if (it.peek() > '7')
-			throw overflow_error("escaped char value too high");
+			throw overflow_error(WEBSSON_EXCEPTION("escaped char value too high"));
 
 		putUnicode(str, readHex(++it, 8));
 	}

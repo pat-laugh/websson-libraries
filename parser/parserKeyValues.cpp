@@ -15,7 +15,7 @@ using namespace webss;
 Webss Parser::parseValueEqual()
 {
 	if (tagit.getSafe() == Tag::EQUAL)
-		throw runtime_error("expected value-only not starting with an equal sign");
+		throw runtime_error(WEBSSON_EXCEPTION("expected value-only not starting with an equal sign"));
 	return parseValueOnly();
 }
 
@@ -38,7 +38,7 @@ Webss Parser::parseCharValue()
 	case Tag::TEXT_LIST: return{ parseListText(), WebssType::LIST_TEXT };
 	case Tag::TEXT_TUPLE: return{ parseTupleText(), WebssType::TUPLE_TEXT };
 	default:
-		throw runtime_error(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
+		throw runtime_error(WEBSSON_EXCEPTION(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED));
 	}
 }
 
@@ -74,15 +74,15 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 		return parseOtherValueName(parseNameExplicit(tagit));
 	case Tag::SEPARATOR:
 		if (!allowVoid)
-			throw runtime_error(ERROR_VOID);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_VOID));
 		return Webss();
 	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
 		if (!allowVoid)
-			throw runtime_error(ERROR_VOID);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_VOID));
 		if (con.isEnd(*getIt()))
 			return Webss();
 	default:
-		throw runtime_error(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
+		throw runtime_error(WEBSSON_EXCEPTION(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED));
 	}
 }
 
@@ -141,7 +141,7 @@ void Parser::parseExplicitKeyValue(function<void(string&& key, Webss&& value)> f
 		funcKeyOnly(move(other.key));
 		break;
 	case OtherValue::Type::VALUE_ONLY:
-		throw runtime_error(ERROR_UNEXPECTED);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 	default:
 		assert(false);
 	}
@@ -151,6 +151,6 @@ Webss Parser::parseValueOnly()
 {
 	auto otherValue = parseOtherValue();
 	if (otherValue.type != OtherValue::VALUE_ONLY)
-		throw runtime_error("expected value-only");
+		throw runtime_error(WEBSSON_EXCEPTION("expected value-only"));
 	return move(otherValue.value);
 }

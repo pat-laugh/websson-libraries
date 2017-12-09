@@ -35,10 +35,10 @@ Webss webss::parseNumber(Parser& parser)
 			return numDouble;
 
 		if (!isBaseSeparator(*it, base))
-			throw runtime_error("invalid number");
+			throw runtime_error(WEBSSON_EXCEPTION("invalid number"));
 	}
 
 	if (!skipLineJunk(++it) || !isNumberStart(*it))
-		throw runtime_error(ERROR_EXPECTED_NUMBER);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED_NUMBER));
 	return addExponent(it, numDouble, base);
 }

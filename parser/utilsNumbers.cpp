@@ -42,7 +42,7 @@ static WebssInt getNumber(SmartIterator& it, NumberBase base, const function<boo
 	}
 	catch (const out_of_range&)
 	{
-		throw overflow_error("integer is outside bounds");
+		throw overflow_error(WEBSSON_EXCEPTION("integer is outside bounds"));
 	}
 }
 
@@ -52,7 +52,7 @@ static double checkDecimals(SmartIterator& it, NumberBase base, int maxDigits, c
 	static const function<bool(char c)> isZero = [](char c) { return c == '0'; };
 
 	if (!checkDigit(it, isDigit))
-		throw runtime_error(ERROR_EXPECTED_NUMBER);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED_NUMBER));
 
 	//skim through leading zeros
 	int power = 1;
@@ -124,7 +124,7 @@ double webss::addExponent(SmartIterator& it, double num, NumberBase base)
 	double exp = (double)(negative ? -numBase : numBase);
 	num *= pow((double)(base == NumberBase::DEC ? base : NumberBase::BIN), exp);
 	if (!std::isfinite(num))
-		throw runtime_error("invalid number, either infinite or NaN");
+		throw runtime_error(WEBSSON_EXCEPTION("invalid number, either infinite or NaN"));
 	return num;
 }
 
@@ -132,14 +132,14 @@ bool webss::checkNumberNegative(SmartIterator& it)
 {
 	bool negative = *it == '-';
 	if ((negative || *it == '+') && (!++it || !isDigitDec(*it)))
-		throw runtime_error(ERROR_EXPECTED_NUMBER);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED_NUMBER));
 	return negative;
 }
 
 static NumberBase checkDigitWrapper(SmartIterator& it, const function<bool(char c)>& isDigit, NumberBase base)
 {
 	if (!checkDigit(it.incTwo(), isDigit))
-		throw runtime_error(ERROR_EXPECTED_NUMBER);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED_NUMBER));
 	return base;
 }
 

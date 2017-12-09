@@ -46,7 +46,7 @@ void Parser::parseBinHead(TheadBin& thead)
 	{
 		const auto& content = parseExpandEntity(tagit, ents).getContent();
 		if (!content.isThead() || !content.getThead().isTheadBin())
-			throw std::runtime_error("expand entity within binary template head must be a binary template head");
+			throw std::runtime_error(WEBSSON_EXCEPTION("expand entity within binary template head must be a binary template head"));
 		thead.attach(content.getThead().getTheadBin());
 		return;
 	}
@@ -64,17 +64,17 @@ void Parser::parseBinHead(TheadBin& thead)
 		switch (nameType.type)
 		{
 		case NameType::KEYWORD:
-			throw runtime_error("invalid binary type: " + nameType.keyword.toString());
+			throw runtime_error(WEBSSON_EXCEPTION("invalid binary type: " + nameType.keyword.toString()));
 		case NameType::ENTITY_ABSTRACT:
 			if (!nameType.entity.getContent().isThead() || !nameType.entity.getContent().getThead().isTheadBin())
-				throw runtime_error(ERROR_UNEXPECTED);
+				throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 			bhead = Bhead::makeEntityThead(nameType.entity);
 			break;
 		case NameType::ENTITY_CONCRETE:
 			bhead = Bhead::makeEntityNumber(checkEntTypeBinSize(nameType.entity));
 			break;
 		default:
-			throw runtime_error("undefined entity: " + nameType.name);
+			throw runtime_error(WEBSSON_EXCEPTION("undefined entity: " + nameType.name));
 		}
 		break;
 	}
@@ -93,7 +93,7 @@ void Parser::parseBinHead(TheadBin& thead)
 			bhead = Bhead(TheadSelf());
 			break;
 		default:
-			throw runtime_error(ERROR_BIN_SIZE_HEAD);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_BIN_SIZE_HEAD));
 		}
 		break;
 	}
@@ -101,29 +101,29 @@ void Parser::parseBinHead(TheadBin& thead)
 	{
 		auto& it = ++tagit.getItSafe();
 		if (!it)
-			throw runtime_error(ERROR_EXPECTED);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
 		if (isNameStart(*it))
 		{
 			auto nameType = parseNameType(tagit, ents);
 			switch (nameType.type)
 			{
 			case NameType::KEYWORD: case NameType::ENTITY_ABSTRACT:
-				throw runtime_error("invalid binary type: " + nameType.keyword.toString());
+				throw runtime_error(WEBSSON_EXCEPTION("invalid binary type: " + nameType.keyword.toString()));
 			case NameType::ENTITY_CONCRETE:
 				bhead = Bhead::makeEntityBits(checkEntTypeBinSizeBits(nameType.entity));
 				break;
 			default:
-				throw runtime_error("undefined entity: " + nameType.name);
+				throw runtime_error(WEBSSON_EXCEPTION("undefined entity: " + nameType.name));
 			}
 		}
 		else if (isNumberStart(*it))
 			bhead = Bhead::makeSizeBits(checkBinSizeBits(parseNumber(*this).getInt()));
 		else
-			throw runtime_error(ERROR_UNEXPECTED);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 		break;
 	}
 	default:
-		throw std::runtime_error("all values in a binary template must be binary");
+		throw std::runtime_error(WEBSSON_EXCEPTION("all values in a binary template must be binary"));
 	}
 
 	if (tagit.getSafe() == Tag::START_TEMPLATE_BIN_ARRAY)
@@ -144,7 +144,7 @@ goPastSeparatorCheck:
 		CaseKeyOnly
 		{
 			if (bhead.isTheadSelf())
-				throw runtime_error("binary param declared with self must have a default value");
+				throw runtime_error(WEBSSON_EXCEPTION("binary param declared with self must have a default value"));
 			thead.attach(move(key), ParamBin(move(bhead), move(barray)));
 		});
 }
@@ -158,16 +158,16 @@ Tuple Parser::parseTemplateTupleBin(const TheadBin::Params& params, bool isEncod
 		SmartIterator itDecodedBinary(decodeBase64(getIt())); //this advances it until ')' is met and returns iterator containing decoded bytes
 		BinaryIterator itBin(itDecodedBinary);
 		try { tuple = parseBinTemplate(itBin, params); }
-		catch (const runtime_error& e) { throw runtime_error(string("while parsing decoded binary, ") + e.what()); }
+		catch (const runtime_error& e) { throw runtime_error(WEBSSON_EXCEPTION(string("while parsing decoded binary, ") + e.what())); }
 	}
 	else
 	{
 		BinaryIterator itBin(getIt());
 		try { tuple = parseBinTemplate(itBin, params); }
-		catch (const runtime_error& e) { throw runtime_error(string("while parsing binary, ") + e.what()); }
+		catch (const runtime_error& e) { throw runtime_error(WEBSSON_EXCEPTION(string("while parsing binary, ") + e.what())); }
 		do
 			if (!++getIt())
-				throw runtime_error("binary tuple is not closed");
+				throw runtime_error(WEBSSON_EXCEPTION("binary tuple is not closed"));
 		while (*getIt() != CHAR_END_TUPLE);
 	}
 	++tagit;
@@ -201,7 +201,7 @@ static ParamBin::SizeArray parseBinSizeArray(Parser& parser)
 	}
 	catch (const exception&)
 	{
-		throw runtime_error("value in binary array must be void or a positive integer");
+		throw runtime_error(WEBSSON_EXCEPTION("value in binary array must be void or a positive integer"));
 	}
 	return barray;
 }
@@ -209,30 +209,30 @@ static ParamBin::SizeArray parseBinSizeArray(Parser& parser)
 static const Entity& checkEntTypeBinSize(const Entity& ent)
 {
 	try { checkBinSize(ent.getContent().getInt()); }
-	catch (const exception& e) { throw runtime_error(e.what()); }
+	catch (const exception& e) { throw runtime_error(WEBSSON_EXCEPTION(e.what())); }
 	return ent;
 }
 
 static WebssBinSize checkBinSize(WebssInt sizeInt)
 {
 	if (static_cast<WebssBinSize>(sizeInt) > numeric_limits<WebssBinSize>::max())
-		throw runtime_error("binary size is too big");
+		throw runtime_error(WEBSSON_EXCEPTION("binary size is too big"));
 	else if (sizeInt < 0)
-		throw runtime_error("binary size must be positive");
+		throw runtime_error(WEBSSON_EXCEPTION("binary size must be positive"));
 	return static_cast<WebssBinSize>(sizeInt);
 }
 
 static const Entity& checkEntTypeBinSizeBits(const Entity& ent)
 {
 	try { checkBinSizeBits(ent.getContent().getInt()); }
-	catch (const exception& e) { throw runtime_error(e.what()); }
+	catch (const exception& e) { throw runtime_error(WEBSSON_EXCEPTION(e.what())); }
 	return ent;
 }
 
 static WebssBinSize checkBinSizeBits(WebssInt sizeInt)
 {
 	if (sizeInt < 1 || sizeInt > 8)
-		throw runtime_error("the number of bits must be between 1 and 8");
+		throw runtime_error(WEBSSON_EXCEPTION("the number of bits must be between 1 and 8"));
 	return static_cast<WebssBinSize>(sizeInt);
 }
 

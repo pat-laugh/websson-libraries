@@ -22,7 +22,7 @@ namespace webss
 				{
 					const auto& content = parseExpandEntity(self.tagit, self.ents).getContent();
 					if (!content.isThead() || !content.getThead().isTheadStd())
-						throw std::runtime_error("expand entity within standard template head must be a standard template head");
+						throw std::runtime_error(WEBSSON_EXCEPTION("expand entity within standard template head must be a standard template head"));
 					thead.attach(content.getThead().getTheadStd());
 				}
 				else

@@ -56,16 +56,16 @@ List Parser::parseTemplateForeach(const Thead& thead, const function<Webss(Parse
 		{
 		case Tag::SEPARATOR: //void
 			if (thead.isPlus())
-				throw runtime_error(ERROR_VOID);
+				throw runtime_error(WEBSSON_EXCEPTION(ERROR_VOID));
 			list.add(Template(thead, makeDefaultTuple(thead)));
 			break;
 		case Tag::EXPAND:
 			if (thead.isTheadBin())
-				throw runtime_error("can't use expand with binary template");
+				throw runtime_error(WEBSSON_EXCEPTION("can't use expand with binary template"));
 			ParserTempl::foreachList(*this, thead, parseExpandList(tagit, ents), list);
 			break;
 		case Tag::EXPLICIT_NAME:
-			throw runtime_error("list can only contain values");
+			throw runtime_error(WEBSSON_EXCEPTION("list can only contain values"));
 		case Tag::FOREACH:
 			list.add(parseTemplateForeach(thead, funcTempl));
 			break;

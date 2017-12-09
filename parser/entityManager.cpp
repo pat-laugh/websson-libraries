@@ -2,6 +2,7 @@
 //Copyright 2017 Patrick Laughrea
 #include "entityManager.hpp"
 
+#include "errors.hpp"
 #include "structures/utils.hpp"
 
 using namespace std;
@@ -49,7 +50,7 @@ void EntityManager::addSafe(Entity ent)
 	if (!hasEntity(ent.getName()))
 		add(move(ent));
 	else if (!equalPtrs(ent.getDocIdPtr(), operator[](ent.getName()).getDocIdPtr())) //else do nothing
-		throw runtime_error(ERROR_ENTITY_EXISTS + ent.getName());
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_ENTITY_EXISTS + ent.getName()));
 }
 
 bool EntityManager::hasEntity(const string& s) const { return ents.find(s) != ents.end(); }

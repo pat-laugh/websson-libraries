@@ -43,14 +43,14 @@ Webss Parser::parseAbstractCharValue(const string& name, const Namespace& curren
 		++tagit;
 		return parseAbstractValueEqual(name, currentNamespace);
 	default:
-		throw runtime_error(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
+		throw runtime_error(WEBSSON_EXCEPTION(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED));
 	}
 }
 
 Webss Parser::parseAbstractValueEqual(const string& name, const Namespace& currentNamespace)
 {
 	if (tagit.getSafe() == Tag::EQUAL)
-		throw runtime_error("expected abstract value-only not starting with an equal sign");
+		throw runtime_error(WEBSSON_EXCEPTION("expected abstract value-only not starting with an equal sign"));
 	return parseAbstractValueOnly(name, currentNamespace);
 }
 
@@ -64,10 +64,10 @@ Webss Parser::parseAbstractValueOnly(const string& name, const Namespace& curren
 	{
 		auto nameType = parseNameType(tagit, ents);
 		if (nameType.type != NameType::ENTITY_ABSTRACT)
-			throw runtime_error("expected abstract entity");
+			throw runtime_error(WEBSSON_EXCEPTION("expected abstract entity"));
 		return nameType.entity;
 	}
 	default:
-		throw runtime_error(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED);
+		throw runtime_error(WEBSSON_EXCEPTION(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED));
 	}	
 }

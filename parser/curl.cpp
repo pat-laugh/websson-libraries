@@ -8,6 +8,8 @@ namespace
 #include <curl/curl.h>
 }
 
+#include "errors.hpp"
+
 using namespace std;
 
 static size_t functionCurl(char* ptr, size_t size, size_t nmemb, stringstream* ss)
@@ -22,7 +24,7 @@ static size_t functionCurl(char* ptr, size_t size, size_t nmemb, stringstream* s
 Curl::Curl()
 {
 	if (!(curl = curl_easy_init()))
-		throw runtime_error("failed to init curl");
+		throw runtime_error(WEBSSON_EXCEPTION("failed to init curl"));
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, functionCurl);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
 }
@@ -40,7 +42,7 @@ void Curl::readWebDocument(stringstream& ss, const char* fileName)
 
 	auto res = curl_easy_perform(curl);
 	if (res != CURLE_OK)
-		throw runtime_error(curl_easy_strerror(res));
+		throw runtime_error(WEBSSON_EXCEPTION(curl_easy_strerror(res)));
 }
 
 void Curl::readWebDocument(stringstream& ss, string&& fileName) { readWebDocument(ss, fileName.c_str()); }

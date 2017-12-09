@@ -5,6 +5,7 @@
 #include <cassert>
 #include <stdexcept>
 
+#include "errors.hpp"
 #include "various/stringBuilder.hpp"
 
 using namespace std;
@@ -85,7 +86,7 @@ readLoop:
 		const int partEndMask = 0xFF ^ partMask;
 		readByte();
 		if ((*it & partEndMask) != 0)
-			throw runtime_error("binary length is too great");
+			throw runtime_error(WEBSSON_EXCEPTION("binary length is too great"));
 		num = (num << partShift) | (partMask & *it);
 		return num;
 	}
@@ -107,7 +108,7 @@ void BinaryIterator::readBytes(string::size_type num, char* value)
 char BinaryIterator::readByte()
 {
 	if (!++it)
-		throw runtime_error("expected character");
+		throw runtime_error(WEBSSON_EXCEPTION("expected character"));
 	return *it;
 }
 

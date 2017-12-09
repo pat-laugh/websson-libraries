@@ -59,7 +59,7 @@ static void skipLineComment(SmartIterator& it)
 static void skipMultilineComment(SmartIterator& it)
 {
 	if (!it)
-		throw runtime_error("multiline comment is not closed");
+		throw runtime_error(WEBSSON_EXCEPTION("multiline comment is not closed"));
 	
 	int num = 1;
 	for (char c = *it; ++it; c = *it)
@@ -82,7 +82,7 @@ static void skipMultilineComment(SmartIterator& it)
 				break;
 		}
 	
-	throw runtime_error("multiline comment is not closed");
+	throw runtime_error(WEBSSON_EXCEPTION("multiline comment is not closed"));
 }
 
 static void skipLineEscape(SmartIterator& it)
@@ -102,7 +102,7 @@ loopStart:
 	}
 	if (checkJunkOperators(it))
 		goto loopStart;
-	throw runtime_error(ERROR_UNEXPECTED);
+	throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 }
 
 bool webss::checkJunkOperators(SmartIterator& it)
@@ -130,7 +130,7 @@ bool webss::checkJunkOperators(SmartIterator& it)
 SmartIterator& webss::skipJunkToValid(SmartIterator& it)
 {
 	if (!skipJunk(it))
-		throw runtime_error(ERROR_EXPECTED);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
 	return it;
 }
 
@@ -177,7 +177,7 @@ void webss::checkNameExplicit(TagIterator& tagit)
 {
 	auto& it = ++tagit.getIt();
 	if (!it || !isNameStart(*it))
-		throw runtime_error("expected name");
+		throw runtime_error(WEBSSON_EXCEPTION("expected name"));
 	tagit.setTag(Tag::NAME_START);
 }
 

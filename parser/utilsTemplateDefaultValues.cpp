@@ -2,6 +2,7 @@
 //Copyright 2017 Patrick Laughrea
 #include "utilsTemplateDefaultValues.hpp"
 
+#include "errors.hpp"
 #include "structures/paramBinary.hpp"
 #include "structures/paramStandard.hpp"
 #include "structures/thead.hpp"
@@ -27,7 +28,7 @@ void webss::setDefaultValue(Webss& value, const ParamBin& defaultValue)
 	else if (defaultValue.isTheadBin())
 		value = makeDefaultTuple(defaultValue.getThead().getParams());
 	else
-		throw runtime_error(ERROR_NO_DEFAULT);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_NO_DEFAULT));
 }
 
 void webss::setDefaultValue(Webss& value, const ParamStd& param)
@@ -37,7 +38,7 @@ void webss::setDefaultValue(Webss& value, const ParamStd& param)
 	else if (param.hasThead())
 		value = makeDefaultTuple(param.getThead());
 	else
-		throw runtime_error(ERROR_NO_DEFAULT);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_NO_DEFAULT));
 }
 
 void webss::checkDefaultValues(Tuple& tuple, const TheadStd::Params& params)

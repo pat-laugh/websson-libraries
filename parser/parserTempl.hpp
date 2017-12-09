@@ -27,7 +27,7 @@ namespace webss
 			else if (thead.isPlus())
 				body = makeDefaultTuple(thead.getTheadBin().getParams());
 			else
-				throw std::runtime_error("expected tuple");
+				throw std::runtime_error(WEBSSON_EXCEPTION("expected tuple"));
 
 			if (thead.isPlus())
 				return Template(std::move(thead), std::move(body), self.parseValueOnly());
@@ -50,7 +50,7 @@ namespace webss
 			else if (thead.isPlus())
 				body = makeDefaultTuple(thead.getTheadStd().getParams());
 			else
-				throw std::runtime_error("expected tuple");
+				throw std::runtime_error(WEBSSON_EXCEPTION("expected tuple"));
 
 			if (thead.isPlus())
 				return Template(std::move(thead), std::move(body), self.parseValueOnly(), typeTuple);
@@ -123,12 +123,12 @@ namespace webss
 					{
 						//get next item as body
 						if (++i == from.size())
-							throw std::runtime_error(ERROR_VOID);
+							throw std::runtime_error(WEBSSON_EXCEPTION(ERROR_VOID));
 						list.add(Template(thead, std::move(tuple), from[i], type));
 					}
 				}
 				else if (!thead.isPlus())
-					throw std::runtime_error("regular template must be implemented");
+					throw std::runtime_error(WEBSSON_EXCEPTION("regular template must be implemented"));
 				else
 					list.add(Template(thead, Tuple(), item));
 			}
@@ -147,14 +147,14 @@ namespace webss
 				if (templ.isPlus())
 				{
 					if (!templ.content.isList())
-						throw std::runtime_error("expected list");
+						throw std::runtime_error(WEBSSON_EXCEPTION("expected list"));
 					foreachList(self, thead, templ.content.getList(), list);
 				}
 				else if (templ.isTheadFun())
 				{
 					const auto& theadFun = templ.getTheadFun();
 					if (!theadFun.getStructure().isList())
-						throw std::runtime_error("expected list");
+						throw std::runtime_error(WEBSSON_EXCEPTION("expected list"));
 					const auto& from = theadFun.getStructure().getList();
 					const auto& tuple = templ.body.getTuple();
 					for (decltype(from.size()) i = 0; i < from.size(); ++i)
@@ -162,17 +162,17 @@ namespace webss
 					//	const auto& item = from[i];
 					//	auto type = item.getTypeRaw();
 						if (!thead.isPlus())
-							throw std::runtime_error("template head with foreach template function be plus");
+							throw std::runtime_error(WEBSSON_EXCEPTION("template head with foreach template function be plus"));
 						else
 							list.add(Template(thead, Tuple(), Template(TheadFun(theadFun, i), tuple)));
 					}
 				}
 				else
-					throw std::runtime_error("expected list");
+					throw std::runtime_error(WEBSSON_EXCEPTION("expected list"));
 				break;
 			}
 			default:
-				throw std::runtime_error("expected list");
+				throw std::runtime_error(WEBSSON_EXCEPTION("expected list"));
 			}
 		}
 
@@ -191,7 +191,7 @@ namespace webss
 			
 			auto nameType = parseNameType(self.tagit, self.ents);
 			if (nameType.type != NameType::NAME && params.at(index).hasThead())
-				throw std::runtime_error(ERROR_UNEXPECTED);
+				throw std::runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 			switch (nameType.type)
 			{
 			case NameType::NAME:
@@ -204,7 +204,7 @@ namespace webss
 			{
 				auto otherValue = self.checkAbstractEntity(nameType.entity);
 				if (otherValue.type != OtherValue::VALUE_ONLY)
-					throw std::runtime_error(ERROR_UNEXPECTED);
+					throw std::runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 				tuple.at(index) = std::move(otherValue.value);
 				break;
 			}
@@ -257,13 +257,13 @@ namespace webss
 			if (!param.hasThead())
 				return tupleItem;
 			if (param.isPlusThead())
-				throw std::runtime_error("can't expand tuple for template head plus");
+				throw std::runtime_error(WEBSSON_EXCEPTION("can't expand tuple for template head plus"));
 			switch (param.getTypeThead())
 			{
 			case TypeThead::SELF:
 				return buildTemplate(self, params, tupleItem);
 			case TypeThead::BIN:
-				throw std::runtime_error("can't expand for a binary template");
+				throw std::runtime_error(WEBSSON_EXCEPTION("can't expand for a binary template"));
 			case TypeThead::STD:
 				return buildTemplate(self, param.getTheadStd().getParams(), tupleItem);
 			default:
@@ -274,7 +274,7 @@ namespace webss
 		static Webss buildTemplate(Parser& self, const TheadStd::Params& params, const Webss& templateItem)
 		{
 			if (!templateItem.isTuple())
-				throw std::runtime_error("template head must be implemented");
+				throw std::runtime_error(WEBSSON_EXCEPTION("template head must be implemented"));
 			return buildTemplateTuple(self, params, templateItem.getTuple());
 		}
 	};

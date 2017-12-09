@@ -4,8 +4,8 @@
 
 #include <cassert>
 
-#include "utils/constants.hpp"
 #include "errors.hpp"
+#include "utils/constants.hpp"
 
 using namespace std;
 using namespace various;
@@ -86,13 +86,13 @@ bool Parser::containerEmpty()
 	{
 	case Tag::NONE:
 		if (con.hasEndChar())
-			throw runtime_error(ERROR_EXPECTED);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
 		return true;
 	case Tag::UNKNOWN:
-		throw runtime_error(ERROR_UNEXPECTED);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 	case Tag::SEPARATOR:
 		if (!allowVoid)
-			throw runtime_error(ERROR_VOID);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_VOID));
 		break;
 	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
 		if (con.isEnd(*getIt()))
@@ -113,22 +113,22 @@ bool Parser::checkNextElement()
 	{
 	case Tag::NONE:
 		if (con.hasEndChar())
-			throw runtime_error(ERROR_EXPECTED);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
 		return false;
 	case Tag::UNKNOWN:
-		throw runtime_error(ERROR_UNEXPECTED);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 	case Tag::SEPARATOR:
 		switch (++tagit)
 		{
 		case Tag::NONE:
 			if (con.hasEndChar())
-				throw runtime_error(ERROR_EXPECTED);
+				throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
 			return false;
 		case Tag::UNKNOWN:
-			throw runtime_error(ERROR_UNEXPECTED);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 		case Tag::SEPARATOR:
 			if (!allowVoid)
-				throw runtime_error(ERROR_VOID);
+				throw runtime_error(WEBSSON_EXCEPTION(ERROR_VOID));
 			break;
 		case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
 			if (con.isEnd(*getIt()))

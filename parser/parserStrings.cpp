@@ -171,7 +171,7 @@ loopStart:
 		putChar(it, sb);
 	}
 	if (!it)
-		throw runtime_error(ERROR_MULTILINE_STRING);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_MULTILINE_STRING));
 	if (countStartEnd > 1)
 		skipJunkToValid(++it);
 	else if (countStartEnd == 0 || *skipJunkToValid(++it) == CHAR_END_DICTIONARY)
@@ -188,7 +188,7 @@ string webss::parseMultilineString(Parser& parser)
 {
 	auto& it = parser.getItSafe();
 	if (*it != CHAR_START_DICTIONARY)
-		throw runtime_error(ERROR_UNEXPECTED);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 	return parseMultilineStringRegular(parser);
 }
 
@@ -202,7 +202,7 @@ string webss::parseCString(Parser& parser)
 		switch (*it)
 		{
 		case '\n':
-			throw runtime_error("can't have line break in cstring");
+			throw runtime_error(WEBSSON_EXCEPTION("can't have line break in cstring"));
 		case CHAR_CSTRING:
 			++it;
 			return sb;
@@ -220,13 +220,13 @@ string webss::parseCString(Parser& parser)
 			sb += *it;
 		++it;
 	}
-	throw runtime_error("cstring is not closed");
+	throw runtime_error(WEBSSON_EXCEPTION("cstring is not closed"));
 }
 
 static void checkEscapedChar(SmartIterator& it, StringBuilder& sb)
 {
 	if (!++it)
-		throw runtime_error(ERROR_EXPECTED);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
 
 	switch (*it)
 	{
@@ -247,7 +247,7 @@ static void checkEscapedChar(SmartIterator& it, StringBuilder& sb)
 	case 'v': sb += '\v'; break;
 	default:
 		if (!isSpecialAscii(*it))
-			throw runtime_error("invalid char escape");
+			throw runtime_error(WEBSSON_EXCEPTION("invalid char escape"));
 		sb += *it;
 		break;
 	}
@@ -311,6 +311,6 @@ static const string& expandString(Parser& parser)
 	}
 	catch (const exception&)
 	{
-		throw runtime_error("could not expand string entity");
+		throw runtime_error(WEBSSON_EXCEPTION("could not expand string entity"));
 	}
 }

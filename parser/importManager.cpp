@@ -12,6 +12,7 @@
 #include <boost/filesystem.hpp>
 
 #include "curl.hpp"
+#include "errors.hpp"
 #include "parser.hpp"
 #include "structures/document.hpp"
 
@@ -98,7 +99,7 @@ void ImportManager::getReadLocallyFullLink(const string& link, const string& fil
 	bool isFileLink;
 	auto fileTypeLink = getFileType(link);
 	if (fileTypeLink == TypeFile::ERROR)
-		throw runtime_error("could not resolve import \"" + link + "\"");
+		throw runtime_error(WEBSSON_EXCEPTION("could not resolve import \"" + link + "\""));
 	switch (fileTypeLink)
 	{
 	case TypeFile::EMPTY:
@@ -135,7 +136,7 @@ void ImportManager::getReadLocallyFullLink(const string& link, const string& fil
 		}
 		catch (boost::filesystem::filesystem_error&)
 		{
-			throw runtime_error("could not resolve import \"" + link + "\"");
+			throw runtime_error(WEBSSON_EXCEPTION("could not resolve import \"" + link + "\""));
 		}
 	}
 	else
@@ -167,7 +168,7 @@ const pair<unordered_map<string, Entity>, vector<pair<string, Webss>>>& ImportMa
 				goto checkAgainLater; //unlocks both locks
 
 			parsing.erase(fullLink);
-			throw runtime_error("can't have circular import");
+			throw runtime_error(WEBSSON_EXCEPTION("can't have circular import"));
 		}
 		parsing.insert({ fullLink, this_thread::get_id() });
 	}
@@ -182,7 +183,7 @@ const pair<unordered_map<string, Entity>, vector<pair<string, Webss>>>& ImportMa
 		{
 			ifstream fileIn(fullLink, ios::binary);
 			if (fileIn.fail())
-				throw runtime_error("failed to open file \"" + filename + "\"");
+				throw runtime_error(WEBSSON_EXCEPTION("failed to open file \"" + filename + "\""));
 			doc = parser.parseDocument(fileIn, fullLink);
 		}
 			
@@ -200,7 +201,7 @@ const pair<unordered_map<string, Entity>, vector<pair<string, Webss>>>& ImportMa
 	}
 	catch (const exception& e)
 	{
-		throw runtime_error("while parsing imported document \"" + link + "\", " + e.what());
+		throw runtime_error(WEBSSON_EXCEPTION("while parsing imported document \"" + link + "\", " + e.what()));
 	}
 checkAgainLater:
 	this_thread::yield();

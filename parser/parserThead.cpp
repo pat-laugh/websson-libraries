@@ -3,6 +3,7 @@
 #include "parserThead.hpp"
 
 #include "containerSwitcher.hpp"
+#include "errors.hpp"
 #include "utilsExpand.hpp"
 #include "parserTempl.hpp"
 #include "structures/theadFun.hpp"
@@ -35,14 +36,14 @@ switchStart:
 			thead = containerEmpty() ? TheadBin() : parseTheadBin();
 		}
 		if (checkNextElement())
-			throw runtime_error(ERROR_UNEXPECTED);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 		return{ move(thead), options };
 	}
 	case Tag::SELF:
 		if (!allowSelf)
-			throw runtime_error("self in a template head must be within a non-empty template head");
+			throw runtime_error(WEBSSON_EXCEPTION("self in a template head must be within a non-empty template head"));
 		if (optionsSet)
-			throw runtime_error("can't set options in a self template head");
+			throw runtime_error(WEBSSON_EXCEPTION("can't set options in a self template head"));
 		(++tagit).sofertTag(Tag::END_TEMPLATE);
 		++tagit;
 		return TheadSelf();
@@ -51,7 +52,7 @@ switchStart:
 	{
 		Thead thead(parseTheadFun(), options);
 		if (checkNextElement())
-			throw runtime_error(ERROR_UNEXPECTED);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 		return thead;
 	}
 	//options
@@ -86,7 +87,7 @@ switchStart:
 
 	auto ent = parseExpandEntity(tagit, ents);
 	if (ent.getContent().getType() != WebssType::THEAD)
-		throw runtime_error("expand entity within template head must be a template head");
+		throw runtime_error(WEBSSON_EXCEPTION("expand entity within template head must be a template head"));
 	const auto& thead = ent.getContent().getThead();
 	if (!optionsSet)
 		options = thead.getOptions();

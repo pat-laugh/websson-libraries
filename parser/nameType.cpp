@@ -4,6 +4,7 @@
 
 #include <cassert>
 
+#include "errors.hpp"
 #include "utilsSweepers.hpp"
 #include "utils/utilsWebss.hpp"
 
@@ -38,5 +39,5 @@ scopeLoop:
 		ent = &content.getNamespace().at(parseName(tagit.getIt()));
 		goto scopeLoop;
 	}
-	catch (const exception&) { throw runtime_error("could not get scoped value"); }
+	catch (const exception&) { throw runtime_error(WEBSSON_EXCEPTION("could not get scoped value")); }
 }

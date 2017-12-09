@@ -95,7 +95,7 @@ List Parser::parseListCommon(function<void(List&)> defaultFunc)
 			expandList(list, tagit, ents);
 			break;
 		case Tag::EXPLICIT_NAME:
-			throw runtime_error("list can only contain values");
+			throw runtime_error(WEBSSON_EXCEPTION("list can only contain values"));
 		default:
 			defaultFunc(list);
 			break;
@@ -177,7 +177,7 @@ Namespace Parser::parseNamespace(const string& name, const Namespace& previousNa
 			break;
 		case Tag::IMPORT:
 #ifdef WEBSSON_PARSER_DISABLE_IMPORT
-			throw runtime_error("this parser cannot import documents");
+			throw runtime_error(WEBSSON_EXCEPTION("this parser cannot import documents"));
 #else
 			{
 				auto import = parseImport();
@@ -189,7 +189,7 @@ Namespace Parser::parseNamespace(const string& name, const Namespace& previousNa
 			}
 #endif
 		default:
-			throw runtime_error(ERROR_INPUT_NAMESPACE);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_INPUT_NAMESPACE));
 		}
 	});
 }
@@ -210,7 +210,7 @@ Enum Parser::parseEnum(const string& name)
 			tEnum.addSafe(parseNameExplicit(tagit));
 			break;
 		default:
-			throw runtime_error(ERROR_UNEXPECTED);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 		}
 	});
 }
@@ -273,7 +273,7 @@ Document Parser::parseDocument()
 			}
 			case Tag::IMPORT:
 #ifdef WEBSSON_PARSER_DISABLE_IMPORT
-			throw runtime_error("this parser cannot import documents");
+			throw runtime_error(WEBSSON_EXCEPTION("this parser cannot import documents"));
 #else
 			{
 				auto import = parseImport();
@@ -305,7 +305,7 @@ Document Parser::parseDocument()
 					for (const auto& item : ent.getContent().getTuple().getOrderedKeyValues())
 						item.first == nullptr ? doc.addBody(*item.second) : doc.addBodySafe(*item.first, *item.second);
 				else
-					throw runtime_error("expand entity in document must be a namespace or tuple");
+					throw runtime_error(WEBSSON_EXCEPTION("expand entity in document must be a namespace or tuple"));
 				break;
 			}
 			case Tag::OPTION:
@@ -345,12 +345,12 @@ Webss Parser::parseConcreteValueOnly()
 	try
 	{
 		if (containerEmpty())
-			throw runtime_error("no concret value-only to parse");
+			throw runtime_error(WEBSSON_EXCEPTION("no concret value-only to parse"));
 		return parseValueOnly();
 	}
 	catch (const exception& e)
 	{
-		throw runtime_error(string(getItPosition(getIt()) + ' ' + e.what() + getItCurrentChar(getIt())).c_str());
+		throw runtime_error(WEBSSON_EXCEPTION(string(getItPosition(getIt()) + ' ' + e.what() + getItCurrentChar(getIt())).c_str()));
 	}
 }
 
@@ -374,7 +374,7 @@ static bool isOptionString(SmartIterator& it, const char* s)
 static string getOptionValue(Parser& self, SmartIterator& it)
 {
 	if (*it != CHAR_OPTION_ASSIGN_LINE_STRING)
-		throw runtime_error(ERROR_UNEXPECTED);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 	++it;
 	return parseStickyLineStringOption(self);
 }
@@ -382,12 +382,12 @@ static string getOptionValue(Parser& self, SmartIterator& it)
 static void checkMandatoryVersionValue(Parser& self, SmartIterator& it)
 {
 	if (!++it)
-		throw runtime_error(ERROR_OPTION);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_OPTION));
 	auto value = getOptionValue(self, it);
 	if (value == "*")
-		throw runtime_error("invalid mandatory WebSSON version");
+		throw runtime_error(WEBSSON_EXCEPTION("invalid mandatory WebSSON version"));
 	if (value != "1.0.0")
-		throw runtime_error("this parser can only parse WebSSON version 1.0.0");
+		throw runtime_error(WEBSSON_EXCEPTION("this parser can only parse WebSSON version 1.0.0"));
 }
 
 static void skipOtherVersion(Parser& self, SmartIterator& it)
@@ -419,7 +419,7 @@ getToOption:
 	if (*it != 'w')
 		goto startSkipLine;
 	if (!++it)
-		throw runtime_error(ERROR_OPTION);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_OPTION));
 	if (*it == CHAR_OPTION_ASSIGN_LINE_STRING)
 		; //do nothing
 	else if (*it != 'e')
@@ -427,7 +427,7 @@ getToOption:
 	else if (!isOptionString(it, "bsson-version"))
 		goto start;
 	else if (!++it)
-		throw runtime_error(ERROR_OPTION);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_OPTION));
 	else if (*it != CHAR_OPTION_ASSIGN_LINE_STRING)
 		goto startSkipLine;
 	else
@@ -452,21 +452,21 @@ void Parser::parseOption()
 	if (*it == 'd')
 	{
 		if (!++it || (*it == 'o' && (!isOptionString(it, "cument-id") || !++it)))
-			throw runtime_error(ERROR_OPTION);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_OPTION));
 		docId = getOptionValue(*this, it);
 	}
 	else if (*it == 'w')
 	{
 		if (!++it)
-			throw runtime_error(ERROR_OPTION);
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_OPTION));
 		else if (*it == 'e')
 		{
 			if (!isOptionString(it, "bsson-version") || !++it)
-				throw runtime_error(ERROR_OPTION);
+				throw runtime_error(WEBSSON_EXCEPTION(ERROR_OPTION));
 			if (*it == '-')
 			{
 				if (!isOptionString(it, "mandatory"))
-	   				throw runtime_error(ERROR_OPTION);
+	   				throw runtime_error(WEBSSON_EXCEPTION(ERROR_OPTION));
 				checkMandatoryVersionValue(*this, it);
 				goto endParseOption;
 			}
@@ -478,11 +478,11 @@ void Parser::parseOption()
 	else if (*it == 'W')
 		checkMandatoryVersionValue(*this, it);
 	else	
-		throw runtime_error(ERROR_OPTION);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_OPTION));
 endParseOption:
 	if (!skipLineJunk(it))
 		return;
 	if (*it != '\n')
-		throw runtime_error(ERROR_UNEXPECTED);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 	++it;
 }

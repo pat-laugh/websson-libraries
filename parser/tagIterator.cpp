@@ -67,7 +67,7 @@ Tag getTagColon(SmartIterator& it)
 	case CHAR_START_TUPLE:
 		return Tag::TEXT_TUPLE;
 	case CHAR_START_TEMPLATE:
-		throw runtime_error(ERROR_UNEXPECTED);
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
 	default:
 		return Tag::TEXT_DICTIONARY;
 	}
@@ -138,7 +138,7 @@ Tag TagIterator::getTag()
 void TagIterator::sofertTag(Tag tag)
 {
 	if (getSafe() != tag)
-		throw runtime_error(it ? ERROR_UNEXPECTED : ERROR_EXPECTED);
+		throw runtime_error(WEBSSON_EXCEPTION(it ? ERROR_UNEXPECTED : ERROR_EXPECTED));
 }
 
 SmartIterator& TagIterator::getIt()
