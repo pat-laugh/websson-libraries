@@ -38,7 +38,11 @@ Webss Parser::parseAbstractCharValue(const string& name, const Namespace& curren
 	case Tag::START_TEMPLATE:
 		return parseThead();
 	case Tag::START_TEMPLATE_FUN:
-		return Thead(parseTheadFun());
+	{
+		auto theadFun = parseTheadFun();
+		parseTheadFunStructure(theadFun);
+		return Thead(move(theadFun));
+	}
 	case Tag::EQUAL:
 		++tagit;
 		return parseAbstractValueEqual(name, currentNamespace);

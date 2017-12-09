@@ -50,10 +50,11 @@ switchStart:
 	case Tag::START_TEMPLATE_FUN:
 	startTemplateFunction:
 	{
-		Thead thead(parseTheadFun(), options);
+		auto theadFun = parseTheadFun();
 		if (checkNextElement())
 			throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
-		return thead;
+		parseTheadFunStructure(theadFun);
+		return Thead(move(theadFun), options);
 	}
 	//options
 	optionSwitchStart:
@@ -148,7 +149,6 @@ TheadFun Parser::parseTheadFun()
 	ContainerSwitcher switcher(*this, ConType::TEMPLATE_FUN, false);
 	TheadFun theadFun;
 	theadFun.setThead(containerEmpty() ? TheadStd() : ParserThead::parseTheadStd(*this));
-	parseTheadFunStructure(theadFun);
 	return theadFun;
 }
 
