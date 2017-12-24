@@ -95,12 +95,10 @@ bool Parser::containerEmpty()
 			throw runtime_error(WEBSSON_EXCEPTION(ERROR_VOID));
 		break;
 	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
-		if (con.isEnd(*getIt()))
-		{
-			++tagit;
-			return true;
-		}
-		break;
+		if (!con.isEnd(*getIt()))
+			break;
+		++tagit;
+		return true;
 	default:
 		break;
 	}
@@ -131,23 +129,19 @@ bool Parser::checkNextElement()
 				throw runtime_error(WEBSSON_EXCEPTION(ERROR_VOID));
 			break;
 		case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
-			if (con.isEnd(*getIt()))
-			{
-				++tagit;
-				return false;
-			}
-			break;
+			if (!con.isEnd(*getIt()))
+				break;
+			++tagit;
+			return false;
 		default:
 			break;
 		}
 		break;
 	case Tag::END_DICTIONARY: case Tag::END_LIST: case Tag::END_TUPLE: case Tag::END_TEMPLATE:
-		if (con.isEnd(*getIt()))
-		{
-			++tagit;
-			return false;
-		}
-		break;
+		if (!con.isEnd(*getIt()))
+			break;
+		++tagit;
+		return false;
 	default:
 		break;
 	}

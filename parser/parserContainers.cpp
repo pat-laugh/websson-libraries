@@ -342,16 +342,8 @@ Webss Parser::parseConcreteValueOnly(various::SmartIterator it)
 
 Webss Parser::parseConcreteValueOnly()
 {
-	try
-	{
-		if (containerEmpty())
-			throw runtime_error(WEBSSON_EXCEPTION("no concret value-only to parse"));
-		return parseValueOnly();
-	}
-	catch (const exception& e)
-	{
-		throw runtime_error(WEBSSON_EXCEPTION(string(getItPosition(getIt()) + ' ' + e.what() + getItCurrentChar(getIt())).c_str()));
-	}
+	try { return parseValueOnly(); }
+	catch (const exception& e) { throw runtime_error(WEBSSON_EXCEPTION(string(getItPosition(getIt()) + ' ' + e.what() + getItCurrentChar(getIt())).c_str())); }
 }
 
 #ifndef WEBSSON_PARSER_DISABLE_IMPORT
