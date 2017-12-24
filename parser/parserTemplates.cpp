@@ -25,14 +25,13 @@ Webss Parser::parseTemplateBody(Thead thead)
 	decltype(ParserTempl::parseTemplateStd)* funcTempl;
 	switch (thead.getType())
 	{
+	default: assert(false);
 	case TypeThead::BIN:
 		funcTempl = &ParserTempl::parseTemplateBin;
 		break;
 	case TypeThead::STD: case TypeThead::FUN:
 		funcTempl = &ParserTempl::parseTemplateStd;
 		break;
-	default:
-		assert(false); throw std::domain_error("");
 	}
 
 	if (tagit.getSafe() != Tag::FOREACH)

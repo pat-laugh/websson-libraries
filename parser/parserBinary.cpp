@@ -286,6 +286,7 @@ static Webss parseBinElement(BinaryIterator& it, const ParamBin::SizeHead& bhead
 
 	switch (bhead.getType())
 	{
+	default: assert(false);
 	case Type::KEYWORD:
 		return parseBinKeyword(it, bhead.getKeyword());
 	case Type::EMPTY: case Type::EMPTY_ENTITY_NUMBER:
@@ -294,8 +295,6 @@ static Webss parseBinElement(BinaryIterator& it, const ParamBin::SizeHead& bhead
 		return Webss(it.readBits(bhead.size()));
 	case Type::NUMBER: case Type::ENTITY_NUMBER:
 		return Webss(it.readString(bhead.size()));
-	default:
-		assert(false); throw domain_error("");
 	}
 }
 

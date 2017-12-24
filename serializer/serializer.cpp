@@ -118,6 +118,7 @@ private:
 			using Type = ParamBin::SizeHead::Type;
 			switch (bhead.getType())
 			{
+			default: assert(false);
 			case Type::EMPTY:
 				break;
 			case Type::KEYWORD:
@@ -138,8 +139,6 @@ private:
 				out += CHAR_SELF;
 				break;
 			}
-			default:
-				assert(false);
 			}
 			putBinSizeArray(out, param.getSizeArray());
 		}
@@ -160,6 +159,7 @@ private:
 		ContainerIncluder<ConType::LIST> includer(out);
 		switch (barray.getType())
 		{
+		default: assert(false);
 		case Type::EMPTY:
 			break;
 		case Type::NUMBER:
@@ -168,8 +168,6 @@ private:
 		case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
 			putEntityName(out, barray.getEntity());
 			break;
-		default:
-			assert(false);
 		}
 	}
 };
@@ -193,6 +191,7 @@ void Serializer::putDocument(StringBuilder& out, const Document& doc)
 			using Type = decltype(itHead->getType());
 			switch (itHead->getType())
 			{
+			default: assert(false);
 			case Type::ENTITY_ABSTRACT:
 				putEntityAbstract(out, itHead->getEntity());
 				break;
@@ -205,8 +204,6 @@ void Serializer::putDocument(StringBuilder& out, const Document& doc)
 			case Type::IMPORT:
 				putImport(out, itHead->getImport(), CON);
 				break;
-			default:
-				assert(false);
 			}
 			++itHead;
 			out += '\n';
@@ -599,6 +596,7 @@ void Serializer::putThead(StringBuilder& out, const Thead& thead)
 	static const auto CON = ConType::THEAD;
 	switch (thead.getTypeRaw())
 	{
+	default: assert(false);
 	case TypeThead::BIN:
 	{
 		ContainerIncluder<CON> includer(out);
@@ -669,7 +667,6 @@ void Serializer::putThead(StringBuilder& out, const Thead& thead)
 		break;
 	}
 	case TypeThead::FUN:
-	{
 		{
 			ContainerIncluder<ConType::TEMPLATE_FUN> includer(out);
 			for (const auto& keyValue : thead.getTheadFun().getThead().getParams().getOrderedKeyValues())
@@ -683,7 +680,6 @@ void Serializer::putThead(StringBuilder& out, const Thead& thead)
 		//being free to have any value
 		putConcreteValue(out, thead.getTheadFun().getStructure(), ConType::DOCUMENT);
 		break;
-	}
 	case TypeThead::ENTITY:
 	{
 		if (thead.isTheadFun())
@@ -708,8 +704,6 @@ void Serializer::putThead(StringBuilder& out, const Thead& thead)
 		out += CHAR_SELF;
 		break;
 	}
-	default:
-		assert(false);
 	}
 }
 
@@ -724,6 +718,7 @@ void Serializer::putTemplate(StringBuilder& out, const Template& templ, ConType 
 
 	switch (templ.getType())
 	{
+	default: assert(false);
 	case TypeThead::BIN:
 		putTemplateBinTuple(out, templ);
 		break;
@@ -743,8 +738,6 @@ void Serializer::putTemplate(StringBuilder& out, const Template& templ, ConType 
 		else
 			putTemplateStdTuple(out, templ.getTheadFun().getThead().getParams(), templ.body.getTuple());
 		break;
-	default:
-		assert(false);
 	}
 
 	if (templ.isPlus())
@@ -765,6 +758,7 @@ void Serializer::putTemplateStdBody(StringBuilder& out, const TheadStd::Params& 
 	auto putTupleText = [&](StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple) { putTemplateStdTupleText(out, params, tuple); };
 	switch (body.getTypeRaw())
 	{
+	default: assert(false);
 	case WebssType::LIST:
 		static_cast<SerializerTemplate*>(this)->putTemplateList<TheadStd::Params>(out, params, body.getListRaw(), move(putTupleRegular), move(putTupleText));
 		break;
@@ -774,8 +768,6 @@ void Serializer::putTemplateStdBody(StringBuilder& out, const TheadStd::Params& 
 	case WebssType::TUPLE_TEXT:
 		putTemplateStdTupleText(out, params, body.getTupleRaw());
 		break;
-	default:
-		assert(false);
 	}
 }
 
@@ -855,6 +847,7 @@ void Serializer::putParamBin(StringBuilder& out, const string& key, const ParamB
 	using Type = ParamBin::SizeHead::Type;
 	switch (bhead.getType())
 	{
+	default: assert(false);
 	case Type::EMPTY:
 		break;
 	case Type::KEYWORD:
@@ -875,8 +868,6 @@ void Serializer::putParamBin(StringBuilder& out, const string& key, const ParamB
 		out += CHAR_SELF;
 		break;
 	}
-	default:
-		assert(false);
 	}
 	putBinSizeArray(out, param.getSizeArray());
 	out += CHAR_TEMPLATE_BIN_SEPARATOR;
@@ -896,6 +887,7 @@ void Serializer::putBinSizeArray(StringBuilder& out, const ParamBin::SizeArray& 
 	ContainerIncluder<ConType::TEMPLATE_BIN_ARRAY> includer(out);
 	switch (barray.getType())
 	{
+	default: assert(false);
 	case Type::EMPTY:
 		break;
 	case Type::NUMBER:
@@ -904,8 +896,6 @@ void Serializer::putBinSizeArray(StringBuilder& out, const ParamBin::SizeArray& 
 	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
 		putEntityName(out, barray.getEntity());
 		break;
-	default:
-		assert(false);
 	}
 }
 

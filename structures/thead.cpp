@@ -54,6 +54,7 @@ void Thead::destroyUnion()
 {
 	switch (type)
 	{
+	default: assert(false);
 	case TypeThead::NONE: case TypeThead::SELF:
 		break;
 	case TypeThead::ENTITY:
@@ -68,8 +69,6 @@ void Thead::destroyUnion()
 	case TypeThead::STD:
 		delete theadStd;
 		break;
-	default:
-		assert(false);
 	}
 	type = TypeThead::NONE;
 	if (modifierTuple != nullptr)
@@ -80,6 +79,7 @@ void Thead::copyUnion(Thead&& o)
 {
 	switch (o.type)
 	{
+	default: assert(false);
 	case TypeThead::NONE: case TypeThead::SELF:
 		break;
 	case TypeThead::ENTITY:
@@ -95,8 +95,6 @@ void Thead::copyUnion(Thead&& o)
 	case TypeThead::STD:
 		theadStd = o.theadStd;
 		break;
-	default:
-		assert(false);
 	}
 	type = o.type;
 	o.type = TypeThead::NONE;
@@ -110,6 +108,7 @@ void Thead::copyUnion(const Thead& o)
 {
 	switch (o.type)
 	{
+	default: assert(false);
 	case TypeThead::NONE: case TypeThead::SELF:
 		break;
 	case TypeThead::ENTITY:
@@ -124,8 +123,6 @@ void Thead::copyUnion(const Thead& o)
 	case TypeThead::STD:
 		theadStd = new TheadStd(*o.theadStd);
 		break;
-	default:
-		assert(false);
 	}
 	type = o.type;
 	options = o.options;
@@ -143,6 +140,7 @@ bool Thead::operator==(const Thead& o) const
 		return false;
 	switch (getType())
 	{
+	default: assert(false);
 	case TypeThead::NONE: case TypeThead::SELF:
 		return true;
 	case TypeThead::BIN:
@@ -151,8 +149,6 @@ bool Thead::operator==(const Thead& o) const
 		return getTheadFun() == o.getTheadFun();
 	case TypeThead::STD:
 		return getTheadStd() == o.getTheadStd();
-	default:
-		assert(false); throw domain_error("");
 	}
 }
 bool Thead::operator!=(const Thead& o) const { return !(*this == o); }

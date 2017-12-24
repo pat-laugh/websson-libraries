@@ -16,6 +16,7 @@ int BinaryIterator::getBitmask(int num)
 {
 	switch (num)
 	{
+	default: assert(false);
 	case 1: return 0b00000001;
 	case 2: return 0b00000011;
 	case 3: return 0b00000111;
@@ -24,8 +25,6 @@ int BinaryIterator::getBitmask(int num)
 	case 6: return 0b00111111;
 	case 7: return 0b01111111;
 	case 8: return 0b11111111;
-	default:
-		assert(false); throw domain_error("");
 	}
 }
 

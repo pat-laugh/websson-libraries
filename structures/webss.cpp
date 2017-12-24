@@ -38,6 +38,7 @@ Webss::Webss(Keyword keyword) : type(WebssType::PRIMITIVE_BOOL)
 {
 	switch (keyword)
 	{
+	default: assert(false);
 	case Keyword::KEY_NULL:
 		type = WebssType::PRIMITIVE_NULL;
 		break;
@@ -47,8 +48,6 @@ Webss::Webss(Keyword keyword) : type(WebssType::PRIMITIVE_BOOL)
 	case Keyword::KEY_TRUE:
 		tBool = true;
 		break;
-	default:
-		assert(false);
 	}
 }
 Webss::Webss(int tInt) : type(WebssType::PRIMITIVE_INT), tInt(tInt) {}
@@ -80,6 +79,7 @@ void Webss::destroyUnion()
 {
 	switch (type)
 	{
+	default: assert(false);
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
 		break;
 	case WebssType::ENTITY:
@@ -118,8 +118,6 @@ void Webss::destroyUnion()
 	case WebssType::PLACEHOLDER:
 		delete placeholder;
 		break;
-	default:
-		assert(false);
 	}
 	type = WebssType::NONE;
 }
@@ -128,6 +126,7 @@ void Webss::copyUnion(Webss&& o)
 {
 	switch (o.type)
 	{
+	default: assert(false);
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
 		break;
 	case WebssType::ENTITY:
@@ -180,8 +179,6 @@ void Webss::copyUnion(Webss&& o)
 	case WebssType::PLACEHOLDER:
 		placeholder = o.placeholder;
 		break;
-	default:
-		assert(false);
 	}
 	type = o.type;
 	o.type = WebssType::NONE;
@@ -191,6 +188,7 @@ void Webss::copyUnion(const Webss& o)
 {
 	switch (o.type)
 	{
+	default: assert(false);
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
 		break;
 	case WebssType::ENTITY:
@@ -239,8 +237,6 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::PLACEHOLDER:
 		placeholder = new Placeholder(*o.placeholder);
 		break;
-	default:
-		assert(false);
 	}
 	type = o.type;
 }
@@ -254,6 +250,7 @@ bool Webss::operator==(const Webss& o) const
 	const auto& w1 = getWebssLast(), w2 = o.getWebssLast();
 	switch (w1.getTypeRaw())
 	{
+	default: assert(false);
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
 		return true;
 	case WebssType::PRIMITIVE_BOOL:
@@ -269,7 +266,7 @@ bool Webss::operator==(const Webss& o) const
 	case WebssType::DICTIONARY:
 		return *w1.dict == *w2.dict;
 	case WebssType::LIST: case WebssType::LIST_TEXT:
-		return (*w1.list) == *w2.list;
+		return *w1.list == *w2.list;
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 		return *w1.tuple == *w2.tuple;
 	case WebssType::THEAD:
@@ -280,8 +277,6 @@ bool Webss::operator==(const Webss& o) const
 		return w1.nspace == w2.nspace;
 	case WebssType::ENUM:
 		return w1.tEnum == w2.tEnum;
-	default:
-		assert(false); throw domain_error("");
 	}
 }
 bool Webss::operator!=(const Webss& o) const { return !(*this == o); }
@@ -459,8 +454,7 @@ bool Webss::isAbstract() const
 {
 	switch (type)
 	{
-	case WebssType::NONE:
-		assert(false);
+	case WebssType::NONE: assert(false);
 	case WebssType::ENTITY:
 		return ent.getContent().isAbstract();
 	case WebssType::DEFAULT:

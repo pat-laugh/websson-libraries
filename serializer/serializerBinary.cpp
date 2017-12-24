@@ -93,6 +93,7 @@ static void putBinElement(BinarySerializer& out, const ParamBin::SizeHead& bhead
 	using Type = ParamBin::SizeHead::Type;
 	switch (bhead.getType())
 	{
+	default: assert(false);
 	case Type::KEYWORD:
 		putBinKeyword(out, bhead.getKeyword(), webss);
 		break;
@@ -105,8 +106,6 @@ static void putBinElement(BinarySerializer& out, const ParamBin::SizeHead& bhead
 	case Type::BITS: case Type::ENTITY_BITS:
 		out.putBits(bhead.size(), webss.getIntRaw());
 		break;
-	default:
-		assert(false); throw domain_error("");
 	}
 }
 
@@ -121,6 +120,7 @@ static void putBinKeyword(BinarySerializer& out, Keyword keyword, const Webss& w
 	
 	switch (keyword)
 	{
+	default: assert(false);
 	case Keyword::BOOL:
 		out.putBit(webss.getBoolRaw() ? 1 : 0);
 		break;
@@ -150,8 +150,6 @@ static void putBinKeyword(BinarySerializer& out, Keyword keyword, const Webss& w
 	case Keyword::VARINT:
 		out.putNumber(webss.getIntRaw());
 		break;
-	default:
-		assert(false); throw domain_error("");
 	}
 }
 

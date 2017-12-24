@@ -20,6 +20,7 @@ SizeHead::SizeHead(Keyword keyword) : type(Type::KEYWORD)
 {
 	switch (keyword)
 	{
+	default: assert(false);
 	case Keyword::BOOL: case Keyword::INT8: case Keyword::INT16: case Keyword::INT32: case Keyword::INT64:
 	case Keyword::FLOAT: case Keyword::DOUBLE: case Keyword::VARINT:
 		this->keyword = keyword;
@@ -27,8 +28,6 @@ SizeHead::SizeHead(Keyword keyword) : type(Type::KEYWORD)
 	case Keyword::STRING:
 		type = Type::EMPTY;
 		break;
-	default:
-		assert(false); throw domain_error("");
 	}
 }
 
@@ -71,6 +70,7 @@ bool SizeHead::operator==(const SizeHead& o) const
 		return false;
 	switch (o.type)
 	{
+	default: assert(false);
 	case Type::NONE: case Type::EMPTY: case Type::SELF:
 		return true;
 	case Type::KEYWORD:
@@ -81,8 +81,6 @@ bool SizeHead::operator==(const SizeHead& o) const
 		return *thead == *o.thead;
 	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_THEAD: case Type::ENTITY_BITS:
 		return ent == o.ent;
-	default:
-		assert(false); throw domain_error("");
 	}
 }
 bool SizeHead::operator!=(const SizeHead& o) const { return !(*this == o); }
@@ -131,12 +129,11 @@ WebssBinSize SizeHead::size() const
 {
 	switch (type)
 	{
+	default: assert(false);
 	case Type::ENTITY_NUMBER: case Type::ENTITY_BITS:
 		return static_cast<WebssBinSize>(ent.getContent().getInt());
 	case Type::NUMBER: case Type::BITS:
 		return number;
-	default:
-		assert(false); throw domain_error("");
 	}
 }
 
@@ -178,6 +175,7 @@ void SizeHead::copyUnion(SizeHead&& o)
 {
 	switch (o.type)
 	{
+	default: assert(false);
 	case Type::NONE: case Type::EMPTY: case Type::SELF:
 		break;
 	case Type::KEYWORD:
@@ -193,8 +191,6 @@ void SizeHead::copyUnion(SizeHead&& o)
 		new (&ent) Entity(move(o.ent));
 		o.ent.~Entity();
 		break;
-	default:
-		assert(false);
 	}
 	type = o.type;
 	o.type = Type::NONE;
@@ -206,6 +202,7 @@ void SizeHead::copyUnion(const SizeHead& o)
 {
 	switch (o.type)
 	{
+	default: assert(false);
 	case Type::NONE: case Type::EMPTY: case Type::SELF:
 		break;
 	case Type::KEYWORD:
@@ -220,8 +217,6 @@ void SizeHead::copyUnion(const SizeHead& o)
 	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER: case Type::ENTITY_THEAD: case Type::ENTITY_BITS:
 		new (&ent) Entity(o.ent);
 		break;
-	default:
-		assert(false);
 	}
 	type = o.type;
 
@@ -274,14 +269,13 @@ bool SizeArray::operator==(const SizeArray& o) const
 		return false;
 	switch (o.type)
 	{
+	default: assert(false);
 	case Type::NONE: case Type::EMPTY: case Type::ONE:
 		return true;
 	case Type::NUMBER:
 		return number == o.number;
 	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
 		return ent == o.ent;
-	default:
-		assert(false); throw domain_error("");
 	}
 }
 bool SizeArray::operator!=(const SizeArray& o) const { return !(*this == o); }
@@ -318,6 +312,7 @@ void SizeArray::copyUnion(SizeArray&& o)
 {
 	switch (o.type)
 	{
+	default: assert(false);
 	case Type::NONE: case Type::EMPTY: case Type::ONE:
 		break;
 	case Type::NUMBER:
@@ -327,8 +322,6 @@ void SizeArray::copyUnion(SizeArray&& o)
 		new (&ent) Entity(move(o.ent));
 		o.ent.~Entity();
 		break;
-	default:
-		assert(false);
 	}
 	type = o.type;
 	o.type = Type::NONE;
@@ -337,6 +330,7 @@ void SizeArray::copyUnion(const SizeArray& o)
 {
 	switch (o.type)
 	{
+	default: assert(false);
 	case Type::NONE: case Type::EMPTY: case Type::ONE:
 		break;
 	case Type::NUMBER:
@@ -345,8 +339,6 @@ void SizeArray::copyUnion(const SizeArray& o)
 	case Type::EMPTY_ENTITY_NUMBER: case Type::ENTITY_NUMBER:
 		new (&ent) Entity(o.ent);
 		break;
-	default:
-		assert(false);
 	}
 	type = o.type;
 }

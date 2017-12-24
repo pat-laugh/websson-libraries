@@ -37,12 +37,11 @@ bool ParamDocument::operator==(const ParamDocument& o) const
 		return false;
 	switch (type)
 	{
+	default: assert(false);
 	case Type::NONE: case Type::IMPORT:
 		return true;
 	case Type::ENTITY_ABSTRACT: case Type::ENTITY_CONCRETE: case Type::EXPAND:
 		return ent == o.ent;
-	default:
-		assert(false); throw domain_error("");
 	}
 }
 bool ParamDocument::operator!=(const ParamDocument& o) const { return !(*this == o); }

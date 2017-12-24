@@ -49,25 +49,23 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 	case CaseTagKeyChar:
 		return parseCharValue();
 	case Tag::NAME_START:
+	{
 		if (explicitName)
 			return parseOtherValueName(parseName(getItSafe()));
-		else
+		auto nameType = parseNameType(tagit, ents);
+		switch (nameType.type)
 		{
-			auto nameType = parseNameType(tagit, ents);
-			switch (nameType.type)
-			{
-			case NameType::NAME:
-				return parseOtherValueName(move(nameType.name));
-			case NameType::KEYWORD:
-				return Webss(nameType.keyword);
-			case NameType::ENTITY_ABSTRACT:
-				return checkAbstractEntity(nameType.entity);
-			case NameType::ENTITY_CONCRETE:
-				return Webss(move(nameType.entity));
-			default:
-				assert(false);
-			}
+		default: assert(false);
+		case NameType::NAME:
+			return parseOtherValueName(move(nameType.name));
+		case NameType::KEYWORD:
+			return Webss(nameType.keyword);
+		case NameType::ENTITY_ABSTRACT:
+			return checkAbstractEntity(nameType.entity);
+		case NameType::ENTITY_CONCRETE:
+			return Webss(move(nameType.entity));
 		}
+	}
 	case Tag::DIGIT: case Tag::MINUS: case Tag::PLUS:
 		return Webss(parseNumber(*this));
 	case Tag::EXPLICIT_NAME:
@@ -112,6 +110,7 @@ void Parser::parseOtherValue(function<void(string&& key, Webss&& value)> funcKey
 	auto other = parseOtherValue();
 	switch (other.type)
 	{
+	default: assert(false);
 	case OtherValue::Type::KEY_VALUE:
 		funcKeyValue(move(other.key), move(other.value));
 		break;
@@ -124,8 +123,6 @@ void Parser::parseOtherValue(function<void(string&& key, Webss&& value)> funcKey
 	case OtherValue::Type::ABSTRACT_ENTITY:
 		funcAbstractEntity(other.abstractEntity);
 		break;
-	default:
-		assert(false);
 	}
 }
 
@@ -134,6 +131,7 @@ void Parser::parseExplicitKeyValue(function<void(string&& key, Webss&& value)> f
 	auto other = parseOtherValue(true);
 	switch (other.type)
 	{
+	default: assert(false);
 	case OtherValue::Type::KEY_VALUE:
 		funcKeyValue(move(other.key), move(other.value));
 		break;
@@ -142,8 +140,6 @@ void Parser::parseExplicitKeyValue(function<void(string&& key, Webss&& value)> f
 		break;
 	case OtherValue::Type::VALUE_ONLY:
 		throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
-	default:
-		assert(false);
 	}
 }
 

@@ -17,6 +17,7 @@ string ConType::toString() const
 {
 	switch (e)
 	{
+	default: assert(false);
 	case ConType::DOCUMENT:
 		return "document";
 	case ConType::DICTIONARY:
@@ -27,8 +28,6 @@ string ConType::toString() const
 		return "tuple";
 	case ConType::THEAD:
 		return "template head";
-	default:
-		assert(false); throw domain_error("");
 	}
 }
 

@@ -220,12 +220,11 @@ namespace webss
 				return self.parseValueOnly();
 			switch (param.getTypeThead())
 			{
+			default: assert(false);
 			case TypeThead::SELF:
 				return self.parseTemplateBody(thead);
 			case TypeThead::BIN: case TypeThead::FUN: case TypeThead::STD:
 				return self.parseTemplateBody(param.getThead());
-			default:
-				assert(false); throw std::domain_error("");
 			}
 		}
 
@@ -260,14 +259,13 @@ namespace webss
 				throw std::runtime_error(WEBSSON_EXCEPTION("can't expand tuple for template head plus"));
 			switch (param.getTypeThead())
 			{
+			default: assert(false);
 			case TypeThead::SELF:
 				return buildTemplate(self, params, tupleItem);
 			case TypeThead::BIN:
 				throw std::runtime_error(WEBSSON_EXCEPTION("can't expand for a binary template"));
 			case TypeThead::STD:
 				return buildTemplate(self, param.getTheadStd().getParams(), tupleItem);
-			default:
-				assert(false); throw std::domain_error("");
 			}
 		}
 
