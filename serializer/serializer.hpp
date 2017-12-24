@@ -82,8 +82,14 @@ namespace webss
 		void putTemplateBinTuple(various::StringBuilder& out, const Template& templ);
 		void putTemplateStdBody(various::StringBuilder & out, const TheadStd::Params & params, const Webss & body);
 		void putTemplateStdTuple(various::StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
+		
+#ifdef NDEBUG
+		void putTemplateStdTupleText(various::StringBuilder& out, const Tuple& tuple);
+		void putTemplateTextTuple(various::StringBuilder& out, const Tuple& tuple);
+#else
 		void putTemplateStdTupleText(various::StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
 		void putTemplateTextTuple(various::StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple);
+#endif
 
 		void putBinSizeArray(various::StringBuilder& out, const ParamBin::SizeArray& barray);
 		void putParamBin(various::StringBuilder& out, const std::string& key, const ParamBin& param);

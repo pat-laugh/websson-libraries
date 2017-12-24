@@ -13,11 +13,11 @@
 #include "utils/utilsWebss.hpp"
 #include "various/utils.hpp"
 
-static const char* ASSIGN_CONTAINER_STRING = "::";
-
 using namespace std;
 using namespace various;
 using namespace webss;
+
+static const char* ASSIGN_CONTAINER_STRING = "::";
 
 template <ConType::Enum CON> void putContainerStart(StringBuilder&) { assert(false); }
 template <> void putContainerStart<ConType::DOCUMENT>(StringBuilder&) {}
@@ -59,6 +59,11 @@ void putSeparatedValues(StringBuilder& out, const Container& cont, function<void
 	}
 }
 
+#ifdef NDEBUG
+#define putTemplateStdTupleText(P1, P2, P3) putTemplateStdTupleText(P1, P3)
+#define putTemplateTextTuple(P1, P2, P3) putTemplateTextTuple(P1, P3)
+#endif
+
 class SerializerTemplate : public Serializer
 {
 public:
@@ -68,7 +73,11 @@ public:
 	}
 
 	template <class Params>
+#ifdef NDEBUG
+	void putTemplateList(StringBuilder& out, const Params& params, const List& list, function<void(StringBuilder& out, const Params& params, const Tuple& tuple)>&& putTupleRegular, function<void(StringBuilder& out, const Tuple& tuple)>&& putTupleText)
+#else
 	void putTemplateList(StringBuilder& out, const Params& params, const List& list, function<void(StringBuilder& out, const Params& params, const Tuple& tuple)>&& putTupleRegular, function<void(StringBuilder& out, const Params& params, const Tuple& tuple)>&& putTupleText)
+#endif
 	{
 		static const auto CON = ConType::LIST;
 		out += CHAR_FOREACH;
@@ -81,10 +90,14 @@ public:
 			if (type == WebssType::TUPLE)
 				putTupleRegular(out, params, body.getTupleRaw());
 			else
+#ifdef NDEBUG
+				putTupleText(out, body.getTupleRaw());
+#else
 			{
 				assert(type == WebssType::TUPLE_TEXT);
 				putTupleText(out, params, body.getTupleRaw());
 			}
+#endif
 		});
 	}
 private:
@@ -755,7 +768,11 @@ void Serializer::putTemplateBinTuple(StringBuilder& out, const Template& templ)
 void Serializer::putTemplateStdBody(StringBuilder& out, const TheadStd::Params& params, const Webss& body)
 {
 	auto putTupleRegular = [&](StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple) { putTemplateStdTuple(out, params, tuple); };
+#ifdef NDEBUG
+	auto putTupleText = [&](StringBuilder& out, const Tuple& tuple) { putTemplateStdTupleText(out, dummy, tuple); };
+#else
 	auto putTupleText = [&](StringBuilder& out, const TheadStd::Params& params, const Tuple& tuple) { putTemplateStdTupleText(out, params, tuple); };
+#endif
 	switch (body.getTypeRaw())
 	{
 	default: assert(false);
