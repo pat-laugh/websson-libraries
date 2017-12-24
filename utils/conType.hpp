@@ -2,8 +2,6 @@
 //Copyright 2017 Patrick Laughrea
 #pragma once
 
-#include <string>
-
 namespace webss
 {
 	class ConType
@@ -32,7 +30,7 @@ namespace webss
 		ConType& operator=(Enum o);
 		ConType& operator=(ConType o);
 
-		std::string toString() const;
+		const char* toString() const;
 
 		//returns true c == con's start char, else false
 		bool isStart(char c) const;

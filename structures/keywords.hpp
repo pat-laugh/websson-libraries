@@ -30,9 +30,9 @@ namespace webss
 		Keyword& operator=(Keyword o);
 
 		//REQUIREMENT: s must be associated with a valid Keyword
-		Keyword(std::string s);
+		Keyword(const std::string& s);
 
-		std::string toString() const;
+		const char* toString() const;
 
 	private:
 		const Enum e;

@@ -301,7 +301,7 @@ const Webss& Webss::operator[](int index) const
 	case WebssType::PLACEHOLDER:
 		return placeholder->getValue()[index];
 	default:
-		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_INDEX);
+		throw runtime_error(string(ERROR_ACCESS) + type.toString() + ERROR_ACCESS_INDEX);
 	}
 }
 
@@ -321,7 +321,7 @@ const Webss& Webss::operator[](const std::string& key) const
 	case WebssType::PLACEHOLDER:
 		return placeholder->getValue()[key];
 	default:
-		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_KEY);
+		throw runtime_error(string(ERROR_ACCESS) + type.toString() + ERROR_ACCESS_KEY);
 	}
 }
 
@@ -341,7 +341,7 @@ const Webss& Webss::at(int index) const
 	case WebssType::PLACEHOLDER:
 		return placeholder->getValue().at(index);
 	default:
-		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_INDEX);
+		throw runtime_error(string(ERROR_ACCESS) + type.toString() + ERROR_ACCESS_INDEX);
 	}
 }
 
@@ -361,7 +361,7 @@ const Webss& Webss::at(const std::string& key) const
 	case WebssType::PLACEHOLDER:
 		return placeholder->getValue().at(key);
 	default:
-		throw runtime_error(ERROR_ACCESS + type.toString() + ERROR_ACCESS_KEY);
+		throw runtime_error(string(ERROR_ACCESS) + type.toString() + ERROR_ACCESS_KEY);
 	}
 }
 
@@ -384,7 +384,7 @@ WebssType Webss::getType() const
 
 static string errorMessageGet(WebssType expected, WebssType actual)
 {
-	return "could not get " + expected.toString() + "; instead webss type was " + actual.toString();
+	return string("could not get ") + expected.toString() + "; instead, type was " + actual.toString();
 }
 
 #define PatternGetConstSafe(Type, Func) do { \

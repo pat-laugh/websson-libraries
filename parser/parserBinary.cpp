@@ -64,7 +64,7 @@ void Parser::parseBinHead(TheadBin& thead)
 		switch (nameType.type)
 		{
 		case NameType::KEYWORD:
-			throw runtime_error(WEBSSON_EXCEPTION("invalid binary type: " + nameType.keyword.toString()));
+			throw runtime_error(WEBSSON_EXCEPTION(string("invalid binary type: ") + nameType.keyword.toString()));
 		case NameType::ENTITY_ABSTRACT:
 			if (!nameType.entity.getContent().isThead() || !nameType.entity.getContent().getThead().isTheadBin())
 				throw runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
@@ -108,7 +108,7 @@ void Parser::parseBinHead(TheadBin& thead)
 			switch (nameType.type)
 			{
 			case NameType::KEYWORD: case NameType::ENTITY_ABSTRACT:
-				throw runtime_error(WEBSSON_EXCEPTION("invalid binary type: " + nameType.keyword.toString()));
+				throw runtime_error(WEBSSON_EXCEPTION(string("invalid binary type: ") + nameType.keyword.toString()));
 			case NameType::ENTITY_CONCRETE:
 				bhead = Bhead::makeEntityBits(checkEntTypeBinSizeBits(nameType.entity));
 				break;

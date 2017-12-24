@@ -2,8 +2,6 @@
 //Copyright 2017 Patrick Laughrea
 #pragma once
 
-#include <string>
-
 namespace webss
 {
 	class WebssType
@@ -35,7 +33,7 @@ namespace webss
 		WebssType& operator=(Enum o);
 		WebssType& operator=(WebssType o);
 
-		std::string toString() const;
+		const char* toString() const;
 	private:
 		const Enum e;
 	};

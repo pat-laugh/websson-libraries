@@ -11,9 +11,9 @@ using namespace std;
 using namespace various;
 using namespace webss;
 
-static void addEntities(EntityManager& ents, vector<string> names, Entity ent)
+static void addEntities(EntityManager& ents, vector<const char*> names, Entity ent)
 {
-	for (const auto& name : names)
+	for (const char* name : names)
 		ents.addAlias(name, ent);
 }
 
@@ -31,7 +31,7 @@ static TheadBin makeTheadBinKeyword(Keyword keyword)
 	return thead;
 }
 
-static void addTheadBinEntityKeywords(EntityManager& ents, vector<string> names, Keyword keyword)
+static void addTheadBinEntityKeywords(EntityManager& ents, vector<const char*> names, Keyword keyword)
 {
 	string entName(names[0]);
 	addEntities(ents, move(names), Entity(move(entName), Thead(makeTheadBinKeyword(keyword))));

@@ -2,16 +2,19 @@
 //Copyright 2017 Patrick Laughrea
 #include "typeWebss.hpp"
 
+#include <cassert>
+
 using namespace std;
 using namespace webss;
 
 WebssType& WebssType::operator=(Enum o) { const_cast<Enum&>(this->e) = o; return *this; }
 WebssType& WebssType::operator=(WebssType o) { const_cast<Enum&>(this->e) = o.e; return *this; }
 
-string WebssType::toString() const
+const char* WebssType::toString() const
 {
 	switch (e)
 	{
+	default: assert(false);
 	case WebssType::NONE:
 		return "none";
 	case WebssType::ENTITY:
@@ -50,7 +53,5 @@ string WebssType::toString() const
 		return "enum";
 	case WebssType::PLACEHOLDER:
 		return "placeholder";
-	default:
-		return "unknown";
 	}
 }

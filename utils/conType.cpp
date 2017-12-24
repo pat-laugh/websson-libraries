@@ -13,7 +13,7 @@ using namespace webss;
 ConType& ConType::operator=(Enum o) { const_cast<Enum&>(this->e) = o; return *this; }
 ConType& ConType::operator=(ConType o) { const_cast<Enum&>(this->e) = o.e; return *this; }
 
-string ConType::toString() const
+const char* ConType::toString() const
 {
 	switch (e)
 	{

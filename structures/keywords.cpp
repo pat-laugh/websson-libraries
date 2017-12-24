@@ -2,6 +2,7 @@
 //Copyright 2017 Patrick Laughrea
 #include "keywords.hpp"
 
+#include <cassert>
 #include <unordered_map>
 
 using namespace std;
@@ -11,7 +12,7 @@ const Keyword::Enum Keyword::KEY_NULL;
 const Keyword::Enum Keyword::KEY_FALSE;
 const Keyword::Enum Keyword::KEY_TRUE;
 
-static const unordered_map<string, Keyword> KEYWORDS = {
+static const unordered_map<const char*, Keyword> KEYWORDS = {
 	{ "N", Keyword::KEY_NULL },
 	{ "Nil", Keyword::KEY_NULL },
 	{ "None", Keyword::KEY_NULL },
@@ -31,15 +32,16 @@ static const unordered_map<string, Keyword> KEYWORDS = {
 
 bool webss::isKeyword(const string& s)
 {
-	return KEYWORDS.find(s) != KEYWORDS.end();
+	return KEYWORDS.find(s.c_str()) != KEYWORDS.end();
 }
 
-Keyword::Keyword(string s) : e(KEYWORDS.find(s)->second) {}
+Keyword::Keyword(const string& s) : e(KEYWORDS.find(s.c_str())->second) {}
 
-string Keyword::toString() const
+const char* Keyword::toString() const
 {
 	switch (e)
 	{
+	default: assert(false);
 	case Keyword::KEY_NULL:
 		return "N";
 	case Keyword::KEY_FALSE:
@@ -64,8 +66,6 @@ string Keyword::toString() const
 		return "S";
 	case Keyword::VARINT:
 		return "varint";
-	default:
-		return "unknown";
 	}
 }
 
