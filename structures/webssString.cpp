@@ -1,6 +1,6 @@
 //MIT License
 //Copyright 2017 Patrick Laughrea
-#include "string.hpp"
+#include "webssString.hpp"
 
 #include <cassert>
 

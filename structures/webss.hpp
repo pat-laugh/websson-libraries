@@ -9,6 +9,7 @@
 #include "entity.hpp"
 #include "keywords.hpp"
 #include "namespace.hpp"
+#include "webssString.hpp"
 #include "thead.hpp"
 #include "types.hpp"
 #include "typeWebss.hpp"
@@ -42,6 +43,7 @@ namespace webss
 
 		Webss(const char* s);
 		Webss(std::string s);
+		Webss(WebssString s);
 
 		Webss(Document document);
 		Webss(Dictionary dict);
@@ -66,6 +68,7 @@ namespace webss
 		WebssInt getInt() const;
 		double getDouble() const;
 		const std::string& getString() const;
+		const WebssString& getWebssString() const;
 		const Document& getDocument() const;
 		const Dictionary& getDictionary() const;
 		const List& getList() const;
@@ -87,6 +90,7 @@ namespace webss
 		WebssInt getIntRaw() const;
 		double getDoubleRaw() const;
 		const std::string& getStringRaw() const;
+		const WebssString& getWebssStringRaw() const;
 		const Document& getDocumentRaw() const;
 		const Dictionary& getDictionaryRaw() const;
 		const List& getListRaw() const;
@@ -101,6 +105,7 @@ namespace webss
 		Placeholder& getPlaceholderRaw();
 
 		std::string& getStringRaw();
+		WebssString& getWebssStringRaw();
 		Document& getDocumentRaw();
 		Dictionary& getDictionaryRaw();
 		List& getListRaw();
@@ -115,6 +120,7 @@ namespace webss
 		explicit operator float() const { return (float)getDouble(); }
 		explicit operator double() const { return getDouble(); }
 		explicit operator const std::string&() const { return getString(); }
+		explicit operator const WebssString&() const { return getWebssString(); }
 		explicit operator const Document&() const { return getDocument(); }
 		explicit operator const Dictionary&() const { return getDictionary(); }
 		explicit operator const List&() const { return getList(); }
@@ -131,6 +137,7 @@ namespace webss
 		bool isInt() const;
 		bool isDouble() const;
 		bool isString() const;
+		bool isWebssString() const;
 		bool isDocument() const;
 		bool isDictionary() const;
 		bool isList() const;
@@ -153,6 +160,7 @@ namespace webss
 			WebssInt tInt;
 			double tDouble;
 			std::string* tString;
+			WebssString* webssString;
 			Document* document;
 			Dictionary* dict;
 			List* list;

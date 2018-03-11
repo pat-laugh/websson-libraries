@@ -68,5 +68,5 @@ namespace webss
 		void copyUnion(const StringItem& o);
 	};
 
-	using String = std::vector<StringItem>;
+	using WebssString = std::vector<StringItem>;
 }
