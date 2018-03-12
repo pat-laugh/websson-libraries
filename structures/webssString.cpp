@@ -3,7 +3,9 @@
 #include "webssString.hpp"
 
 #include <cassert>
+#include <exception>
 
+#include "utils.hpp"
 #include "webss.hpp"
 
 using namespace std;
@@ -38,25 +40,22 @@ void StringItem::destroyUnion()
 	switch (type)
 	{
 	default: assert(false);
-	case StringType::NONE: case StringType::FUNC_NEWLINE:
-#ifdef COMPILE_WEBSS
-	case StringType::FUNC_FLUSH:
-#endif
+	case StringType::NONE:
 		break;
-	case StringType::ENT_STATIC:
 #ifdef COMPILE_WEBSS
+	case StringType::FUNC_FLUSH: case StringType::FUNC_NEWLINE:
+		break;
+	case StringType::WEBSS:
+		delete webss;
+		break;
 	case StringType::ENT_DYNAMIC:
 #endif
+	case StringType::ENT_STATIC:
 		ent.~Entity();
 		break;
 	case StringType::STRING:
 		tString.~string();
 		break;
-#ifdef COMPILE_WEBSS
-	case StringType::WEBSS:
-		delete webss;
-		break;
-#endif
 	}
 	type = StringType::NONE;
 }
@@ -66,15 +65,17 @@ void StringItem::copyUnion(StringItem&& o)
 	switch (o.type)
 	{
 	default: assert(false);
-	case StringType::NONE: case StringType::FUNC_NEWLINE:
-#ifdef COMPILE_WEBSS
-	case StringType::FUNC_FLUSH:
-#endif
+	case StringType::NONE:
 		break;
-	case StringType::ENT_STATIC:
 #ifdef COMPILE_WEBSS
+	case StringType::FUNC_FLUSH: case StringType::FUNC_NEWLINE:
+		break;
+	case StringType::WEBSS:
+		webss = o.webss;
+		break;
 	case StringType::ENT_DYNAMIC:
 #endif
+	case StringType::ENT_STATIC:
 		new (&ent) Entity(move(o.ent));
 		o.ent.~Entity();
 		break;
@@ -82,11 +83,6 @@ void StringItem::copyUnion(StringItem&& o)
 		new (&tString) string(move(o.tString));
 		o.tString.~string();
 		break;
-#ifdef COMPILE_WEBSS
-	case StringType::WEBSS:
-		webss = o.webss;
-		break;
-#endif
 	}
 	type = o.type;
 	o.type = StringType::NONE;
@@ -97,25 +93,22 @@ void StringItem::copyUnion(const StringItem& o)
 	switch (o.type)
 	{
 	default: assert(false);
-	case StringType::NONE: case StringType::FUNC_NEWLINE:
-#ifdef COMPILE_WEBSS
-	case StringType::FUNC_FLUSH:
-#endif
+	case StringType::NONE:
 		break;
-	case StringType::ENT_STATIC:
 #ifdef COMPILE_WEBSS
+	case StringType::FUNC_FLUSH: case StringType::FUNC_NEWLINE:
+		break;
+	case StringType::WEBSS:
+		webss = new Webss(*o.webss);
+		break;
 	case StringType::ENT_DYNAMIC:
 #endif
+	case StringType::ENT_STATIC:
 		new (&ent) Entity(o.ent);
 		break;
 	case StringType::STRING:
 		new (&tString) string(o.tString);
 		break;
-#ifdef COMPILE_WEBSS
-	case StringType::WEBSS:
-		webss = new Webss(*o.webss);
-		break;
-#endif
 	}
 	type = o.type;
 }
@@ -129,31 +122,28 @@ bool StringItem::operator==(const StringItem& o) const
 	switch (type)
 	{
 	default: assert(false);
-	case StringType::NONE: case StringType::FUNC_NEWLINE:
-#ifdef COMPILE_WEBSS
-	case StringType::FUNC_FLUSH:
-#endif
+	case StringType::NONE:
 		return true;
-	case StringType::ENT_STATIC:
 #ifdef COMPILE_WEBSS
+	case StringType::FUNC_FLUSH: case StringType::FUNC_NEWLINE:
+		return true;
+	case StringType::WEBSS:
+		return *webss == *o.webss;
 	case StringType::ENT_DYNAMIC:
 #endif
+	case StringType::ENT_STATIC:
 		return ent.getContent() == o.ent.getContent();
 	case StringType::STRING:
 		return tString == o.tString;
-#ifdef COMPILE_WEBSS
-	case StringType::WEBSS:
-		return *webss == *o.webss;
-#endif
 	}
 }
 bool StringItem::operator!=(const StringItem& o) const { return !(*this == o); }
 
-StringType StringItem::getTypeRaw() { return type; }
+StringType StringItem::getTypeRaw() const { return type; }
 
-const std::string& StringItem::getStringRaw() { assert(type == StringType::STRING); return tString; }
+const std::string& StringItem::getStringRaw() const { assert(type == StringType::STRING); return tString; }
 
-const Entity& StringItem::getEntityRaw()
+const Entity& StringItem::getEntityRaw() const
 {
 	assert(type == StringType::ENT_STATIC
 #ifdef COMPILE_WEBSS
@@ -164,5 +154,47 @@ const Entity& StringItem::getEntityRaw()
 }
 
 #ifdef COMPILE_WEBSS
-const Webss& StringItem::getWebssRaw() { assert(type == StringType::WEBSS); return *webss; }
+const Webss& StringItem::getWebssRaw() const { assert(type == StringType::WEBSS); return *webss; }
 #endif
+
+
+WebssString::WebssString(WebssString&& o) : items(move(o.items)), ptr(move(o.ptr)) {}
+WebssString::WebssString(const WebssString& o) : items(o.items), ptr(o.ptr == nullptr ? nullptr : new string(*o.ptr)) {}
+
+void WebssString::push(StringItem item) { items.push_back(move(item)); }
+
+const string& WebssString::getString() const
+{
+	string sb;
+	for (const auto& item : items)
+		switch (item.getTypeRaw())
+		{
+		default: assert(false);
+#ifdef COMPILE_WEBSS
+		case StringType::FUNC_NEWLINE: case StringType::FUNC_FLUSH:
+			throw runtime_error("can't put function chars into a raw string");
+		case StringType::WEBSS:
+			sb += item.getWebssRaw().getString();
+			break;
+		case StringType::ENT_DYNAMIC:
+#endif
+		case StringType::ENT_STATIC:
+			sb += item.getEntityRaw().getContent().getString();
+			break;
+		case StringType::STRING:
+			sb += item.getStringRaw();
+			break;
+		}
+	unique_ptr<string>& refPtr = *const_cast<unique_ptr<string>*>(&ptr);
+	refPtr = unique_ptr<string>(new string(sb));
+	return *ptr;
+}
+
+
+bool WebssString::operator==(const WebssString& o) const
+{
+	if (this == &o)
+		return true;
+	return items == o.items; //don't compare pointers
+}
+bool WebssString::operator!=(const WebssString& o) const { return !(*this == o); }

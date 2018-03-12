@@ -76,6 +76,22 @@ Webss::Webss(Tuple tuple, WebssType type) : type(type), tuple(new Tuple(move(tup
 
 Webss::Webss(Placeholder placeholder) : type(WebssType::PLACEHOLDER), placeholder(new Placeholder(move(placeholder))) {}
 
+Webss::Webss(void* ptr, WebssType type) : type(type), ptr(ptr)
+{
+#ifndef NDEBUG
+	switch (type)
+	{
+	default: assert(false);
+	case WebssType::PRIMITIVE_STRING: case WebssType::WEBSS_STRING:
+	case WebssType::DOCUMENT: case WebssType::DICTIONARY:
+	case WebssType::LIST: case WebssType::LIST_TEXT:
+	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
+	case WebssType::THEAD: case WebssType::TEMPLATE: case WebssType::PLACEHOLDER:
+		break;
+	}
+#endif
+}
+
 void Webss::destroyUnion()
 {
 	switch (type)
@@ -408,8 +424,6 @@ throw runtime_error(errorMessageGet(Type, webss.getTypeRaw())); } while (false)
 bool Webss::getBool() const { PatternGetConstSafe(WebssType::PRIMITIVE_BOOL, getBoolRaw); }
 WebssInt Webss::getInt() const { PatternGetConstSafe(WebssType::PRIMITIVE_INT, getIntRaw); }
 double Webss::getDouble() const { PatternGetConstSafe(WebssType::PRIMITIVE_DOUBLE, getDoubleRaw); }
-const std::string& Webss::getString() const { PatternGetConstSafe(WebssType::PRIMITIVE_STRING, getStringRaw); }
-const WebssString& Webss::getWebssString() const { PatternGetConstSafe(WebssType::WEBSS_STRING, getWebssStringRaw); }
 const Document& Webss::getDocument() const { PatternGetConstSafe(WebssType::DOCUMENT, getDocumentRaw); }
 const Dictionary& Webss::getDictionary() const { PatternGetConstSafe(WebssType::DICTIONARY, getDictionaryRaw); }
 const Thead& Webss::getThead() const { PatternGetConstSafe(WebssType::THEAD, getTheadRaw); }
@@ -417,14 +431,24 @@ const Template& Webss::getTemplate() const { PatternGetConstSafe(WebssType::TEMP
 const Namespace& Webss::getNamespace() const { PatternGetConstSafe(WebssType::NAMESPACE, getNamespaceRaw); }
 const Enum& Webss::getEnum() const { PatternGetConstSafe(WebssType::ENUM, getEnumRaw); }
 
+const std::string& Webss::getString() const
+{
+	const auto& webss = getWebssLast();
+	const auto type = webss.getTypeRaw();
+	if (type == WebssType::PRIMITIVE_STRING)
+		return webss.getStringRaw();
+	else if (type == WebssType::WEBSS_STRING)
+		return webss.getWebssStringRaw().getString();
+	throw runtime_error(errorMessageGet(WebssType::PRIMITIVE_STRING, type));
+}
+
 const List& Webss::getList() const
 {
 	const auto& webss = getWebssLast();
 	const auto type = webss.getTypeRaw();
 	if (type == WebssType::LIST || type == WebssType::LIST_TEXT)
 		return webss.getListRaw();
-	else
-		throw runtime_error(errorMessageGet(WebssType::LIST, type));
+	throw runtime_error(errorMessageGet(WebssType::LIST, type));
 }
 const Tuple& Webss::getTuple() const
 {
@@ -432,8 +456,7 @@ const Tuple& Webss::getTuple() const
 	const auto type = webss.getTypeRaw();
 	if (type == WebssType::TUPLE || type == WebssType::TUPLE_TEXT)
 		return webss.getTupleRaw();
-	else
-		throw runtime_error(errorMessageGet(WebssType::TUPLE, type));
+	throw runtime_error(errorMessageGet(WebssType::TUPLE, type));
 }
 
 bool Webss::isNone() const { return getType() == WebssType::NONE; }
@@ -441,8 +464,6 @@ bool Webss::isNull() const { return getType() == WebssType::PRIMITIVE_NULL; }
 bool Webss::isBool() const { return getType() == WebssType::PRIMITIVE_BOOL; }
 bool Webss::isInt() const { return getType() == WebssType::PRIMITIVE_INT; }
 bool Webss::isDouble() const { return getType() == WebssType::PRIMITIVE_DOUBLE; }
-bool Webss::isString() const { return getType() == WebssType::PRIMITIVE_STRING; }
-bool Webss::isWebssString() const { return getType() == WebssType::WEBSS_STRING; }
 bool Webss::isDocument() const { return getType() == WebssType::DOCUMENT; }
 bool Webss::isDictionary() const { return getType() == WebssType::DICTIONARY; }
 bool Webss::isNamespace() const { return getType() == WebssType::NAMESPACE; }
@@ -452,6 +473,12 @@ bool Webss::isListText() const { return getType() == WebssType::LIST_TEXT; }
 bool Webss::isTupleText() const { return getType() == WebssType::TUPLE_TEXT; }
 bool Webss::isThead() const { return getType() == WebssType::THEAD; }
 bool Webss::isTemplate() const { return getType() == WebssType::TEMPLATE; }
+
+bool Webss::isString() const
+{
+	const auto type = getType();
+	return type == WebssType::PRIMITIVE_STRING || type == WebssType::WEBSS_STRING;
+}
 
 bool Webss::isList() const
 {

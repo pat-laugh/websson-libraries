@@ -14,9 +14,9 @@ namespace webss
 {
 	enum class StringType
 	{
-		NONE, STRING, ENT_STATIC, FUNC_NEWLINE,
+		NONE, STRING, ENT_STATIC,
 #ifdef COMPILE_WEBSS
-		WEBSS, ENT_DYNAMIC, FUNC_FLUSH,
+		WEBSS, ENT_DYNAMIC, FUNC_FLUSH, FUNC_NEWLINE,
 #endif
 	};
 
@@ -41,12 +41,12 @@ namespace webss
 #ifdef COMPILE_WEBSS
 		static StringItem makeEntDynamic(const Entity& ent) { return StringItem(ent, true); }
 		StringItem(Webss webss);
-		const Webss& getWebssRaw();
+		const Webss& getWebssRaw() const;
 #endif
 
-		StringType getTypeRaw();
-		const std::string& getStringRaw();
-		const Entity& getEntityRaw();
+		StringType getTypeRaw() const;
+		const std::string& getStringRaw() const;
+		const Entity& getEntityRaw() const;
 
 	private:
 		StringType type = StringType::NONE;
@@ -68,5 +68,20 @@ namespace webss
 		void copyUnion(const StringItem& o);
 	};
 
-	using WebssString = std::vector<StringItem>;
+	class WebssString
+	{
+	private:
+		std::vector<StringItem> items;
+		std::unique_ptr<std::string> ptr;
+
+	public:
+		WebssString(WebssString&& o);
+		WebssString(const WebssString& o);
+
+		bool operator==(const WebssString& o) const;
+		bool operator!=(const WebssString& o) const;
+
+		void push(StringItem item);
+		const std::string& getString() const;
+	};
 }
