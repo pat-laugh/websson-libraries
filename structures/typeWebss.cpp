@@ -31,8 +31,8 @@ const char* WebssType::toString() const
 		return "double";
 	case WebssType::PRIMITIVE_STRING:
 		return "string / byte array";
-	case WebssType::WEBSS_STRING:
-		return "webss string";
+	case WebssType::STRING_LIST:
+		return "string list";
 	case WebssType::DICTIONARY:
 		return "dictionary";
 	case WebssType::LIST:

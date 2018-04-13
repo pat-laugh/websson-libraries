@@ -92,7 +92,7 @@ Webss webss::parseLineString(Parser& parser)
 	auto& it = parser.getItSafe();
 	skipLineJunk(it);
 	StringBuilder sb;
-	WebssString* webssString = nullptr;
+	StringList* stringList = nullptr;
 	if (parser.multilineContainer)
 	{
 		while (hasNextChar(it, sb))
@@ -128,10 +128,10 @@ Webss webss::parseLineString(Parser& parser)
 			putChar(it, sb);
 		}
 	}
-	if (webssString == nullptr)
+	if (stringList == nullptr)
 		return sb;
-	webssString->push_back(sb);
-	return Webss(webssString, WebssType::WEBSS_STRING);
+	stringList->push_back(sb);
+	return Webss(stringList, WebssType::STRING_LIST);
 }
 
 static Webss parseMultilineStringRegular(Parser& parser)

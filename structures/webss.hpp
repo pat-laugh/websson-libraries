@@ -9,7 +9,7 @@
 #include "entity.hpp"
 #include "keywords.hpp"
 #include "namespace.hpp"
-#include "webssString.hpp"
+#include "stringList.hpp"
 #include "thead.hpp"
 #include "types.hpp"
 #include "typeWebss.hpp"
@@ -43,7 +43,7 @@ namespace webss
 
 		Webss(const char* s);
 		Webss(std::string s);
-		Webss(WebssString s);
+		Webss(StringList s);
 
 		Webss(Document document);
 		Webss(Dictionary dict);
@@ -70,6 +70,7 @@ namespace webss
 		WebssInt getInt() const;
 		double getDouble() const;
 		const std::string& getString() const;
+		const StringList& getStringList() const;
 		const Document& getDocument() const;
 		const Dictionary& getDictionary() const;
 		const List& getList() const;
@@ -91,7 +92,7 @@ namespace webss
 		WebssInt getIntRaw() const;
 		double getDoubleRaw() const;
 		const std::string& getStringRaw() const;
-		const WebssString& getWebssStringRaw() const;
+		const StringList& getStringListRaw() const;
 		const Document& getDocumentRaw() const;
 		const Dictionary& getDictionaryRaw() const;
 		const List& getListRaw() const;
@@ -106,7 +107,7 @@ namespace webss
 		Placeholder& getPlaceholderRaw();
 
 		std::string& getStringRaw();
-		WebssString& getWebssStringRaw();
+		StringList& getStringListRaw();
 		Document& getDocumentRaw();
 		Dictionary& getDictionaryRaw();
 		List& getListRaw();
@@ -159,7 +160,7 @@ namespace webss
 			WebssInt tInt;
 			double tDouble;
 			std::string* tString;
-			WebssString* webssString;
+			StringList* stringList;
 			Document* document;
 			Dictionary* dict;
 			List* list;

@@ -68,18 +68,18 @@ namespace webss
 		void copyUnion(const StringItem& o);
 	};
 
-	class WebssString
+	class StringList
 	{
 	private:
 		std::vector<StringItem> items;
 		std::unique_ptr<std::string> ptr;
 
 	public:
-		WebssString(WebssString&& o);
-		WebssString(const WebssString& o);
+		StringList(StringList&& o);
+		StringList(const StringList& o);
 
-		bool operator==(const WebssString& o) const;
-		bool operator!=(const WebssString& o) const;
+		bool operator==(const StringList& o) const;
+		bool operator!=(const StringList& o) const;
 
 		void push(StringItem item);
 		const std::string& getString() const;

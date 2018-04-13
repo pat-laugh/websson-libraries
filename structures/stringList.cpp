@@ -1,6 +1,6 @@
 //MIT License
-//Copyright 2017 Patrick Laughrea
-#include "webssString.hpp"
+//Copyright 2018 Patrick Laughrea
+#include "stringList.hpp"
 
 #include <cassert>
 #include <exception>
@@ -158,12 +158,12 @@ const Webss& StringItem::getWebssRaw() const { assert(type == StringType::WEBSS)
 #endif
 
 
-WebssString::WebssString(WebssString&& o) : items(move(o.items)), ptr(move(o.ptr)) {}
-WebssString::WebssString(const WebssString& o) : items(o.items), ptr(o.ptr == nullptr ? nullptr : new string(*o.ptr)) {}
+StringList::StringList(StringList&& o) : items(move(o.items)), ptr(move(o.ptr)) {}
+StringList::StringList(const StringList& o) : items(o.items), ptr(o.ptr == nullptr ? nullptr : new string(*o.ptr)) {}
 
-void WebssString::push(StringItem item) { items.push_back(move(item)); }
+void StringList::push(StringItem item) { items.push_back(move(item)); }
 
-const string& WebssString::getString() const
+const string& StringList::getString() const
 {
 	string sb;
 	for (const auto& item : items)
@@ -191,10 +191,10 @@ const string& WebssString::getString() const
 }
 
 
-bool WebssString::operator==(const WebssString& o) const
+bool StringList::operator==(const StringList& o) const
 {
 	if (this == &o)
 		return true;
 	return items == o.items; //don't compare pointers
 }
-bool WebssString::operator!=(const WebssString& o) const { return !(*this == o); }
+bool StringList::operator!=(const StringList& o) const { return !(*this == o); }
