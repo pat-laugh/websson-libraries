@@ -87,11 +87,12 @@ string webss::parseStickyLineStringOption(Parser& parser)
 	return sb;
 }
 
-string webss::parseLineString(Parser& parser)
+Webss webss::parseLineString(Parser& parser)
 {
 	auto& it = parser.getItSafe();
 	skipLineJunk(it);
 	StringBuilder sb;
+	WebssString* webssString = nullptr;
 	if (parser.multilineContainer)
 	{
 		while (hasNextChar(it, sb))
@@ -127,10 +128,13 @@ string webss::parseLineString(Parser& parser)
 			putChar(it, sb);
 		}
 	}
-	return sb;
+	if (webssString == nullptr)
+		return sb;
+	webssString->push_back(sb);
+	return Webss(webssString, WebssType::WEBSS_STRING);
 }
 
-static string parseMultilineStringRegular(Parser& parser)
+static Webss parseMultilineStringRegular(Parser& parser)
 {
 	auto& it = parser.getIt();
 	Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, true);
@@ -184,7 +188,7 @@ loopStart:
 	goto loopStart;
 }
 
-string webss::parseMultilineString(Parser& parser)
+Webss webss::parseMultilineString(Parser& parser)
 {
 	auto& it = parser.getItSafe();
 	if (*it != CHAR_START_DICTIONARY)
@@ -192,7 +196,7 @@ string webss::parseMultilineString(Parser& parser)
 	return parseMultilineStringRegular(parser);
 }
 
-string webss::parseCString(Parser& parser)
+Webss webss::parseCString(Parser& parser)
 {
 	auto& it = parser.getItSafe();
 	++it;
@@ -284,7 +288,7 @@ static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> e
 			return false;
 		sb += spacesAndTabs;
 	}
-	
+
 	return true;
 }
 

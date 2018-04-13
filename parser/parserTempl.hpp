@@ -70,7 +70,7 @@ namespace webss
 				paramsPtr = &thead.getTheadFun().getThead().getParams();
 			}
 			const auto& params = *paramsPtr;
-			
+
 			Tuple::size_type index = 0;
 			Tuple tuple = self.parseContainer<Tuple, ConType::TUPLE>(Tuple(params.getSharedKeys()), true, [&self, &params, &thead, &index](Tuple& tuple)
 			{
@@ -89,12 +89,12 @@ namespace webss
 				}
 				case Tag::NAME_START:
 					if (isText)
-						tuple.at(index) = Webss(parseLineString(self));
+						tuple.at(index) = parseLineString(self);
 					else
 						parseTemplateTupleName(self, thead, tuple, index);
 					break;
 				default:
-					tuple.at(index) = isText ? Webss(parseLineString(self)) : parseTemplateContainer(self, thead, params.at(index));
+					tuple.at(index) = isText ? parseLineString(self) : parseTemplateContainer(self, thead, params.at(index));
 					break;
 				}
 				++index;
@@ -188,7 +188,7 @@ namespace webss
 				paramsPtr = &thead.getTheadFun().getThead().getParams();
 			}
 			const auto& params = *paramsPtr;
-			
+
 			auto nameType = parseNameType(self.tagit, self.ents);
 			if (nameType.type != NameType::NAME && params.at(index).hasThead())
 				throw std::runtime_error(WEBSSON_EXCEPTION(ERROR_UNEXPECTED));
