@@ -14,9 +14,9 @@ namespace webss
 {
 	enum class StringType
 	{
-		NONE, STRING, ENT_STATIC,
+		NONE, STRING, ENT_STATIC, WEBSS,
 #ifdef COMPILE_WEBSS
-		WEBSS, ENT_DYNAMIC, FUNC_FLUSH, FUNC_NEWLINE, FUNC_CANCEL_FLUSH, FUNC_CANCEL_NEWLINE,
+		ENT_DYNAMIC, FUNC_FLUSH, FUNC_NEWLINE, FUNC_CANCEL_FLUSH, FUNC_CANCEL_NEWLINE,
 #endif
 	};
 
@@ -36,17 +36,17 @@ namespace webss
 
 		StringItem(std::string&& s);
 		StringItem(const Entity& ent);
+		StringItem(Webss webss);
 
 #ifdef COMPILE_WEBSS
 		StringItem(StringType t);
-		StringItem(Webss webss);
 		static StringItem makeEntDynamic(const Entity& ent) { return StringItem(ent, true); }
-		const Webss& getWebssRaw() const;
 #endif
 
 		StringType getTypeRaw() const;
 		const std::string& getStringRaw() const;
 		const Entity& getEntityRaw() const;
+		const Webss& getWebssRaw() const;
 
 	private:
 		StringType type = StringType::NONE;
@@ -54,9 +54,7 @@ namespace webss
 		{
 			std::string tString;
 			Entity ent;
-#ifdef COMPILE_WEBSS
 			Webss* webss;
-#endif
 		};
 
 #ifdef COMPILE_WEBSS

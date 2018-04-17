@@ -85,6 +85,8 @@ namespace webss
 		ImportedDocument parseImport();
 #endif
 
+		Webss parseValueOnly();
+
 	protected:
 		EntityManager ents;
 
@@ -113,7 +115,6 @@ namespace webss
 		Webss parseCharValue();
 		OtherValue parseOtherValueName(std::string&& name);
 		OtherValue checkAbstractEntity(const Entity& ent);
-		Webss parseValueOnly();
 
 		class ParserThead;
 		class ParserTempl;

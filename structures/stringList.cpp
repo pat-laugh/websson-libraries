@@ -27,12 +27,12 @@ StringItem& StringItem::operator=(StringItem o)
 }
 
 StringItem::StringItem(string&& s) : type(StringType::STRING), tString(move(s)) {}
+StringItem::StringItem(Webss webss) : type(StringType::WEBSS), webss(new Webss(move(webss))) {}
 
 #ifndef COMPILE_WEBSS
 StringItem::StringItem(const Entity& ent) : type(StringType::ENT_STATIC), ent(ent) {}
 #else
 StringItem::StringItem(StringType t) : type(t) {}
-StringItem::StringItem(Webss webss) : type(StringType::WEBSS), webss(new Webss(move(webss))) {}
 StringItem::StringItem(const Entity& ent) : type(StringType::ENT_STATIC), ent(Entity(ent.getName(), ent.getContent().getWebssLast())) {}
 StringItem::StringItem(const Entity& ent, bool) : type(StringType::ENT_DYNAMIC), ent(ent) {}
 #endif
@@ -46,9 +46,7 @@ void StringItem::destroyUnion()
 		break;
 #ifdef COMPILE_WEBSS
 	case StringType::FUNC_FLUSH: case StringType::FUNC_NEWLINE:
-		break;
-	case StringType::WEBSS:
-		delete webss;
+	case StringType::FUNC_CANCEL_FLUSH: case StringType::FUNC_CANCEL_NEWLINE;
 		break;
 	case StringType::ENT_DYNAMIC:
 #endif
@@ -57,6 +55,9 @@ void StringItem::destroyUnion()
 		break;
 	case StringType::STRING:
 		tString.~string();
+		break;
+	case StringType::WEBSS:
+		delete webss;
 		break;
 	}
 	type = StringType::NONE;
@@ -71,9 +72,7 @@ void StringItem::copyUnion(StringItem&& o)
 		break;
 #ifdef COMPILE_WEBSS
 	case StringType::FUNC_FLUSH: case StringType::FUNC_NEWLINE:
-		break;
-	case StringType::WEBSS:
-		webss = o.webss;
+	case StringType::FUNC_CANCEL_FLUSH: case StringType::FUNC_CANCEL_NEWLINE:
 		break;
 	case StringType::ENT_DYNAMIC:
 #endif
@@ -84,6 +83,9 @@ void StringItem::copyUnion(StringItem&& o)
 	case StringType::STRING:
 		new (&tString) string(move(o.tString));
 		o.tString.~string();
+		break;
+	case StringType::WEBSS:
+		webss = o.webss;
 		break;
 	}
 	type = o.type;
@@ -99,9 +101,7 @@ void StringItem::copyUnion(const StringItem& o)
 		break;
 #ifdef COMPILE_WEBSS
 	case StringType::FUNC_FLUSH: case StringType::FUNC_NEWLINE:
-		break;
-	case StringType::WEBSS:
-		webss = new Webss(*o.webss);
+	case StringType::FUNC_CANCEL_FLUSH: case StringType::FUNC_CANCEL_NEWLINE:
 		break;
 	case StringType::ENT_DYNAMIC:
 #endif
@@ -110,6 +110,9 @@ void StringItem::copyUnion(const StringItem& o)
 		break;
 	case StringType::STRING:
 		new (&tString) string(o.tString);
+		break;
+	case StringType::WEBSS:
+		webss = new Webss(*o.webss);
 		break;
 	}
 	type = o.type;
@@ -128,15 +131,16 @@ bool StringItem::operator==(const StringItem& o) const
 		return true;
 #ifdef COMPILE_WEBSS
 	case StringType::FUNC_FLUSH: case StringType::FUNC_NEWLINE:
+	case StringType::FUNC_CANCEL_FLUSH: case StringType::FUNC_CANCEL_NEWLINE:
 		return true;
-	case StringType::WEBSS:
-		return *webss == *o.webss;
 	case StringType::ENT_DYNAMIC:
 #endif
 	case StringType::ENT_STATIC:
 		return ent.getContent() == o.ent.getContent();
 	case StringType::STRING:
 		return tString == o.tString;
+	case StringType::WEBSS:
+		return *webss == *o.webss;
 	}
 }
 bool StringItem::operator!=(const StringItem& o) const { return !(*this == o); }
@@ -155,9 +159,7 @@ const Entity& StringItem::getEntityRaw() const
 	return ent;
 }
 
-#ifdef COMPILE_WEBSS
 const Webss& StringItem::getWebssRaw() const { assert(type == StringType::WEBSS); return *webss; }
-#endif
 
 StringList::StringList() {}
 StringList::StringList(StringList&& o) : items(move(o.items)) {}
@@ -197,10 +199,8 @@ string StringList::concat() const
 		default: assert(false);
 #ifdef COMPILE_WEBSS
 		case StringType::FUNC_NEWLINE: case StringType::FUNC_FLUSH:
+		case StringType::FUNC_CANCEL_FLUSH: case StringType::FUNC_CANCEL_NEWLINE:
 			throw runtime_error("can't put function chars into a raw string");
-		case StringType::WEBSS:
-			substituteString(sb, item.getWebssRaw());
-			break;
 		case StringType::ENT_DYNAMIC:
 #endif
 		case StringType::ENT_STATIC:
@@ -208,6 +208,9 @@ string StringList::concat() const
 			break;
 		case StringType::STRING:
 			sb += item.getStringRaw();
+			break;
+		case StringType::WEBSS:
+			substituteString(sb, item.getWebssRaw());
 			break;
 		}
 	return sb;

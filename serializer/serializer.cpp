@@ -505,14 +505,18 @@ void Serializer::putStringList(StringBuilder& out, const StringList& stringList)
 	out += CHAR_CSTRING;
 	for (const auto& item : stringList.getItems())
 	{
-		assert(item.getTypeRaw() != StringType::NONE);
-		if (item.getTypeRaw() == StringType::STRING)
+		auto type = item.getTypeRaw();
+		assert(type == StringType::STRING || type == StringType::ENT_STATIC || type == StringType::WEBSS);
+		if (type == StringType::STRING)
 			putString(out, item.getStringRaw());
 		else
 		{
 			out += CHAR_SUBSTITUTION;
-			out += item.getEntityRaw().getName();
-			out += "\\e";
+			ContainerIncluder<ConType::DICTIONARY> includer(out);
+			if (type == StringType::ENT_STATIC)
+				out += item.getEntityRaw().getName();
+			else
+				putConcreteValue(out, item.getWebssRaw(), ConType::DICTIONARY);
 		}
 	}
 	out += CHAR_CSTRING;

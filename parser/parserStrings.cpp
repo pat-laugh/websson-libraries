@@ -312,6 +312,17 @@ static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> e
 	return true;
 }
 
+#ifndef COMPILE_WEBSS
+static void checkTypeSubstitution(const Webss& webss)
+{
+	auto type = webss.getType();
+	if (type != WebssType::PRIMITIVE_STRING && type != WebssType::STRING_LIST)
+		throw runtime_error(WEBSSON_EXCEPTION("entity to substitute must be a string"));
+}
+#else
+#define checkTypeSubstitution(X)
+#endif
+
 static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringList*& stringList)
 {
 	auto& it = parser.getIt();
@@ -324,7 +335,6 @@ static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringLis
 	case '_':
 		; //do something...
 		break;
-#ifdef COMPILE_WEBSS
 	case '{':
 	{
 		Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, false);
@@ -335,16 +345,18 @@ static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringLis
 			Webss webss = parser.parseValueOnly();
 			if (!skipJunk(it) || *it != '}')
 				throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
+			checkTypeSubstitution(webss);
 			pushStringList(stringList, sb, move(webss));
 		}
 		++it;
 		break;
 	}
-#endif
 	default:
 		if (!isNameStart(*it))
 			throw runtime_error(WEBSSON_EXCEPTION("invalid substitution"));
-		pushStringList(stringList, sb, parser.getEntityManager().at(parseName(it)));
+		const auto& ent = parser.getEntityManager().at(parseName(it));
+		checkTypeSubstitution(ent.getContent());
+		pushStringList(stringList, sb, ent);
 		break;
 	}
 }
