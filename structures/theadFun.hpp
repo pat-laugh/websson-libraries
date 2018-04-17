@@ -14,6 +14,7 @@ namespace webss
 	private:
 		std::shared_ptr<TheadStd> thead;
 		std::shared_ptr<Webss> structure;
+		std::shared_ptr<Tuple> dummyTuple;
 		std::shared_ptr<const Tuple*> ptr;
 		
 		bool isForeachList = false;
