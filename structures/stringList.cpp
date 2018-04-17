@@ -213,6 +213,7 @@ string StringList::concat() const
 	return sb;
 }
 
+const std::vector<StringItem>& StringList::getItems() const { return items; }
 
 bool StringList::operator==(const StringList& o) const
 {

@@ -41,7 +41,7 @@ int main()
 	for (const auto& filename : filenames)
 	{
 		test(filename, [](const Document&) {});
-		cout << endl;
+		cout << '.' << endl;
 	}
 
 	testDictionary();
@@ -263,7 +263,6 @@ ErrorType test(string filename, function<void(const Document& doc)> checkResult)
 
 	cout << ", and ";
 	putGreen("testing");
-	cout << endl;
 
 	return ErrorType::NONE;
 }

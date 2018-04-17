@@ -319,6 +319,9 @@ void Serializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConTyp
 	case WebssType::PRIMITIVE_STRING:
 		putCString(out, webss.getStringRaw());
 		break;
+	case WebssType::STRING_LIST:
+		putStringList(out, webss.getStringListRaw());
+		break;
 	case WebssType::DICTIONARY:
 		putDictionary(out, webss.getDictionaryRaw());
 		break;
@@ -481,14 +484,37 @@ void Serializer::putLineString(StringBuilder& out, const string& str, ConType co
 	} while (++it != str.end());
 }
 
-void Serializer::putCString(StringBuilder& out, const string& str)
+static void putString(StringBuilder& out, const string& str)
 {
-	out += CHAR_CSTRING;
 	for (auto it = str.begin(); it != str.end(); ++it)
 		if (isMustEscapeChar(*it) || *it == CHAR_CSTRING)
 			addCharEscape(out, *it);
 		else
 			out += *it;
+}
+
+void Serializer::putCString(StringBuilder& out, const string& str)
+{
+	out += CHAR_CSTRING;
+	putString(out, str);
+	out += CHAR_CSTRING;
+}
+
+void Serializer::putStringList(StringBuilder& out, const StringList& stringList)
+{
+	out += CHAR_CSTRING;
+	for (const auto& item : stringList.getItems())
+	{
+		assert(item.getTypeRaw() != StringType::NONE);
+		if (item.getTypeRaw() == StringType::STRING)
+			putString(out, item.getStringRaw());
+		else
+		{
+			out += CHAR_SUBSTITUTION;
+			out += item.getEntityRaw().getName();
+			out += "\\e";
+		}
+	}
 	out += CHAR_CSTRING;
 }
 

@@ -84,5 +84,7 @@ namespace webss
 		void push(StringItem item);
 		void push(const StringList& sl);
 		std::string concat() const;
+		
+		const std::vector<StringItem>& getItems() const;
 	};
 }

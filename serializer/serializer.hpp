@@ -58,6 +58,7 @@ namespace webss
 		void putDouble(various::StringBuilder& out, double d);
 		void putLineString(various::StringBuilder& out, const std::string& str, ConType con);
 		void putCString(various::StringBuilder& out, const std::string& str);
+		void putStringList(various::StringBuilder& out, const StringList& stringList);
 		void putDictionary(various::StringBuilder& out, const Dictionary& dict);
 		void putList(various::StringBuilder& out, const List& list);
 		void putListText(various::StringBuilder& out, const List& list);
