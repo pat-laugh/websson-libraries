@@ -19,7 +19,7 @@ static void checkEscapedChar(SmartIterator& it, StringBuilder& sb);
 static inline void putChar(SmartIterator& it, StringBuilder& sb);
 static bool isEnd(SmartIterator& it, function<bool()> endCondition);
 static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondition = []() { return false; });
-static void checkStringSubstitution(Parser& parser, StringBuilder& sb);
+static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringList*& stringList);
 
 #define CheckCharEscape do { \
 if (*it == CHAR_ESCAPE) \
@@ -31,7 +31,7 @@ if (*it == CHAR_ESCAPE) \
 #define CheckCharSubstitution do { \
 if (*it == CHAR_SUBSTITUTION) \
 { \
-	checkStringSubstitution(parser, sb); \
+	checkStringSubstitution(parser, sb, stringList); \
 	continue; \
 } } while (false)
 
@@ -144,7 +144,7 @@ loopStart:
 		}
 		else if (*it == CHAR_SUBSTITUTION)
 		{
-			checkStringSubstitution(parser, sb);
+			checkStringSubstitution(parser, sb, stringList);
 			addSpace = true;
 			continue;
 		}
@@ -193,7 +193,7 @@ Webss webss::parseCString(Parser& parser)
 			checkEscapedChar(it, sb);
 			continue;
 		case CHAR_SUBSTITUTION:
-			checkStringSubstitution(parser, sb);
+			checkStringSubstitution(parser, sb, stringList);
 			continue;
 		default:
 			break;
@@ -270,17 +270,17 @@ static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> e
 	return true;
 }
 
-static void substituteString(StringBuilder& sb, const Webss& webss)
+static void checkNewStringList(StringList*& stringList)
 {
-	if (webss.isString())
-		sb += webss.getString();
-	else if (webss.isStringList())
-		sb += webss.getStringList().concat();
-	else
-		throw runtime_error(WEBSSON_EXCEPTION("string substitution must evaluate to string"));
+	if (stringList == nullptr)
+	{
+		stringList = new StringList();
+		stringList.push(sb.str());
+		sb.clear();
+	}
 }
 
-static void checkStringSubstitution(Parser& parser, StringBuilder& sb)
+static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringList*& stringList)
 {
 	auto& it = parser.getIt();
 	if (!++it)
@@ -292,6 +292,7 @@ static void checkStringSubstitution(Parser& parser, StringBuilder& sb)
 	case '_':
 		; //do something...
 		break;
+#ifdef COMPILE_WEBSS
 	case '{':
 	{
 		Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, false);
@@ -302,15 +303,18 @@ static void checkStringSubstitution(Parser& parser, StringBuilder& sb)
 			Webss webss = parser.parseValueOnly();
 			if (!skipJunk(it) || *it != '}')
 				throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
-			substituteString(sb, webss);
+			checkNewStringList(stringList);
+			stringList->push(move(webss));
 		}
 		++it;
 		break;
 	}
+#endif
 	default:
 		if (!isNameStart(*it))
 			throw runtime_error(WEBSSON_EXCEPTION("invalid substitution"));
-		substituteString(sb, parser.getEntityManager().at(parseName(it)).getContent());
+		checkNewStringList(stringList);
+		stringList->push(parser.getEntityManager().at(parseName(it));
 		break;
 	}
 }

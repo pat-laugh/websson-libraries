@@ -162,6 +162,29 @@ StringList::StringList(StringList&& o) : items(move(o.items)) {}
 StringList::StringList(const StringList& o) : items(o.items) {}
 
 void StringList::push(StringItem item) { items.push_back(move(item)); }
+void StringList::push(const StringList& sl)
+{
+	for (const auto& item : sl.items)
+		push(item);
+}
+
+static void substituteString(StringBuilder& sb, const Webss& webss)
+{
+	switch (webss.getType())
+	{
+	case WebssType::STRING:
+		sb += webss.getString();
+		break;
+	case WebssType::STRING_LIST:
+		sb += webss.getStringList().concat();
+		break;
+#ifdef COMPILE_WEBSS
+		//allow other stuff...
+#endif
+	default:
+		throw runtime_error(WEBSSON_EXCEPTION("string substitution must be evaluable to string"));
+	}
+}
 
 string StringList::concat() const
 {
@@ -174,12 +197,12 @@ string StringList::concat() const
 		case StringType::FUNC_NEWLINE: case StringType::FUNC_FLUSH:
 			throw runtime_error("can't put function chars into a raw string");
 		case StringType::WEBSS:
-			sb += item.getWebssRaw().getString();
+			substituteString(sb, item.getWebssRaw());
 			break;
 		case StringType::ENT_DYNAMIC:
 #endif
 		case StringType::ENT_STATIC:
-			sb += item.getEntityRaw().getContent().getString();
+			substituteString(sb, item.getEntityRaw().getContent());
 			break;
 		case StringType::STRING:
 			sb += item.getStringRaw();
@@ -193,6 +216,6 @@ bool StringList::operator==(const StringList& o) const
 {
 	if (this == &o)
 		return true;
-	return items == o.items; //don't compare pointers
+	return items == o.items;
 }
 bool StringList::operator!=(const StringList& o) const { return !(*this == o); }

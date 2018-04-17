@@ -81,6 +81,7 @@ namespace webss
 		bool operator!=(const StringList& o) const;
 
 		void push(StringItem item);
+		void push(const StringList& sl);
 		std::string concat() const;
 	};
 }
