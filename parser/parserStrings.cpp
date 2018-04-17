@@ -15,36 +15,57 @@ using namespace webss;
 
 static const char* ERROR_MULTILINE_STRING = "multiline-string is not closed";
 
-static void checkEscapedChar(SmartIterator& it, StringBuilder& sb);
+static void checkEscapedChar(SmartIterator& it, StringBuilder& sb
+#ifdef COMPILE_WEBSS
+	, StringList*& stringList
+#endif
+);
 static inline void putChar(SmartIterator& it, StringBuilder& sb);
 static bool isEnd(SmartIterator& it, function<bool()> endCondition);
 static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondition = []() { return false; });
 static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringList*& stringList);
+static void pushStringList(StringList*& stringList, StringBuilder& sb, StringItem item);
 
-#define CheckCharEscape do { \
-if (*it == CHAR_ESCAPE) \
-{ \
-	checkEscapedChar(it, sb); \
-	continue; \
-} } while (false)
+#ifndef COMPILE_WEBSS
+#define PatternCheckCharEscape(Cmd) do { \
+if (*it == CHAR_ESCAPE) { checkEscapedChar(it, sb); Cmd; continue; } \
+} while (false)
+#else
+#define PatternCheckCharEscape(Cmd) do { \
+if (*it == CHAR_ESCAPE) { checkEscapedChar(it, sb, stringList); Cmd; continue; } \
+} while (false)
+#endif
 
-#define CheckCharSubstitution do { \
-if (*it == CHAR_SUBSTITUTION) \
-{ \
-	checkStringSubstitution(parser, sb, stringList); \
-	continue; \
-} } while (false)
+#define PatternCheckCharSubstitution(Cmd) do { \
+if (*it == CHAR_SUBSTITUTION) { checkStringSubstitution(parser, sb, stringList); Cmd; continue; } \
+} while (false)
+
+#define _PatternReturnStringList \
+if (stringList == nullptr) \
+	return sb.str(); \
+stringList->push(sb.str());
+
+#define PatternReturnStringListConcat do { \
+_PatternReturnStringList \
+return stringList->concat(); \
+} while (false)
+
+#define PatternReturnStringList do { \
+_PatternReturnStringList \
+return Webss(stringList, WebssType::STRING_LIST); \
+} while (false)
 
 string webss::parseStickyLineString(Parser& parser)
 {
 	auto& it = parser.getItSafe();
 	StringBuilder sb;
+	StringList* stringList = nullptr;
 	if (parser.multilineContainer)
 	{
 		while (it && !isJunk(*it))
 		{
-			CheckCharEscape;
-			CheckCharSubstitution;
+			PatternCheckCharEscape();
+			PatternCheckCharSubstitution();
 			putChar(it, sb);
 		}
 	}
@@ -54,8 +75,8 @@ string webss::parseStickyLineString(Parser& parser)
 		char startChar = parser.con.getStartChar(), endChar = parser.con.getEndChar();
 		while (it && !isJunk(*it))
 		{
-			CheckCharEscape;
-			CheckCharSubstitution;
+			PatternCheckCharEscape();
+			PatternCheckCharSubstitution();
 			if (*it == CHAR_SEPARATOR)
 				break;
 			if (*it == endChar)
@@ -68,19 +89,26 @@ string webss::parseStickyLineString(Parser& parser)
 			putChar(it, sb);
 		}
 	}
-	return sb;
+	PatternReturnStringListConcat;
 }
 
 string webss::parseStickyLineStringOption(Parser& parser)
 {
 	auto& it = parser.getItSafe();
 	StringBuilder sb;
+#ifdef COMPILE_WEBSS
+	StringList* stringList = nullptr;
+#endif
 	while (it && !isJunk(*it))
 	{
-		CheckCharEscape;
+		PatternCheckCharEscape();
 		putChar(it, sb);
 	}
+#ifndef COMPILE_WEBSS
 	return sb;
+#else
+	PatternReturnStringListConcat;
+#endif
 }
 
 Webss webss::parseLineString(Parser& parser)
@@ -92,8 +120,8 @@ Webss webss::parseLineString(Parser& parser)
 	if (parser.multilineContainer)
 		while (hasNextChar(it, sb))
 		{
-			CheckCharEscape;
-			CheckCharSubstitution;
+			PatternCheckCharEscape();
+			PatternCheckCharSubstitution();
 			putChar(it, sb);
 		}
 	else
@@ -102,29 +130,28 @@ Webss webss::parseLineString(Parser& parser)
 		char startChar = parser.con.getStartChar();
 		while (hasNextChar(it, sb, [&]() { return *it == CHAR_SEPARATOR || (parser.con.isEnd(*it) && --countStartEnd == 0); }))
 		{
-			CheckCharEscape;
-			CheckCharSubstitution;
+			PatternCheckCharEscape();
+			PatternCheckCharSubstitution();
 			if (*it == startChar)
 				++countStartEnd;
 			putChar(it, sb);
 		}
 	}
-	if (stringList == nullptr)
-		return sb;
-	stringList->push_back(sb);
-	return Webss(stringList, WebssType::STRING_LIST);
+	PatternReturnStringList;
 }
 
 static Webss parseMultilineStringRegular(Parser& parser)
 {
 	auto& it = parser.getIt();
 	Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, true);
-	StringBuilder sb;
 	if (skipJunk(it) == CHAR_END_DICTIONARY)
 	{
 		++it;
 		return "";
 	}
+	
+	StringBuilder sb;
+	StringList* stringList = nullptr;
 
 	int countStartEnd = 1;
 	bool addSpace = false;
@@ -136,19 +163,9 @@ static Webss parseMultilineStringRegular(Parser& parser)
 loopStart:
 	while (hasNextChar(it, sb, endCondition))
 	{
-		if (*it == CHAR_ESCAPE)
-		{
-			checkEscapedChar(it, sb);
-			addSpace = false;
-			continue;
-		}
-		else if (*it == CHAR_SUBSTITUTION)
-		{
-			checkStringSubstitution(parser, sb, stringList);
-			addSpace = true;
-			continue;
-		}
-		else if (*it == CHAR_START_DICTIONARY && !parser.multilineContainer)
+		PatternCheckCharEscape(addSpace = false);
+		PatternCheckCharSubstitution(addSpace = true);
+		if (*it == CHAR_START_DICTIONARY && !parser.multilineContainer)
 			++countStartEnd;
 		addSpace = true;
 		putChar(it, sb);
@@ -160,7 +177,7 @@ loopStart:
 	else if (countStartEnd == 0 || *skipJunkToValid(++it) == CHAR_END_DICTIONARY)
 	{
 		++it;
-		return sb;
+		PatternReturnStringList;
 	}
 	if (addSpace)
 		sb += ' ';
@@ -180,6 +197,7 @@ Webss webss::parseCString(Parser& parser)
 	auto& it = parser.getItSafe();
 	++it;
 	StringBuilder sb;
+	StringList* stringList = nullptr;
 	while (it)
 	{
 		switch (*it)
@@ -188,9 +206,13 @@ Webss webss::parseCString(Parser& parser)
 			throw runtime_error(WEBSSON_EXCEPTION("can't have line break in cstring"));
 		case CHAR_CSTRING:
 			++it;
-			return sb;
+			PatternReturnStringList;
 		case CHAR_ESCAPE:
-			checkEscapedChar(it, sb);
+			checkEscapedChar(it, sb
+#ifdef COMPILE_WEBSS
+			, stringList
+#endif
+			);
 			continue;
 		case CHAR_SUBSTITUTION:
 			checkStringSubstitution(parser, sb, stringList);
@@ -205,7 +227,11 @@ Webss webss::parseCString(Parser& parser)
 	throw runtime_error(WEBSSON_EXCEPTION("cstring is not closed"));
 }
 
-static void checkEscapedChar(SmartIterator& it, StringBuilder& sb)
+static void checkEscapedChar(SmartIterator& it, StringBuilder& sb
+#ifdef COMPILE_WEBSS
+, StringList*& stringList
+#endif
+)
 {
 	if (!++it)
 		throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
@@ -227,6 +253,22 @@ static void checkEscapedChar(SmartIterator& it, StringBuilder& sb)
 	case 's': sb += ' '; break;
 	case 't': sb += '\t'; break;
 	case 'v': sb += '\v'; break;
+#ifdef COMPILE_WEBSS
+	case 'E':
+		pushStringList(stringList, sb, StringType::FUNC_NEWLINE);
+	case 'F':
+		pushStringList(stringList, sb, StringType::FUNC_FLUSH);
+		break;
+	case 'K':
+		pushStringList(stringList, sb, StringType::FUNC_CANCEL_FLUSH);
+		break;
+	case 'L':
+		pushStringList(stringList, sb, StringType::FUNC_CANCEL_NEWLINE);
+		break;
+	case 'N':
+		pushStringList(stringList, sb, StringType::FUNC_NEWLINE);
+		break;
+#endif
 	default:
 		if (!isSpecialAscii(*it))
 			throw runtime_error(WEBSSON_EXCEPTION("invalid char escape"));
@@ -270,16 +312,6 @@ static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> e
 	return true;
 }
 
-static void checkNewStringList(StringList*& stringList)
-{
-	if (stringList == nullptr)
-	{
-		stringList = new StringList();
-		stringList.push(sb.str());
-		sb.clear();
-	}
-}
-
 static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringList*& stringList)
 {
 	auto& it = parser.getIt();
@@ -303,8 +335,7 @@ static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringLis
 			Webss webss = parser.parseValueOnly();
 			if (!skipJunk(it) || *it != '}')
 				throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
-			checkNewStringList(stringList);
-			stringList->push(move(webss));
+			pushStringList(stringList, sb, move(webss));
 		}
 		++it;
 		break;
@@ -313,8 +344,16 @@ static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringLis
 	default:
 		if (!isNameStart(*it))
 			throw runtime_error(WEBSSON_EXCEPTION("invalid substitution"));
-		checkNewStringList(stringList);
-		stringList->push(parser.getEntityManager().at(parseName(it));
+		pushStringList(stringList, sb, parser.getEntityManager().at(parseName(it)));
 		break;
 	}
+}
+
+static void pushStringList(StringList*& stringList, StringBuilder& sb, StringItem item)
+{
+	if (stringList == nullptr)
+		stringList = new StringList();
+	stringList->push(sb.str());
+	sb.clear();
+	stringList->push(move(item));
 }

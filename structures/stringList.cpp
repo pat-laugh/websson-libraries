@@ -7,8 +7,10 @@
 
 #include "utils.hpp"
 #include "webss.hpp"
+#include "various/stringBuilder.hpp"
 
 using namespace std;
+using namespace various;
 using namespace webss;
 
 StringItem::StringItem() {}
@@ -24,15 +26,15 @@ StringItem& StringItem::operator=(StringItem o)
 	return *this;
 }
 
-StringItem::StringItem(StringType t) : type(t) {}
 StringItem::StringItem(string&& s) : type(StringType::STRING), tString(move(s)) {}
 
 #ifndef COMPILE_WEBSS
 StringItem::StringItem(const Entity& ent) : type(StringType::ENT_STATIC), ent(ent) {}
 #else
+StringItem::StringItem(StringType t) : type(t) {}
+StringItem::StringItem(Webss webss) : type(StringType::WEBSS), webss(new Webss(move(webss))) {}
 StringItem::StringItem(const Entity& ent) : type(StringType::ENT_STATIC), ent(Entity(ent.getName(), ent.getContent().getWebssLast())) {}
 StringItem::StringItem(const Entity& ent, bool) : type(StringType::ENT_DYNAMIC), ent(ent) {}
-StringItem::StringItem(Webss webss) : type(StringType::WEBSS), webss(new Webss(move(webss))) {}
 #endif
 
 void StringItem::destroyUnion()
@@ -157,7 +159,7 @@ const Entity& StringItem::getEntityRaw() const
 const Webss& StringItem::getWebssRaw() const { assert(type == StringType::WEBSS); return *webss; }
 #endif
 
-
+StringList::StringList() {}
 StringList::StringList(StringList&& o) : items(move(o.items)) {}
 StringList::StringList(const StringList& o) : items(o.items) {}
 
@@ -172,7 +174,7 @@ static void substituteString(StringBuilder& sb, const Webss& webss)
 {
 	switch (webss.getType())
 	{
-	case WebssType::STRING:
+	case WebssType::PRIMITIVE_STRING:
 		sb += webss.getString();
 		break;
 	case WebssType::STRING_LIST:
@@ -182,13 +184,13 @@ static void substituteString(StringBuilder& sb, const Webss& webss)
 		//allow other stuff...
 #endif
 	default:
-		throw runtime_error(WEBSSON_EXCEPTION("string substitution must be evaluable to string"));
+		throw runtime_error("string substitution must evaluate to string");
 	}
 }
 
 string StringList::concat() const
 {
-	string sb;
+	StringBuilder sb;
 	for (const auto& item : items)
 		switch (item.getTypeRaw())
 		{

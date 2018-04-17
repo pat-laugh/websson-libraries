@@ -16,7 +16,7 @@ namespace webss
 	{
 		NONE, STRING, ENT_STATIC,
 #ifdef COMPILE_WEBSS
-		WEBSS, ENT_DYNAMIC, FUNC_FLUSH, FUNC_NEWLINE,
+		WEBSS, ENT_DYNAMIC, FUNC_FLUSH, FUNC_NEWLINE, FUNC_CANCEL_FLUSH, FUNC_CANCEL_NEWLINE,
 #endif
 	};
 
@@ -34,13 +34,13 @@ namespace webss
 		bool operator==(const StringItem& o) const;
 		bool operator!=(const StringItem& o) const;
 
-		StringItem(StringType t);
 		StringItem(std::string&& s);
 		StringItem(const Entity& ent);
 
 #ifdef COMPILE_WEBSS
-		static StringItem makeEntDynamic(const Entity& ent) { return StringItem(ent, true); }
+		StringItem(StringType t);
 		StringItem(Webss webss);
+		static StringItem makeEntDynamic(const Entity& ent) { return StringItem(ent, true); }
 		const Webss& getWebssRaw() const;
 #endif
 
@@ -74,6 +74,7 @@ namespace webss
 		std::vector<StringItem> items;
 
 	public:
+		StringList();
 		StringList(StringList&& o);
 		StringList(const StringList& o);
 
