@@ -19,8 +19,8 @@ static void checkEscapedChar(SmartIterator& it, StringBuilder& sb);
 static inline void putChar(SmartIterator& it, StringBuilder& sb);
 static bool isEnd(SmartIterator& it, function<bool()> endCondition);
 static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondition = []() { return false; });
-static bool checkStringExpand(Parser& parser, StringBuilder& sb);
-static const string& expandString(Parser& parser);
+static bool checkStringSubstitution(Parser& parser, StringBuilder& sb);
+static const string& substituteString(Parser& parser);
 
 string webss::parseStickyLineString(Parser& parser)
 {
@@ -35,7 +35,7 @@ string webss::parseStickyLineString(Parser& parser)
 				checkEscapedChar(it, sb);
 				continue;
 			}
-			else if (*it == CHAR_EXPAND && checkStringExpand(parser, sb))
+			else if (*it == CHAR_EXPAND && checkStringSubstitution(parser, sb))
 				continue;
 			putChar(it, sb);
 		}
@@ -53,7 +53,7 @@ string webss::parseStickyLineString(Parser& parser)
 			}
 			else if (*it == CHAR_EXPAND)
 			{
-				if (checkStringExpand(parser, sb))
+				if (checkStringSubstitution(parser, sb))
 					continue;
 			}
 			else if (*it == CHAR_SEPARATOR)
@@ -94,7 +94,6 @@ Webss webss::parseLineString(Parser& parser)
 	StringBuilder sb;
 	StringList* stringList = nullptr;
 	if (parser.multilineContainer)
-	{
 		while (hasNextChar(it, sb))
 		{
 			if (*it == CHAR_ESCAPE)
@@ -102,11 +101,10 @@ Webss webss::parseLineString(Parser& parser)
 				checkEscapedChar(it, sb);
 				continue;
 			}
-			else if (*it == CHAR_EXPAND && checkStringExpand(parser, sb))
+			else if (*it == CHAR_EXPAND && checkStringSubstitution(parser, sb))
 				continue;
 			putChar(it, sb);
 		}
-	}
 	else
 	{
 		int countStartEnd = 1;
@@ -120,7 +118,7 @@ Webss webss::parseLineString(Parser& parser)
 			}
 			else if (*it == CHAR_EXPAND)
 			{
-				if (checkStringExpand(parser, sb))
+				if (checkStringSubstitution(parser, sb))
 					continue;
 			}
 			else if (*it == startChar)
@@ -163,7 +161,7 @@ loopStart:
 		}
 		else if (*it == CHAR_EXPAND)
 		{
-			if (checkStringExpand(parser, sb))
+			if (checkStringSubstitution(parser, sb))
 			{
 				addSpace = true;
 				continue;
@@ -211,7 +209,7 @@ Webss webss::parseCString(Parser& parser)
 			++it;
 			return sb;
 		case CHAR_EXPAND:
-			if (checkStringExpand(parser, sb))
+			if (checkStringSubstitution(parser, sb))
 				continue;
 			break;
 		case CHAR_ESCAPE:
@@ -292,18 +290,18 @@ static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> e
 	return true;
 }
 
-static bool checkStringExpand(Parser& parser, StringBuilder& sb)
+static bool checkStringSubstitution(Parser& parser, StringBuilder& sb)
 {
 	auto& it = parser.getIt();
 	if (it.peekEnd() || !isNameStart(it.peek()))
 		return false;
 
 	++it;
-	sb += expandString(parser);
+	sb += substituteString(parser);
 	return true;
 }
 
-static const string& expandString(Parser& parser)
+static const string& substituteString(Parser& parser)
 {
 	auto& it = parser.getIt();
 	try
