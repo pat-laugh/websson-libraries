@@ -158,12 +158,12 @@ const Webss& StringItem::getWebssRaw() const { assert(type == StringType::WEBSS)
 #endif
 
 
-StringList::StringList(StringList&& o) : items(move(o.items)), ptr(move(o.ptr)) {}
-StringList::StringList(const StringList& o) : items(o.items), ptr(o.ptr == nullptr ? nullptr : new string(*o.ptr)) {}
+StringList::StringList(StringList&& o) : items(move(o.items)) {}
+StringList::StringList(const StringList& o) : items(o.items) {}
 
 void StringList::push(StringItem item) { items.push_back(move(item)); }
 
-const string& StringList::getString() const
+string StringList::concat() const
 {
 	string sb;
 	for (const auto& item : items)
@@ -185,9 +185,7 @@ const string& StringList::getString() const
 			sb += item.getStringRaw();
 			break;
 		}
-	unique_ptr<string>& refPtr = *const_cast<unique_ptr<string>*>(&ptr);
-	refPtr = unique_ptr<string>(new string(sb));
-	return *ptr;
+	return sb;
 }
 
 

@@ -72,7 +72,6 @@ namespace webss
 	{
 	private:
 		std::vector<StringItem> items;
-		std::unique_ptr<std::string> ptr;
 
 	public:
 		StringList(StringList&& o);
@@ -82,6 +81,6 @@ namespace webss
 		bool operator!=(const StringList& o) const;
 
 		void push(StringItem item);
-		const std::string& getString() const;
+		std::string concat() const;
 	};
 }
