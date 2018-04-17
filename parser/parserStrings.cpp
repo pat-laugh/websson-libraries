@@ -19,8 +19,21 @@ static void checkEscapedChar(SmartIterator& it, StringBuilder& sb);
 static inline void putChar(SmartIterator& it, StringBuilder& sb);
 static bool isEnd(SmartIterator& it, function<bool()> endCondition);
 static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondition = []() { return false; });
-static bool checkStringSubstitution(Parser& parser, StringBuilder& sb);
-static const string& substituteString(Parser& parser);
+static void checkStringSubstitution(Parser& parser, StringBuilder& sb);
+
+#define CheckCharEscape do { \
+if (*it == CHAR_ESCAPE) \
+{ \
+	checkEscapedChar(it, sb); \
+	continue; \
+} } while (false)
+
+#define CheckCharSubstitution do { \
+if (*it == CHAR_SUBSTITUTION) \
+{ \
+	checkStringSubstitution(parser, sb); \
+	continue; \
+} } while (false)
 
 string webss::parseStickyLineString(Parser& parser)
 {
@@ -30,13 +43,8 @@ string webss::parseStickyLineString(Parser& parser)
 	{
 		while (it && !isJunk(*it))
 		{
-			if (*it == CHAR_ESCAPE)
-			{
-				checkEscapedChar(it, sb);
-				continue;
-			}
-			else if (*it == CHAR_SUBSTITUTION && checkStringSubstitution(parser, sb))
-				continue;
+			CheckCharEscape;
+			CheckCharSubstitution;
 			putChar(it, sb);
 		}
 	}
@@ -46,19 +54,11 @@ string webss::parseStickyLineString(Parser& parser)
 		char startChar = parser.con.getStartChar(), endChar = parser.con.getEndChar();
 		while (it && !isJunk(*it))
 		{
-			if (*it == CHAR_ESCAPE)
-			{
-				checkEscapedChar(it, sb);
-				continue;
-			}
-			else if (*it == CHAR_SUBSTITUTION)
-			{
-				if (checkStringSubstitution(parser, sb))
-					continue;
-			}
-			else if (*it == CHAR_SEPARATOR)
+			CheckCharEscape;
+			CheckCharSubstitution;
+			if (*it == CHAR_SEPARATOR)
 				break;
-			else if (*it == endChar)
+			if (*it == endChar)
 			{
 				if (--countStartEnd == 0)
 					break;
@@ -77,11 +77,7 @@ string webss::parseStickyLineStringOption(Parser& parser)
 	StringBuilder sb;
 	while (it && !isJunk(*it))
 	{
-		if (*it == CHAR_ESCAPE)
-		{
-			checkEscapedChar(it, sb);
-			continue;
-		}
+		CheckCharEscape;
 		putChar(it, sb);
 	}
 	return sb;
@@ -96,13 +92,8 @@ Webss webss::parseLineString(Parser& parser)
 	if (parser.multilineContainer)
 		while (hasNextChar(it, sb))
 		{
-			if (*it == CHAR_ESCAPE)
-			{
-				checkEscapedChar(it, sb);
-				continue;
-			}
-			else if (*it == CHAR_SUBSTITUTION && checkStringSubstitution(parser, sb))
-				continue;
+			CheckCharEscape;
+			CheckCharSubstitution;
 			putChar(it, sb);
 		}
 	else
@@ -111,17 +102,9 @@ Webss webss::parseLineString(Parser& parser)
 		char startChar = parser.con.getStartChar();
 		while (hasNextChar(it, sb, [&]() { return *it == CHAR_SEPARATOR || (parser.con.isEnd(*it) && --countStartEnd == 0); }))
 		{
-			if (*it == CHAR_ESCAPE)
-			{
-				checkEscapedChar(it, sb);
-				continue;
-			}
-			else if (*it == CHAR_SUBSTITUTION)
-			{
-				if (checkStringSubstitution(parser, sb))
-					continue;
-			}
-			else if (*it == startChar)
+			CheckCharEscape;
+			CheckCharSubstitution;
+			if (*it == startChar)
 				++countStartEnd;
 			putChar(it, sb);
 		}
@@ -161,11 +144,9 @@ loopStart:
 		}
 		else if (*it == CHAR_SUBSTITUTION)
 		{
-			if (checkStringSubstitution(parser, sb))
-			{
-				addSpace = true;
-				continue;
-			}
+			checkStringSubstitution(parser, sb);
+			addSpace = true;
+			continue;
 		}
 		else if (*it == CHAR_START_DICTIONARY && !parser.multilineContainer)
 			++countStartEnd;
@@ -208,12 +189,11 @@ Webss webss::parseCString(Parser& parser)
 		case CHAR_CSTRING:
 			++it;
 			return sb;
-		case CHAR_SUBSTITUTION:
-			if (checkStringSubstitution(parser, sb))
-				continue;
-			break;
 		case CHAR_ESCAPE:
 			checkEscapedChar(it, sb);
+			continue;
+		case CHAR_SUBSTITUTION:
+			checkStringSubstitution(parser, sb);
 			continue;
 		default:
 			break;
@@ -290,29 +270,47 @@ static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> e
 	return true;
 }
 
-static bool checkStringSubstitution(Parser& parser, StringBuilder& sb)
+static void substituteString(StringBuilder& sb, const Webss& webss)
 {
-	auto& it = parser.getIt();
-	if (it.peekEnd() || !isNameStart(it.peek()))
-		return false;
-
-	++it;
-	sb += substituteString(parser);
-	return true;
+	if (webss.isString())
+		sb += webss.getString();
+	else if (webss.isStringList())
+		sb += webss.getStringList().concat();
+	else
+		throw runtime_error(WEBSSON_EXCEPTION("string substitution must evaluate to string"));
 }
 
-static const string& substituteString(Parser& parser)
+static void checkStringSubstitution(Parser& parser, StringBuilder& sb)
 {
 	auto& it = parser.getIt();
-	try
+	if (!++it)
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
+	switch (*it)
 	{
-		const Webss* value = &parser.getEntityManager().at(parseName(it)).getContent();
-		while (it == CHAR_SCOPE && value->isNamespace() && it.peekGood() && isNameStart(it.peek()))
-			value = &value->getNamespace().at(parseName(++it)).getContent();
-		return value->getString();
+	case '0': case '1': case '2': case '3': case '4':
+	case '5': case '6': case '7': case '8': case '9':
+	case '_':
+		; //do something...
+		break;
+	case '{':
+	{
+		Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, false);
+		if (!skipJunk(it))
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
+		if (*it != '}')
+		{
+			Webss webss = parser.parseValueOnly();
+			if (!skipJunk(it) || *it != '}')
+				throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
+			substituteString(sb, webss);
+		}
+		++it;
+		break;
 	}
-	catch (const exception&)
-	{
-		throw runtime_error(WEBSSON_EXCEPTION("could not expand string entity"));
+	default:
+		if (!isNameStart(*it))
+			throw runtime_error(WEBSSON_EXCEPTION("invalid substitution"));
+		substituteString(sb, parser.getEntityManager().at(parseName(it)).getContent());
+		break;
 	}
 }

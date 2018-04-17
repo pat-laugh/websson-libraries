@@ -122,6 +122,7 @@ namespace webss
 		explicit operator float() const { return (float)getDouble(); }
 		explicit operator double() const { return getDouble(); }
 		explicit operator const std::string&() const { return getString(); }
+		explicit operator const StringList&() const { return getStringList(); }
 		explicit operator const Document&() const { return getDocument(); }
 		explicit operator const Dictionary&() const { return getDictionary(); }
 		explicit operator const List&() const { return getList(); }
@@ -138,6 +139,7 @@ namespace webss
 		bool isInt() const;
 		bool isDouble() const;
 		bool isString() const;
+		bool isStringList() const;
 		bool isDocument() const;
 		bool isDictionary() const;
 		bool isList() const;
