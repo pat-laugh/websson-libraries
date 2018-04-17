@@ -35,7 +35,7 @@ string webss::parseStickyLineString(Parser& parser)
 				checkEscapedChar(it, sb);
 				continue;
 			}
-			else if (*it == CHAR_EXPAND && checkStringSubstitution(parser, sb))
+			else if (*it == CHAR_SUBSTITUTION && checkStringSubstitution(parser, sb))
 				continue;
 			putChar(it, sb);
 		}
@@ -51,7 +51,7 @@ string webss::parseStickyLineString(Parser& parser)
 				checkEscapedChar(it, sb);
 				continue;
 			}
-			else if (*it == CHAR_EXPAND)
+			else if (*it == CHAR_SUBSTITUTION)
 			{
 				if (checkStringSubstitution(parser, sb))
 					continue;
@@ -101,7 +101,7 @@ Webss webss::parseLineString(Parser& parser)
 				checkEscapedChar(it, sb);
 				continue;
 			}
-			else if (*it == CHAR_EXPAND && checkStringSubstitution(parser, sb))
+			else if (*it == CHAR_SUBSTITUTION && checkStringSubstitution(parser, sb))
 				continue;
 			putChar(it, sb);
 		}
@@ -116,7 +116,7 @@ Webss webss::parseLineString(Parser& parser)
 				checkEscapedChar(it, sb);
 				continue;
 			}
-			else if (*it == CHAR_EXPAND)
+			else if (*it == CHAR_SUBSTITUTION)
 			{
 				if (checkStringSubstitution(parser, sb))
 					continue;
@@ -159,7 +159,7 @@ loopStart:
 			addSpace = false;
 			continue;
 		}
-		else if (*it == CHAR_EXPAND)
+		else if (*it == CHAR_SUBSTITUTION)
 		{
 			if (checkStringSubstitution(parser, sb))
 			{
@@ -208,7 +208,7 @@ Webss webss::parseCString(Parser& parser)
 		case CHAR_CSTRING:
 			++it;
 			return sb;
-		case CHAR_EXPAND:
+		case CHAR_SUBSTITUTION:
 			if (checkStringSubstitution(parser, sb))
 				continue;
 			break;

@@ -430,10 +430,10 @@ static bool isLineEnd(char c, ConType con)
 	return c == '\n' || c == CHAR_SEPARATOR || con.isEnd(c);
 }
 
-//whether or not the char should always be escaped in a char
+//whether or not the char should always be escaped in a string
 static bool isMustEscapeChar(char c)
 {
-	return c == CHAR_EXPAND || c == CHAR_ESCAPE || isControlAscii(c);
+	return c == CHAR_SUBSTITUTION || c == CHAR_ESCAPE || isControlAscii(c);
 }
 
 void Serializer::putLineString(StringBuilder& out, const string& str, ConType con)
