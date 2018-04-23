@@ -27,33 +27,28 @@ static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringLis
 static void pushStringList(StringList*& stringList, StringBuilder& sb, StringItem item);
 
 #ifndef COMPILE_WEBSS
-#define PatternCheckCharEscape(Cmd) do { \
-if (*it == CHAR_ESCAPE) { checkEscapedChar(it, sb); Cmd; continue; } \
-} while (false)
+#define PatternCheckCharEscape(Cmd) \
+if (*it == CHAR_ESCAPE) { checkEscapedChar(it, sb); Cmd; continue; }
 #else
-#define PatternCheckCharEscape(Cmd) do { \
-if (*it == CHAR_ESCAPE) { checkEscapedChar(it, sb, stringList); Cmd; continue; } \
-} while (false)
+#define PatternCheckCharEscape(Cmd) \
+if (*it == CHAR_ESCAPE) { checkEscapedChar(it, sb, stringList); Cmd; continue; }
 #endif
 
-#define PatternCheckCharSubstitution(Cmd) do { \
-if (*it == CHAR_SUBSTITUTION) { checkStringSubstitution(parser, sb, stringList); Cmd; continue; } \
-} while (false)
+#define PatternCheckCharSubstitution(Cmd) \
+if (*it == CHAR_SUBSTITUTION) { checkStringSubstitution(parser, sb, stringList); Cmd; continue; }
 
 #define _PatternReturnStringList \
 if (stringList == nullptr) \
 	return sb.str(); \
 stringList->push(sb.str());
 
-#define PatternReturnStringListConcat do { \
+#define PatternReturnStringListConcat \
 _PatternReturnStringList \
-return stringList->concat(); \
-} while (false)
+return stringList->concat();
 
-#define PatternReturnStringList do { \
+#define PatternReturnStringList \
 _PatternReturnStringList \
-return Webss(stringList, WebssType::STRING_LIST); \
-} while (false)
+return Webss(stringList, WebssType::STRING_LIST);
 
 string webss::parseStickyLineString(Parser& parser)
 {
@@ -140,45 +135,68 @@ Webss webss::parseLineString(Parser& parser)
 	PatternReturnStringList;
 }
 
+static Webss parseMultilineStringRegularMultiline(Parser& parser)
+{
+	auto& it = parser.getIt();
+	StringBuilder sb;
+	StringList* stringList = nullptr;
+	bool addSpace = false;
+loopStart:
+	do
+	{
+		PatternCheckCharEscape(addSpace = false);
+		PatternCheckCharSubstitution(addSpace = true);
+		addSpace = true;
+		putChar(it, sb);
+	} while (hasNextChar(it, sb));
+	if (!it || !skipJunkToValid(++it))
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_MULTILINE_STRING));
+	if (*it == CHAR_END_DICTIONARY)
+	{
+		++it;
+		PatternReturnStringList;
+	}
+	if (addSpace)
+		sb += ' ';
+	goto loopStart;
+}
+
 static Webss parseMultilineStringRegular(Parser& parser)
 {
 	auto& it = parser.getIt();
 	Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, true);
-	if (skipJunk(it) == CHAR_END_DICTIONARY)
+	if (!skipJunk(it))
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_MULTILINE_STRING));
+	if (*it == CHAR_END_DICTIONARY)
 	{
 		++it;
 		return "";
 	}
+	if (parser.multilineContainer)
+		return parseMultilineStringRegularMultiline(parser);
 	
 	StringBuilder sb;
 	StringList* stringList = nullptr;
-
 	int countStartEnd = 1;
 	bool addSpace = false;
-	function<bool()> endCondition;
-	if (parser.multilineContainer)
-		endCondition = []() { return false; };
-	else
-		endCondition = [&]() { return *it == CHAR_END_DICTIONARY && --countStartEnd == 0; };
+	function<bool()> endCondition = [&]() { return *it == CHAR_END_DICTIONARY && --countStartEnd == 0; };
 loopStart:
 	while (hasNextChar(it, sb, endCondition))
 	{
 		PatternCheckCharEscape(addSpace = false);
 		PatternCheckCharSubstitution(addSpace = true);
-		if (*it == CHAR_START_DICTIONARY && !parser.multilineContainer)
+		if (*it == CHAR_START_DICTIONARY)
 			++countStartEnd;
 		addSpace = true;
 		putChar(it, sb);
-	}
-	if (!it)
-		throw runtime_error(WEBSSON_EXCEPTION(ERROR_MULTILINE_STRING));
-	if (countStartEnd > 1)
-		skipJunkToValid(++it);
-	else if (countStartEnd == 0 || *skipJunkToValid(++it) == CHAR_END_DICTIONARY)
+	};
+	if (countStartEnd == 0)
 	{
 		++it;
 		PatternReturnStringList;
 	}
+	if (!it || !skipJunkToValid(++it))
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_MULTILINE_STRING));
 	if (addSpace)
 		sb += ' ';
 	goto loopStart;

@@ -4,12 +4,13 @@
 escaped-chars:\a\b\f\n\r\t\v\x00\u1234\U43210987\e\s\0
 line-string:   some text   with spaces   //and a comment
 c-string="some text"
+
 multiline-string::
 {
 	My name is $name!
 	
-	I know /*^Nspace.name*/.
-	I also know who /*^Nspace.MoreNspace.name*/ is.
+	I know ${Nspace.name}.
+	I also know who ${Nspace.MoreNspace.name} is.
 	
 	Escape \$ without ent is not valid.
 }
