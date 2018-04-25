@@ -365,6 +365,7 @@ static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringLis
 				throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
 			checkTypeSubstitution(webss);
 			pushStringList(stringList, sb, move(webss));
+			parser.getItSafe(); //make sure tag iterator is unsafe after parseValueOnly call
 		}
 		++it;
 		break;
@@ -374,7 +375,7 @@ static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringLis
 			throw runtime_error(WEBSSON_EXCEPTION("invalid substitution"));
 		const auto& ent = parser.getEntityManager().at(parseName(it));
 		checkTypeSubstitution(ent.getContent());
-		pushStringList(stringList, sb, ent);
+		pushStringList(stringList, sb, Webss(ent));
 		break;
 	}
 }

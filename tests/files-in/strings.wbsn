@@ -5,6 +5,8 @@ escaped-chars:\a\b\f\n\r\t\v\x00\u1234\U43210987\e\s\0
 line-string:   some text   with spaces   //and a comment
 c-string="some text"
 
+:My name is $name!
+
 multiline-string::
 {
 	My name is $name!
