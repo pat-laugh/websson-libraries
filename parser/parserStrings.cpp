@@ -15,27 +15,26 @@ using namespace webss;
 
 static const char* ERROR_MULTILINE_STRING = "multiline-string is not closed";
 
-static void checkEscapedChar(SmartIterator& it, StringBuilder& sb
-#ifdef COMPILE_WEBSS
-	, StringList*& stringList
+
+#ifndef COMPILE_WEBSS
+#define checkEscapedChar(It, Sb, StrL) checkEscapedChar(It, Sb)
+#else
+#define checkEscapedChar(It, Sb, StrL) checkEscapedChar(It, Sb, StrL)
 #endif
-);
+
+static void checkEscapedChar(SmartIterator& it, StringBuilder& sb, StringList*& stringList);
 static inline void putChar(SmartIterator& it, StringBuilder& sb);
 static bool isEnd(SmartIterator& it, function<bool()> endCondition);
 static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondition = []() { return false; });
 static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringList*& stringList);
 static void pushStringList(StringList*& stringList, StringBuilder& sb, StringItem item);
 
-#ifndef COMPILE_WEBSS
-#define PatternCheckCharEscape(Cmd) \
-if (*it == CHAR_ESCAPE) { checkEscapedChar(it, sb); Cmd; continue; }
-#else
-#define PatternCheckCharEscape(Cmd) \
-if (*it == CHAR_ESCAPE) { checkEscapedChar(it, sb, stringList); Cmd; continue; }
-#endif
 
-#define PatternCheckCharSubstitution(Cmd) \
-if (*it == CHAR_SUBSTITUTION) { checkStringSubstitution(parser, sb, stringList); Cmd; continue; }
+#define PatternCheckCharEscape \
+if (*it == CHAR_ESCAPE) { checkEscapedChar(it, sb, stringList); continue; }
+
+#define PatternCheckCharSubstitution \
+if (*it == CHAR_SUBSTITUTION) { checkStringSubstitution(parser, sb, stringList); continue; }
 
 #define _PatternReturnStringList \
 if (stringList == nullptr) \
@@ -56,22 +55,20 @@ string webss::parseStickyLineString(Parser& parser)
 	StringBuilder sb;
 	StringList* stringList = nullptr;
 	if (parser.multilineContainer)
-	{
 		while (it && !isJunk(*it))
 		{
-			PatternCheckCharEscape();
-			PatternCheckCharSubstitution();
+			PatternCheckCharEscape;
+			PatternCheckCharSubstitution;
 			putChar(it, sb);
 		}
-	}
 	else
 	{
 		int countStartEnd = 1;
 		char startChar = parser.con.getStartChar(), endChar = parser.con.getEndChar();
 		while (it && !isJunk(*it))
 		{
-			PatternCheckCharEscape();
-			PatternCheckCharSubstitution();
+			PatternCheckCharEscape;
+			PatternCheckCharSubstitution;
 			if (*it == CHAR_SEPARATOR)
 				break;
 			if (*it == endChar)
@@ -96,13 +93,13 @@ string webss::parseStickyLineStringOption(Parser& parser)
 #endif
 	while (it && !isJunk(*it))
 	{
-		PatternCheckCharEscape();
+		PatternCheckCharEscape;
 		putChar(it, sb);
 	}
-#ifndef COMPILE_WEBSS
-	return sb;
-#else
+#ifdef COMPILE_WEBSS
 	PatternReturnStringListConcat;
+#else
+	return sb;
 #endif
 }
 
@@ -115,8 +112,8 @@ Webss webss::parseLineString(Parser& parser)
 	if (parser.multilineContainer)
 		while (hasNextChar(it, sb))
 		{
-			PatternCheckCharEscape();
-			PatternCheckCharSubstitution();
+			PatternCheckCharEscape;
+			PatternCheckCharSubstitution;
 			putChar(it, sb);
 		}
 	else
@@ -125,8 +122,8 @@ Webss webss::parseLineString(Parser& parser)
 		char startChar = parser.con.getStartChar();
 		while (hasNextChar(it, sb, [&]() { return *it == CHAR_SEPARATOR || (parser.con.isEnd(*it) && --countStartEnd == 0); }))
 		{
-			PatternCheckCharEscape();
-			PatternCheckCharSubstitution();
+			PatternCheckCharEscape;
+			PatternCheckCharSubstitution;
 			if (*it == startChar)
 				++countStartEnd;
 			putChar(it, sb);
@@ -140,13 +137,19 @@ static Webss parseMultilineStringRegularMultiline(Parser& parser)
 	auto& it = parser.getIt();
 	StringBuilder sb;
 	StringList* stringList = nullptr;
-	bool addSpace = false;
+	bool addSpace = true;
 loopStart:
 	do
 	{
-		PatternCheckCharEscape(addSpace = false);
-		PatternCheckCharSubstitution(addSpace = true);
-		addSpace = true;
+		if (*it == CHAR_ESCAPE)
+		{
+			checkEscapedChar(it, sb, stringList);
+			if (hasNextChar(it, sb))
+				goto loopStart;
+			addSpace = false;
+			break;
+		}
+		PatternCheckCharSubstitution;
 		putChar(it, sb);
 	} while (hasNextChar(it, sb));
 	if (!it || !skipJunkToValid(++it))
@@ -158,6 +161,8 @@ loopStart:
 	}
 	if (addSpace)
 		sb += ' ';
+	else
+		addSpace = true;
 	goto loopStart;
 }
 
@@ -178,16 +183,23 @@ static Webss parseMultilineStringRegular(Parser& parser)
 	StringBuilder sb;
 	StringList* stringList = nullptr;
 	int countStartEnd = 1;
-	bool addSpace = false;
+	bool addSpace = true;
 	function<bool()> endCondition = [&]() { return *it == CHAR_END_DICTIONARY && --countStartEnd == 0; };
 loopStart:
 	while (hasNextChar(it, sb, endCondition))
 	{
-		PatternCheckCharEscape(addSpace = false);
-		PatternCheckCharSubstitution(addSpace = true);
+innerLoop:
+		if (*it == CHAR_ESCAPE)
+		{
+			checkEscapedChar(it, sb, stringList);
+			if (hasNextChar(it, sb, endCondition))
+				goto innerLoop;
+			addSpace = false;
+			break;
+		}
+		PatternCheckCharSubstitution;
 		if (*it == CHAR_START_DICTIONARY)
 			++countStartEnd;
-		addSpace = true;
 		putChar(it, sb);
 	};
 	if (countStartEnd == 0)
@@ -199,6 +211,8 @@ loopStart:
 		throw runtime_error(WEBSSON_EXCEPTION(ERROR_MULTILINE_STRING));
 	if (addSpace)
 		sb += ' ';
+	else
+		addSpace = true;
 	goto loopStart;
 }
 
@@ -226,30 +240,28 @@ Webss webss::parseCString(Parser& parser)
 			++it;
 			PatternReturnStringList;
 		case CHAR_ESCAPE:
-			checkEscapedChar(it, sb
-#ifdef COMPILE_WEBSS
-			, stringList
-#endif
-			);
+			checkEscapedChar(it, sb, stringList);
 			continue;
 		case CHAR_SUBSTITUTION:
 			checkStringSubstitution(parser, sb, stringList);
 			continue;
 		default:
+			sb += *it;
+		//control Ascii chars, except tab and newline, are ignored
+		case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05:
+		case 0x06: case 0x07: case 0x08: //case 0x09: case 0x0a: tab and newline
+		case 0x0b: case 0x0c: case 0x0d: case 0x0e: case 0x0f:
+		case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x16: case 0x17:
+		case 0x18: case 0x19: case 0x1a: case 0x1b: case 0x1c: case 0x1d: case 0x1e: case 0x1f:
+		case 0x7f:
+			++it;
 			break;
 		}
-		if (!isControlAscii(*it) || *it == '\t')
-			sb += *it;
-		++it;
 	}
 	throw runtime_error(WEBSSON_EXCEPTION("cstring is not closed"));
 }
 
-static void checkEscapedChar(SmartIterator& it, StringBuilder& sb
-#ifdef COMPILE_WEBSS
-, StringList*& stringList
-#endif
-)
+static void checkEscapedChar(SmartIterator& it, StringBuilder& sb, StringList*& stringList)
 {
 	if (!++it)
 		throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
