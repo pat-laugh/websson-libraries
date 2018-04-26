@@ -1,5 +1,5 @@
 //MIT License
-//Copyright 2017 Patrick Laughrea
+//Copyright 2017-2018 Patrick Laughrea
 #include "keywords.hpp"
 
 #include <cassert>
@@ -12,7 +12,7 @@ const Keyword::Enum Keyword::KEY_NULL;
 const Keyword::Enum Keyword::KEY_FALSE;
 const Keyword::Enum Keyword::KEY_TRUE;
 
-static const unordered_map<const char*, Keyword> KEYWORDS = {
+static const unordered_map<string, Keyword> KEYWORDS = {
 	{ "N", Keyword::KEY_NULL },
 	{ "Nil", Keyword::KEY_NULL },
 	{ "None", Keyword::KEY_NULL },
@@ -32,10 +32,10 @@ static const unordered_map<const char*, Keyword> KEYWORDS = {
 
 bool webss::isKeyword(const string& s)
 {
-	return KEYWORDS.find(s.c_str()) != KEYWORDS.end();
+	return KEYWORDS.find(s) != KEYWORDS.end();
 }
 
-Keyword::Keyword(const string& s) : e(KEYWORDS.find(s.c_str())->second) {}
+Keyword::Keyword(const string& s) : e(KEYWORDS.find(s)->second) {}
 
 const char* Keyword::toString() const
 {
