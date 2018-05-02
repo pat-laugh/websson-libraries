@@ -1,5 +1,5 @@
 //MIT License
-//Copyright 2017 Patrick Laughrea
+//Copyright 2017-2018 Patrick Laughrea
 #include "parserThead.hpp"
 
 #include "containerSwitcher.hpp"
@@ -105,8 +105,7 @@ switchStart:
 			return{ move(theadCopy), move(ent), options };
 		else
 		{
-			TheadFun theadFun;
-			theadFun.setThead(move(theadCopy));
+			TheadFun theadFun(move(theadCopy));
 			parseTheadFunStructure(theadFun);
 			return{ move(theadFun), move(ent), options };
 		}
@@ -129,8 +128,7 @@ switchStart:
 	}
 	else
 	{
-		TheadFun theadFun;
-		theadFun.setThead(!checkNextElement() ? move(theadCopy) : ParserThead::parseTheadStd(*this, move(theadCopy)));
+		TheadFun theadFun(!checkNextElement() ? move(theadCopy) : ParserThead::parseTheadStd(*this, move(theadCopy)));
 		parseTheadFunStructure(theadFun);
 		return{ move(theadFun), move(ent), options, move(modifierTuple) };
 	}
@@ -147,8 +145,7 @@ TheadBin Parser::parseTheadBin(TheadBin&& thead)
 TheadFun Parser::parseTheadFun()
 {
 	ContainerSwitcher switcher(*this, ConType::TEMPLATE_FUN, false);
-	TheadFun theadFun;
-	theadFun.setThead(containerEmpty() ? TheadStd() : ParserThead::parseTheadStd(*this));
+	TheadFun theadFun(containerEmpty() ? TheadStd() : ParserThead::parseTheadStd(*this));
 	return theadFun;
 }
 

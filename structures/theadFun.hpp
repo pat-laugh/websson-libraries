@@ -14,20 +14,18 @@ namespace webss
 	private:
 		std::shared_ptr<TheadStd> thead;
 		std::shared_ptr<Webss> structure;
-		std::shared_ptr<Tuple> dummyTuple;
 		std::shared_ptr<const Tuple*> ptr;
 		
 		bool isForeachList = false;
 		int foreachIndex;
 	public:
-		TheadFun();
+		TheadFun(TheadStd thead);
 		TheadFun(const TheadFun& o, int foreachIndex);
 
 		bool operator==(const TheadFun& o) const;
 		bool operator!=(const TheadFun& o) const;
 		
 		const TheadStd& getThead() const;
-		void setThead(TheadStd thead);
 		
 		const Webss& getStructure() const;
 		void setStructure(Webss webss);
