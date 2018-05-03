@@ -13,9 +13,39 @@ using namespace webss;
 TheadFunPointer::TheadFunPointer(const Tuple** ptr, const Tuple* newVal) : ptr(ptr), oldVal(*ptr) { *ptr = newVal; }
 TheadFunPointer::~TheadFunPointer() { *ptr = oldVal; }
 
-TheadFun::TheadFun(TheadStd thead) : thead(shared_ptr<TheadStd>(new TheadStd(move(thead)))), ptr(new const Tuple*(reinterpret_cast<const Tuple*>(&this->thead->getParams()))) {}
+TheadFunPointerCont::TheadFunPointerCont(const Tuple** ptr)
+{
+	ptrMap.insert({this_thread::get_id(), ptr});
+}
+
+TheadFunPointerCont::~TheadFunPointerCont()
+{
+	for (const auto& p : ptrMap)
+		delete p.second;
+}
+
+const Tuple** TheadFunPointerCont::getPointerRaw() const
+{
+	//no need for lock/mutex since insert does not invalidate iterator
+	auto it = ptrMap.find(this_thread::get_id());
+	if (it != ptrMap.end())
+		return it->second;
+	
+	//find a valid tuple pointer to default to
+	auto it2 = ptrMap.begin();
+	assert(it2 != ptrMap.end());
+	const Tuple** ptr = new const Tuple*(*it2->second);
+	auto& ptrMapRef = *const_cast<decltype(ptrMap)*>(&ptrMap);
+	ptrMapRef.insert({this_thread::get_id(), ptr});
+	return ptr;
+}
+
+//this creates the first instance of TheadFun
+TheadFun::TheadFun(TheadStd thead) : thead(shared_ptr<TheadStd>(new TheadStd(move(thead)))),
+	ptrCont(new TheadFunPointerCont(new const Tuple*(reinterpret_cast<const Tuple*>(&this->thead->getParams())))) {}
+
 TheadFun::TheadFun(const TheadFun& o, int foreachIndex) : thead(o.thead), structure(o.structure),
-		ptr(o.ptr), isForeachList(true), foreachIndex(foreachIndex) {}
+		ptrCont(o.ptrCont), isForeachList(true), foreachIndex(foreachIndex) {}
 
 bool TheadFun::operator==(const TheadFun& o) const
 {
@@ -49,9 +79,9 @@ const Webss& TheadFun::getStructure() const
 
 void TheadFun::setStructure(Webss webss) { structure = shared_ptr<Webss>(new Webss(move(webss))); }
 
-const Tuple** TheadFun::getPointerRaw() const { return ptr.get(); }
+const Tuple** TheadFun::getPointerRaw() const { return ptrCont->getPointerRaw(); }
 
 TheadFunPointer TheadFun::setPointer(const Tuple* tuplePtr) const
 {
-	return TheadFunPointer(ptr.get(), tuplePtr);
+	return TheadFunPointer(ptrCont->getPointerRaw(), tuplePtr);
 }
