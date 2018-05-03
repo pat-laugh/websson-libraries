@@ -235,6 +235,6 @@ void SerializerHtml::putTemplateFun(StringBuilder& out, const Template& templ)
 {
 	const auto& theadFun = templ.getTheadFun();
 	const auto& tuple = templ.body.getTuple();
-	theadFun.setPointer(&tuple);
+	TheadFunPointer ptr = theadFun.setPointer(&tuple);
 	putConcreteValue(out, theadFun.getStructure());
 }

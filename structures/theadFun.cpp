@@ -10,10 +10,10 @@
 using namespace std;
 using namespace webss;
 
-TheadFun::TheadFun(TheadStd thead) : thead(shared_ptr<TheadStd>(new TheadStd(move(thead))))
-{
-	setPointer(reinterpret_cast<const Tuple*>(&this->thead->getParams()));
-}
+TheadFunPointer::TheadFunPointer(const Tuple** ptr, const Tuple* newVal) : ptr(ptr), oldVal(*ptr) { *ptr = newVal; }
+TheadFunPointer::~TheadFunPointer() { *ptr = oldVal; }
+
+TheadFun::TheadFun(TheadStd thead) : thead(shared_ptr<TheadStd>(new TheadStd(move(thead)))), ptr(new const Tuple*(reinterpret_cast<const Tuple*>(&this->thead->getParams()))) {}
 TheadFun::TheadFun(const TheadFun& o, int foreachIndex) : thead(o.thead), structure(o.structure),
 		ptr(o.ptr), isForeachList(true), foreachIndex(foreachIndex) {}
 
@@ -31,8 +31,8 @@ bool TheadFun::operator==(const TheadFun& o) const
 	
 	//compare the structure; we already know the heads are the same
 	const Tuple* dummyTuple = reinterpret_cast<const Tuple*>(&this->thead->getParams());
-	setPointer(dummyTuple);
-	o.setPointer(dummyTuple);
+	TheadFunPointer ptr1 = setPointer(dummyTuple);
+	TheadFunPointer ptr2 = o.setPointer(dummyTuple);
 	return equalPtrs(structure, o.structure);
 }
 bool TheadFun::operator!=(const TheadFun& o) const { return !(*this == o); }
@@ -51,4 +51,7 @@ void TheadFun::setStructure(Webss webss) { structure = shared_ptr<Webss>(new Web
 
 const Tuple** TheadFun::getPointerRaw() const { return ptr.get(); }
 
-void TheadFun::setPointer(const Tuple* tuplePtr) const { *ptr = tuplePtr; }
+TheadFunPointer TheadFun::setPointer(const Tuple* tuplePtr) const
+{
+	return TheadFunPointer(ptr.get(), tuplePtr);
+}

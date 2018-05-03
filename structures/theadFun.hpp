@@ -9,6 +9,17 @@
 
 namespace webss
 {
+	class TheadFunPointer
+	{
+	public:
+		TheadFunPointer(const Tuple** ptr, const Tuple* newVal);
+		~TheadFunPointer();
+		
+	private:
+		const Tuple** ptr;
+		const Tuple* oldVal;
+	};
+	
 	class TheadFun
 	{
 	private:
@@ -31,6 +42,6 @@ namespace webss
 		void setStructure(Webss webss);
 		
 		const Tuple** getPointerRaw() const;
-		void setPointer(const Tuple* tuplePtr) const;
+		TheadFunPointer setPointer(const Tuple* tuplePtr) const;
 	};
 }
