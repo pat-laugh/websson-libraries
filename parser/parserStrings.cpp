@@ -137,7 +137,11 @@ static Webss parseMultilineStringRegularMultiline(Parser& parser)
 	auto& it = parser.getIt();
 	StringBuilder sb;
 	StringList* stringList = nullptr;
+	int countStartEnd = 0;
 	bool addSpace = true;
+lineStart:
+	if (*it == CHAR_START_DICTIONARY)
+		++countStartEnd;
 loopStart:
 	do
 	{
@@ -154,7 +158,7 @@ loopStart:
 	} while (hasNextChar(it, sb));
 	if (!it || !skipJunkToValid(++it))
 		throw runtime_error(WEBSSON_EXCEPTION(ERROR_MULTILINE_STRING));
-	if (*it == CHAR_END_DICTIONARY)
+	if (*it == CHAR_END_DICTIONARY && countStartEnd-- == 0)
 	{
 		++it;
 		PatternReturnStringList;
@@ -163,7 +167,7 @@ loopStart:
 		sb += ' ';
 	else
 		addSpace = true;
-	goto loopStart;
+	goto lineStart;
 }
 
 static Webss parseMultilineStringRegular(Parser& parser)

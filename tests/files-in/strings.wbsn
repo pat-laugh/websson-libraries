@@ -7,6 +7,12 @@ c-string="some text"
 
 :My name is $name!
 
+::{
+{
+
+}
+}
+
 multiline-string::
 {
 	My name is $name!
