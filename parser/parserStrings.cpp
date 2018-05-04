@@ -49,6 +49,30 @@ return stringList->concat();
 _PatternReturnStringList \
 return Webss(stringList, WebssType::STRING_LIST);
 
+#ifndef COMPILE_WEBSS
+
+#define _PatternReturnStringListPrint \
+if (stringList == nullptr) \
+	return sb.str(); \
+stringList->push(sb.str());
+
+#define PatternReturnStringListPrint \
+_PatternReturnStringList \
+return Webss(stringList, WebssType::STRING_LIST);
+
+#else
+
+#define _PatternReturnStringListPrint \
+if (stringList == nullptr) \
+	return Webss(sb.str(), WebssType::PRINT_STRING); \
+stringList->push(sb.str());
+
+#define PatternReturnStringListPrint \
+_PatternReturnStringListPrint \
+return Webss(stringList, WebssType::PRINT_STRING_LIST);
+
+#endif
+
 string webss::parseStickyLineString(Parser& parser)
 {
 	auto& it = parser.getItSafe();
@@ -129,7 +153,7 @@ Webss webss::parseLineString(Parser& parser)
 			putChar(it, sb);
 		}
 	}
-	PatternReturnStringList;
+	PatternReturnStringListPrint;
 }
 
 static Webss parseMultilineStringRegularMultiline(Parser& parser)
@@ -161,7 +185,7 @@ loopStart:
 	if (*it == CHAR_END_DICTIONARY && countStartEnd-- == 0)
 	{
 		++it;
-		PatternReturnStringList;
+		PatternReturnStringListPrint;
 	}
 	if (addSpace)
 		sb += ' ';
@@ -209,7 +233,7 @@ innerLoop:
 	if (countStartEnd == 0)
 	{
 		++it;
-		PatternReturnStringList;
+		PatternReturnStringListPrint;
 	}
 	if (!it || !skipJunkToValid(++it))
 		throw runtime_error(WEBSSON_EXCEPTION(ERROR_MULTILINE_STRING));

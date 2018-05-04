@@ -57,6 +57,9 @@ Webss::Webss(double tDouble) : type(WebssType::PRIMITIVE_DOUBLE), tDouble(tDoubl
 
 Webss::Webss(const char* s) : type(WebssType::PRIMITIVE_STRING), tString(new string(s)) {}
 Webss::Webss(string s) : type(WebssType::PRIMITIVE_STRING), tString(new string(move(s))) {}
+#ifdef COMPILE_WEBSS
+Webss::Webss(string s, WebssType type) : type(type), tString(new string(move(s))) {}
+#endif
 Webss::Webss(StringList s) : type(WebssType::STRING_LIST), stringList(new StringList(move(s))) {}
 
 Webss::Webss(Document document) : type(WebssType::DOCUMENT), document(new Document(move(document))) {}
@@ -83,6 +86,9 @@ Webss::Webss(void* ptr, WebssType type) : type(type), ptr(ptr)
 	{
 	default: assert(false);
 	case WebssType::PRIMITIVE_STRING: case WebssType::STRING_LIST:
+#ifdef COMPILE_WEBSS
+	case WebssType::PRINT_STRING: case WebssType::PRINT_STRING_LIST:
+#endif
 	case WebssType::DOCUMENT: case WebssType::DICTIONARY:
 	case WebssType::LIST: case WebssType::LIST_TEXT:
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
@@ -106,9 +112,15 @@ void Webss::destroyUnion()
 		tDefault.~shared_ptr();
 		break;
 	case WebssType::PRIMITIVE_STRING:
+#ifdef COMPILE_WEBSS
+	case WebssType::PRINT_STRING:
+#endif
 		delete tString;
 		break;
 	case WebssType::STRING_LIST:
+#ifdef COMPILE_WEBSS
+	case WebssType::PRINT_STRING_LIST:
+#endif
 		delete stringList;
 		break;
 	case WebssType::DOCUMENT:
@@ -168,9 +180,15 @@ void Webss::copyUnion(Webss&& o)
 		break;
 
 	case WebssType::PRIMITIVE_STRING:
+#ifdef COMPILE_WEBSS
+	case WebssType::PRINT_STRING:
+#endif
 		tString = o.tString;
 		break;
 	case WebssType::STRING_LIST:
+#ifdef COMPILE_WEBSS
+	case WebssType::PRINT_STRING_LIST:
+#endif
 		stringList = o.stringList;
 		break;
 	case WebssType::DOCUMENT:
@@ -231,9 +249,15 @@ void Webss::copyUnion(const Webss& o)
 		break;
 
 	case WebssType::PRIMITIVE_STRING:
+#ifdef COMPILE_WEBSS
+	case WebssType::PRINT_STRING:
+#endif
 		tString = new string(*o.tString);
 		break;
 	case WebssType::STRING_LIST:
+#ifdef COMPILE_WEBSS
+	case WebssType::PRINT_STRING_LIST:
+#endif
 		stringList = new StringList(*o.stringList);
 		break;
 	case WebssType::DOCUMENT:
@@ -286,8 +310,14 @@ bool Webss::operator==(const Webss& o) const
 	case WebssType::PRIMITIVE_DOUBLE:
 		return w1.tDouble == w2.tDouble;
 	case WebssType::PRIMITIVE_STRING:
+#ifdef COMPILE_WEBSS
+	case WebssType::PRINT_STRING:
+#endif
 		return *w1.tString == *w2.tString;
 	case WebssType::STRING_LIST:
+#ifdef COMPILE_WEBSS
+	case WebssType::PRINT_STRING_LIST:
+#endif
 		return *w1.stringList == *w2.stringList;
 	case WebssType::DOCUMENT:
 		return *w1.document == *w2.document;
@@ -457,6 +487,10 @@ bool Webss::isInt() const { return getType() == WebssType::PRIMITIVE_INT; }
 bool Webss::isDouble() const { return getType() == WebssType::PRIMITIVE_DOUBLE; }
 bool Webss::isString() const { return getType() == WebssType::PRIMITIVE_STRING; }
 bool Webss::isStringList() const { return getType() == WebssType::STRING_LIST; }
+#ifdef COMPILE_WEBSS
+bool Webss::isPrintString() const { return getType() == WebssType::PRINT_STRING; }
+bool Webss::isPrintStringList() const { return getType() == WebssType::PRINT_STRING_LIST; }
+#endif
 bool Webss::isDocument() const { return getType() == WebssType::DOCUMENT; }
 bool Webss::isDictionary() const { return getType() == WebssType::DICTIONARY; }
 bool Webss::isNamespace() const { return getType() == WebssType::NAMESPACE; }
