@@ -1,5 +1,5 @@
 # MIT License
-# Copyright 2017 Patrick Laughrea
+# Copyright 2017-2018 Patrick Laughrea
 
 DIR_PROJECT = ..
 
@@ -27,3 +27,9 @@ disable_import: all
 
 reverse_endianness: OPTIONS += -DWEBSSON_REVERSE_ENDIANNESS
 reverse_endianness: all
+
+webssc: OPTIONS += -DCOMPILE_WEBSS
+webssc: all
+
+webssc_disable_import: OPTIONS += -DWEBSSON_PARSER_DISABLE_IMPORT
+webssc_disable_import: webssc

@@ -46,7 +46,7 @@ void StringItem::destroyUnion()
 		break;
 #ifdef COMPILE_WEBSS
 	case StringType::FUNC_FLUSH: case StringType::FUNC_NEWLINE:
-	case StringType::FUNC_CANCEL_FLUSH: case StringType::FUNC_CANCEL_NEWLINE;
+	case StringType::FUNC_CANCEL_FLUSH: case StringType::FUNC_CANCEL_NEWLINE:
 		break;
 	case StringType::ENT_DYNAMIC:
 #endif

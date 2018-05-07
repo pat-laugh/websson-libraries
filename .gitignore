@@ -2,6 +2,7 @@
 various
 various/
 catch.hpp
+test-files/
 
 ##gitignore-start:Global/Linux
 *~
