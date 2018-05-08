@@ -97,10 +97,27 @@ Tag TagIterator::getTag()
 	case CHAR_FOREACH: return Tag::FOREACH;
 	case CHAR_IMPORT: return Tag::IMPORT;
 	case CHAR_OPTION:
+#ifndef COMPILE_WEBSS
 		if (it.peekEnd() || it.peek() != CHAR_OPTION)
 			return Tag::UNKNOWN;
 		++it;
 		return Tag::OPTION;
+#else
+		if (it.peekEnd())
+			return Tag::UNKNOWN;
+		else if (it.peek() == CHAR_OPTION)
+		{
+			++it;
+			return Tag::OPTION;
+		}
+		else if (it.peek() == '!')
+		{
+			skipLine(++it);
+			return getTag();
+		}
+		else
+			return Tag::UNKNOWN;
+#endif
 	case CHAR_SCOPE: return Tag::SCOPE;
 	case CHAR_SELF: return Tag::SELF;
 	case CHAR_SEPARATOR: return Tag::SEPARATOR;
