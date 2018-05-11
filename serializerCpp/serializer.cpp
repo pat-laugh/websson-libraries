@@ -30,9 +30,35 @@ void SerializerCpp::putDocument(StringBuilder& out, const Document& doc)
 {
 	out += "#include <iostream>\n"; //newline should be replace by char.widen or whatever
 									//make it so StringBuilder has something like putNewline
+	out += "#include <string>\n";
 	
 	//first pass through all the abstract values to put all the function signatures, etc.
 	//doc.getHead()...
+	
+	for (const auto& item : doc.getHead())
+	{
+		using Type = decltype(item.getType());
+		switch (item.getType())
+		{
+		default: assert(false);
+		/*
+		case Type::ENTITY_ABSTRACT:
+			putEntityAbstract(out, item.getEntity());
+			break;
+		*/
+		case Type::ENTITY_CONCRETE:
+			putEntityConcrete(out, item.getEntity());
+			break;
+		/*	
+		case Type::EXPAND:
+			putExpandDocumentHead(out, item.getNamespace());
+			break;
+		case Type::IMPORT:
+			putImport(out, item.getImport(), CON);
+			break;
+		*/
+		}
+	}
 	
 	out += "int main(int argc, char** argv) {\n"; //style will eventually be customizable
 												//but what takes the fewest lines is easier for now
@@ -89,6 +115,37 @@ static void putString(StringBuilder& out, const string& str)
 	out += '"';
 }
 
+static void putStringList(StringBuilder& out, const StringList& slist)
+{
+	out += "std::string()"; //so that everything adds as string
+	for (const auto& item : slist.getItems())
+	{
+		StringType type = item.getTypeRaw();
+		switch (type)
+		{
+		case StringType::STRING:
+			out += " + ";
+			putString(out, item.getStringRaw());
+			break;
+		case StringType::ENT_STATIC:
+			out += " + ";
+			out += item.getEntityRaw().getName();
+			break;
+		case StringType::FUNC_NEWLINE:
+		case StringType::FUNC_FLUSH:
+		case StringType::FUNC_NEWLINE_FLUSH:
+			throw runtime_error("cannot put string function"); //runtime_error since parser does not check for this
+		//case StringType::WEBSS:
+		//serialize to string... that is, WebSSON
+		//	out += "std::out << \"" + item.getWebssRaw() + ";";
+		case StringType::ENT_DYNAMIC:
+		//	throw runtime_error("cannot print dynamic entity"); //runtime_error since parser does not check for this
+		default:
+			assert(false);
+		}
+	}
+}
+
 //a concrete value in this context is a command or a value
 void SerializerCpp::putConcreteValue(StringBuilder& out, const Webss& value)
 {
@@ -100,33 +157,52 @@ void SerializerCpp::putConcreteValue(StringBuilder& out, const Webss& value)
 		putEndCmd(out);
 		break;
 	case WebssType::PRINT_STRING_LIST:
+	{
+		bool putStart = true;
 		for (const auto& item : value.getStringListRaw().getItems())
 		{
-			//for strings within quotes, make sure all quotes and '\\', etc., are escaped properly
 			StringType type = item.getTypeRaw();
 			switch (type)
 			{
 			case StringType::STRING:
-				out += "std::cout << ";
+				if (putStart)
+				{
+					out += "std::cout";
+					putStart = false;
+				}
+				out += " << ";
 				putString(out, item.getStringRaw());
-				putEndCmd(out);
 				break;
 			case StringType::ENT_STATIC:
-				out += "std::cout << ";
+				if (putStart)
+				{
+					out += "std::cout << ";
+					putStart = false;
+				}
+				out += " << ";
 				out += item.getEntityRaw().getName();
-				putEndCmd(out);
 				break;
 			case StringType::FUNC_NEWLINE:
+				if (!putStart)
+					putEndCmd(out);
 				out += "std::cout.put(std::cout.widen('\\n'))";
 				putEndCmd(out);
+				putStart = true;
 				break;
 			case StringType::FUNC_FLUSH:
+				if (!putStart)
+					putEndCmd(out);
 			 	out += "std::cout.flush()";
 				putEndCmd(out);
+				putStart = true;
 				break;
 			case StringType::FUNC_NEWLINE_FLUSH:
-				out += "std::cout << std::endl";
-				putEndCmd(out);
+				if (putStart)
+				{
+					out += "std::cout << ";
+					putStart = false;
+				}
+				out += "std::endl";
 				break;
 			//case StringType::WEBSS:
 			//serialize to string... that is, WebSSON
@@ -137,6 +213,8 @@ void SerializerCpp::putConcreteValue(StringBuilder& out, const Webss& value)
 				assert(false);
 			}
 		}
+		putEndCmd(out);
+	}
 		break;
 /*
 	case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
@@ -162,6 +240,33 @@ void SerializerCpp::putConcreteValue(StringBuilder& out, const Webss& value)
 	default:
 		assert(false && "type is not a concrete value or is not serializable in C++");
 	}
+}
+
+void SerializerCpp::putEntityConcrete(various::StringBuilder& out, const Entity& ent)
+{
+	switch (ent.getContent().getType())
+	{
+	case WebssType::PRIMITIVE_BOOL:
+		out += "bool " + ent.getName() + " = " + to_string(ent.getContent().getBool());
+		break;
+	case WebssType::PRIMITIVE_INT:
+		out += "int " + ent.getName() + " = " + to_string(ent.getContent().getInt());
+		break;
+	case WebssType::PRIMITIVE_DOUBLE:
+		out += "double " + ent.getName() + " = " + to_string(ent.getContent().getDouble());
+		break;
+	case WebssType::PRIMITIVE_STRING: case WebssType::PRINT_STRING:
+		out += "std::string " + ent.getName() + " = ";
+		putString(out, ent.getContent().getString());
+		break;
+	case WebssType::STRING_LIST: case WebssType::PRINT_STRING_LIST:
+		out += "std::string " + ent.getName() + " = ";
+		putStringList(out, ent.getContent().getStringList());
+		break;
+	default:
+		assert(false);
+	}
+	putEndCmd(out);
 }
 
 /*

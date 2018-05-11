@@ -30,6 +30,8 @@ namespace webss
 
 		void putConcreteValue(various::StringBuilder& out, const Webss& value);
 		
+		void putEntityConcrete(various::StringBuilder& out, const Entity& ent);
+		
 		/*
 		void putQuotableValue(various::StringBuilder& out, const Webss& value);
 		void putKeyValue(various::StringBuilder& out, const std::string& key, const Webss& value);

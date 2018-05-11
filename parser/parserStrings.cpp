@@ -410,7 +410,7 @@ static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringLis
 			throw runtime_error(WEBSSON_EXCEPTION("invalid substitution"));
 		const auto& ent = parser.getEntityManager().at(parseName(it));
 		checkTypeSubstitution(ent.getContent());
-		pushStringList(stringList, sb, Webss(ent));
+		pushStringList(stringList, sb, ent);
 		break;
 	}
 }
