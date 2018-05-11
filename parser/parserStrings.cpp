@@ -313,15 +313,10 @@ static void checkEscapedChar(SmartIterator& it, StringBuilder& sb, StringList*& 
 	case 'v': sb += '\v'; break;
 #ifdef COMPILE_WEBSS
 	case 'E':
-		pushStringList(stringList, sb, StringType::FUNC_NEWLINE);
+		pushStringList(stringList, sb, StringType::FUNC_NEWLINE_FLUSH);
+		break;
 	case 'F':
 		pushStringList(stringList, sb, StringType::FUNC_FLUSH);
-		break;
-	case 'K':
-		pushStringList(stringList, sb, StringType::FUNC_CANCEL_FLUSH);
-		break;
-	case 'L':
-		pushStringList(stringList, sb, StringType::FUNC_CANCEL_NEWLINE);
 		break;
 	case 'N':
 		pushStringList(stringList, sb, StringType::FUNC_NEWLINE);

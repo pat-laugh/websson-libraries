@@ -46,7 +46,7 @@ void StringItem::destroyUnion()
 		break;
 #ifdef COMPILE_WEBSS
 	case StringType::FUNC_FLUSH: case StringType::FUNC_NEWLINE:
-	case StringType::FUNC_CANCEL_FLUSH: case StringType::FUNC_CANCEL_NEWLINE:
+	case StringType::FUNC_NEWLINE_FLUSH:
 		break;
 	case StringType::ENT_DYNAMIC:
 #endif
@@ -72,7 +72,7 @@ void StringItem::copyUnion(StringItem&& o)
 		break;
 #ifdef COMPILE_WEBSS
 	case StringType::FUNC_FLUSH: case StringType::FUNC_NEWLINE:
-	case StringType::FUNC_CANCEL_FLUSH: case StringType::FUNC_CANCEL_NEWLINE:
+	case StringType::FUNC_NEWLINE_FLUSH:
 		break;
 	case StringType::ENT_DYNAMIC:
 #endif
@@ -101,7 +101,7 @@ void StringItem::copyUnion(const StringItem& o)
 		break;
 #ifdef COMPILE_WEBSS
 	case StringType::FUNC_FLUSH: case StringType::FUNC_NEWLINE:
-	case StringType::FUNC_CANCEL_FLUSH: case StringType::FUNC_CANCEL_NEWLINE:
+	case StringType::FUNC_NEWLINE_FLUSH:
 		break;
 	case StringType::ENT_DYNAMIC:
 #endif
@@ -131,7 +131,7 @@ bool StringItem::operator==(const StringItem& o) const
 		return true;
 #ifdef COMPILE_WEBSS
 	case StringType::FUNC_FLUSH: case StringType::FUNC_NEWLINE:
-	case StringType::FUNC_CANCEL_FLUSH: case StringType::FUNC_CANCEL_NEWLINE:
+	case StringType::FUNC_NEWLINE_FLUSH:
 		return true;
 	case StringType::ENT_DYNAMIC:
 #endif
@@ -199,7 +199,7 @@ string StringList::concat() const
 		default: assert(false);
 #ifdef COMPILE_WEBSS
 		case StringType::FUNC_NEWLINE: case StringType::FUNC_FLUSH:
-		case StringType::FUNC_CANCEL_FLUSH: case StringType::FUNC_CANCEL_NEWLINE:
+		case StringType::FUNC_NEWLINE_FLUSH:
 			throw runtime_error("can't put function chars into a raw string");
 		case StringType::ENT_DYNAMIC:
 #endif

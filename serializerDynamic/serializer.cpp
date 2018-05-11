@@ -34,10 +34,39 @@ void SerializerDynamic::putConcreteValue(const Webss& value)
 	switch (value.getTypeRaw())
 	{
 	case WebssType::PRINT_STRING:
-		cout << value.getStringRaw() << endl;
+		cout << value.getStringRaw();
 		break;
 	case WebssType::PRINT_STRING_LIST:
-		cout << value.getStringListRaw().concat() << endl;
+		for (const auto& item : value.getStringListRaw().getItems())
+		{
+			//for strings within quotes, make sure all quotes and '\\', etc., are escaped properly
+			StringType type = item.getTypeRaw();
+			switch (type)
+			{
+			case StringType::STRING:
+				cout << item.getStringRaw();
+				break;
+			case StringType::ENT_STATIC:
+				cout << item.getEntityRaw().getContent().getString();
+				break;
+			case StringType::FUNC_NEWLINE:
+				cout.put(cout.widen('\n'));
+				break;
+			case StringType::FUNC_FLUSH:
+				cout.flush();
+				break;
+			case StringType::FUNC_NEWLINE_FLUSH:
+				cout << endl;
+				break;
+			//case StringType::WEBSS:
+			//serialize to string... that is, WebSSON
+			//	out += "std::out << \"" + item.getWebssRaw() + ";";
+			case StringType::ENT_DYNAMIC:
+				throw runtime_error("cannot print dynamic entity"); //runtime_error since parser does not check for this
+			default:
+				assert(false);
+			}
+		}
 		break;
 /*
 	case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:

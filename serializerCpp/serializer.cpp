@@ -20,6 +20,12 @@ using namespace various;
 
 SerializerCpp::SerializerCpp() {}
 
+void putEndCmd(StringBuilder& out)
+{
+	out += ';';
+	out += '\n';
+}
+
 void SerializerCpp::putDocument(StringBuilder& out, const Document& doc)
 {
 	out += "#include <iostream>\n"; //newline should be replace by char.widen or whatever
@@ -32,11 +38,55 @@ void SerializerCpp::putDocument(StringBuilder& out, const Document& doc)
 												//but what takes the fewest lines is easier for now
 	for (const auto& item : doc.getBody())
 		putConcreteValue(out, item);
-	out += "return 0;\n}";
+	out += "return 0";
+	putEndCmd(out);
+	out += "}";
 	
 	//other notes: it could be noted that {...} are a concept of block... other
 	//languages have a different notation for that
 	//same with ';', which ends commands. Other languages use different stuff
+}
+
+static void checkCharEscape(StringBuilder& out, char c)
+{
+	switch (c)
+	{
+	//don't put null char as \0 because in C and C++ \0 is actually an octal escape that takes 1 to 3 digits -- you'd have to put \000 to make sure it does not get messed up
+	case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x06:
+	/*0x07 to 0x0d are the letters*/ case 0x0e: case 0x0f:
+	case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x16: case 0x17:
+	case 0x18: case 0x19: case 0x1a: case 0x1b: case 0x1c: case 0x1d: case 0x1e: case 0x1f:
+	case 0x7f:
+		out += '\\';
+		out += 'x';
+		out += hexToChar(c >> 4);
+		out += hexToChar(c & 0x0F);
+		break;
+	case '\'': c = '\''; goto specialEscape;
+	case '\"': c = '\"'; goto specialEscape;
+	case '\?': c = '\?'; goto specialEscape; //avoid trigraphs
+	case '\\': c = '\\'; goto specialEscape;
+	case '\a': c = 'a'; goto specialEscape;
+	case '\b': c = 'b'; goto specialEscape;
+	case '\f': c = 'f'; goto specialEscape;
+	case '\n': c = 'n'; goto specialEscape;
+	case '\r': c = 'r'; goto specialEscape;
+	case '\t': c = 't'; goto specialEscape;
+	case '\v': c = 'v'; goto specialEscape;
+specialEscape:
+		out += '\\';
+	default:
+		out += c;
+		break;
+	}
+}
+
+static void putString(StringBuilder& out, const string& str)
+{
+	out += '"';
+	for (char c : str)
+		checkCharEscape(out, c);
+	out += '"';
 }
 
 //a concrete value in this context is a command or a value
@@ -45,10 +95,48 @@ void SerializerCpp::putConcreteValue(StringBuilder& out, const Webss& value)
 	switch (value.getTypeRaw())
 	{
 	case WebssType::PRINT_STRING:
-		out += "std::cout << \"" + value.getStringRaw() + "\" << std::endl;\n";
+		out += "std::cout << ";
+		putString(out, value.getStringRaw());
+		putEndCmd(out);
 		break;
 	case WebssType::PRINT_STRING_LIST:
-		out += "std::cout << \"" + value.getStringListRaw().concat() + "\" << std::endl;\n";
+		for (const auto& item : value.getStringListRaw().getItems())
+		{
+			//for strings within quotes, make sure all quotes and '\\', etc., are escaped properly
+			StringType type = item.getTypeRaw();
+			switch (type)
+			{
+			case StringType::STRING:
+				out += "std::cout << ";
+				putString(out, item.getStringRaw());
+				putEndCmd(out);
+				break;
+			case StringType::ENT_STATIC:
+				out += "std::cout << ";
+				out += item.getEntityRaw().getName();
+				putEndCmd(out);
+				break;
+			case StringType::FUNC_NEWLINE:
+				out += "std::cout.put(std::cout.widen('\\n'))";
+				putEndCmd(out);
+				break;
+			case StringType::FUNC_FLUSH:
+			 	out += "std::cout.flush()";
+				putEndCmd(out);
+				break;
+			case StringType::FUNC_NEWLINE_FLUSH:
+				out += "std::cout << std::endl";
+				putEndCmd(out);
+				break;
+			//case StringType::WEBSS:
+			//serialize to string... that is, WebSSON
+			//	out += "std::out << \"" + item.getWebssRaw() + ";";
+			case StringType::ENT_DYNAMIC:
+				throw runtime_error("cannot print dynamic entity"); //runtime_error since parser does not check for this
+			default:
+				assert(false);
+			}
+		}
 		break;
 /*
 	case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
