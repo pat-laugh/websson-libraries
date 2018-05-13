@@ -25,7 +25,7 @@ namespace webss
 	class TheadFunPointerCont
 	{
 	public:
-		TheadFunPointerCont(const Tuple**);
+		TheadFunPointerCont(TheadStd::Params::size_type sizeParams);
 		~TheadFunPointerCont();
 		
 		const Tuple** getPointerRaw() const;

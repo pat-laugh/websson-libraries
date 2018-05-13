@@ -288,7 +288,7 @@ void Serializer::putAbstractValue(StringBuilder& out, const Webss& webss)
 		putEnum(out, webss.getEnumRaw());
 		break;
 	case WebssType::THEAD:
-		putThead(out, webss.getTheadRaw());
+		putThead(out, webss.getTheadRaw(), true);
 		break;
 	case WebssType::ENTITY:
 		assert(webss.getEntityRaw().getContent().isAbstract());
@@ -354,7 +354,7 @@ void Serializer::putCharValue(StringBuilder& out, const Webss& value, ConType co
 	switch (value.getTypeRaw())
 	{
 	case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT:
-	case WebssType::PRIMITIVE_DOUBLE: case WebssType::ENTITY:
+	case WebssType::PRIMITIVE_DOUBLE: case WebssType::ENTITY: case WebssType::TEMPLATE:
 		out += CHAR_EQUAL;
 	default:
 		putConcreteValue(out, value, con);
@@ -506,17 +506,19 @@ void Serializer::putStringList(StringBuilder& out, const StringList& stringList)
 	for (const auto& item : stringList.getItems())
 	{
 		auto type = item.getTypeRaw();
-		assert(type == StringType::STRING || type == StringType::ENT_STATIC || type == StringType::WEBSS);
 		if (type == StringType::STRING)
 			putString(out, item.getStringRaw());
 		else
 		{
 			out += CHAR_SUBSTITUTION;
-			ContainerIncluder<ConType::DICTIONARY> includer(out);
 			if (type == StringType::ENT_STATIC)
 				out += item.getEntityRaw().getName();
 			else
+			{
+				assert(type == StringType::WEBSS);
+				ContainerIncluder<ConType::DICTIONARY> includer(out);
 				putConcreteValue(out, item.getWebssRaw(), ConType::DICTIONARY);
+			}
 		}
 	}
 	out += CHAR_CSTRING;
@@ -634,7 +636,7 @@ static void putTheadOptions(StringBuilder& out, TheadOptions options)
 		out += CHAR_THEAD_CLEAR;
 }
 
-void Serializer::putThead(StringBuilder& out, const Thead& thead)
+void Serializer::putThead(StringBuilder& out, const Thead& thead, bool decl)
 {
 	static const auto CON = ConType::THEAD;
 	switch (thead.getTypeRaw())
@@ -725,18 +727,17 @@ void Serializer::putThead(StringBuilder& out, const Thead& thead)
 		break;
 	case TypeThead::ENTITY:
 	{
-		if (thead.isTheadFun())
-		{
-			putEntityName(out, thead.getEntityRaw());
-			break;
-		}
-		ContainerIncluder<CON> includer(out);
 		const auto& ent = thead.getEntityRaw();
 		const auto& entThead = ent.getContent().getThead();
-		if (thead.isPlus() != entThead.isPlus() || thead.isText() != entThead.isText())
+		if (!decl && thead.isPlus() == entThead.isPlus() && thead.isText() == entThead.isText())
+			putEntityName(out, ent);
+		else
+		{
+			ContainerIncluder<CON> includer(out);
 			putTheadOptions(out, thead.getOptions());
-		out += CHAR_EXPAND;
-		putEntityName(out, ent);
+			out += CHAR_EXPAND;
+			putEntityName(out, ent);
+		}
 		break;
 	}
 	case TypeThead::SELF:

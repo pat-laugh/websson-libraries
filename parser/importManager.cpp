@@ -1,14 +1,11 @@
 //MIT License
-//Copyright 2017 Patrick Laughrea
+//Copyright 2017-2018 Patrick Laughrea
 #include "importManager.hpp"
 
 #include <fstream>
-#include <mutex>
 #include <regex>
 #include <set>
 #include <stdexcept>
-#include <string>
-#include <unordered_map>
 #include <boost/filesystem.hpp>
 
 #include "curl.hpp"

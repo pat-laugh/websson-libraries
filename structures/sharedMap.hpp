@@ -1,5 +1,5 @@
 //MIT License
-//Copyright 2017 Patrick Laughrea
+//Copyright 2017-2018 Patrick Laughrea
 #pragma once
 
 #include <cassert>
@@ -25,6 +25,7 @@ namespace webss
 		using const_reverse_iterator = typename Data::const_reverse_iterator;
 
 		BasicSharedMap() : keys(new Keymap()) {}
+		BasicSharedMap(std::shared_ptr<Keymap>&& keys) : keys(keys), data(keys->size()) {}
 		BasicSharedMap(const std::shared_ptr<Keymap>& keys) : keys(keys), data(keys->size()) {}
 		BasicSharedMap(const std::shared_ptr<Keymap>& keys, const Data& data) : keys(keys), data(data) {}
 

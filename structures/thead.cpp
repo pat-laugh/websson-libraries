@@ -1,5 +1,5 @@
 //MIT License
-//Copyright 2017 Patrick Laughrea
+//Copyright 2017-2018 Patrick Laughrea
 #include "thead.hpp"
 
 #include <cassert>
@@ -24,7 +24,7 @@ Thead& Thead::operator=(Thead o)
 	return *this;
 }
 
-Thead::Thead(Entity ent) : type(TypeThead::ENTITY), options(ent.getContent().getThead().options), ent(ent) { assert(this->ent.getContent().isThead()); }
+Thead::Thead(Entity ent) : type(TypeThead::ENTITY), options(ent.getContent().getThead().options), ent(move(ent)) { assert(this->ent.getContent().isThead()); }
 Thead::Thead(Entity ent, TheadOptions options) : type(TypeThead::ENTITY), options(move(options)), ent(move(ent)) { assert(this->ent.getContent().isThead()); }
 Thead::Thead(TheadSelf) : type(TypeThead::SELF) {}
 Thead::Thead(TheadBin theadBin, TheadOptions options) : type(TypeThead::BIN), options(move(options)), theadBin(new TheadBin(move(theadBin))) {}

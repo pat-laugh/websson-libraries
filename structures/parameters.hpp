@@ -1,5 +1,5 @@
 //MIT License
-//Copyright 2017 Patrick Laughrea
+//Copyright 2017-2018 Patrick Laughrea
 #pragma once
 
 #include "sharedMap.hpp"
@@ -11,12 +11,14 @@ namespace webss
 	{
 	private:
 		using base = BasicSharedMap<Param>;
+		
+	public:
 		using Data = typename base::Data;
 		using Keymap = typename base::Keymap;
 
-	public:
 		BasicParams() : base() {}
 		BasicParams(Data&& data) : base(std::move(data)) {}
+		BasicParams(std::shared_ptr<Keymap>&& keys) : base(std::move(keys)) {}
 		BasicParams(const std::shared_ptr<Keymap>& keys) : base(keys) {}
 
 		bool operator==(const BasicParams& o) const { return base::operator==(o); }

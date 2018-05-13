@@ -1,5 +1,5 @@
 //MIT License
-//Copyright 2017 Patrick Laughrea
+//Copyright 2017-2018 Patrick Laughrea
 #include "parser.hpp"
 
 #include "errors.hpp"
@@ -11,6 +11,8 @@
 
 using namespace std;
 using namespace webss;
+
+static Thead foreachStmtOp(Entity("|", Thead(TheadStd(TheadStd::Params(shared_ptr<TheadStd::Params::Keymap>(new TheadStd::Params::Keymap({{"container", 0}})))), TheadOptions(false, true))));
 
 Webss Parser::parseValueEqual()
 {
@@ -79,6 +81,13 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 			throw runtime_error(WEBSSON_EXCEPTION(ERROR_VOID));
 		if (con.isEnd(*getIt()))
 			return Webss();
+	case Tag::FOREACH:
+	{
+		++tagit;
+		auto body =  parseTemplateBody(foreachStmtOp);
+		//verify if thead contains a iterable items (list, string, int)
+		return move(body);
+	}
 	default:
 		throw runtime_error(WEBSSON_EXCEPTION(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED));
 	}

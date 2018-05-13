@@ -1,5 +1,5 @@
 //MIT License
-//Copyright 2017 Patrick Laughrea
+//Copyright 2017-2018 Patrick Laughrea
 #pragma once
 
 #include <string>
@@ -20,6 +20,8 @@ namespace webss
 	{
 		bool isText = false;
 		bool isPlus = false;
+		
+		TheadOptions(bool isText = false, bool isPlus = false) : isText(isText), isPlus(isPlus) {}
 	};
 
 	class Thead
