@@ -93,6 +93,7 @@ Webss::Webss(void* ptr, WebssType type) : type(type), ptr(ptr)
 	case WebssType::LIST: case WebssType::LIST_TEXT:
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 	case WebssType::THEAD: case WebssType::TEMPLATE: case WebssType::PLACEHOLDER:
+	case WebssType::FOREACH:
 		break;
 	}
 #endif
@@ -149,6 +150,9 @@ void Webss::destroyUnion()
 		break;
 	case WebssType::PLACEHOLDER:
 		delete placeholder;
+		break;
+	case WebssType::FOREACH:
+		delete webss;
 		break;
 	}
 	type = WebssType::NONE;
@@ -220,6 +224,9 @@ void Webss::copyUnion(Webss&& o)
 	case WebssType::PLACEHOLDER:
 		placeholder = o.placeholder;
 		break;
+	case WebssType::FOREACH:
+		webss = o.webss;
+		break;
 	}
 	type = o.type;
 	o.type = WebssType::NONE;
@@ -287,6 +294,9 @@ void Webss::copyUnion(const Webss& o)
 	case WebssType::PLACEHOLDER:
 		placeholder = new Placeholder(*o.placeholder);
 		break;
+	case WebssType::FOREACH:
+		webss = new Webss(*o.webss);
+		break;
 	}
 	type = o.type;
 }
@@ -335,6 +345,8 @@ bool Webss::operator==(const Webss& o) const
 		return w1.nspace == w2.nspace;
 	case WebssType::ENUM:
 		return w1.tEnum == w2.tEnum;
+	case WebssType::FOREACH:
+		return *w1.webss == *w2.webss;
 	}
 }
 bool Webss::operator!=(const Webss& o) const { return !(*this == o); }

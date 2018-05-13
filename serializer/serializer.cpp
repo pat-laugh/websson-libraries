@@ -344,6 +344,9 @@ void Serializer::putConcreteValue(StringBuilder& out, const Webss& webss, ConTyp
 		assert(webss.getEntityRaw().getContent().isConcrete());
 		putEntityName(out, webss.getEntityRaw());
 		break;
+	case WebssType::FOREACH:
+		putConcreteValue(out, webss.getElementRaw<Webss>(), con);
+		break;
 	default:
 		assert(false && "type is not a concrete value");
 	}

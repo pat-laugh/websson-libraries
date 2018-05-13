@@ -27,10 +27,15 @@ namespace webss
 		SerializerCpp();
 
 		void putDocument(various::StringBuilder& out, const Document& doc);
-
-		void putConcreteValue(various::StringBuilder& out, const Webss& value);
 		
+		void putConcreteType(various::StringBuilder& out, Webss webss);
+		void putEntityName(various::StringBuilder& out, const Entity& ent);
 		void putEntityConcrete(various::StringBuilder& out, const Entity& ent);
+
+		void putCommand(various::StringBuilder& out, const Webss& webss);
+		void putConcreteValue(various::StringBuilder& out, const Webss& webss);
+		
+		void putList(various::StringBuilder& out, const List& list);
 		
 		/*
 		void putQuotableValue(various::StringBuilder& out, const Webss& value);

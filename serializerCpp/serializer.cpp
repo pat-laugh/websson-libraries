@@ -12,11 +12,18 @@
 #include "structures/theadFun.hpp"
 #include "structures/tuple.hpp"
 #include "structures/webss.hpp"
+#include "utils/constants.hpp"
 #include "various/utils.hpp"
 
 using namespace std;
 using namespace webss;
 using namespace various;
+
+static bool typeIsString(WebssType type)
+{
+	return type == WebssType::PRIMITIVE_STRING || type == WebssType::PRINT_STRING
+		|| type == WebssType::STRING_LIST || type == WebssType::PRINT_STRING_LIST;
+}
 
 SerializerCpp::SerializerCpp() {}
 
@@ -63,7 +70,7 @@ void SerializerCpp::putDocument(StringBuilder& out, const Document& doc)
 	out += "int main(int argc, char** argv) {\n"; //style will eventually be customizable
 												//but what takes the fewest lines is easier for now
 	for (const auto& item : doc.getBody())
-		putConcreteValue(out, item);
+		putCommand(out, item);
 	out += "return 0";
 	putEndCmd(out);
 	out += "}";
@@ -107,12 +114,19 @@ specialEscape:
 	}
 }
 
-static void putString(StringBuilder& out, const string& str)
+static void putCString(StringBuilder& out, const string& str)
 {
 	out += '"';
 	for (char c : str)
 		checkCharEscape(out, c);
 	out += '"';
+}
+
+static void putString(StringBuilder& out, const string& str)
+{
+	out += "std::string(";
+	putCString(out, str);
+	out += ")";
 }
 
 static void putStringList(StringBuilder& out, const StringList& slist)
@@ -146,20 +160,19 @@ static void putStringList(StringBuilder& out, const StringList& slist)
 	}
 }
 
-//a concrete value in this context is a command or a value
-void SerializerCpp::putConcreteValue(StringBuilder& out, const Webss& value)
+void SerializerCpp::putCommand(StringBuilder& out, const Webss& webss)
 {
-	switch (value.getTypeRaw())
+	switch (webss.getTypeRaw())
 	{
 	case WebssType::PRINT_STRING:
 		out += "std::cout << ";
-		putString(out, value.getStringRaw());
+		putString(out, webss.getStringRaw());
 		putEndCmd(out);
 		break;
 	case WebssType::PRINT_STRING_LIST:
 	{
 		bool putStart = true;
-		for (const auto& item : value.getStringListRaw().getItems())
+		for (const auto& item : webss.getStringListRaw().getItems())
 		{
 			StringType type = item.getTypeRaw();
 			switch (type)
@@ -216,235 +229,128 @@ void SerializerCpp::putConcreteValue(StringBuilder& out, const Webss& value)
 		putEndCmd(out);
 	}
 		break;
-/*
-	case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
-		putQuotableValue(out, value);
+	case WebssType::LIST:
+		out += "{\n";
+		for (const auto& item : webss.getListRaw())
+			putCommand(out, item);
+		out += "}\n";
 		break;
-	case WebssType::PRIMITIVE_STRING:
-		putDocumentString(out, value.getStringRaw());
+	case WebssType::FOREACH:
+	{
+		const auto& webssForeach = webss.getElementRaw<Webss>();
+		if (webssForeach.isTemplate())
+		{
+			const auto& templ = webssForeach.getTemplate();
+			const auto& cont = templ.body.getTuple()[0];
+			auto type = cont.getType();
+			if (typeIsString(type))
+				out += "for (char item0 : ";
+			else
+				out += "for (const auto& item0 : ";
+			putConcreteValue(out, cont);
+			out += ") ";
+			if (templ.content.getTypeRaw() == WebssType::LIST)
+				putCommand(out, templ.content);
+			else
+			{
+				out += "{";
+				putCommand(out, templ.content);
+				out += "}\n";
+			}
+		}
+	}
 		break;
-	case WebssType::ENTITY:
-		assert(value.getEntityRaw().getContent().isConcrete());
-		putConcreteValue(out, value.getEntityRaw().getContent());
-		break;
-	case WebssType::TEMPLATE:
-		putTemplate(out, value.getTemplateRaw());
-		break;
-	case WebssType::LIST: case WebssType::LIST_TEXT:
-		putList(out, value.getListRaw());
-		break;
-	case WebssType::PLACEHOLDER:
-		putConcreteValue(out, value.getPlaceholderRaw().getValue());
-		break;
-*/
 	default:
-		assert(false && "type is not a concrete value or is not serializable in C++");
+		assert(false && "type is not a command serializable in C++");
 	}
 }
 
-void SerializerCpp::putEntityConcrete(various::StringBuilder& out, const Entity& ent)
+//a concrete webss in this context is a command or a webss
+void SerializerCpp::putConcreteValue(StringBuilder& out, const Webss& webss)
 {
-	switch (ent.getContent().getType())
+	switch (webss.getTypeRaw())
 	{
 	case WebssType::PRIMITIVE_BOOL:
-		out += "bool " + ent.getName() + " = " + to_string(ent.getContent().getBool());
+		out += to_string(webss.getBool());
 		break;
 	case WebssType::PRIMITIVE_INT:
-		out += "int " + ent.getName() + " = " + to_string(ent.getContent().getInt());
+		out += to_string(webss.getInt());
 		break;
 	case WebssType::PRIMITIVE_DOUBLE:
-		out += "double " + ent.getName() + " = " + to_string(ent.getContent().getDouble());
+		out += to_string(webss.getDouble());
 		break;
 	case WebssType::PRIMITIVE_STRING: case WebssType::PRINT_STRING:
-		out += "std::string " + ent.getName() + " = ";
-		putString(out, ent.getContent().getString());
+		putString(out, webss.getStringRaw());
 		break;
 	case WebssType::STRING_LIST: case WebssType::PRINT_STRING_LIST:
-		out += "std::string " + ent.getName() + " = ";
-		putStringList(out, ent.getContent().getStringList());
+		putStringList(out, webss.getStringList());
+		break;
+	case WebssType::ENTITY:
+		assert(webss.getEntityRaw().getContent().isConcrete());
+		putEntityName(out, webss.getEntityRaw());
+		break;
+/*	case WebssType::LIST:
+		putList(out, webss.getListRaw());
+		break;
+	case WebssType::FOREACH:
+		//put a vector that contains a list as a return of this
+		break;*/
+	default:
+		assert(false && "type is not a concrete webss or is not serializable in C++");
+	}
+}
+
+void SerializerCpp::putConcreteType(StringBuilder& out, Webss webss)
+{
+	switch (webss.getType())
+	{
+	case WebssType::PRIMITIVE_BOOL:
+		out += "bool";
+		break;
+	case WebssType::PRIMITIVE_INT:
+		out += "int";
+		break;
+	case WebssType::PRIMITIVE_DOUBLE:
+		out += "double";
+		break;
+	case WebssType::PRIMITIVE_STRING: case WebssType::PRINT_STRING:
+		out += "std::string";
+		break;
+	case WebssType::STRING_LIST: case WebssType::PRINT_STRING_LIST:
+		out += "std::string";
 		break;
 	default:
 		assert(false);
 	}
+}
+
+void SerializerCpp::putEntityName(StringBuilder& out, const Entity& ent)
+{
+/*	if (ent.hasNamespace())
+	{
+		const auto& nspace = ent.getNamespace();
+		if (!namespaceCurrentScope(nspace.getBodyPointerWeak()))
+		{
+			putPreviousNamespaceNames(out, nspace);
+			out += nspace.getName() + CHAR_SCOPE;
+		}
+	}*/
+	out += ent.getName();
+}
+
+void SerializerCpp::putEntityConcrete(StringBuilder& out, const Entity& ent)
+{
+	const auto& content = ent.getContent();
+	assert(content.isConcrete());
+	putConcreteType(out, content);
+	out += " ";
+	putEntityName(out, ent);
+	out += " = ";
+	putConcreteValue(out, ent.getContent().getWebssLast());
 	putEndCmd(out);
 }
 
-/*
-void SerializerCppHtml::putQuotableValue(StringBuilder& out, const Webss& value)
+void SerializerCpp::putList(StringBuilder& out, const List& list)
 {
-	switch (value.getTypeRaw())
-	{
-	case WebssType::PRIMITIVE_BOOL:
-		out += value.getBoolRaw() ? "true" : "false";
-		break;
-	case WebssType::PRIMITIVE_INT:
-		putInt(out, value.getIntRaw());
-		break;
-	case WebssType::PRIMITIVE_DOUBLE:
-		putDouble(out, value.getDoubleRaw());
-		break;
-	case WebssType::PRIMITIVE_STRING:
-		putQuotableString(out, value.getStringRaw());
-		break;
-	case WebssType::ENTITY:
-		assert(value.getEntityRaw().getContent().isConcrete());
-		putQuotableValue(out, value.getEntityRaw().getContent());
-		break;
-	default:
-		assert(false && "type is not a quotable value");
-	}
+	//assume for now list contains only integers
 }
-
-void SerializerCppHtml::putKeyValue(StringBuilder& out, const string& key, const Webss& value)
-{
-	if (value.isBool())
-	{
-		if (equalAny(key, { "async", "autofocus", "autoplay", "checked", "controls",
-				"default", "defer", "disabled", "download", "formnovalidate", "hidden", "ismap", "loop",
-				"multiple", "muted", "novalidate", "open", "readonly", "required",
-				"reversed", "sandbox", "scoped", "selected" }))
-		{
-			if (value.getBool())
-				out += ' ' + key;
-			return;
-		}
-		else if (key == "autocomplete")
-		{
-			out += ' ' + key + "=\"" + (value.getBool() ? "on" : "off") + '"';
-			return;
-		}
-		else if (key == "translate")
-		{
-			out += ' ' + key + "=\"" + (value.getBool() ? "yes" : "no") + '"';
-			return;
-		}
-		else if (equalAny(key, { "contenteditable", "draggable", "spellcheck" }))
-			{
-				//skip to print key-value with false and true
-			}
-	}
-
-	out += ' ' + key + "=\"";
-	putQuotableValue(out, value);
-	out += '"';
-}
-
-void SerializerCppHtml::putInt(StringBuilder& out, WebssInt i)
-{
-	assert(i != numeric_limits<WebssInt>::min());
-	out += to_string(i);
-}
-
-void SerializerCppHtml::putDouble(StringBuilder& out, double d)
-{
-	assert(std::isfinite(d));
-	char buffer[32];
-#ifndef NDEBUG
-	int num = snprintf(buffer, 32, "%.17g", d);
-	assert(num > 0 && num < 32);
-#else
-	snprintf(buffer, 32, "%.17g", d);
-#endif
-	out += buffer;
-}
-
-static bool isMustEscapeChar(char c)
-{
-	return c == '"' || c == '\'' || isControlAscii(c);
-}
-
-static void addCharEscape(StringBuilder& out, char c)
-{
-	out += '&';
-	out += 'x';
-	out += hexToChar(c >> 4);
-	out += hexToChar(c & 0x0f);
-	out += ';';
-}
-
-void SerializerCppHtml::putQuotableString(StringBuilder& out, const string& str)
-{
-	for (auto it = str.begin(); it != str.end(); ++it)
-		if (isMustEscapeChar(*it))
-			addCharEscape(out, *it);
-		else
-			out += *it;
-}
-
-void SerializerCppHtml::putDocumentString(StringBuilder& out, const string& str)
-{
-	out += str;
-}
-
-static bool isDefaultValue(const Webss& value)
-{
-	return value.getTypeRaw() == WebssType::DEFAULT;
-}
-
-static const string& getTheadRootName(const Thead& thead)
-{
-	const Thead* ptrThead = &thead;
-	const string* name = nullptr;
-	while (true)
-	{
-		const Entity* ent;
-		if (ptrThead->hasEntity())
-			ent = &ptrThead->getEntityRaw();
-		else if (ptrThead->hasBase())
-			ent = &ptrThead->getBase();
-		else
-			break;
-
-		name = &ent->getName();
-		ptrThead = &ent->getContent().getThead();
-	}
-	assert(name != nullptr);
-	return *name;
-}
-
-void SerializerCppHtml::putTemplate(StringBuilder& out, const Template& templ)
-{
-	if (templ.getType() == TypeThead::FUN)
-	{
-		putTemplateFun(out, templ);
-		return;
-	}
-	assert(templ.body.isTuple() && templ.getType() == TypeThead::STD);
-	const auto& name = getTheadRootName(templ);
-	const auto& tuple = templ.body.getTuple();
-	const auto& params = templ.getTheadStd().getParams();
-	auto keys = tuple.getOrderedKeys();
-	out += "<" + name;
-	for (Tuple::size_type i = 0; i < tuple.size(); ++i)
-	{
-		assert(keys[i] != nullptr);
-		const auto& key = *keys[i];
-		const auto& value = tuple[i];
-		const auto& param = params[i];
-		if (value.isNull())
-			assert(isDefaultValue(value));
-		else
-			putKeyValue(out, key, isDefaultValue(value) ? param.getDefaultValue() : value);
-	}
-	out += '>';
-	if (templ.isPlus())
-	{
-		putConcreteValue(out, templ.content);
-		out += "</" + name + '>';
-	}
-}
-
-void SerializerCppHtml::putList(StringBuilder& out, const List& list)
-{
-	for (const auto& item : list)
-		putConcreteValue(out, item);
-}
-
-void SerializerCppHtml::putTemplateFun(StringBuilder& out, const Template& templ)
-{
-	const auto& theadFun = templ.getTheadFun();
-	const auto& tuple = templ.body.getTuple();
-	TheadFunPointer ptr = theadFun.setPointer(&tuple);
-	putConcreteValue(out, theadFun.getStructure());
-}
-*/

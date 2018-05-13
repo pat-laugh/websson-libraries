@@ -85,8 +85,8 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 	{
 		++tagit;
 		auto body =  parseTemplateBody(foreachStmtOp);
-		//verify if thead contains a iterable items (list, string, int)
-		return move(body);
+		//TODO: verify if thead contains a iterable items (list, string, int)
+		return Webss(new Webss(move(body)), WebssType::FOREACH);
 	}
 	default:
 		throw runtime_error(WEBSSON_EXCEPTION(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED));

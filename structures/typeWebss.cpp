@@ -55,6 +55,8 @@ const char* WebssType::toString() const
 		return "enum";
 	case WebssType::PLACEHOLDER:
 		return "placeholder";
+	case WebssType::FOREACH:
+		return "foreach";
 #ifdef COMPILE_WEBSS
 	case WebssType::PRINT_STRING:
 		return "print string";

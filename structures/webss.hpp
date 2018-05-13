@@ -135,6 +135,9 @@ namespace webss
 
 		template <class Element>
 		const Element& getElement() const { return static_cast<const Element&>(*this); }
+		
+		template <class Element>
+		const Element& getElementRaw() const { return *static_cast<const Element*>(ptr); }
 
 		bool isNone() const;
 		bool isNull() const;
@@ -181,6 +184,7 @@ namespace webss
 			Entity ent;
 			Default tDefault;
 			Placeholder* placeholder;
+			Webss* webss;
 			void* ptr;
 		};
 
