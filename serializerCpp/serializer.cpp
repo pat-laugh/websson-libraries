@@ -129,7 +129,7 @@ static void putString(StringBuilder& out, const string& str)
 	out += ")";
 }
 
-static void putStringList(StringBuilder& out, const StringList& slist)
+void SerializerCpp::putStringList(StringBuilder& out, const StringList& slist)
 {
 	out += "std::string()"; //so that everything adds as string
 	for (const auto& item : slist.getItems())
@@ -143,7 +143,7 @@ static void putStringList(StringBuilder& out, const StringList& slist)
 			break;
 		case StringType::ENT_STATIC:
 			out += " + ";
-			out += item.getEntityRaw().getName();
+			putEntityName(out, item.getEntityRaw());
 			break;
 		case StringType::FUNC_NEWLINE:
 		case StringType::FUNC_FLUSH:
@@ -189,11 +189,11 @@ void SerializerCpp::putCommand(StringBuilder& out, const Webss& webss)
 			case StringType::ENT_STATIC:
 				if (putStart)
 				{
-					out += "std::cout << ";
+					out += "std::cout";
 					putStart = false;
 				}
 				out += " << ";
-				out += item.getEntityRaw().getName();
+				putEntityName(out, item.getEntityRaw());
 				break;
 			case StringType::FUNC_NEWLINE:
 				if (!putStart)
@@ -243,12 +243,14 @@ void SerializerCpp::putCommand(StringBuilder& out, const Webss& webss)
 			const auto& templ = webssForeach.getTemplate();
 			const auto& cont = templ.body.getTuple()[0];
 			auto type = cont.getType();
+			string nameParam = "item0";
 			if (typeIsString(type))
-				out += "for (char item0 : ";
+				out += "for (char " + nameParam + " : ";
 			else
-				out += "for (const auto& item0 : ";
+				out += "for (const auto& " + nameParam + " : ";
 			putConcreteValue(out, cont);
 			out += ") ";
+			nameSubst.insert({"$_", nameParam});
 			if (templ.content.getTypeRaw() == WebssType::LIST)
 				putCommand(out, templ.content);
 			else
@@ -257,6 +259,7 @@ void SerializerCpp::putCommand(StringBuilder& out, const Webss& webss)
 				putCommand(out, templ.content);
 				out += "}\n";
 			}
+			nameSubst.erase("$_");
 		}
 	}
 		break;
@@ -326,6 +329,11 @@ void SerializerCpp::putConcreteType(StringBuilder& out, Webss webss)
 
 void SerializerCpp::putEntityName(StringBuilder& out, const Entity& ent)
 {
+	auto it = nameSubst.find(ent.getName());
+	if (it == nameSubst.end())
+		out += ent.getName();
+	else
+		out += it->second;
 /*	if (ent.hasNamespace())
 	{
 		const auto& nspace = ent.getNamespace();
@@ -335,7 +343,6 @@ void SerializerCpp::putEntityName(StringBuilder& out, const Entity& ent)
 			out += nspace.getName() + CHAR_SCOPE;
 		}
 	}*/
-	out += ent.getName();
 }
 
 void SerializerCpp::putEntityConcrete(StringBuilder& out, const Entity& ent)

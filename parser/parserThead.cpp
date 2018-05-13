@@ -151,12 +151,44 @@ TheadFun Parser::parseTheadFun()
 
 void Parser::parseTheadFunStructure(TheadFun& theadFun)
 {
+	vector<Entity> oldNumberedEnts, oldNamedEnts;
+	const auto keys = theadFun.getThead().getParams().getOrderedKeys();
+	auto ptr = theadFun.getPointerRaw();
+	
+	string sNumber = CHAR_SUBSTITUTION + string("0");
 	int index = 0;
-	for (string* name : theadFun.getThead().getParams().getOrderedKeys())
-		ents.addSafe(*name, Placeholder(index++, theadFun.getPointerRaw()));
+	for (string* name : keys)
+	{
+		if (index < 10)
+			sNumber[1] = index + '0';
+		else
+			sNumber = CHAR_SUBSTITUTION + to_string(index);
+		Placeholder placeholder(index, ptr);
+		oldNumberedEnts.push_back(ents.getOrNone(sNumber));
+		oldNamedEnts.push_back(ents.getOrNone(*name));
+		ents.setOrAdd(sNumber, placeholder);
+		ents.setOrAdd(*name, placeholder);
+		++index;
+	}
 	
 	theadFun.setStructure(parseValueOnly());
 	
-	for (string* name : theadFun.getThead().getParams().getOrderedKeys())
-		ents.remove(*name);
+	sNumber = CHAR_SUBSTITUTION + string("0");
+	index = 0;
+	for (string* name : keys)
+	{
+		if (index < 10)
+			sNumber[1] = index + '0';
+		else
+			sNumber = CHAR_SUBSTITUTION + to_string(index);
+		if (oldNumberedEnts[index].getContent().getTypeRaw() == WebssType::NONE)
+			ents.remove(sNumber);
+		else
+			ents[sNumber] = oldNumberedEnts[index];
+		if (oldNamedEnts[index].getContent().getTypeRaw() == WebssType::NONE)
+			ents.remove(*name);
+		else
+			ents[*name] = oldNamedEnts[index];
+		++index;
+	}
 }

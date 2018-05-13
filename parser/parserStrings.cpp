@@ -36,10 +36,15 @@ if (*it == CHAR_ESCAPE) { checkEscapedChar(it, sb, stringList); continue; }
 #define PatternCheckCharSubstitution \
 if (*it == CHAR_SUBSTITUTION) { checkStringSubstitution(parser, sb, stringList); continue; }
 
+#define PatternPutLastString { \
+string s = sb.str(); \
+if (!s.empty()) \
+	stringList->push(sb.str()); }
+
 #define _PatternReturnStringList \
 if (stringList == nullptr) \
 	return sb.str(); \
-stringList->push(sb.str());
+PatternPutLastString
 
 #define PatternReturnStringListConcat \
 _PatternReturnStringList \
@@ -54,7 +59,7 @@ return Webss(stringList, WebssType::STRING_LIST);
 #define _PatternReturnStringListPrint \
 if (stringList == nullptr) \
 	return sb.str(); \
-stringList->push(sb.str());
+PatternPutLastString
 
 #define PatternReturnStringListPrint \
 _PatternReturnStringList \
@@ -65,7 +70,7 @@ return Webss(stringList, WebssType::STRING_LIST);
 #define _PatternReturnStringListPrint \
 if (stringList == nullptr) \
 	return Webss(sb.str(), WebssType::PRINT_STRING); \
-stringList->push(sb.str());
+PatternPutLastString
 
 #define PatternReturnStringListPrint \
 _PatternReturnStringListPrint \
@@ -376,50 +381,62 @@ static void checkTypeSubstitution(const Webss& webss)
 #define checkTypeSubstitution(X)
 #endif
 
+static void checkSubstitutionBraces(Parser& parser, StringBuilder& sb, StringList*& stringList)
+{
+	auto& it = parser.getIt();
+	Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, false);
+	if (!skipJunk(it))
+		throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
+	if (*it != '}')
+	{
+		Webss webss = parser.parseValueOnly();
+		if (!skipJunk(it) || *it != '}')
+			throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
+		checkTypeSubstitution(webss);
+		pushStringList(stringList, sb, move(webss));
+		parser.getItSafe(); //make sure tag iterator is unsafe after parseValueOnly call
+	}
+	++it;
+}
+
 static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringList*& stringList)
 {
 	auto& it = parser.getIt();
 	if (!++it)
 		throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
+	const Entity* ent;
 	switch (*it)
 	{
 	case '0': case '1': case '2': case '3': case '4':
 	case '5': case '6': case '7': case '8': case '9':
-	case '_':
-		; //do something...
+		ent = &parser.getEntityManager().at(CHAR_SUBSTITUTION + parseSubstitutionNumber(it));
 		break;
-	case '{':
-	{
-		Parser::ContainerSwitcher switcher(parser, ConType::DICTIONARY, false);
-		if (!skipJunk(it))
-			throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
-		if (*it != '}')
-		{
-			Webss webss = parser.parseValueOnly();
-			if (!skipJunk(it) || *it != '}')
-				throw runtime_error(WEBSSON_EXCEPTION(ERROR_EXPECTED));
-			checkTypeSubstitution(webss);
-			pushStringList(stringList, sb, move(webss));
-			parser.getItSafe(); //make sure tag iterator is unsafe after parseValueOnly call
-		}
+	case CHAR_FOREACH_SUBST_PARAM:
+		ent = &parser.getEntityManager().at(string() + CHAR_SUBSTITUTION + CHAR_FOREACH_SUBST_PARAM);
 		++it;
 		break;
-	}
+	case '{':
+		checkSubstitutionBraces(parser, sb, stringList);
+		return;
 	default:
 		if (!isNameStart(*it))
 			throw runtime_error(WEBSSON_EXCEPTION("invalid substitution"));
-		const auto& ent = parser.getEntityManager().at(parseName(it));
-		checkTypeSubstitution(ent.getContent());
-		pushStringList(stringList, sb, ent);
+		ent = &parser.getEntityManager().at(parseName(it));
 		break;
 	}
+	checkTypeSubstitution(ent->getContent());
+	pushStringList(stringList, sb, *ent);
 }
 
 static void pushStringList(StringList*& stringList, StringBuilder& sb, StringItem item)
 {
 	if (stringList == nullptr)
 		stringList = new StringList();
-	stringList->push(sb.str());
-	sb.clear();
+	auto s = sb.str();
+	if (!s.empty())
+	{
+		stringList->push(move(s));
+		sb.clear();
+	}
 	stringList->push(move(item));
 }

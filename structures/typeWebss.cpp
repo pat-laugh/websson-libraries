@@ -57,6 +57,8 @@ const char* WebssType::toString() const
 		return "placeholder";
 	case WebssType::FOREACH:
 		return "foreach";
+	case WebssType::FOREACH_PARAM:
+		return "foreach param";
 #ifdef COMPILE_WEBSS
 	case WebssType::PRINT_STRING:
 		return "print string";

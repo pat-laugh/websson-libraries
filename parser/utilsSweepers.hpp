@@ -1,5 +1,5 @@
 //MIT License
-//Copyright 2017 Patrick Laughrea
+//Copyright 2017-2018 Patrick Laughrea
 #pragma once
 
 #include <functional>
@@ -43,4 +43,7 @@ namespace webss
 
 	//skips the char currently pointed by it, skips junk, then parses a name
 	std::string parseNameExplicit(TagIterator& tagit);
+	
+	//returns number; it must point to a decimal digit
+	std::string parseSubstitutionNumber(various::SmartIterator& it);
 }

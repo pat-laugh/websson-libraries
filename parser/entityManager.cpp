@@ -1,5 +1,5 @@
 //MIT License
-//Copyright 2017 Patrick Laughrea
+//Copyright 2017-2018 Patrick Laughrea
 #include "entityManager.hpp"
 
 #include "errors.hpp"
@@ -9,6 +9,8 @@ using namespace std;
 using namespace webss;
 
 static const char* ERROR_ENTITY_EXISTS = "entity already exists: ";
+
+static const Entity entNone("", Webss());
 
 EntityManager::EntityManager() {}
 EntityManager::~EntityManager() { clearAll(); }
@@ -60,6 +62,22 @@ const Entity& EntityManager::operator[](const string& name) const { return ents.
 
 Entity& EntityManager::at(const string& name) { return ents.at(name); }
 const Entity& EntityManager::at(const string& name) const { return ents.at(name); }
+
+const Entity& EntityManager::getOrNone(const string& name) const
+{
+	if (hasEntity(name))
+		return operator[](name);
+	return entNone;
+}
+
+void EntityManager::setOrAdd(const std::string& name, Webss content)
+{
+	Entity ent(name, move(content));
+	if (hasEntity(name))
+		operator[](name) = move(ent);
+	else
+		add(move(ent));
+}
 
 void EntityManager::remove(const string& name)
 {

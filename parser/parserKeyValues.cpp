@@ -8,8 +8,10 @@
 #include "parserStrings.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
+#include "various/utils.hpp"
 
 using namespace std;
+using namespace various;
 using namespace webss;
 
 static Thead foreachStmtOp(Entity("|", Thead(TheadStd(TheadStd::Params(shared_ptr<TheadStd::Params::Keymap>(new TheadStd::Params::Keymap({{"container", 0}})))), TheadOptions(false, true))));
@@ -84,10 +86,25 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 	case Tag::FOREACH:
 	{
 		++tagit;
+		bool oldForeachParamSet = foreachParamSet;
+		if (!oldForeachParamSet)
+		{
+			ents.setOrAdd(string() + CHAR_SUBSTITUTION + CHAR_FOREACH_SUBST_PARAM, Webss(&oldForeachParamSet, WebssType::FOREACH_PARAM));
+			foreachParamSet = true;
+		}
 		auto body =  parseTemplateBody(foreachStmtOp);
+		if (!oldForeachParamSet)
+		{
+			ents.remove(string() + CHAR_SUBSTITUTION + CHAR_FOREACH_SUBST_PARAM);
+			foreachParamSet = false;
+		}
 		//TODO: verify if thead contains a iterable items (list, string, int)
 		return Webss(new Webss(move(body)), WebssType::FOREACH);
 	}
+	case Tag::SUBSTITUTION:
+		//TODO: improve this
+		if (getIt().peekGood() && isDigitDec(getIt().peek()))
+			return Webss(ents.at(CHAR_SUBSTITUTION + parseSubstitutionNumber(++getItSafe())));
 	default:
 		throw runtime_error(WEBSSON_EXCEPTION(*tagit == Tag::NONE ? ERROR_EXPECTED : ERROR_UNEXPECTED));
 	}

@@ -7,6 +7,7 @@
 #include "errors.hpp"
 #include "utils/constants.hpp"
 #include "utils/utilsWebss.hpp"
+#include "various/utils.hpp"
 
 using namespace std;
 using namespace various;
@@ -185,4 +186,13 @@ string webss::parseNameExplicit(TagIterator& tagit)
 {
 	checkNameExplicit(tagit);
 	return parseName(tagit.getItSafe());
+}
+
+string webss::parseSubstitutionNumber(various::SmartIterator& it)
+{
+	string name;
+	do
+		name += *it;
+	while (++it && isDigitDec(*it));
+	return name;
 }

@@ -93,7 +93,7 @@ Webss::Webss(void* ptr, WebssType type) : type(type), ptr(ptr)
 	case WebssType::LIST: case WebssType::LIST_TEXT:
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
 	case WebssType::THEAD: case WebssType::TEMPLATE: case WebssType::PLACEHOLDER:
-	case WebssType::FOREACH:
+	case WebssType::FOREACH: case WebssType::FOREACH_PARAM:
 		break;
 	}
 #endif
@@ -105,6 +105,7 @@ void Webss::destroyUnion()
 	{
 	default: assert(false);
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL: case WebssType::PRIMITIVE_BOOL: case WebssType::PRIMITIVE_INT: case WebssType::PRIMITIVE_DOUBLE:
+	case WebssType::FOREACH_PARAM:
 		break;
 	case WebssType::ENTITY:
 		ent.~Entity();
@@ -164,6 +165,7 @@ void Webss::copyUnion(Webss&& o)
 	{
 	default: assert(false);
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
+	case WebssType::FOREACH_PARAM:
 		break;
 	case WebssType::ENTITY:
 		new (&ent) Entity(move(o.ent));
@@ -238,6 +240,7 @@ void Webss::copyUnion(const Webss& o)
 	{
 	default: assert(false);
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
+	case WebssType::FOREACH_PARAM:
 		break;
 	case WebssType::ENTITY:
 		new (&ent) Entity(o.ent);
@@ -312,6 +315,7 @@ bool Webss::operator==(const Webss& o) const
 	{
 	default: assert(false);
 	case WebssType::NONE: case WebssType::PRIMITIVE_NULL:
+	case WebssType::FOREACH_PARAM:
 		return true;
 	case WebssType::PRIMITIVE_BOOL:
 		return w1.tBool == w2.tBool;

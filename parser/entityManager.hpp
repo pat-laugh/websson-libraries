@@ -1,5 +1,5 @@
 //MIT License
-//Copyright 2017 Patrick Laughrea
+//Copyright 2017-2018 Patrick Laughrea
 #pragma once
 
 #include <set>
@@ -42,6 +42,9 @@ namespace webss
 
 		Entity& at(const std::string& name);
 		const Entity& at(const std::string& name) const;
+		
+		const Entity& getOrNone(const std::string& name) const;
+		void setOrAdd(const std::string& name, Webss content);
 
 		void remove(const std::string& name);
 		void remove(const Entity& ent);

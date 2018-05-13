@@ -15,6 +15,7 @@ namespace webss
 	const char CHAR_EXPAND = '^';
 	const char CHAR_EXPLICIT_NAME = '%';
 	const char CHAR_FOREACH = '|';
+	const char CHAR_FOREACH_SUBST_PARAM = '_';
 	const char CHAR_IMPORT = '@';
 	const char CHAR_OPTION = '#';
 	const char CHAR_OPTION_ASSIGN_LINE_STRING = CHAR_COLON;

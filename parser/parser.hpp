@@ -43,6 +43,7 @@ namespace webss
 		bool multilineContainer = true;
 		bool allowVoid = false;
 		std::string filename, docId;
+		bool foreachParamSet = false;
 
 		class ContainerSwitcher;
 
