@@ -87,11 +87,25 @@ Tag TagIterator::getTag()
 	case CHAR_END_LIST: return Tag::END_LIST;
 	case CHAR_END_TUPLE: return Tag::END_TUPLE;
 	case CHAR_END_TEMPLATE: return Tag::END_TEMPLATE;
-	case CHAR_ABSTRACT_ENTITY: return Tag::ENTITY_ABSTRACT;
+	case CHAR_ABSTRACT_ENTITY:
+#ifndef COMPILE_WEBSS
+		return Tag::ENTITY_ABSTRACT;
+#else
+		if (it.peekEnd() || it.peek() != CHAR_EQUAL)
+			return Tag::ENTITY_ABSTRACT;
+		return Tag::UNEQUALITY;
+#endif
 	case CHAR_COLON: return getTagColon(it);
 	case CHAR_CONCRETE_ENTITY: return Tag::ENTITY_CONCRETE;
 	case CHAR_CSTRING: return Tag::C_STRING;
-	case CHAR_EQUAL: return Tag::EQUAL;
+	case CHAR_EQUAL:
+#ifndef COMPILE_WEBSS
+		return Tag::EQUAL;
+#else
+		if (it.peekEnd() || it.peek() != CHAR_EQUAL)
+			return return Tag::EQUAL;
+		return Tag::EQUALITY;
+#endif
 	case CHAR_EXPAND: return Tag::EXPAND;
 	case CHAR_EXPLICIT_NAME: return Tag::EXPLICIT_NAME;
 	case CHAR_FOREACH: return Tag::FOREACH;
