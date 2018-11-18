@@ -103,7 +103,7 @@ Tag TagIterator::getTag()
 		return Tag::EQUAL;
 #else
 		if (it.peekEnd() || it.peek() != CHAR_EQUAL)
-			return return Tag::EQUAL;
+			return Tag::EQUAL;
 		return Tag::EQUALITY;
 #endif
 	case CHAR_EXPAND: return Tag::EXPAND;
