@@ -7,6 +7,8 @@ DIR_STRUCTURES = $(DIR_PROJECT)/structures
 DIR_PARSER = $(DIR_PROJECT)/parser
 DIR_VARIOUS = $(DIR_PROJECT)/various
 
+IS_MAC = $$(test "$$(uname -s)" = 'Darwin' && echo 1 || echo 0)
+
 OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers -I $(DIR_PROJECT) -DCOMPILE_WEBSS
 CPP_FILES = $(wildcard *.cpp)
 OBJ_FILES = $(notdir $(CPP_FILES:.cpp=.o))
@@ -21,7 +23,7 @@ compile_libs:
 	cd $(DIR_UTILS); make -s
 	cd $(DIR_STRUCTURES); make webssc -s
 	cd $(DIR_PARSER); \
-	if [ $(DISABLE_IMPORT) ]; then \
+	if [ -n "$(DISABLE_IMPORT)" ]; then \
 		make webssc_disable_import -s; \
 	else \
 		make webssc -s; \
@@ -31,20 +33,22 @@ compile_libs:
 $(EXEC): $(OBJ_FILES)
 	$(CXX) -o $@ $^ -L$(DIR_PARSER) -lparser \
 	$$( \
-		if [ $(DISABLE_IMPORT) ]; then \
+		if [ -n "$(DISABLE_IMPORT)" ]; then \
 			echo ''; \
 		else \
 			echo ' -lcurl'; \
-			if [ "$$(uname -s)" = "Darwin" ]; then \
-				echo '# Mac OS' > /dev/null; \
+			if [ $(IS_MAC) -eq 1 ]; then \
 				echo ' -L/opt/local/lib -lboost_filesystem-mt -lboost_system-mt'; \
 			else \
-				echo '# Linux' > /dev/null; \
 				echo ' -lboost_filesystem -lboost_system'; \
 			fi \
 		fi \
 	) \
 	-L$(DIR_STRUCTURES) -lstructures -L$(DIR_UTILS) -lutils -L$(DIR_VARIOUS) -lvarious
+	test $(IS_MAC) -eq 1 && \
+			for s in parser structures utils various; do \
+				install_name_tool -change lib$$s.so $$(pwd)/../$$s/lib$$s.so $(EXEC); \
+			done
 
 %.o: %.cpp
 	$(CXX) $(OPTIONS) -o $@ -c $<
