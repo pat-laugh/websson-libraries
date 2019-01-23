@@ -1,5 +1,5 @@
 //MIT License
-//Copyright 2017-2018 Patrick Laughrea
+//Copyright 2017-2019 Patrick Laughrea
 #include "parser.hpp"
 
 #include "errors.hpp"
@@ -14,7 +14,8 @@ using namespace std;
 using namespace various;
 using namespace webss;
 
-static Thead foreachStmtOp(Entity("|", Thead(TheadStd(TheadStd::Params(shared_ptr<TheadStd::Params::Keymap>(new TheadStd::Params::Keymap({{"container", 0}})))), TheadOptions(false, true))));
+//this says to have an entity Thead Standard with a Tuple thead as if <container> and with option Plus
+static const Thead FOREACH_STMT_OP(Entity("|", Thead(TheadStd(TheadStd::Params(shared_ptr<TheadStd::Params::Keymap>(new TheadStd::Params::Keymap({{"container", 0}})))), TheadOptions(false, true))));
 
 Webss Parser::parseValueEqual()
 {
@@ -86,18 +87,7 @@ Parser::OtherValue Parser::parseOtherValue(bool explicitName)
 	case Tag::FOREACH:
 	{
 		++tagit;
-		bool oldForeachParamSet = foreachParamSet;
-		if (!oldForeachParamSet)
-		{
-			ents.setOrAdd(string() + CHAR_SUBSTITUTION + CHAR_FOREACH_SUBST_PARAM, Webss(&oldForeachParamSet, WebssType::FOREACH_PARAM));
-			foreachParamSet = true;
-		}
-		auto body =  parseTemplateBody(foreachStmtOp);
-		if (!oldForeachParamSet)
-		{
-			ents.remove(string() + CHAR_SUBSTITUTION + CHAR_FOREACH_SUBST_PARAM);
-			foreachParamSet = false;
-		}
+		auto body = parseTemplateBody(FOREACH_STMT_OP);
 		//TODO: verify if thead contains a iterable items (list, string, int)
 		return Webss(new Webss(move(body)), WebssType::FOREACH);
 	}

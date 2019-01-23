@@ -1,5 +1,5 @@
 //MIT License
-//Copyright 2017 Patrick Laughrea
+//Copyright 2017-2019 Patrick Laughrea
 #include "parser.hpp"
 
 #include <cassert>
@@ -22,6 +22,11 @@ static void addEntityKeywords(EntityManager& ents)
 	addEntities(ents, { "N", "Nil", "None", "Null", "nil", "none", "null", "F", "False", "false", "T", "True", "true" }, Entity("", Webss()));
 }
 
+static void addEntitySubstitutes(EntityManager& ents)
+{
+	ents.add(string() + CHAR_SUBSTITUTION + CHAR_FOREACH_SUBST_PARAM, Webss(nullptr, WebssType::FOREACH_PARAM));
+}
+
 static TheadBin makeTheadBinKeyword(Keyword keyword)
 {
 	using Bhead = ParamBin::SizeHead;
@@ -40,6 +45,7 @@ static void addTheadBinEntityKeywords(EntityManager& ents, vector<const char*> n
 static void initEnts(EntityManager& ents)
 {
 	addEntityKeywords(ents);
+	addEntitySubstitutes(ents);
 	addTheadBinEntityKeywords(ents, { "B", "Bool", "bool" }, Keyword::BOOL);
 	addTheadBinEntityKeywords(ents, { "byte", "Byte" }, Keyword::INT8);
 	addTheadBinEntityKeywords(ents, { "short", "Short" }, Keyword::INT16);
