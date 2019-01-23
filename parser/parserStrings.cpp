@@ -15,12 +15,6 @@ using namespace webss;
 
 static const char* ERROR_MULTILINE_STRING = "multiline-string is not closed";
 
-#ifndef COMPILE_WEBSS
-#define checkEscapedChar(It, Sb, StrL) checkEscapedChar(It, Sb)
-#else
-#define checkEscapedChar(It, Sb, StrL) checkEscapedChar(It, Sb, StrL)
-#endif
-
 static void checkEscapedChar(SmartIterator& it, StringBuilder& sb, StringList*& stringList);
 static inline void putChar(SmartIterator& it, StringBuilder& sb);
 static bool isEnd(SmartIterator& it, function<bool()> endCondition);
@@ -91,19 +85,14 @@ string webss::parseStickyLineStringOption(Parser& parser)
 {
 	auto& it = parser.getItSafe();
 	StringBuilder sb;
-#ifdef COMPILE_WEBSS
 	StringList* stringList = nullptr;
-#endif
 	while (it && !isJunk(*it))
 	{
 		PatternCheckCharEscape;
 		putChar(it, sb);
 	}
-#ifdef COMPILE_WEBSS
 	PatternReturnStringListConcat;
-#else
 	return sb;
-#endif
 }
 
 Webss webss::parseLineString(Parser& parser)
@@ -290,7 +279,6 @@ static void checkEscapedChar(SmartIterator& it, StringBuilder& sb, StringList*& 
 	case 's': sb += ' '; break;
 	case 't': sb += '\t'; break;
 	case 'v': sb += '\v'; break;
-#ifdef COMPILE_WEBSS
 	case 'E':
 		pushStringList(stringList, sb, StringType::FUNC_NEWLINE_FLUSH);
 		break;
@@ -300,7 +288,6 @@ static void checkEscapedChar(SmartIterator& it, StringBuilder& sb, StringList*& 
 	case 'N':
 		pushStringList(stringList, sb, StringType::FUNC_NEWLINE);
 		break;
-#endif
 	default:
 		if (!isSpecialAscii(*it))
 			throw runtime_error(WEBSSON_EXCEPTION("invalid char escape"));
@@ -344,16 +331,12 @@ static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> e
 	return true;
 }
 
-#ifndef COMPILE_WEBSS
 static void checkTypeSubstitution(const Webss& webss)
 {
 	auto type = webss.getType();
 	if (type != WebssType::PRIMITIVE_STRING && type != WebssType::STRING_LIST)
 		throw runtime_error(WEBSSON_EXCEPTION("entity to substitute must be a string"));
 }
-#else
-#define checkTypeSubstitution(X)
-#endif
 
 static void checkSubstitutionBraces(Parser& parser, StringBuilder& sb, StringList*& stringList)
 {

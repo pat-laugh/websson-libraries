@@ -6,18 +6,13 @@
 #include <vector>
 
 #include "entity.hpp"
-#ifdef COMPILE_WEBSS
-#include "base.hpp"
-#endif
 
 namespace webss
 {
 	enum class StringType
 	{
 		NONE, STRING, ENT_STATIC, WEBSS,
-#ifdef COMPILE_WEBSS
 		ENT_DYNAMIC, FUNC_FLUSH, FUNC_NEWLINE, FUNC_NEWLINE_FLUSH,
-#endif
 	};
 
 	class StringItem
@@ -37,11 +32,8 @@ namespace webss
 		StringItem(std::string&& s);
 		StringItem(const Entity& ent);
 		StringItem(Webss webss);
-
-#ifdef COMPILE_WEBSS
 		StringItem(StringType t);
 		static StringItem makeEntDynamic(const Entity& ent) { return StringItem(ent, true); }
-#endif
 
 		StringType getTypeRaw() const;
 		const std::string& getStringRaw() const;
@@ -57,9 +49,7 @@ namespace webss
 			Webss* webss;
 		};
 
-#ifdef COMPILE_WEBSS
 		StringItem(const Entity& ent, bool);
-#endif
 
 		void destroyUnion();
 		void copyUnion(StringItem&& o);

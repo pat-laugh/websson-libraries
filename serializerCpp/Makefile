@@ -9,7 +9,7 @@ DIR_VARIOUS = $(DIR_PROJECT)/various
 
 IS_MAC = $$(test "$$(uname -s)" = 'Darwin' && echo 1 || echo 0)
 
-OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers -I $(DIR_PROJECT) -DCOMPILE_WEBSS
+OPTIONS = -std=c++11 -Wall -Wextra -Wno-missing-field-initializers -I $(DIR_PROJECT)
 CPP_FILES = $(wildcard *.cpp)
 OBJ_FILES = $(notdir $(CPP_FILES:.cpp=.o))
 EXEC = webssc.out
@@ -21,12 +21,12 @@ disable_import: compile_libs $(EXEC)
 
 compile_libs:
 	cd $(DIR_UTILS); make -s
-	cd $(DIR_STRUCTURES); make webssc -s
+	cd $(DIR_STRUCTURES); make -s
 	cd $(DIR_PARSER); \
 	if [ -n "$(DISABLE_IMPORT)" ]; then \
-		make webssc_disable_import -s; \
+		make disable_import -s; \
 	else \
-		make webssc -s; \
+		make -s; \
 	fi
 	cd $(DIR_VARIOUS); make -s
 

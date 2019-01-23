@@ -35,6 +35,3 @@ clean:
 
 debug: OPTIONS += -DNDEBUG -g3
 debug: all
-
-webssc: OPTIONS += -DCOMPILE_WEBSS
-webssc: all
