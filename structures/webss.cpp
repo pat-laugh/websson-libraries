@@ -57,9 +57,6 @@ Webss::Webss(double tDouble) : type(WebssType::PRIMITIVE_DOUBLE), tDouble(tDoubl
 
 Webss::Webss(const char* s) : type(WebssType::PRIMITIVE_STRING), tString(new string(s)) {}
 Webss::Webss(string s) : type(WebssType::PRIMITIVE_STRING), tString(new string(move(s))) {}
-#ifdef COMPILE_WEBSS
-Webss::Webss(string s, WebssType type) : type(type), tString(new string(move(s))) {}
-#endif
 Webss::Webss(StringList s) : type(WebssType::STRING_LIST), stringList(new StringList(move(s))) {}
 
 Webss::Webss(Document document) : type(WebssType::DOCUMENT), document(new Document(move(document))) {}
@@ -86,9 +83,6 @@ Webss::Webss(void* ptr, WebssType type) : type(type), ptr(ptr)
 	{
 	default: assert(false);
 	case WebssType::PRIMITIVE_STRING: case WebssType::STRING_LIST:
-#ifdef COMPILE_WEBSS
-	case WebssType::PRINT_STRING: case WebssType::PRINT_STRING_LIST:
-#endif
 	case WebssType::DOCUMENT: case WebssType::DICTIONARY:
 	case WebssType::LIST: case WebssType::LIST_TEXT:
 	case WebssType::TUPLE: case WebssType::TUPLE_TEXT:
@@ -114,15 +108,9 @@ void Webss::destroyUnion()
 		tDefault.~shared_ptr();
 		break;
 	case WebssType::PRIMITIVE_STRING:
-#ifdef COMPILE_WEBSS
-	case WebssType::PRINT_STRING:
-#endif
 		delete tString;
 		break;
 	case WebssType::STRING_LIST:
-#ifdef COMPILE_WEBSS
-	case WebssType::PRINT_STRING_LIST:
-#endif
 		delete stringList;
 		break;
 	case WebssType::DOCUMENT:
@@ -186,15 +174,9 @@ void Webss::copyUnion(Webss&& o)
 		break;
 
 	case WebssType::PRIMITIVE_STRING:
-#ifdef COMPILE_WEBSS
-	case WebssType::PRINT_STRING:
-#endif
 		tString = o.tString;
 		break;
 	case WebssType::STRING_LIST:
-#ifdef COMPILE_WEBSS
-	case WebssType::PRINT_STRING_LIST:
-#endif
 		stringList = o.stringList;
 		break;
 	case WebssType::DOCUMENT:
@@ -259,15 +241,9 @@ void Webss::copyUnion(const Webss& o)
 		break;
 
 	case WebssType::PRIMITIVE_STRING:
-#ifdef COMPILE_WEBSS
-	case WebssType::PRINT_STRING:
-#endif
 		tString = new string(*o.tString);
 		break;
 	case WebssType::STRING_LIST:
-#ifdef COMPILE_WEBSS
-	case WebssType::PRINT_STRING_LIST:
-#endif
 		stringList = new StringList(*o.stringList);
 		break;
 	case WebssType::DOCUMENT:
@@ -324,14 +300,8 @@ bool Webss::operator==(const Webss& o) const
 	case WebssType::PRIMITIVE_DOUBLE:
 		return w1.tDouble == w2.tDouble;
 	case WebssType::PRIMITIVE_STRING:
-#ifdef COMPILE_WEBSS
-	case WebssType::PRINT_STRING:
-#endif
 		return *w1.tString == *w2.tString;
 	case WebssType::STRING_LIST:
-#ifdef COMPILE_WEBSS
-	case WebssType::PRINT_STRING_LIST:
-#endif
 		return *w1.stringList == *w2.stringList;
 	case WebssType::DOCUMENT:
 		return *w1.document == *w2.document;
@@ -476,28 +446,8 @@ const Thead& Webss::getThead() const { PatternGetConstSafe(WebssType::THEAD, get
 const Template& Webss::getTemplate() const { PatternGetConstSafe(WebssType::TEMPLATE, getTemplateRaw); }
 const Namespace& Webss::getNamespace() const { PatternGetConstSafe(WebssType::NAMESPACE, getNamespaceRaw); }
 const Enum& Webss::getEnum() const { PatternGetConstSafe(WebssType::ENUM, getEnumRaw); }
-
-#ifndef COMPILE_WEBSS
 const std::string& Webss::getString() const { PatternGetConstSafe(WebssType::PRIMITIVE_STRING, getStringRaw); }
 const StringList& Webss::getStringList() const { PatternGetConstSafe(WebssType::STRING_LIST, getStringListRaw); }
-#else
-const std::string& Webss::getString() const
-{
-	const auto& webss = getWebssLast();
-	const auto type = webss.getTypeRaw();
-	if (type == WebssType::PRIMITIVE_STRING || type == WebssType::PRINT_STRING)
-		return webss.getStringRaw();
-	throw runtime_error(errorMessageGet(WebssType::PRIMITIVE_STRING, type));
-}
-const StringList& Webss::getStringList() const
-{
-	const auto& webss = getWebssLast();
-	const auto type = webss.getTypeRaw();
-	if (type == WebssType::STRING_LIST || type == WebssType::PRINT_STRING_LIST)
-		return webss.getStringListRaw();
-	throw runtime_error(errorMessageGet(WebssType::STRING_LIST, type));
-}
-#endif
 
 const List& Webss::getList() const
 {
@@ -523,10 +473,6 @@ bool Webss::isInt() const { return getType() == WebssType::PRIMITIVE_INT; }
 bool Webss::isDouble() const { return getType() == WebssType::PRIMITIVE_DOUBLE; }
 bool Webss::isString() const { return getType() == WebssType::PRIMITIVE_STRING; }
 bool Webss::isStringList() const { return getType() == WebssType::STRING_LIST; }
-#ifdef COMPILE_WEBSS
-bool Webss::isPrintString() const { return getType() == WebssType::PRINT_STRING; }
-bool Webss::isPrintStringList() const { return getType() == WebssType::PRINT_STRING_LIST; }
-#endif
 bool Webss::isDocument() const { return getType() == WebssType::DOCUMENT; }
 bool Webss::isDictionary() const { return getType() == WebssType::DICTIONARY; }
 bool Webss::isNamespace() const { return getType() == WebssType::NAMESPACE; }
@@ -580,13 +526,8 @@ const Placeholder& Webss::getPlaceholderRaw() const { assert(getTypeRaw() == Web
 bool Webss::getBoolRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_BOOL); return tBool; }
 WebssInt Webss::getIntRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_INT); return tInt; }
 double Webss::getDoubleRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_DOUBLE); return tDouble; }
-#ifndef COMPILE_WEBSS
 const std::string& Webss::getStringRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_STRING); return *tString; }
 const StringList& Webss::getStringListRaw() const { assert(getTypeRaw() == WebssType::STRING_LIST); return *stringList; }
-#else
-const std::string& Webss::getStringRaw() const { assert(getTypeRaw() == WebssType::PRIMITIVE_STRING || getTypeRaw() == WebssType::PRINT_STRING); return *tString; }
-const StringList& Webss::getStringListRaw() const { assert(getTypeRaw() == WebssType::STRING_LIST || getTypeRaw() == WebssType::PRINT_STRING_LIST); return *stringList; }
-#endif
 const Document& Webss::getDocumentRaw() const { assert(getTypeRaw() == WebssType::DOCUMENT); return *document; }
 const Dictionary& Webss::getDictionaryRaw() const { assert(getTypeRaw() == WebssType::DICTIONARY); return *dict; }
 const List& Webss::getListRaw() const { assert(getTypeRaw() == WebssType::LIST || getTypeRaw() == WebssType::LIST_TEXT); return *list; }
@@ -600,13 +541,8 @@ Namespace& Webss::getNamespaceRaw() { assert(getTypeRaw() == WebssType::NAMESPAC
 Enum& Webss::getEnumRaw() { assert(getTypeRaw() == WebssType::ENUM); return tEnum; }
 Placeholder& Webss::getPlaceholderRaw() { assert(getTypeRaw() == WebssType::PLACEHOLDER); return *placeholder; }
 
-#ifndef COMPILE_WEBSS
 std::string& Webss::getStringRaw() { assert(getTypeRaw() == WebssType::PRIMITIVE_STRING); return *tString; }
 StringList& Webss::getStringListRaw() { assert(getTypeRaw() == WebssType::STRING_LIST); return *stringList; }
-#else
-std::string& Webss::getStringRaw() { assert(getTypeRaw() == WebssType::PRIMITIVE_STRING || getTypeRaw() == WebssType::PRINT_STRING); return *tString; }
-StringList& Webss::getStringListRaw() { assert(getTypeRaw() == WebssType::STRING_LIST || getTypeRaw() == WebssType::PRINT_STRING_LIST); return *stringList; }
-#endif
 
 Document& Webss::getDocumentRaw() { assert(getTypeRaw() == WebssType::DOCUMENT); return *document; }
 Dictionary& Webss::getDictionaryRaw() { assert(getTypeRaw() == WebssType::DICTIONARY); return *dict; }

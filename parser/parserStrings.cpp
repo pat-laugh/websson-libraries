@@ -15,7 +15,6 @@ using namespace webss;
 
 static const char* ERROR_MULTILINE_STRING = "multiline-string is not closed";
 
-
 #ifndef COMPILE_WEBSS
 #define checkEscapedChar(It, Sb, StrL) checkEscapedChar(It, Sb)
 #else
@@ -28,7 +27,6 @@ static bool isEnd(SmartIterator& it, function<bool()> endCondition);
 static bool hasNextChar(SmartIterator& it, StringBuilder& sb, function<bool()> endCondition = []() { return false; });
 static void checkStringSubstitution(Parser& parser, StringBuilder& sb, StringList*& stringList);
 static void pushStringList(StringList*& stringList, StringBuilder& sb, StringItem item);
-
 
 #define PatternCheckCharEscape \
 if (*it == CHAR_ESCAPE) { checkEscapedChar(it, sb, stringList); continue; }
@@ -53,30 +51,6 @@ return stringList->concat();
 #define PatternReturnStringList \
 _PatternReturnStringList \
 return Webss(stringList, WebssType::STRING_LIST);
-
-#ifndef COMPILE_WEBSS
-
-#define _PatternReturnStringListPrint \
-if (stringList == nullptr) \
-	return sb.str(); \
-PatternPutLastString
-
-#define PatternReturnStringListPrint \
-_PatternReturnStringList \
-return Webss(stringList, WebssType::STRING_LIST);
-
-#else
-
-#define _PatternReturnStringListPrint \
-if (stringList == nullptr) \
-	return Webss(sb.str(), WebssType::PRINT_STRING); \
-PatternPutLastString
-
-#define PatternReturnStringListPrint \
-_PatternReturnStringListPrint \
-return Webss(stringList, WebssType::PRINT_STRING_LIST);
-
-#endif
 
 string webss::parseStickyLineString(Parser& parser)
 {
@@ -158,7 +132,7 @@ Webss webss::parseLineString(Parser& parser)
 			putChar(it, sb);
 		}
 	}
-	PatternReturnStringListPrint;
+	PatternReturnStringList;
 }
 
 static Webss parseMultilineStringRegularMultiline(Parser& parser)
@@ -190,7 +164,7 @@ loopStart:
 	if (*it == CHAR_END_DICTIONARY && countStartEnd-- == 0)
 	{
 		++it;
-		PatternReturnStringListPrint;
+		PatternReturnStringList;
 	}
 	if (addSpace)
 		sb += ' ';
@@ -238,7 +212,7 @@ innerLoop:
 	if (countStartEnd == 0)
 	{
 		++it;
-		PatternReturnStringListPrint;
+		PatternReturnStringList;
 	}
 	if (!it || !skipJunkToValid(++it))
 		throw runtime_error(WEBSSON_EXCEPTION(ERROR_MULTILINE_STRING));

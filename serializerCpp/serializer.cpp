@@ -21,8 +21,7 @@ using namespace various;
 
 static bool typeIsString(WebssType type)
 {
-	return type == WebssType::PRIMITIVE_STRING || type == WebssType::PRINT_STRING
-		|| type == WebssType::STRING_LIST || type == WebssType::PRINT_STRING_LIST;
+	return type == WebssType::PRIMITIVE_STRING || type == WebssType::STRING_LIST;
 }
 
 SerializerCpp::SerializerCpp() {}
@@ -164,12 +163,12 @@ void SerializerCpp::putCommand(StringBuilder& out, const Webss& webss)
 {
 	switch (webss.getTypeRaw())
 	{
-	case WebssType::PRINT_STRING:
+	case WebssType::PRIMITIVE_STRING:
 		out += "std::cout << ";
 		putString(out, webss.getStringRaw());
 		putEndCmd(out);
 		break;
-	case WebssType::PRINT_STRING_LIST:
+	case WebssType::STRING_LIST:
 	{
 		bool putStart = true;
 		for (const auto& item : webss.getStringListRaw().getItems())
@@ -282,10 +281,10 @@ void SerializerCpp::putConcreteValue(StringBuilder& out, const Webss& webss)
 	case WebssType::PRIMITIVE_DOUBLE:
 		out += to_string(webss.getDouble());
 		break;
-	case WebssType::PRIMITIVE_STRING: case WebssType::PRINT_STRING:
+	case WebssType::PRIMITIVE_STRING:
 		putString(out, webss.getStringRaw());
 		break;
-	case WebssType::STRING_LIST: case WebssType::PRINT_STRING_LIST:
+	case WebssType::STRING_LIST:
 		putStringList(out, webss.getStringList());
 		break;
 	case WebssType::ENTITY:
@@ -316,10 +315,10 @@ void SerializerCpp::putConcreteType(StringBuilder& out, Webss webss)
 	case WebssType::PRIMITIVE_DOUBLE:
 		out += "double";
 		break;
-	case WebssType::PRIMITIVE_STRING: case WebssType::PRINT_STRING:
+	case WebssType::PRIMITIVE_STRING:
 		out += "std::string";
 		break;
-	case WebssType::STRING_LIST: case WebssType::PRINT_STRING_LIST:
+	case WebssType::STRING_LIST:
 		out += "std::string";
 		break;
 	default:

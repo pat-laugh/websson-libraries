@@ -43,9 +43,6 @@ namespace webss
 
 		Webss(const char* s);
 		Webss(std::string s);
-#ifdef COMPILE_WEBSS
-		Webss(std::string s, WebssType type);
-#endif
 		Webss(StringList s);
 
 		Webss(Document document);
@@ -146,10 +143,6 @@ namespace webss
 		bool isDouble() const;
 		bool isString() const;
 		bool isStringList() const;
-#ifdef COMPILE_WEBSS
-		bool isPrintString() const;
-		bool isPrintStringList() const;
-#endif
 		bool isDocument() const;
 		bool isDictionary() const;
 		bool isList() const;
