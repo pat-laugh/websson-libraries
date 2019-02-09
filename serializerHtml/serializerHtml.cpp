@@ -27,12 +27,12 @@ SerializerHtml::SerializerHtml() {}
 
 void SerializerHtml::putDocument(StringBuilder& out, const Document& doc)
 {
-	out += "<!DOCTYPE html>";
+/*	out += "<!DOCTYPE html>";
 	out += "<html>";
-	out += "<meta charset=\"utf-8\">";
+	out += "<meta charset=\"utf-8\">"; */
 	for (const auto& item : doc.getBody())
 		putConcreteValue(out, item);
-	out += "</html>";
+//	out += "</html>";
 }
 
 void SerializerHtml::putQuotableValue(StringBuilder& out, const Webss& value)
